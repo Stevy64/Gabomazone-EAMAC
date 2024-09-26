@@ -1,0 +1,407 @@
+ {% extends 'supplier-panel/supplier-base.html' %}
+ {%load static%}
+{%block section %}
+            <section class="content-main">
+                <form method="post" enctype="multipart/form-data" onsubmit="return Validate(this);">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="content-header">
+                                <h2 class="content-title">Add New Product</h2>
+                                <div>
+                  
+                                    
+                                    {% comment %} <button type="submit" class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> {% endcomment %}
+                                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Publich</button>
+                                </div>
+                                
+                            </div>
+                            {% if messages %}
+                    {% for message in messages %}
+      
+                    <div    class="alert align-middle alert-{{message.tags}}">
+                       
+                        <span class="align-middle"> {{message}}</span>
+                    </div>
+      
+                    {% endfor %}
+                    {% endif %}
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4>Basic</h4>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="mb-4">
+                                            <label for="product_name" class="form-label">Product title</label>
+                                            <input type="text" name="product_name" maxlength="99"  placeholder="Type here" class="form-control" id="product_name" required/>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label">Description</label>
+                                            <textarea name="introduction" placeholder="Type here" class="ckeditor form-control" rows="4" required></textarea>
+                                        </div>
+                                        <div class="row">
+                                            <label class="form-check mb-4">
+                                                <input id="discounted" name="checkbox" class="form-check-input" type="checkbox" value="1" />
+                                                <span class="form-check-label">Product Has Discounts</span>
+                                            </label>
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Price</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="$" name="price" type="number" step="0.01" min="0"  class="form-control" required/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="discount_box" class="col-lg-4 not-visible">
+                                                <div class="mb-4">
+                                                    <label class="form-label"> Price before  discount</label>
+                                                    <input placeholder="$" name="discount" type="number"  step="0.01" min="0" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label class="form-label">Currency</label>
+                                                <select class="form-select">
+                                                    <option>USD</option>
+                                                  
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                      
+
+                                        {% comment %} <div class="mb-4">
+                                            <label class="form-label">Full description</label>
+                                            <textarea name="description" placeholder="Type here" class="form-control" rows="4"></textarea>
+                                        </div> {% endcomment %}
+
+                                        <div class="row">
+                                           
+                                            <div class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label">Available</label>
+                                                    <div class="row gx-2">
+                                                        <input placeholder="quantity in stock" name="available" type="number" class="form-control" min="0" required/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="discount_box" class="col-lg-4">
+                                                <div class="mb-4">
+                                                    <label class="form-label"> Pieces/Set</label>
+                                                    <input placeholder="quantity for Pieces" name="pieces" type="number"  min="0"  class="form-control"required />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <label class="form-label">Promotional</label>
+                                                <select name="promotional" class="form-select">
+                                                    <option value="New">New</option>
+                                                    <option value="Hot">Hot</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="form-label">Content</label>
+                                            <textarea name="content" placeholder="Type here" class="ckeditor form-control" rows="4" required></textarea>
+                                        </div>
+                                
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4>Dimensions</h4>
+                                </div>
+                                <div class="card-body">
+                                
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="mb-4">
+                                                    <label for="product_name" class="form-label">Width</label>
+                                                    <input type="text" placeholder="inch" name="width" class="form-control" id="product_name" />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="mb-4">
+                                                    <label for="product_name" class="form-label">Height</label>
+                                                    <input type="text" placeholder="inch" name="height" class="form-control" id="product_name" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                      <div class="row"> 
+                                        <div class="col-lg-4">
+                                            <div class="mb-4">
+                                                <label class="form-label">Weight</label>
+                                                <input placeholder="gam" name="weight" type="text" class="form-control" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="form-label">Product status </label>
+                                            <select name="product_status" class="form-select">
+                                                <option value="1">Active</option>
+                                                <option value="0">Inactive</option>
+                                            </select>
+                                        </div> 
+                                        <div class="col-lg-4">
+                                            <div class="mb-4">
+                                                <label class="form-label">SKU</label>
+                                                <input placeholder="Product SKU" name="SKU" type="text" class="form-control" />
+                                            </div>
+                                        </div> 
+                                       
+                                      </div>
+                                        
+
+                                        <div class="card mb-4">
+                                            <div class="card-header">
+                                                <h4>Additional Images</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="input-upload">
+                                                    <img id="url-img-1"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
+                                                    <input id="id_image_1"  name="name_image_1" class="form-control" type="file" accept="image/*" />
+                                                    <img id="url-img-2"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
+                                                    <input id="id_image_2"  name="name_image_2" class="form-control" type="file" accept="image/*" />
+                                                    <img id="url-img-3"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
+                                                    <input id="id_image_3"  name="name_image_3" class="form-control" type="file" accept="image/*"  />
+                                                    <img id="url-img-4"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
+                                                    <input id="id_image_4"  name="name_image_4" class="form-control" type="file" accept="image/*"  />
+                                                </div>
+                                            </div>
+                                        </div>
+                                
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4>Main Image</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="input-upload">
+                                        <img id="url-img"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
+                                        <input id="id_image"  name="main_image" class="form-control" type="file" accept="image/*" required/>
+                                    </div>
+                                </div>
+                                <div class="card-header">
+                                    <label class="form-check mb-4">
+                                        <input id="digital_file" name="checkbox" class="form-check-input" type="checkbox" value="2" />
+                                        <span class="form-check-label">Your Product Has Digital File ?</span>
+                                    </label>
+                                </div>
+                                <div class="not-visible card-body" id="digital_file_box">
+                                    <div class="input-upload">
+                                        <img   width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload-file.svg'%}" alt="" />
+                                        <p>allowed extension are zip , rar</p>
+                                        <input   name="digital_file" class="form-control" type="file" accept="file/*" />
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h4>Categories</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row gx-2">
+                                        <div class="col-sm-12 mb-3">
+                                            
+                                            <div class="mb-4">
+                                                <label class="form-label">Super Category</label>
+                                                <select id="super_category" name="super_category_value" class="form-select super_category">
+                                                    {% for super in super_category%}
+                                                    <option value="{{super.id}}"> {{super.name}} </option>
+                                                    {%endfor%}
+                                                    
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label class="form-label">Main Category</label>
+                                                <select id="main_category" name="main_category_value"  class="form-select main_category">
+                                                    <!-- {% for main in main_category%}
+                                                    <option value="{{main.id}}"> {{main.name}} </option>
+                                                    {%endfor%} -->
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label class="form-label">Sub Category</label>
+                                                <select id="sub_category" name="sub_category_value" class="form-select sub_category">
+                                                    <!-- {% for sub in sub_category%}
+                                                        <option value="{{sub.id}}"> {{sub.name}} </option>
+                                                    {%endfor%} -->
+                                                </select>
+                                            </div>
+
+
+                                            <div class="mb-4">
+                                                <label class="form-label">Mini Category</label>
+                                                <select id="mini_category" name="mini_category_value" class="form-select mini_category">
+                                                    <!-- {% for mini in mini_category%}
+                                                        <option value="{{mini.id}}"> {{mini.name}} </option>
+                                                    {%endfor%} -->
+                                                </select>
+                                            </div>
+                                        
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label for="product_name" class="form-label">Tags</label>
+                                            <input type="text" name="tags" maxlength="90" class="form-control" />
+                                        </div>
+                                        <h5 class="mb-3">Product Variations</h5>
+                                       <hr>
+                                       <h5 class="mb-3">Product Size</h5>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="XXS" value="XXS" id="product-cat">
+                                           <label class="form-check-label" for="product-cat"> XXS </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="XS" value="XS"id="product-cat1">
+                                           <label class="form-check-label" for="product-cat"> XS </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="S" value="S" id="product-cat2">
+                                           <label class="form-check-label" for="product-cat"> S </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="M" value="M" id="product-cat3">
+                                           <label class="form-check-label" for="product-cat"> M </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="L" value="L" id="product-cat4">
+                                           <label class="form-check-label" for="product-cat"> L </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="XL" value="XL" id="product-cat5">
+                                           <label class="form-check-label" for="product-cat"> XL </label>
+                                       </div>
+                                       <div class="form-check">
+                                           <input class="form-check-input" type="checkbox" name="XXL" value="XXL" id="product-cat6">
+                                           <label class="form-check-label" for="product-cat"> XXL </label>
+                                       </div>
+
+                                    </div>
+                                
+                                    <!-- row.// -->
+                                </div>
+                            </div>
+                            <!-- card end// -->
+                        </div>
+                    </div>
+                </form>
+            </section>
+{%endblock section%}
+
+{%block script%}
+<script>
+
+    var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png" , "zip" , "rar"];    
+    function Validate(oForm) {
+        var arrInputs = oForm.getElementsByTagName("input");
+        for (var i = 0; i < arrInputs.length; i++) {
+            var oInput = arrInputs[i];
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    for (var j = 0; j < _validFileExtensions.length; j++) {
+                        var sCurExtension = _validFileExtensions[j];
+                        if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                            blnValid = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!blnValid) {
+                        alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                        return false;
+                    }
+                }
+            }
+        }
+    
+        return true;
+    }
+
+
+    const image = document.getElementById('id_image')
+   
+    image.addEventListener('change', () => {
+        const img_data = image.files[0]
+        
+        const url = URL.createObjectURL(img_data)
+        document.getElementById("url-img").src = url
+    })
+
+    const image_1 = document.getElementById('id_image_1')
+   
+    image_1.addEventListener('change', () => {
+        const img_data = image_1.files[0]
+        
+        const url = URL.createObjectURL(img_data)
+        document.getElementById("url-img-1").src = url
+    })
+
+    const image_2 = document.getElementById('id_image_2')
+   
+    image_2.addEventListener('change', () => {
+        const img_data = image_2.files[0]
+        
+        const url = URL.createObjectURL(img_data)
+        document.getElementById("url-img-2").src = url
+    })
+
+
+    const image_3 = document.getElementById('id_image_3')
+   
+    image_3.addEventListener('change', () => {
+        const img_data = image_3.files[0]
+        
+        const url = URL.createObjectURL(img_data)
+        document.getElementById("url-img-3").src = url
+    })    
+
+
+    const image_4 = document.getElementById('id_image_4')
+   
+    image_4.addEventListener('change', () => {
+        const img_data = image_4.files[0]
+        
+        const url = URL.createObjectURL(img_data)
+        document.getElementById("url-img-4").src = url
+    }) 
+    const discounted = document.getElementById("discounted")
+    const discountBox = document.getElementById("discount_box")
+    discounted.addEventListener('change', function() {
+        if (this.checked) {
+          
+          discountBox.classList.remove("not-visible");
+        } else {
+          
+          discountBox.classList.add("not-visible");
+        }
+      });
+      
+    const digitalFile = document.getElementById("digital_file")
+    const digitalFileBox = document.getElementById("digital_file_box")
+    digitalFile.addEventListener('change', function() {
+        if (this.checked) {
+           
+            digitalFileBox.classList.remove("not-visible");
+        } else {
+           
+            digitalFileBox.classList.add("not-visible");
+        }
+    });
+</script>
+<script src="{% static 'assets-supplier/js/get-category.js'%}" type="text/javascript"></script> 
+<script src="//cdn.ckeditor.com/4.18.0/basic/ckeditor.js"></script>
+ 
+{%endblock script%}

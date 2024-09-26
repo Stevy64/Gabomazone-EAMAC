@@ -1,0 +1,113 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+{%block section %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products List</h2>
+            <div id="product-num" class="totall-product">
+                <p>We found <strong class="text-brand">0</strong> items for you!</p>
+            </div>
+           
+        </div>
+        {% if messages %}
+        {% for message in messages %}
+
+        <div    class="alert align-middle alert-{{message.tags}}">
+           
+            <span class="align-middle"> {{message}}</span>
+        </div>
+
+        {% endfor %}
+        {% endif %}
+        <div>
+            <!-- <a href="#" class="btn btn-light rounded font-md">Export</a>
+            <a href="#" class="btn btn-light rounded font-md">Import</a> -->
+            <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn btn-primary btn-sm rounded">Add product</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row align-items-center">
+              
+               
+                <div class="col-md-2 col-7 me-auto mb-md-0 ">
+                    <select class="form-select mySelect" id="mySelect">
+                        <option value="-date" selected>Date, new to old</option>
+                        <option value="date">Date, old to new</option>
+                        <option value="PRDPrice">Price, low to high</option>
+                        <option value="-PRDPrice">Price, high to low</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-5">
+                    <select class="form-select select-status" id="select-status">
+                        <option value="All" selected>Show all</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                       
+                    </select>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div id="products-list" class="card-body">
+            {% comment %} <article class="itemlist">
+                <div class="row align-items-center">
+                    <div class="col col-check flex-grow-0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                        <a class="itemside" href="#">
+                            <div class="left">
+                                <img src="{% static 'assets-supplier/imgs/items/1.jpg'%}"  class="img-sm img-thumbnail" alt="Item" />
+                            </div>
+                            <div class="info">
+                                <h6 class="mb-0">Seeds of Change Organic Quinoa</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-price"><span>$34.50</span></div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-status">
+                        <span class="badge rounded-pill alert-success">Active</span>
+                    </div>
+                    <div class="col-lg-1 col-sm-2 col-4 col-date">
+                        <span>02.11.2021</span>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                        <a href="#" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i> Edit </a>
+                        <a href="#" class="btn btn-sm font-sm btn-light rounded"> <i class="material-icons md-delete_forever"></i> Delete </a>
+                    </div>
+                </div>
+                <!-- row .// -->
+            </article> {% endcomment %}
+            <!-- itemlist  .// -->
+
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-30 mb-50">
+        <nav aria-label="Page navigation example">
+            <div id="spinner-box" class="not-visible  text-center">
+                <div class="spinner-border" role="status">
+                  <span class="sr-only"></span>
+                </div>
+              </div>
+              <div id="empty-box" class="not-visible  text-center">
+                
+              </div>
+
+            <div id ="loading-box" class="text-center">
+                <button id="load-btn" type="button" class="btn btn-primary">Load More</button>
+                
+              </div>
+        </nav>
+    </div>
+</section>
+{%endblock section%}
+
+{%block script%}
+    <script src="{% static 'assets-supplier/js/products-list.js'%}" type="text/javascript"></script>
+{%endblock script%}

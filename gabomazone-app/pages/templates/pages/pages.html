@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{%block body%}
+
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Pages <span></span> {{page.name}}
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div class="single-page pr-30 mb-lg-0 mb-sm-5">
+                                <div class="single-header style-2">
+                                    <h2>{{page.name}}</h2>
+                                    <!-- <div class="entry-meta meta-1 meta-3 font-xs mt-15 mb-15">
+                                        <span class="post-by">By <a href="#">Jonh</a></span>
+                                        <span class="post-on has-dot">9 April 2020</span>
+                                        <span class="time-reading has-dot">8 mins read</span>
+                                        <span class="hit-count has-dot">29k Views</span>
+                                    </div> -->
+                                </div>
+                                <div class="single-content mb-50">
+                                    {{page.content|safe}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 primary-sidebar sticky-sidebar">
+                            <div class="widget-area">
+                            
+                               <!-- Product sidebar Widget -->
+                                <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
+                                    <h5 class="section-title style-1 mb-30">New products</h5>
+                                    {% for new_product in new_products %}
+                                    <div class="single-post clearfix">
+                                        <div class="image">
+                                            <img src="{{new_product.product_image.url}}" width="80" height="80" style="width:80px;height:80px;" alt="{{new_product.product_name}}" />
+                                        </div>
+                                        <div class="content pt-10">
+                                            <h6><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h6>
+                                            <p class="price mb-0 mt-5">${{new_product.PRDPrice}}</p>
+                                            <div class="product-rate">
+                                                <div class="product-rating" style="width: {{new_product.feedbak_average}}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% for shop_ad in  shop_page_ad|slice:"0:1"%}
+                                <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                                    <a href="{{shop_ad.ad_URL}} "> <img src="{{shop_ad.ad_mage.url}}" alt="" /> </a>
+                                    <div class="banner-text">
+                                        <span>{{shop_ad.supplier}}</span>
+                                        <a href="{{shop_ad.ad_URL}} "> <h4>
+                                            {{shop_ad.ad_title}}
+                                        </h4></a>
+                                    </div>
+                                </div>
+                                {%endfor%}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{%endblock body%}

@@ -1,0 +1,179 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% load admin_menu %}
+{% load i18n static %}
+{% load cart_template_tags%}
+{% block extrastyle %}
+{{ block.super }}
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}" /> -->
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="row mb-2">
+    <div class="col-sm-4">
+        <h2>{{site_info.site_name}} administration</h2>
+    </div>
+    <div class="col-sm-8">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'admin:index' %}"><i class="fas fa-tachometer-alt"></i> {% trans 'Home' %}</a></li>
+            <!-- {% for app in app_list %}
+            <li class="breadcrumb-item active">{{ app.name }}</li>
+            {% endfor %} -->
+        </ol>
+    </div>
+</div>
+{% endblock %}
+{% endif %}
+
+
+{% block content %}
+<div id="content-main" class="container-fluid">
+    	<div class="row">
+            <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-info">
+                  <div class="inner">
+                    <h3>{{request.user|underway_orders_count}}</h3>
+    
+                    <p>Underway Orders</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-bag"></i>
+                  </div>
+                 
+                </div>
+              </div>
+              <!-- ./col -->
+              <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                  <div class="inner">
+                    <h3>{{request.user|all_orders_count}}</h3>
+    
+                    <p>All Orders</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-stats-bars"></i>
+                  </div>
+                 
+                </div>
+              </div>
+              <!-- ./col -->
+              <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-warning">
+                  <div class="inner">
+                    <h3>{{request.user|all_users_count}}</h3>
+    
+                    <p>User Registrations</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-person-add"></i>
+                  </div>
+                  
+                </div>
+              </div>
+              <!-- ./col -->
+              <div class="col-lg-3 col-6">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                  <div class="inner">
+                    <h3>{{request.user|all_products_count}}</h3>
+    
+                    <p>All Products</p>
+                  </div>
+                  <div class="icon">
+                    <i class="ion ion-pie-graph"></i>
+                  </div>
+               
+                </div>
+              </div>
+              <!-- ./col -->
+        </div>
+    
+       <!-- chart -->
+        <div class="row">
+            <div class="col-xl-12 col-lg-12">
+                <div class="card mb-4">
+                    <article class="card-body">
+                        <h5 class="card-title">Sale statistics</h5>
+                        <canvas id="myChart" height="355" width="890" style="display: block; box-sizing: border-box; height: 284px; width: 712.4px;"></canvas>
+                    </article>
+                </div>
+                
+            </div>
+   
+       
+
+
+        {% block sidebar %}
+
+        <div class="card card-widget col-md-12">
+            <div class="card-header ">
+                <h2 class="card-title">{% trans 'Recent actions' %} / </h2>
+                <h3 class="card-title"> {% trans 'My actions' %}</h3>
+                <h3 class="card-title"><a href="{{ app.app_url }}" class="nav-link"
+                        title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+                </h3>
+
+                <div class="card-tools pull-right">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                </div>
+                <!-- /.box-tools -->
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        {% load log %}
+                        {% get_admin_log 10 as admin_log for_user user %}
+                        {% if not admin_log %}
+                        <p>{% trans 'None available' %}</p>
+                        {% else %}
+                        <div class="timeline">
+                            {% for entry in admin_log %}
+                            <div>
+                                <i
+                                    class="fas fa-{% if entry.is_addition %}plus bg-blue{% endif %}{% if entry.is_change %}edit bg-green{% endif %}{% if entry.is_deletion %}minus bg-red{% endif %} "></i>
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fas fa-clock"></i> {{entry.action_time}}</span>
+
+                                    <div class="timeline-body">
+                                        <a href="#">{{entry.user}}</a>
+                                        {% if entry.is_addition %}added{% endif %}{% if entry.is_change %}edited
+                                        {% endif %}{% if entry.is_deletion %}deleted{% endif %}
+                                        {% if entry.is_deletion or not entry.get_admin_url %}
+                                        {{ entry.object_repr }}
+                                        {% else %}
+                                        <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                                        {% endif %}
+                                        <br />
+                                        {% if entry.content_type %}
+                                        <span class="mini quiet">{% filter capfirst %}
+                                            {{ entry.content_type }}{% endfilter %}</span>
+                                        {% else %}
+                                        <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endblock %}
+
+    </div>
+
+    {% endblock %}

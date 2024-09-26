@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency %}
+{% currency_context %}
+
+
+
+{%block body%}
+
+<main class="main">
+    <section class="home-slider style-2 position-relative mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-8 col-lg-12">
+                    <div class="home-slide-cover">
+                        <div class="hero-slider-1 style-4 dot-style-1 dot-style-1-position-1">
+                            {% for carousel in carousels %}
+                            <div class="single-hero-slider single-animation-wrap" {%if carousel.CARImage %} style="background-image: url({{carousel.CARImage.url}}" {%endif%}>
+                                <div class="slider-content">
+                                <a href="{{carousel.CARURL}}"> <h1 class="display-2 mb-40">
+                                    {{carousel.CARtitle|slice:"0:19"}}<br />
+                                    {{carousel.CARtitle|slice:"19:"}}
+                                </h1></a>
+                                    <p class="mb-65">Save up to 50% off on your first order</p>
+                                    <form  method="POST" class="form-subcriber d-flex selector-1">
+                                        {% csrf_token %}
+                                         <input id="subscribe-input-1" class= "form-none" type="email" placeholder="Your emaill address" required />
+                                         <button class="btn form-none" type="submit">Subscribe</button>
+                                     </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="slider-arrow hero-slider-1-arrow"></div>
+                    </div>
+                </div>
+                {% for shop_ad in  shop_page_ad|slice:"0:1"%}
+                <div class="col-lg-4 d-none d-xl-block">
+                    <div class="banner-img style-3 animated animated" {% if shop_ad.ad_mage %} style="background-image: url({{shop_ad.ad_mage.url}}" {%endif%}>
+                        <div class="banner-text mt-50">
+                            <h2 class="mb-50">
+                                {{shop_ad.supplier}}
+                                <span class="text-brand">{{shop_ad.ad_title}}</span>
+                            </h2>
+                            <a href="{{shop_ad.ad_URL}}" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!--End hero slider-->
+    <section class="popular-categories section-padding">
+        <div class="container wow animate__animated animate__fadeIn">
+            <div class="section-title">
+                <div class="title">
+                    <h3>Featured Categories</h3>
+                    <ul class="list-inline nav nav-tabs links">
+                       {% for categori in super_category|slice:":5"%}
+                        <li class="list-inline-item nav-item"><a class="nav-link" href="{% url 'categories:super-category' categori.slug%}">{{categori.name}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="slider-arrow slider-arrow-2 flex-right carausel-10-columns-arrow" id="carausel-10-columns-arrows"></div>
+            </div>
+            <div class="carausel-10-columns-cover position-relative">
+                <div class="carausel-10-columns" id="carausel-10-columns">
+
+                   {%for main in main_category %}
+                    <div class="card-2 bg-{{ forloop.counter }} wow animate__animated animate__fadeInUp" data-wow-delay=".{{ forloop.counter }}s">
+                        <figure class="img-hover-scale overflow-hidden">
+                            {%if main.category_image%}
+                            <a href="{% url 'categories:main-category' main.slug %}"><img src="{{main.category_image.url}}" width="80" height="80" alt="{{main.name}}" /></a>
+                            {%else%}
+                            <a href="{% url 'categories:main-category' main.slug %}"><img src="{% static 'assets/imgs/theme/category.png'%}" alt="" /></a>
+                           {%endif%}
+                           </figure>
+                        <h6><a href="{% url 'categories:main-category' main.slug %}">{{main.name}}</a></h6>
+                        {% comment %} <span>26 items</span> {% endcomment %}
+                    </div>
+                    {% endfor %}
+                    {% comment %} <div class="card-2 bg-12 wow animate__animated animate__fadeInUp" data-wow-delay="1s">
+                        <figure class="img-hover-scale overflow-hidden">
+                            <a href="shop-grid-right.html"><img src="{% static 'assets/imgs/shop/cat-14.png'%}" alt="" /></a>
+                        </figure>
+                        <h6><a href="shop-grid-right.html">Coffe & Tea</a></h6>
+                        <span>89 items</span>
+                    </div>
+                    <div class="card-2 bg-11 wow animate__animated animate__fadeInUp" data-wow-delay="0s">
+                        <figure class="img-hover-scale overflow-hidden">
+                            <a href="shop-grid-right.html"><img src="{% static 'assets/imgs/shop/cat-15.png'%}" alt="" /></a>
+                        </figure>
+                        <h6><a href="shop-grid-right.html">Headphone</a></h6>
+                        <span>87 items</span>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--End category slider-->
+    <section class="banners mb-25">
+        <div class="container">
+            <div class="row">
+
+               {% for ad_middlebar in home_ad_middlebar|slice:"0:3" %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="banner-img wow animate__animated animate__fadeInUp" data-wow-delay=".{{ forloop.counter }}s">
+                        <img {%if ad_middlebar.ad_mage %} src="{{ad_middlebar.ad_mage.url}}"{%else%} src="{% static 'assets/imgs/banner/banner-1.png'%}" {%endif%} alt="" />
+                        <div class="banner-text">
+                            <h4>
+                                {{ad_middlebar.ad_title|slice:"0:17"}} <br />{{ad_middlebar.ad_title|slice:"17:"}}  
+                            </h4>
+                            <a href="{{ad_middlebar.ad_URL}}" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                {% endfor %}
+
+
+
+            </div>
+        </div>
+    </section>
+    <!--End banners-->
+    <section class="product-tabs section-padding position-relative">
+        <div class="container">
+            <div class="section-title style-2 wow animate__animated animate__fadeIn">
+                <h3>Popular Products</h3>
+            </div>
+            <!--End nav-tabs-->
+            <div class="tab-content" id="myTabContent">
+                <!--start tab one-->
+                <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                    <div class="row product-grid-4">
+                       {%for product in products|slice:"0:10"%}
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                            <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn" data-wow-delay=".{{ forloop.counter0 }}s">
+                                <div class="product-img-action-wrap">
+                                    <div class="product-img product-img-zoom">
+                                        <a href="{% url 'products:product-details' product.PRDSlug %}">
+                                            <img class="default-img" src="{{product.product_image.url}}" alt="{{product.product_name}}" />
+                                            <img class="hover-img" src="{{product.product_image.url}}" alt="{{product.product_name}}" />
+                                        </a>
+                                    </div>
+                                    <div class="product-action-1">
+                                        
+                                    </div>
+                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                        {%if product.promotional == "Hot"%}
+                                        <span class="hot">Hot</span>
+                                        {%else%}
+                                        <span class="new">New</span>
+                                        {%endif%}
+                                    </div>
+                                </div>
+                                <div class="product-content-wrap">
+                                    <div class="product-category">
+                                        {% if product.product_supercategory%}
+                                        <a href="{% url 'categories:super-category' product.product_supercategory.slug %}">{{product.product_supercategory.name}}</a>
+                                        {%endif%}
+                                    </div>
+                                    <h2><a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a></h2>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-small text-muted">By <a href="{%url 'suppliers:vendor-details' product.product_vendor.slug %}">{{product.product_vendor.display_name}}</a></span>
+                                    </div>
+                                    <div class="product-card-bottom">
+                                        <div class="product-price">
+                                            <span>{{request.session.currency}} {{product.PRDPrice|currency:request.session.currency}}</span>
+                                            {%if product.PRDDiscountPrice%}
+                                            <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                            {%endif%}
+                                        </div>
+                                        <div class="add-cart">
+                                            <a class="add" href="{% url 'products:product-details' product.PRDSlug %}"><i class="fi-rs-eye mr-5"></i>View </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {%endfor%}
+                        
+                    </div>
+                    <!--End product-grid-4-->
+                </div>
+                <!--En tab one-->
+
+            </div>
+            <!--End tab-content-->
+        </div>
+    </section>
+    <!--Products Tabs-->
+    <section class="section-padding">
+        <div class="container">
+            <div class="row">
+               {%for supplier in home_ad_suppliers|slice:"0:4"%}
+                <div class="col-lg-3 col-md-6">
+                    <div class="banner-img style-6 wow animate__animated animate__fadeInUp" data-wow-delay=".{{ forloop.counter }}s">
+                        <img {%if supplier.ad_mage %} src="{{supplier.ad_mage.url}}" {%else%} src="{% static 'assets/imgs/banner/banner-16.png'%}" {%endif%} alt="" />
+                        <div class="banner-text">
+                           <a href="{{supplier.ad_URL}}"> <h6 class="mb-10 mt-30">{{supplier.ad_title|slice:"0:15"}}<br />{{supplier.ad_title|slice:"15:"}}</h6></a>
+                           <a href="{{supplier.ad_URL}}"> <p>Go to supplier</p> </a>
+                        </div>
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+    </section>
+    <!--End 4 banners-->
+    <section class="section-padding pb-5">
+        <div class="container">
+            <div class="section-title wow animate__animated animate__fadeIn">
+                <h3 class="">Daily Best Sells</h3>
+
+            </div>
+            <div class="row">
+                {% for daily in home_ad_daily|slice:"0:1" %}
+                   <div class="col-lg-3 d-none d-lg-flex wow animate__animated animate__fadeIn">
+                       <div class="banner-img style-2" style=" border-radius: 15px;
+                       overflow: hidden;
+                       height: 520px;
+                       {% if daily.ad_mage %} background:url({{daily.ad_mage.url}}) no-repeat center bottom;{%endif%}
+                       background-size: cover;
+                       width: 100%;
+                       .banner-text {
+                           top: 50px;
+                           transform: none;
+                       }">
+                           
+                           <div class="banner-text">
+                               <h2 class="mb-100">{{daily.ad_title}}</h2>
+                               <a href="{{daily.ad_URL}}" class="btn btn-xs">Shop Now <i class="fi-rs-arrow-small-right"></i></a>
+                           </div>
+                       </div>
+                   </div>
+               {%endfor%}
+                <div class="col-lg-9 col-md-12 wow animate__animated animate__fadeIn" data-wow-delay=".4s">
+                    <div class="tab-content" id="myTabContent-1">
+                       <!--start tab-pane-->
+                        <div class="tab-pane fade show active" id="tab-one-1" role="tabpanel" aria-labelledby="tab-one-1">
+                            <div class="carausel-4-columns-cover arrow-center position-relative">
+                                <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" id="carausel-4-columns-arrows"></div>
+                                <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns">
+                                    
+                                    <!--start product Wrap-->
+                                    {%for product in products|slice:"0:10"%}
+                                    <div class="product-cart-wrap">
+                                        <div class="product-img-action-wrap">
+                                            <div class="product-img product-img-zoom">
+                                                <a href="{% url 'products:product-details' product.PRDSlug %}">
+                                                    <img class="default-img" src="{{product.product_image.url}}" alt="{{product.product_name}}" />
+                                                    <img class="hover-img" src="{{product.product_image.url}}" alt="{{product.product_name}}" />
+                                                </a>
+                                            </div>
+                                            <div class="product-action-1">
+                                                
+                                            </div>
+                                            <div class="product-badges product-badges-position product-badges-mrg">
+                                               {%if product.promotional == "Hot"%}
+                                               <span class="hot">Hot</span>
+                                               {%else%}
+                                               <span class="new">New</span>
+                                               {%endif%}
+                                            </div>
+                                        </div>
+                                        <div class="product-content-wrap">
+                                            <div class="product-category">
+                                               {%if product.product_supercategory%}
+                                                <a href="{% url 'categories:super-category' product.product_supercategory.slug %}">{{product.product_supercategory.name}}</a>
+                                                {%else%}
+                                                <a >{{product.product_vendor}}</a>
+                                                {%endif%}
+                                            </div>
+                                            <h2><a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a></h2>
+                                            <div class="product-rate d-inline-block">
+                                                <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                            </div>
+                                            <div class="product-price mt-10">
+                                                <span>${{product.PRDPrice|currency:request.session.currency}} </span>
+                                               {%if product.PRDDiscountPrice%}
+                                                <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                {%endif%}
+                                            </div>
+                                            <div class="sold mt-15 mb-15">
+                                                {% comment %} <div class="progress mb-5">
+                                                    <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="font-xs text-heading"> Sold: 90/120</span> {% endcomment %}
+                                            </div>
+                                            <a href="{% url 'products:product-details' product.PRDSlug %}" class="btn w-100 hover-up"><i class="fi-rs-eye"></i>  View</a>
+                                        </div>
+                                    </div>
+                                    {% endfor%}
+                                    <!--End product Wrap-->
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!--End tab-pane-->
+
+                    </div>
+                    <!--End tab-content-->
+                </div>
+                <!--End Col-lg-9-->
+            </div>
+        </div>
+    </section>
+    <!--End Best Sales-->
+    <section class="section-padding pb-5">
+        <div class="container">
+            <div class="section-title wow animate__animated animate__fadeIn" data-wow-delay="0">
+                <h3 class="">Deals Of The Day</h3>
+                <a class="show-all" href="{% url 'categories:shop' %}">
+                    All Deals
+                    <i class="fi-rs-angle-right"></i>
+                </a>
+            </div>
+            <div class="row">
+                {% for  home_ad_deal_time in home_ads_deal_time|slice:"0:4" %}
+
+                <div  class="{% if forloop.counter == 3 %} col-xl-3 col-lg-4 col-md-6 d-none d-lg-block{% elif forloop.counter == 4 %} col-xl-3 col-lg-4 col-md-6 d-none d-xl-block {%else%} col-xl-3 col-lg-4 col-md-6 {%endif%} ">
+                    <div class="product-cart-wrap style-2 wow animate__animated animate__fadeInUp" data-wow-delay=".{{ forloop.counter }}s">
+                        <div class="product-img-action-wrap">
+                            <div class="product-img">
+                                <a href="{{home_ad_deal_time.ad_URL}}">
+                                    <img {%if home_ad_deal_time.ad_mage %} src="{{home_ad_deal_time.ad_mage.url}}" {%else%} src="{% static 'assets/imgs/banner/banner-6.png'%}" {%endif%} alt="" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="product-content-wrap">
+                            <div class="deals-countdown-wrap">
+                                <div class="deals-countdown" data-countdown="{{home_ad_deal_time.PRDdealtime|date:"Y/m/d"}} {{home_ad_deal_time.PRDdealtime|time:"H:i:s"}}"></div>
+                            </div>
+                            <div class="deals-content">
+                                <h2><a href="{{home_ad_deal_time.ad_URL}}">{{home_ad_deal_time.ad_title}}</a></h2>
+                                <!-- <div class="product-rate-cover">
+                                    <div class="product-rate d-inline-block">
+                                        <div class="product-rating" style="width: 90%"></div>
+                                    </div>
+                                    <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                </div> -->
+                                <div>
+                                    <span class="font-small text-muted">By <a href="{%if home_ad_deal_time.supplier_URL %}{{home_ad_deal_time.supplier_URL}}{%else%} {%url 'suppliers:vendor-details' home_ad_deal_time.supplier.slug %}{%endif%}">{{home_ad_deal_time.supplier}}</a></span>
+                                </div>
+                                <div class="product-card-bottom">
+                                    <div class="product-price">
+                                        <span>{{request.session.currency}}{{home_ad_deal_time.PRDPrice|currency:request.session.currency}}</span>
+                                        {% if home_ad_deal_time.PRDDiscountPrice%}
+                                        <span class="old-price">{{request.session.currency}}{{home_ad_deal_time.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                        {%endif %}
+                                    </div>
+                                    <div class="add-cart">
+                                        <a class="add" href="{{home_ad_deal_time.ad_URL}}"><i class="fi-rs-shopping-cart mr-5"></i>View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {%endfor%}
+
+            </div>
+        </div>
+    </section>
+    <!--End Deals-->
+    <section class="section-padding mb-30">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 wow animate__animated animate__fadeInUp" data-wow-delay="0">
+                    <h4 class="section-title style-1 mb-30 animated animated">Top Selling</h4>
+                    <div class="product-list-small animated animated">
+                       {% for product in products|slice:"0:3" %} 
+                        <article class="row align-items-center hover-up">
+                            <figure class="col-md-4 mb-0">
+                                <a href="{% url 'products:product-details' product.PRDSlug %}"><img src="{{product.product_image.url}}" alt="{{product.product_name}}" /></a>
+                            </figure>
+                            <div class="col-md-8 mb-0">
+                                <h6>
+                                    <a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a>
+                                </h6>
+                                <div class="product-rate-cover">
+                                    <div class="product-rate d-inline-block">
+                                        <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                    </div>
+                                    <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
+                                </div>
+                                <div class="product-price">
+                                    <span>{{request.session.currency}}{{product.PRDPrice|currency:request.session.currency}}</span>
+                                    {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-md-0 wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
+                    <h4 class="section-title style-1 mb-30 animated animated">Trending Products</h4>
+                    <div class="product-list-small animated animated">
+                       {% for product in products|slice:"0:3" %}
+                        <article class="row align-items-center hover-up">
+                            <figure class="col-md-4 mb-0">
+                                <a href="{% url 'products:product-details' product.PRDSlug %}"><img src="{{product.product_image.url}}" alt="{{product.product_name}}" /></a>
+                            </figure>
+                            <div class="col-md-8 mb-0">
+                                <h6>
+                                    <a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a>
+                                </h6>
+                                <div class="product-rate-cover">
+                                    <div class="product-rate d-inline-block">
+                                        <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                    </div>
+                                    <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
+                                </div>
+                                <div class="product-price">
+                                    <span>{{request.session.currency}}{{product.PRDPrice|currency:request.session.currency}}</span>
+                                    {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-lg-block wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
+                    <h4 class="section-title style-1 mb-30 animated animated">Recently added</h4>
+                    <div class="product-list-small animated animated">
+                       {% for product in products|slice:"0:3" %}
+                        <article class="row align-items-center hover-up">
+                            <figure class="col-md-4 mb-0">
+                                <a href="{% url 'products:product-details' product.PRDSlug %}"><img src="{{product.product_image.url}}" alt="{{product.product_name}}" /></a>
+                            </figure>
+                            <div class="col-md-8 mb-0">
+                                <h6>
+                                    <a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a>
+                                </h6>
+                                <div class="product-rate-cover">
+                                    <div class="product-rate d-inline-block">
+                                        <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                    </div>
+                                    <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
+                                </div>
+                                <div class="product-price">
+                                    <span>{{request.session.currency}}{{product.PRDPrice|currency:request.session.currency}}</span>
+                                    {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-xl-block wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
+                    <h4 class="section-title style-1 mb-30 animated animated">Top Rated</h4>
+                    <div class="product-list-small animated animated">
+                       {% for product in products|slice:"0:3" %}
+                        <article class="row align-items-center hover-up">
+                            <figure class="col-md-4 mb-0">
+                                <a href="{% url 'products:product-details' product.PRDSlug %}"><img src="{{product.product_image.url}}" alt="{{product.product_name}}" /></a>
+                            </figure>
+                            <div class="col-md-8 mb-0">
+                                <h6>
+                                    <a href="{% url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a>
+                                </h6>
+                                <div class="product-rate-cover">
+                                    <div class="product-rate d-inline-block">
+                                        <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
+                                    </div>
+                                    <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
+                                </div>
+                                <div class="product-price">
+                                    <span>{{request.session.currency}}{{product.PRDPrice|currency:request.session.currency}}</span>
+                                    {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </article>
+                        {%endfor%}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--End 4 columns-->
+</main>
+{%endblock body%}

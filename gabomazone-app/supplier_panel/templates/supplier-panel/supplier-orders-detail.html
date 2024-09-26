@@ -1,0 +1,178 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+
+{%block section %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            <p>Details for Order ID: {{order_supplier.id}}</p>
+        </div>
+    </div>
+    <div class="card">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <span> <i class="material-icons md-calendar_today"></i> <b>{{order_supplier.date_update}}</b> </span> <br />
+                    <small class="text-muted">Order ID: {{order_supplier.id}}</small>
+                </div>
+                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                    <div class="form-select d-inline-block mb-lg-0 mr-5 mw-200 text-center">
+                        <span >{{order_supplier.status}}</span>
+                        
+                    </div>
+                    
+                    <a class="btn btn-secondary print ms-2" href="javascript:window.print()"><i class="icon material-icons md-print"></i></a>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                {{order_supplier.user}}<br />
+                                {{order_supplier.user.email}}<br />
+                                {{payment_info.phone}}
+                              
+                            </p>
+                            
+                        </div>
+                    </article>
+                </div>
+                <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-local_shipping"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Order info</h6>
+                            <p class="mb-1">
+                                Shipping By: aramex express <br />
+                                Amount: ${{order_supplier.amount}} <br />
+                                Status: {{order_supplier.status}}
+                            </p>
+                            
+                        </div>
+                    </article>
+                </div>
+                <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+                            <p class="mb-1">
+                                City: {{payment_info.City}}, {{payment_info.state}} <br />
+                                street: {{payment_info.street_address}}<br />
+                                {{payment_info.country}}, {{payment_info.post_code}} 
+                            </p>
+                           
+                        </div>
+                    </article>
+                </div>
+                <!-- col// -->
+            </div>
+            <!-- row // -->
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%">Size</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {% for order_detail in  order_details_supplier%}
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="#">
+                                            <div class="left">
+                                                <img src="{{order_detail.product.product_image.url}}" width="60" height="60" class="" alt="Item" />
+                                            </div>
+                                            <div class="info">{{order_detail.product.product_name}}</div>
+                                        </a>
+                                    </td>
+                                    <td>${{order_detail.product.PRDPrice}}</td>
+                                    <td>{{order_detail.quantity}}</td>
+                                    <td>{{order_detail.size}}</td>
+                                    <td class="text-end">${% widthratio order_detail.product.PRDPrice 1 order_detail.quantity %} </td>
+                                </tr>
+                                {%endfor%}
+
+                                <tr>
+                                    <td colspan="4">
+                                        <article class="float-end">
+                                            {% comment %} <dl class="dlist">
+                                                <dt>Subtotal:</dt>
+                                                <dd>$973.35</dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Shipping cost:</dt>
+                                                <dd>$10.00</dd>
+                                            </dl> {% endcomment %}
+                                            <dl class="dlist">
+                                                <dt>Total:</dt>
+                                                <dd><b class="h5">${{order_supplier.amount}} </b></dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt class="text-muted">Status:</dt>
+                                                <dd>
+                                                    <span class="badge rounded-pill alert-success text-success">Payment done</span>
+                                                </dd>
+                                            </dl>
+                                        </article>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- table-responsive// -->
+                </div>
+                <!-- col// -->
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4">
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Payment info</h6>
+                        <p>
+                            <img src="{% static 'assets-supplier/imgs/card-brands/2.png'%}" class="border" height="20" />  {{payment_info.payment_method}} <br />
+                            Business name: {{payment_info.first_name}} {{payment_info.last_name}} <br />
+                            Phone: {{payment_info.phone}}
+                        </p>
+                    </div>
+                    {% comment %} <div class="h-25 pt-4">
+                        <div class="mb-3">
+                            <label>Notes</label>
+                            <textarea class="form-control" name="notes" id="notes" placeholder="Type some note"></textarea>
+                        </div>
+                        <button class="btn btn-primary">Save note</button>
+                    </div> {% endcomment %}
+                </div>
+                <!-- col// -->
+            </div>
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+</section>
+
+{%endblock section%}
+
+{%block script%} 
+{%endblock script%}

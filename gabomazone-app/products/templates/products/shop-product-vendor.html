@@ -1,0 +1,897 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency %}
+{% currency_context %}
+
+{%block body%}
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> <a href="{% url 'categories:super-category' product_detail.product_supercategory.slug%}">{{product_detail.product_supercategory}}</a> <span></span> Seeds of Change Organic
+            </div>
+        </div>
+    </div>
+    <div class="container mb-30">
+        <div class="row">
+            <div class="col-xl-11 col-lg-12 m-auto">
+                <div class="row">
+                    <div class="col-xl-9">
+                        {% if messages %}
+                        {% for message in messages %}
+          
+                        <div  id="message"  class="mt-30 alert align-middle alert-{{message.tags}}">
+                           
+                            <span class="align-middle"> {{message}}</span>
+                        </div>
+          
+                        {% endfor %}
+                        {% endif %}
+                        <div class="product-detail accordion-detail">
+                            <div class="row mb-50 mt-30">
+                                <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+                                    <div class="detail-gallery">
+                                        <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                        <!-- MAIN SLIDES -->
+                                        <div class="product-image-slider">
+                                            <figure class="border-radius-10">
+                                                {%if product_detail.product_image%}
+                                                <img src="{{product_detail.product_image.url}}"  alt="product image" />
+                                                {%else%}
+                                                <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="product image" />
+                                                
+                                                {%endif%}
+                                            </figure>
+                                            {% if product_detail.additional_image_1%}  
+                                           
+                                            <figure class="border-radius-10">
+                                                <img src="{{product_detail.additional_image_1.url}}"   alt="product image 2" />
+                                            </figure>
+                                            
+                                            
+                                            {%endif%}
+
+                                            {% if product_detail.additional_image_2%}  
+                                           
+                                            <figure class="border-radius-10">
+                                                <img src="{{product_detail.additional_image_2.url}}"   alt="product image 3" />
+                                            </figure>
+                                            
+                                            
+                                            {%endif%}
+
+                                            {% if product_detail.additional_image_3%}  
+                                           
+                                            <figure class="border-radius-10">
+                                                <img src="{{product_detail.additional_image_3.url}}"   alt="product image 4" />
+                                            </figure>
+                                            
+                                            
+                                            {%endif%}
+                                            {% if product_detail.additional_image_4%}  
+                                           
+                                            <figure class="border-radius-10">
+                                                <img src="{{product_detail.additional_image_4.url}}"   alt="product image 5" />
+                                            </figure>
+                                            
+                                            
+                                            {%endif%}
+                                         
+                                        </div>
+                                        <!-- THUMBNAILS -->
+                                        <div class="slider-nav-thumbnails">
+                                            
+                                            <div>
+                                                {%if product_detail.product_image%}
+                                                <img src="{{product_detail.product_image.url}}"    alt="product image" />
+                                                {%endif%}
+                                            </div>
+
+                                            {% if product_detail.additional_image_1%} 
+                                            <div><img src="{{ product_detail.additional_image_1.url}}"  alt="product image" /></div>
+                                    
+                                            {%endif%}
+
+                                            {% if product_detail.additional_image_2%} 
+                                            <div><img src="{{ product_detail.additional_image_2.url}}"  alt="product image" /></div>
+                                    
+                                            {%endif%}
+
+                                            {% if product_detail.additional_image_3%} 
+                                            <div><img src="{{ product_detail.additional_image_3.url}}"  alt="product image" /></div>
+                                    
+                                            {%endif%}
+
+                                            {% if product_detail.additional_image_4%} 
+                                            <div><img src="{{ product_detail.additional_image_4.url}}" alt="product image" /></div>
+                                    
+                                            {%endif%}
+                                        </div>
+                                    </div>
+                                    <!-- End Gallery -->
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="detail-info pr-30 pl-30">
+                                        {% if product_detail.available <= 0%}
+                                        <span class="stock-status out-stock"> Sale Off </span>
+                                        {%endif%}
+                                        <h3 class="title-detail">{{product_detail.product_name}}</h3>
+                                        <div class="product-detail-rating">
+                                            <div class="product-rate-cover text-end">
+                                                <div class="product-rate d-inline-block">
+                                                    <div class="product-rating" style="width: {{product_detail.feedbak_average}}%"></div>
+                                                    <!-- {%if average_rating == 1%}
+                                                            <div class="product-rating" style="width: {{20}}%"></div>
+                                                            {%elif average_rating == 2%}
+                                                            <div class="product-rating" style="width: 40%"></div>
+                                                            {%elif average_rating == 3%}
+                                                            <div class="product-rating" style="width: 60%"></div>
+                                                            {%elif average_rating == 4%}
+                                                            <div class="product-rating" style="width: 80%"></div>
+                                                            {%elif average_rating == 5%}
+                                                            <div class="product-rating" style="width: 100%"></div>
+                                                            {%else%}
+                                                            <div class="product-rating" style="width: 0%"></div>
+                                                        {%endif%} -->
+                                                </div>
+                                                <span class="font-small ml-5 text-muted"> ({{feedbak_number}} reviews)</span>
+                                            </div>
+                                        </div>
+                                        <div class="clearfix product-price-cover">
+                                            <div class="product-price primary-color float-left">
+                                                <span class="current-price text-brand">{{request.session.currency}}{{product_detail.PRDPrice|currency:request.session.currency}}</span>
+                                                <span>
+                                                    {% comment %} <span class="save-price font-md color3 ml-15">26% Off</span> {% endcomment %}
+                                                    {% if product_detail.PRDDiscountPrice%}
+                                                    <span class="old-price font-md ml-15">{{request.session.currency}}{{product_detail.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                    {%endif%}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="short-desc mb-30">
+                                            <p class="font-lg">{{product_detail.product_description|safe}}.</p>
+                                        </div>
+                                        {% if product_variations %}
+                                        <div class="attr-detail attr-size mb-30">
+                                            <strong class="mr-10">Size: </strong>
+                                            <ul class="list-filter size-filter font-small">
+                                                {% for product_variation in product_variations  %}
+                                                    {% if forloop.counter  == 1 %}
+                                                        <li class="active"><a href="#">{{product_variation.name_variation}}</a></li>
+                                                    {% else %}
+                                                        <li ><a href="#">{{product_variation.name_variation}}</a></li>
+                                                    {% endif %}
+                                               
+                                                {% endfor %}
+                                                
+                                                
+                                            </ul>
+                                        </div> 
+                                        {% endif %}
+                                        <div class="detail-extralink mb-50">
+                                            <div class="detail-qty border radius">
+                                                <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span class="qty-val">1</span>
+                                                <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                            </div>
+                                            <form action="{% url "orders:add-to-cart" %}" method = "POST"> 
+                                            <div class="product-extra-link2">
+                                                {% csrf_token %}
+                                                <input type="hidden" id="qty-input" name="qyt" type="text" >
+                                                <input type="hidden" id="product_variation" value="" name="name_variation" type="text" >
+                                                <input type="hidden" value="{{product_detail.id}}" name="product_id">
+                                                <input type="hidden" value="{{product_detail.PRDPrice}}" name="product_Price">
+                                                <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
+                                            
+                                                {% comment %} <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
+                                            </div>
+                                        </form>
+                                        </div>
+                                        <div class="font-xs">
+                                            <ul class="mr-50 float-start">
+                                                <li class="mb-5">Category: <span class="text-brand">{{product_detail.product_supercategory}}</span></li>
+                                                <li class="mb-5">Date:<span class="text-brand"> {{product_detail.date|date:"M d Y" }}</span></li>
+                                                <li>PIECE: <span class="text-brand">{{product_detail.pieces}} pieces</span></li>
+                                            </ul>
+                                            <ul class="float-start">
+                                                <li class="mb-5">SKU: <span class="in-stock text-brand ml-5">{{product_detail.PRDSKU}}</span></li>
+                                                <li class="mb-5">Tags: <span class="in-stock text-brand ml-5">{{product_detail.PRDtags}}</span> {% comment %} <a href="#" rel="tag">Snack</a>, <a href="#" rel="tag">Organic</a>, <a href="#" rel="tag">Brown</a> {% endcomment %}</li> 
+                                                <li>Stock:<span class="in-stock text-brand ml-5">{{product_detail.available}} Items In Stock</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- Detail Info -->
+                                </div>
+                            </div>
+                            <div class="product-info">
+                                <div class="tab-style3">
+                                    <ul class="nav nav-tabs text-uppercase">
+                                         <li class="nav-item">
+                                            <a class="nav-link active" id="Description-tab" data-bs-toggle="tab" href="#Description">Description</a>
+                                        </li> 
+                                        <li class="nav-item">
+                                            <a class="nav-link " id="Additional-info-tab" data-bs-toggle="tab" href="#Additional-info">Additional info</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="Vendor-info-tab" data-bs-toggle="tab" href="#Vendor-info">Vendor</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab" href="#Reviews">Reviews ({{feedbak_number}})</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content shop_info_tab entry-main-content">
+                                         <div class="tab-pane fade show active" id="Description">
+                                            <div class="">
+                                                {{product_detail.content|safe}}
+                                            </div>   
+                                        </div> 
+                                        <div class="tab-pane fade " id="Additional-info">
+                                            <table class="font-md">
+                                                <tbody>
+                                                    <tr class="stand-up">
+                                                        <th>Price</th>
+                                                        <td>
+                                                            <p>{{request.session.currency}} {{product_detail.PRDPrice|currency:request.session.currency}}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="folded-wo-wheels">
+                                                        <th>AVAILABILITY</th>
+                                                        <td>
+                                                            <p>{{product_detail.available}}  in stock</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="folded-w-wheels">
+                                                        <th>PIECES PER SET</th>
+                                                        <td>
+                                                            <p>{{product_detail.pieces}} pieces</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="door-pass-through">
+                                                        <th>WEIGHT PER SET</th>
+                                                        <td>
+                                                            <p>{{product_detail.PRDWeight|floatformat}} KG</p>
+                                                        </td>
+                                                    </tr>
+                                                   
+                                                    <tr class="weight-wo-wheels">
+                                                        <th>Super Category</th>
+                                                        <td>
+                                                            <p>{{product_detail.product_supercategory}}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="weight-capacity">
+                                                        <th>Main Category</th>
+                                                        <td>
+                                                            <p>{{product_detail.product_maincategory}}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="width">
+                                                        <th>Sub Category</th>
+                                                        <td>
+                                                            <p>{{product_detail.product_subcategory}}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="handle-height-ground-to-handle">
+                                                        <th>Mini Category</th>
+                                                        <td>
+                                                            <p>{{product_detail.product_minicategor}}</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="frame">
+                                                        <th>SKU</th>
+                                                        <td>
+                                                            <p>{{product_detail.PRDSKU}} </p>
+                                                        </td>
+                                                    </tr>
+                                                 
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="tab-pane fade" id="Vendor-info">
+                                            <div class="vendor-logo d-flex mb-30">
+                                                {%if product_detail.product_vendor.image %}
+                                                <img src="{{product_detail.product_vendor.image.url}}" width="64" height="50"  alt="{{product_detail.product_vendor.display_name}}" />
+                                                {%endif%}
+
+                                                <div class="vendor-name ml-15">
+                                                    <h6>
+                                                        <a href="{%url 'suppliers:vendor-details' product_detail.product_vendor.slug %}">{{product_detail.product_vendor.display_name}}</a>
+                                                    </h6>
+                                                    {% comment %} <div class="product-rate-cover text-end">
+                                                        <div class="product-rate d-inline-block">
+                                                            <div class="product-rating" style="width: 90%"></div>
+                                                        </div>
+                                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
+                                                    </div> {% endcomment %}
+                                                </div>
+                                            </div>
+                                            <ul class="contact-infor mb-20">
+                                                <li><img src="{% static 'assets/imgs/theme/icons/icon-location.svg'%}" alt="" /><strong>Address: </strong> <span>{{product_detail.product_vendor.address}} {{product_detail.product_vendor.city}},{{product_detail.product_vendor.post_code}} {{product_detail.product_vendor.country}}</span></li>
+                                                <li><img src="{% static 'assets/imgs/theme/icons/icon-contact.svg'%}" alt="" /><strong>Contact Seller:</strong><span>{{product_detail.product_vendor.mobile_number}}</span></li>
+                                            </ul>
+                                            {% comment %} <div class="d-flex mb-55">
+                                                <div class="mr-30">
+                                                    <p class="text-brand font-xs">Rating</p>
+                                                    <h4 class="mb-0">92%</h4>
+                                                </div>
+                                                <div class="mr-30">
+                                                    <p class="text-brand font-xs">Ship on time</p>
+                                                    <h4 class="mb-0">100%</h4>
+                                                </div>
+                                                <div>
+                                                    <p class="text-brand font-xs">Chat response</p>
+                                                    <h4 class="mb-0">89%</h4>
+                                                </div>
+                                            </div> {% endcomment %}
+                                            <p>{{product_detail.product_vendor.bio}} </p>
+                                        </div>
+                                        <div class="tab-pane fade" id="Reviews">
+                                            <!--Comments-->
+                                            <div class="comments-area">
+                                                <div class="row">
+                                                    {% if product_detail.feedbak_number%}
+                                                    <div class="col-lg-8">
+                                                        <h4 class="mb-30">Customer Reviews</h4>
+                                                        <div class="comment-list">
+
+                                                            {% for rating in product_feedback %}
+                                                            <div class="single-comment justify-content-between d-flex mb-30">
+                                                                <div class="user justify-content-between d-flex">
+                                                                    <div class="thumb text-center">
+                                                                        {% if rating.client_name.image %}
+                                                                            <img src="{{rating.client_name.image.url}}" alt="{{rating.client_name.username}}" />
+                                                                        {%else%}    
+                                                                        <img src="{% static 'assets/imgs/blog/author-2.png'%}" alt="{{rating.client_name.username}}" />
+                                                                        {%endif%}
+                                                                        <span class="font-heading text-brand d-block">{{rating.client_name.username}}</span>
+                                                                    </div>
+                                                                    <div class="desc">
+                                                                        <div class="d-flex justify-content-between mb-10">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <span class="font-xs text-muted">{{ rating.rating_date|date:"F j,Y"}} at {{ rating.rating_date|date:" g:i A" }} </span>
+                                                                            </div>
+                                                                            <div class="product-rate d-inline-block">
+                                                                                {%if rating.rate == 1%}
+                                                                                <div class="product-rating" style="width: 20%"></div>
+                                                                                {%elif rating.rate == 2%}
+                                                                                <div class="product-rating" style="width: 40%"></div>
+                                                                                {%elif rating.rate == 3%}
+                                                                                <div class="product-rating" style="width: 60%"></div>
+                                                                                {%elif rating.rate == 4%}
+                                                                                <div class="product-rating" style="width: 80%"></div>
+                                                                                {%elif rating.rate == 5%}
+                                                                                <div class="product-rating" style="width: 100%"></div>
+                                                                                {%else%}
+                                                                                <div class="product-rating" style="width: 0%"></div>
+                                                                                {%endif%}
+                                                                            </div>
+                                                                        </div>
+                                                                        <p class="mb-10">{{rating.client_comment}}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {% endfor %}
+
+                                                            <!-- <div class="single-comment justify-content-between d-flex mb-30 ml-30">
+                                                                <div class="user justify-content-between d-flex">
+                                                                    <div class="thumb text-center">
+                                                                        <img src="{% static 'assets/imgs/blog/author-3.png'%}" alt="" />
+                                                                        <a href="#" class="font-heading text-brand">Brenna</a>
+                                                                    </div>
+                                                                    <div class="desc">
+                                                                        <div class="d-flex justify-content-between mb-10">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <span class="font-xs text-muted">December 4, 2021 at 3:12 pm </span>
+                                                                            </div>
+                                                                            <div class="product-rate d-inline-block">
+                                                                                <div class="product-rating" style="width: 80%"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p class="mb-10">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus, suscipit exercitationem accusantium obcaecati quos voluptate nesciunt facilis itaque modi commodi dignissimos sequi repudiandae minus ab deleniti totam officia id incidunt? <a href="#" class="reply">Reply</a></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="single-comment justify-content-between d-flex">
+                                                                <div class="user justify-content-between d-flex">
+                                                                    <div class="thumb text-center">
+                                                                        <img src="{% static 'assets/imgs/blog/author-4.png'%}" alt="" />
+                                                                        <a href="#" class="font-heading text-brand">Gemma</a>
+                                                                    </div>
+                                                                    <div class="desc">
+                                                                        <div class="d-flex justify-content-between mb-10">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <span class="font-xs text-muted">December 4, 2021 at 3:12 pm </span>
+                                                                            </div>
+                                                                            <div class="product-rate d-inline-block">
+                                                                                <div class="product-rating" style="width: 80%"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <p class="mb-10">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus, suscipit exercitationem accusantium obcaecati quos voluptate nesciunt facilis itaque modi commodi dignissimos sequi repudiandae minus ab deleniti totam officia id incidunt? <a href="#" class="reply">Reply</a></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div> -->
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <h4 class="mb-30">Customer reviews</h4>
+                                                        <div class="d-flex mb-30">
+                                                            <div class="product-rate d-inline-block mr-15">
+                                                                <div class="product-rating" style="width: {{product_detail.feedbak_average}}%"></div>
+                                                            </div>
+                                                            <h6>{{average_rating}} out of 5</h6>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <span>5 star</span>
+                                                            <div class="progress-bar" role="progressbar" style="width: {{start_5}}%" aria-valuenow="{{start_5}}" aria-valuemin="0" aria-valuemax="100">{{start_5}}%</div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <span>4 star</span>
+                                                            <div class="progress-bar" role="progressbar" style="width: {{start_4}}%" aria-valuenow="{{start_4}}" aria-valuemin="0" aria-valuemax="100">{{start_4}}%</div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <span>3 star</span>
+                                                            <div class="progress-bar" role="progressbar" style="width: {{start_3}}%" aria-valuenow="{{start_3}}" aria-valuemin="0" aria-valuemax="100">{{start_3}}%</div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <span>2 star</span>
+                                                            <div class="progress-bar" role="progressbar" style="width: {{start_2}}%" aria-valuenow="{{start_2}}" aria-valuemin="0" aria-valuemax="100">{{start_2}}%</div>
+                                                        </div>
+                                                        <div class="progress mb-30">
+                                                            <span>1 star</span>
+                                                            <div class="progress-bar" role="progressbar" style="width: {{start_1}}%" aria-valuenow="{{start_1}}" aria-valuemin="0" aria-valuemax="100">{{start_1}}%</div>
+                                                        </div>
+                                                        <!-- <a href="#" class="font-xs text-muted">How are ratings calculated?</a> -->
+                                                    </div>
+                                                    {%  else %}
+                                                    <div class="col-lg-8">
+                                                        <p>No reviews!</p>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <!--comment form-->
+                                            <div class="comment-form">
+                                                <h4 class="mb-15">Add a review</h4>
+                                                <div class="product-rate d-inline-block mb-30"></div>
+                                                
+
+                                                <div id="message-rate">
+                 
+                        
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label>Quality</label> 
+                                                    <div class="rate">
+                                                          <input type="radio" id="first" name="star" value="1"><label for="first" title="text">1 star</label>
+                                                          <input type="radio" id="second" name="star" value="2"> <label for="second" title="text">2 star</label> 
+                                                          <input type="radio" id="third" name="star" value="3"> <label for="third" title="text">3 star</label> 
+                                                          <input type="radio" id="fourth" name="star" value="4"> <label for="fourth" title="text">4 star</label>
+                                                          <input type="radio" id="fifth" name="star" value="5" checked="checked"><label for="fifth" title="text">5 star</label>
+                                                    </div>
+                                                 </div>
+
+
+
+
+
+
+
+                                                <div class="row">
+                                                    <div class="col-lg-8 col-md-12">
+                                                        <form class="form-contact comment_form form-rating"  id="{{product_detail.id}}">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <div class="form-group">
+                                                                        <textarea class="form-control w-100" name="client_message" id="client-message" cols="30" rows="9" placeholder="Write Comment" required></textarea>
+                                                                    </div>
+                                                                </div>
+                                                             
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <button type="submit" class="button button-contactForm">Submit Review</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         <!--Related products-->
+                            <div class="row mt-60">
+                                <div class="col-12">
+                                    <h2 class="section-title style-1 mb-30">Related products</h2>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row related-products">
+                                        {%for related_product in related_products|slice:"0:4"%}
+                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                            <div class="product-cart-wrap hover-up">
+                                                <div class="product-img-action-wrap">
+                                                    <div class="product-img product-img-zoom">
+                                                        <a href="{% url 'products:product-details' related_product.PRDSlug %}" tabindex="0">
+                                                            {%if product_detail.product_image%}
+                                                            <img class="default-img" src="{{related_product.product_image.url}}" alt="" />
+                                                            <img class="hover-img" src="{{related_product.product_image.url}}" alt="" />
+                                                            {%else%}
+                                                            <img class="default-img" src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="" />
+                                                            <img class="hover-img" src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="" />
+                                                                
+                                                            {%endif%}
+                                                        </a>
+                                                    </div>
+                                                    {% comment %} <div class="product-action-1">
+                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                    </div> {% endcomment %}
+                                                    {% if related_product.promotional == "Hot"%}
+                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                        <span class="hot">Hot</span>
+                                                    </div>
+                                                    {%else%}
+                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                        <span class="new">New</span>
+                                                    </div>
+                                                    {%endif%}
+                                                </div>
+                                                <div class="product-content-wrap">
+                                                    <h2><a href="{% url 'products:product-details' related_product.PRDSlug %}" tabindex="0">{{related_product.product_name|truncatechars:40}}</a></h2>
+                                                    <div class="rating-result" title="{{related_product.feedbak_average}}%">
+                                                        <span> </span>
+                                                    </div>
+                                                    <div class="product-price">
+                                                        <span>{{request.session.currency}}{{related_product.PRDPrice|currency:request.session.currency}} </span>
+                                                        {% if related_product.PRDDiscountPrice%}
+                                                        <span class="old-price">{{request.session.currency}}{{related_product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                        {%endif%}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor%}
+
+                                    </div>
+                                </div>
+                            </div>
+                         <!--Related products-->
+                         <!-- More from this seller-->
+                            <div class="row mt-60">
+                                <div class="col-12">
+                                    <h2 class="section-title style-1 mb-30">More from this seller</h2>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row related-products">
+
+                                        {% for supplier_Product in supplier_Products|slice:"0:4"%}
+                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                            <div class="product-cart-wrap hover-up">
+                                                <div class="product-img-action-wrap">
+                                                    <div class="product-img product-img-zoom">
+                                                        <a href="{% url 'products:product-details' supplier_Product.PRDSlug %}" tabindex="0">
+                                                            {%if product_detail.product_image%}
+                                                            <img class="default-img" src="{{supplier_Product.product_image.url}}" alt="" />
+                                                            <img class="hover-img" src="{{supplier_Product.product_image.url}}" alt="" />
+                                                            {%else%}
+                                                            <img class="default-img" src="{% static 'assets/imgs/shop/product-2-1.jpg'%}" alt="" />
+                                                            <img class="hover-img" src="{% static 'assets/imgs/shop/product-2-2.jpg'%}" alt="" />
+                                                            {%endif%}
+                                                        </a>
+                                                    </div>
+                                                    {% comment %} <div class="product-action-1">
+                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
+                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                    </div> {% endcomment %}
+                                                    {% if supplier_Product.promotional == "Hot"%}
+                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                        <span class="hot">Hot</span>
+                                                    </div>
+                                                    {%else%}
+                                                    <div class="product-badges product-badges-position product-badges-mrg">
+                                                        <span class="new">New</span>
+                                                    </div>
+                                                    {%endif%}
+                                                </div>
+                                                <div class="product-content-wrap">
+                                                    <h2><a href="{% url 'products:product-details' supplier_Product.PRDSlug %}" tabindex="0">{{supplier_Product.product_name|truncatechars:40}}</a></h2>
+                                                    <div class="rating-result" title="{{supplier_Product.feedbak_average}}%">
+                                                        <span> </span>
+                                                    </div>
+                                                    <div class="product-price">
+                                                        <span>{{request.session.currency}}{{supplier_Product.PRDPrice|currency:request.session.currency}}</span>
+                                                        {% if supplier_Product.PRDDiscountPrice%}
+                                                        <span class="old-price">{{request.session.currency}}{{supplier_Product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                        {%endif%}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                         <!--end More from this seller-->
+                        </div>
+                    </div>
+                    <div class="col-xl-3 primary-sidebar sticky-sidebar mt-30">
+                        {% comment %} <div class="sidebar-widget widget-delivery mb-30 bg-grey-9 box-shadow-none">
+                            <h5 class="section-title style-3 mb-20">Delivery</h5>
+                            <ul>
+                                <li>
+                                    <i class="fi fi-rs-marker mr-10 text-brand"></i>
+                                    <span>
+                                        5171 W Campbell Ave <br />
+                                        undefined Kent, Utah 53127 <br />United States
+                                    </span>
+                                    <a href="#" class="change float-end">Change</a>
+                                </li>
+                                <li class="hr"><span></span></li>
+                            </ul>
+                            <h5 class="section-title style-3 mb-20">Return & Warranty</h5>
+                            <ul>
+                                <li>
+                                    <i class="fi fi-rs-shield-check mr-10 text-brand"></i>
+                                    <span> 100% Authentic </span>
+                                </li>
+                                <li>
+                                    <i class="fi fi-rs-time-forward-ten mr-10 text-brand"></i>
+                                    <span> 10 Days Return </span>
+                                </li>
+                                <li>
+                                    <i class="fi fi-rs-diploma mr-10 text-brand"></i>
+                                    <span> 12 Months Warranty </span>
+                                </li>
+                            </ul>
+                        </div> {% endcomment %}
+                        <div class="sidebar-widget widget-vendor mb-30 bg-grey-9 box-shadow-none">
+                            <h5 class="section-title style-3 mb-20">Vendor</h5>
+                            <div class="vendor-logo d-flex mb-30">
+                                {% if product_detail.product_vendor.image%}
+
+                                <img src="{{product_detail.product_vendor.image.url}}" width="64" height="50" alt="{{product_detail.product_vendor.display_name}}" />
+                                {%endif%}
+                                <div class="vendor-name ml-15">
+                                    <h6>
+                                        <a href="{%url 'suppliers:vendor-details' product_detail.product_vendor.slug %}">{{product_detail.product_vendor.display_name}}</a>
+                                    </h6>
+                                    {% comment %} <div class="product-rate-cover text-end">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width: 90%"></div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
+                                    </div> {% endcomment %}
+                                </div>
+                            </div>
+                            <ul class="contact-infor">
+                                <li><img src="{% static 'assets/imgs/theme/icons/icon-location.svg'%}" alt="" /><strong>Address: </strong> <span>{{product_detail.product_vendor.address}} {{product_detail.product_vendor.city}}, {{product_detail.product_vendor.post_code}} {{product_detail.product_vendor.country}}</span></li>
+                                <li><img src="{% static 'assets/imgs/theme/icons/icon-contact.svg'%}" alt="" /><strong>Contact Seller:</strong><span>{{product_detail.product_vendor.mobile_number}}</span></li>
+                                <li class="hr"><span></span></li>
+                            </ul>
+                            {% comment %} <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-brand font-xs">Rating</p>
+                                    <h4 class="mb-0">92%</h4>
+                                </div>
+                                <div>
+                                    <p class="text-brand font-xs">Ship on time</p>
+                                    <h4 class="mb-0">100%</h4>
+                                </div>
+                                <div>
+                                    <p class="text-brand font-xs">Chat response</p>
+                                    <h4 class="mb-0">89%</h4>
+                                </div>
+                            </div>
+                            <li class="hr"><span></span></li>
+                            {% endcomment %}
+                            <ul>
+                                
+                            </ul>
+                            <p>Become a Vendor? <a href="{%url 'supplier_dashboard:supplier-register' %}"> Register now</a></p>
+                        </div>
+
+                       
+                        <!-- Product sidebar Widget -->
+                        <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
+                            <h5 class="section-title style-1 mb-30">New products</h5>
+                            {% for new_product in new_products %}
+                            <div class="single-post clearfix">
+                                <div class="image">
+                                    <img src="{{new_product.product_image.url}}" width="80" height="80" style="width:80px;height:80px;" alt="{{new_product.product_name}}" />
+                                </div>
+                                <div class="content pt-10">
+                                    <h6><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h6>
+                                    <p class="price mb-0 mt-5">{{request.session.currency}} {{new_product.PRDPrice|currency:request.session.currency}}</p>
+                                    <div class="product-rate">
+                                        <div class="product-rating" style="width: {{new_product.feedbak_average}}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% for shop_ad in  shop_page_ad|slice:"0:1"%}
+                        <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                            <a href="{{shop_ad.ad_URL}} "> <img src="{{shop_ad.ad_mage.url}}" alt="" /> </a>
+                            <div class="banner-text">
+                                <span>{{shop_ad.supplier}}</span>
+                                <a href="{{shop_ad.ad_URL}} "> <h4>
+                                    {{shop_ad.ad_title}}
+                                </h4></a>
+                            </div>
+                        </div>
+                        {%endfor%}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{%endblock body%}
+
+{%block script%}
+        <!-- Vendor JS-->
+        <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/slider-range.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+        <!-- Template  JS -->
+        <script src="{% static 'assets/js/main.js'%}"></script>
+        <script src="{% static 'assets/js/shop.js'%}"></script>
+        <script>
+            window.onload = function() { 
+              console.log("workeed")
+              const form = document.querySelector(".form-rating");
+              const divRating = document.querySelector(".rating");
+              const csrf = document.getElementsByName('csrfmiddlewaretoken');
+              const one = document.getElementById("first");
+              const two = document.getElementById("second");
+              const three = document.getElementById("third");
+              const four = document.getElementById("fourth");
+              const five = document.getElementById("fifth");
+              const message = document.getElementById("message");
+              //const cartHover = document.querySelector(".cart-hover");
+              var productRate;
+              const arr = [one, two, three , four , five]
+              const messageRate = document.getElementById("message-rate");
+          
+          
+              const clientMessage = document.getElementById("client-message");
+              
+            //   if (message){
+            //     cartHover.classList.add("cart-visible");
+            //     setInterval(()=>{
+            //           cartHover.classList.remove("cart-visible");
+            //         },9000)
+                
+            //   }
+          
+            //   const handleStartSelect = (size)=>{
+            //     const childern = divRating.children
+            //     for (let i=0; i < childern.length; i++){
+            //       if(i <= size){
+            //         childern[i].classList.add("checked")
+            //       }else{
+            //         childern[i].classList.remove("checked")
+            //       }
+            //     }
+            //   }
+              const handleSelect = (selection)=>{
+                switch(selection){
+                  case 'first':{
+                    console.log("first")
+                    // handleStartSelect(0);
+                    return
+                  }
+                  case 'second':{
+                    console.log("second")
+                    // handleStartSelect(1);
+                    return
+                  }
+                  case 'third':{
+                    console.log("third")
+                    // handleStartSelect(2);
+                    return
+                  }
+                  case 'fourth':{
+                    console.log("fourth")
+                    // handleStartSelect(3);
+                    return
+                  }
+                  case 'fifth':{
+                    console.log("fifth")
+                    // handleStartSelect(4);
+                    return
+                  }
+                }
+              } 
+          
+              //arr.forEach(item=> item.addEventListener("mouseover",(event)=>{
+                
+                //handleSelect(event.target.id);
+              //}))
+          
+              arr.forEach(item=> item.addEventListener("click",(event)=>{
+          
+                  productRate= event.target.value
+                  console.log("target:", productRate )
+                  handleSelect(event.target.id);
+              }))
+          
+              
+              form.addEventListener('submit', e =>{
+                //console.log(subscribeInput.value);
+                e.preventDefault();
+                if (productRate){
+                $.ajax({
+                        type: "POST",            
+                        url : "{% url 'products:product_rating' %}",
+                        data: {
+                        'csrfmiddlewaretoken': csrf[0].value ,
+                        'product_id':e.target.id,
+                        'product_rate' : productRate,
+                        'client_message': clientMessage.value,
+                            },
+                        success : function(response){
+                                console.log(response);
+                                messageRate.classList.remove("not-visible")
+                                messageRate.innerHTML=` <div    class="alert align-middle alert-success"><span class="align-middle"> Your review has been successfully added </span> </div>`
+                                setTimeout(()=>{
+                                  messageRate.classList.add("not-visible")
+                                
+                                  clientMessage.value=""
+          
+                                },5000) 
+                            },
+                        error : function(error){
+                          messageRate.classList.remove("not-visible")
+                          messageRate.innerHTML=` <div    class="alert align-middle alert-warning"><span class="align-middle"> Ops ... some thing went wrong !</span> </div>`
+          
+                                setTimeout(()=>{
+                                    messageRate.classList.add("not-visible")
+                                },2000) 
+                            },
+                
+          
+                })
+                //if end
+              }else{
+                console.log("must select stars")
+                messageRate.classList.remove("not-visible")
+                          messageRate.innerHTML=` <div    class="alert align-middle alert-danger"><span class="align-middle"> You Must Select Stars !</span> </div>`
+          
+                                setTimeout(()=>{
+                                    messageRate.classList.add("not-visible")
+                                },2000) 
+              }
+          
+            }) 
+          
+          
+          
+            }
+          </script>  
+
+{%endblock script%}

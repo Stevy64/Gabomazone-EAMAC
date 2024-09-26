@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{%block body%}
+
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'home:index' %" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Shop
+                <span></span> Cart
+            </div>
+        </div>
+    </div>
+    <div class="container mb-80 mt-50">
+        <div class="row">
+            <div class="col-lg-8 mb-40">
+                <h1 class="heading-2 mb-10">Order.id #{{order.id}}</h1>
+                <div class="d-flex justify-content-between">
+                    <h6 class="text-body">There are <span class="text-brand">{{order_details.count}}</span> Items in your Order</h6>
+                  
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                {% if messages %}
+                {% for message in messages %}
+  
+                <div    class="mt-30 alert align-middle alert-{{message.tags}}">
+                   
+                    <span class="align-middle"> {{message}}</span>
+                </div>
+  
+                {% endfor %}
+                {% endif %}
+                <div class="table-responsive shopping-summery">
+                    <table class="table table-wishlist">
+                        <thead>
+                            <tr class="main-heading">
+                                {% comment %} <th class="custome-checkbox start pl-30">
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
+                                    <label class="form-check-label" for="exampleCheckbox11"></label>
+                                </th> {% endcomment %}
+                                <th scope="col" class="pl-30" colspan="2">Product Details</th>
+                                <th scope="col">WEIGHT</th>
+                                <th scope="col">Unit Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Subtotal</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in order_details%}
+                            <tr class="pt-30">
+                                {% if item.product.product_image %}
+                                <td class="pl-30 image product-thumbnail"><img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}"></td>
+                                {%else%}
+                                <td class="pl-30 image product-thumbnail"><img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="{{item.product.product_name}}"></td>
+                                {%endif%}
+                                <td class="product-des product-name">
+                                    <h6 class="mb-5"><a class="product-name mb-10 text-heading" href="{% url 'products:product-details' item.product.PRDSlug %}">{{item.product}}</a></h6>
+                                    {%if item.product.feedbak_average > 0%}
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:{{item.product.feedbak_average}}%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> ({{item.product.feedbak_number}})</span>
+                                    </div>
+                                    {%endif%}
+                                </td>
+                                <td class="price" data-title="Weight">
+                                    <h4 class="text-brand">{{item.weight }}KG</h4>
+                                </td>
+                                <td class="price" data-title="Price">
+                                    <h4 class="text-body">${{item.price }} </h4>
+                                </td>
+                                <td class="text-center detail-info" data-title="Stock">
+                                    
+                                    <h4 class="text-body">{{item.quantity }}</h4>
+                                </td>
+                                <td class="price" data-title="Price">
+                                    <h4 class="text-brand">${% widthratio item.price 1 item.quantity %} </h4>
+                                </td>
+                                
+                            </tr>
+                         {%endfor%}   
+                          
+                        </tbody>
+                    </table>
+                </div>
+                <div class="divider-2 mb-30"></div>
+                <div class="cart-action d-flex justify-content-between">
+                    {% comment %} <a class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a> {% endcomment %}
+                    {% comment %} <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-refresh mr-10"></i>Update Cart</a> {% endcomment %}
+                    
+                </div>
+                
+   
+                
+            </div>
+            <div class="col-lg-4">
+                <div class="border p-md-4 cart-totals ml-30">
+                    <div class="table-responsive">
+                        <table class="table no-border">
+                            <tbody>
+                                <tr>
+                                    <td class="cart_total_label">
+                                        <h6 class="text-muted">Subtotal</h6>
+                                    </td>
+                                    <td class="cart_total_amount">
+                                        <h4 class="text-brand text-end">${{order.sub_total}}</h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="cart_total_label">
+                                        <h6 class="text-muted">Items</h6>
+                                    </td>
+                                    <td class="cart_total_amount">
+                                        <h4 class="text-brand text-end">{{order_details.count}}</h4>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td scope="col" colspan="2">
+                                        <div class="divider-2 mt-10 mb-10"></div>
+                                    </td>
+                                </tr>
+
+                                {% if order.coupon%}
+                                <tr>
+                                    <td class="cart_total_label">
+                                        <h6 class="text-muted">Coupon ({{order.coupon}})</h6>
+                                    </td>
+                                    <td class="cart_total_amount">
+                                        <h5 class="text-heading text-end"> <span> %{{order.coupon.discount}} </h4</td> </tr> <tr>
+                                    <td scope="col" colspan="2">
+                                        <div class="divider-2 mt-10 mb-10"></div>
+                                    </td>
+                                </tr>
+                                {%endif%}
+                                <tr>
+                                    <td class="cart_total_label">
+                                        <h6 class="text-muted">Total</h6>
+                                    </td>
+                                    <td class="cart_total_amount">
+                                        <h4 class="text-brand text-end">${{order.amount|floatformat:"2"}}</h4>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a class="btn mb-20 w-100">{{order.status}}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{%endblock body%}
+
+{%block script%}
+    <!-- Vendor JS-->
+    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+    <!-- Template  JS -->
+    <script src="{% static 'assets/js/main.js'%}"></script>
+    <script src="{% static 'assets/js/shop.js'%}"></script>
+
+
+{%endblock script%}

@@ -1,0 +1,235 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+
+{%block section %}
+
+<section class="content-main">
+    <div class="content-header">
+        <a href="javascript:history.back()"><i class="material-icons md-arrow_back"></i> Go back </a>
+    </div>
+    <div class="card mb-4">
+        {% if messages %}
+        {% for message in messages %}
+
+        <div    class="alert align-middle alert-{{message.tags}}">
+           
+            <span class="align-middle"> {{message}}</span>
+        </div>
+
+        {% endfor %}
+        {% endif %}
+        <div class="card-body">
+            
+            <!-- card-body.// -->
+            
+            <div class="row g-4">
+                <div class="col-md-12 col-lg-4 col-xl-2">
+                    <article class="box">
+                        <p class="mb-0 text-muted">Balance:</p>
+                        <h5 class="text-success">${{vendor.blance|floatformat:"2"}}</h5>
+                        <p class="mb-0 text-muted">Last Requested:</p>
+                        <h5 class="text-success mb-0">${{vendor.requested|floatformat:"2"}}</h5>
+                    </article>
+                </div>
+                <!--  col.// -->
+                 
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <!-- <h6>Contacts</h6> -->
+                    <p>
+                        Bank Name: {{bank_info_obj.bank_name}}<br />
+                        Account Number: {{bank_info_obj.account_number}} <br />
+                        Swift Code: {{bank_info_obj.swift_code}}
+                    </p>
+                </div>
+                <!--  col.// -->
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+                    <!-- <h6>Address</h6> -->
+                    <p>
+                        Country: {{bank_info_obj.country}} <br />
+                        Account Name: {{bank_info_obj.account_name}} <br />
+                        Paypal Email: {{bank_info_obj.paypal_email}}
+                    </p>
+                </div>
+                <!--  col.// -->
+                <div class="col-sm-6 col-xl-4 text-xl-end">
+                    <map class="mapbox position-relative d-inline-block">
+                        <a href="#payment_request_modal" class="btn btn-primary request_btn" data-bs-toggle="modal">Payment Request <i class="material-icons md-launch"></i> </a>
+
+                    </map>
+                </div>
+                <!--  col.// -->
+            </div>
+            <!--  row.// -->
+        </div>
+        <!--  card-body.// -->
+    </div>
+    <!--  card.// -->
+    <div class="card mb-4">
+        <!-- <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control" />
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <select class="form-select">
+                        <option>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <select class="form-select">
+                        <option>Show 20</option>
+                        <option>Show 30</option>
+                        <option>Show 40</option>
+                    </select>
+                </div>
+            </div>
+        </header> -->
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>FEE</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Comment</th>
+                            <!-- <th class="text-end">Action</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments%}
+                        <tr>
+                            <td>#{{payment.id}}</td>
+                            <td>${{payment.request_amount}}</td>
+                            <td>${{payment.fee}}</td>
+                            <td>
+                                {% if payment.method == "Paypal"%}
+                                <div class="icontext">
+                                    <img class="icon border" src="{% static 'assets-supplier/imgs/card-brands/3.png' %}" alt="Paypal">
+                                    <span class="text text-muted">{{payment.method}}</span>
+                                </div>
+                                {%else%}
+                                <div class="icontext">
+                                    <img class="icon border" src="{% static 'assets-supplier/imgs/card-brands/5.png' %}" alt="Bank">
+                                    <span class="text text-muted">{{payment.method}}</span>
+                                </div>
+                                {%endif%}
+                            </td>
+                            <td>
+                                {% if payment.status == "Paid" %}
+                                    <span class="badge rounded-pill alert-success">{{payment.status}}</span>
+                                {%elif payment.status == "Pending" %}
+                                    <span class="badge rounded-pill badge-soft-info">{{payment.status}}</span>
+                                {%elif payment.status == "Progressing" %}
+                                    <span class="badge rounded-pill badge-soft-warning">{{payment.status}}</span>
+                                {%else%}    
+                                <span class="badge rounded-pill badge-soft-danger">{{payment.status}}</span>
+                                {%endif%}
+                            </td>
+                            <td>{{payment.date}}</td>
+                            {%if payment.comment %}
+                            <td>{{payment.comment}}</td>
+                            {%else%}
+                            <td></td>
+                            {%endif%}
+                            <!-- <td class="text-end">
+                                <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15">View details</a>
+                            </td> -->
+                        </tr>
+                      {%endfor%}
+                        
+                    </tbody>
+                </table>
+                <!-- table-responsive.// -->
+            </div>
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!--  card.// -->
+    {%if payments.has_other_pages %}
+    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                {%if payments.has_previous%}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{payments.previous_page_number}}"><i class="material-icons md-chevron_left"></i></a>
+                </li>
+                {%endif%}
+                <li class="page-item active"><a class="page-link" href="#">{{payments.number}}</a></li>
+                {%if payments.paginator.num_pages > payments.number  %}
+                
+                <li class="page-item"><a class="page-link" href="?page={{payments.number|add:1}}">{{payments.number|add:1}}</a></li>
+                {%endif%}
+                 <!-- <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                
+                <li class="page-item"><a class="page-link" href="?page={{payments.paginator.num_pages}}">{{payments.paginator.num_pages}}</a></li>
+                {%if payments.has_next%}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{payments.next_page_number}}"><i class="material-icons md-chevron_right"></i></a>
+                </li>
+                {%endif%}
+            </ul>
+        </nav>
+    </div>
+    {%endif%} 
+</section>
+
+		<!-- Payment Request Moodal -->
+
+        <div class="modal fade custom-modal" id="payment_request_modal" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Payment Request</h3>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="payment_request_form" method="post" action ="{% url 'supplier_dashboard:request-payment'%}">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_type" id="payment_type" value="1">
+                            <div class="form-group">
+                                <label>Available balance</label>
+                                <input type="text" name="available_balance" id="balance" class="form-control"   value="${{vendor.blance|floatformat:'2'}}" readonly>
+                                <span class="help-block"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount to Withdraw</label>
+                                <input type="number" name="request_amount" id="request_amount" step=any class="form-control"  required>
+                                <span class="help-block"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Choase Method</label>
+                                <select name="method" class="form-select">
+                                    <option value="Paypal">Paypal</option>
+                                    <option value="Bank">Bank</option>
+                                    
+                                </select>
+                            </div> 
+                            <div class="form-group">
+                                <label>Description (Optional)</label>
+                                <textarea class="form-control" name="description" id="description"></textarea>
+                                <span class="help-block"></span>
+                            </div>
+                        
+                    </div>
+                    <div class="modal-footer text-center">
+                        <button type="submit" id="request_btn" class="btn btn-primary">Request</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- /Payment Request Moodal -->
+{%endblock section%}
+
+{%block script%} 
+{%endblock script%}

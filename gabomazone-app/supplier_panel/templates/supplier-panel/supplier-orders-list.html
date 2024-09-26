@@ -1,0 +1,99 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+
+{%block section %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order List</h2>
+            <!-- <div id="orders-num" class="totall-product">
+                <p>We found <strong class="text-brand">0</strong> Orders for you!</p>
+            </div> -->
+        </div>
+        <div>
+            <!-- <input type="text" placeholder="Search order ID" class="form-control bg-white" /> -->
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div  id="orders-num" class="col-lg-4 col-md-6 me-auto">
+                    <!-- <input type="text" placeholder="Search..." class="form-control" /> -->
+                    <p>We found <strong class="text-brand">0</strong> Orders for you!</p>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select mySelect" id="mySelect">
+                        <option value="-order_date" selected>Date, new to old</option>
+                        <option value="order_date">Date, old to new</option>
+                        <option value="amount">Price, low to high</option>
+                        <option value="-amount">Price, high to low</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select select-status" id="select-status">
+                        <option value="All" selected>Show all</option>
+                        <option value="Underway">Underway</option>
+                        <option value="COMPLETE">COMPLETE</option>
+                        <option value="Refunded">Refunded</option>
+                       
+                    </select>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Weight</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-list">
+
+
+                      
+          
+                      
+
+  
+    
+                    </tbody>
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <div id="spinner-box" class="not-visible  text-center">
+                <div class="spinner-border" role="status">
+                  <span class="sr-only"></span>
+                </div>
+              </div>
+              <div id="empty-box" class="not-visible  text-center">
+                
+              </div>
+
+            <div id ="loading-box" class="text-center">
+                <button id="load-btn" type="button" class="btn btn-primary">Load More</button>
+                
+              </div>
+        </nav>
+    </div>
+</section>
+
+{%endblock section%}
+
+{%block script%} 
+<script src="{% static 'assets-supplier/js/orders-list.js'%}" type="text/javascript"></script>
+{%endblock script%}

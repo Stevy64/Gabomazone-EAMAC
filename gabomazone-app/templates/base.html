@@ -1,0 +1,875 @@
+{% load static%}
+{% load cart_template_tags%}
+{% load currency %}
+{% currency_context %}
+<!DOCTYPE html>
+<html class="no-js'" lang="en">
+    <head>
+		{%block head%}
+        <meta charset="utf-8" />
+        <title>{{site_info.site_title}}</title>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="description" content="{{site_info.description}}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta property="og:locale" content="fr-fr" />
+        <meta property="og:title" content="{{site_info.site_title}}" />
+		<meta property="og:site_name" content="{{site_info.site_name}}" />
+		<meta property="og:description" content="{{site_info.description}}"/>
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{site_info.site_url}}" />
+        <meta property="og:image" content="{{site_info.site_logo.url}}" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="{{site_info.site_title}}" />
+		<meta name="twitter:description" content="{{site_info.description}}" />
+		<meta name="twitter:site" content="@{{site_info.site_name}}" />
+        <!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
+
+        <!-- Template CSS -->
+        <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
+        <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
+		{%endblock head%}
+
+		{%block headextra%}
+		{%endblock headextra%}
+		
+    </head>
+
+    <body>
+
+	<!-- 1er Niveau de Banniere : About Us / My Account / Publicite 25% de discount / Devises -->
+	<header class="header-area header-style-1 header-style-5 header-height-2">
+	<div class="mobile-promotion">	
+		{% for text_ad in head_text%}
+		<span>{{text_ad.ad_title}} <a class="active d-inline-block" style="color:#090101;" href="{{text_ad.ad_URL}}">Shop now</a></span>
+		{%endfor%}
+	</div>
+	<div class="header-top header-top-ptb-1 d-none d-lg-block">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-xl-3 col-lg-4">
+					<div class="header-info">
+						<ul>
+							{% for page_obj in pages_list|slice:"0:1"%}
+							<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name}}</a></li>
+							{%endfor%}
+							<li><a href="{% url 'accounts:dashboard_customer' %}">My Account</a></li>
+							
+							<!-- <li><a href="{% url 'accounts:order_tracking'%}">Order Tracking</a></li> -->
+						</ul>
+					</div>
+				</div>
+				<div class="col-xl-6 col-lg-4" >
+					<div class="text-center"  >
+						<div id="news-flash" class="d-inline-block" style="overflow: hidden; position: relative; height: 15px;">
+							<ul style="position: absolute; margin: 0px; padding: 0px; top: 0px;">
+							   {% for text_ad in head_text%}
+							   <li style="margin: 0px; padding: 0px; height: 15px;">
+								  <i class="fi-rs-bell d-inline-block mr-5"></i>
+								  <span class="d-inline-block">
+								  <b class="text-success"> Ads</b> {{text_ad.ad_title}}</span>
+								  <a class="active d-inline-block" href="{{text_ad.ad_URL}}">Shop now</a>
+							   </li>
+							  {%endfor%}
+							</ul>
+						 </div>
+					</div>
+				</div>
+				<!-- Changer la Dévise -->
+				<div class="col-xl-3 col-lg-4">
+					<div class="header-info header-info-right">
+						<ul>
+							<form action="{% url 'home:set-currency' %}" method="post" style="margin-right: 10px;">
+								{% csrf_token %}
+								
+								<select name="currency"  onchange="submit()" >
+									{% for curr in CURRENCIES %}
+									<option value="{{ curr.code }}" {% ifequal curr.code request.session.currency %}selected="selected"{% endifequal %}>
+										{{ curr.symbol }} 
+										{{ curr.name }} 
+									  </option>
+									{% endfor %} 
+								</select>
+							
+							</form>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 2e Niveau de Banniere : Logo / Barre de Recherche / Chariot / Compte -->
+	<div class="header-middle header-middle-ptb-1 d-none d-lg-block">
+		<div class="container">
+			<div class="header-wrap">
+
+				<!-- Logo -->
+				<div class="logo logo-width-1">
+					<a href="{% url 'home:index' %}"><img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" /></a>
+				</div>
+
+				<!-- Barre de Recherche Articles / Categories -->
+				<div class="header-right">
+					<div class="search-style-2">
+						<form action="{% url 'products:product-search'%}" method="post">
+							{% csrf_token %}
+							<select name ="category-select" class="select-active  category-search" id="category-search">
+								<option>All Categories</option>
+								{% for super in supercategory%}
+										<option>{{super.name}}</option>
+								{%endfor%}
+							</select>
+
+							<input type="text" name="search-product" placeholder="Rechercher un article" autocomplete="off" required/>
+							<button type="submit"><i class="fi-rs-search"></i></button>
+						</form>
+					</div>
+					<div class="header-action-right">
+						<div class="header-action-2">
+							
+							<!-- Chariot -->
+							<div class="header-action-icon-2">
+								<a class="mini-cart-icon" href="{% url 'orders:cart'%}">
+									<img alt="Gabomazone" src="{% static 'assets/imgs/theme/icons/icon-cart.svg'%}" />
+									{% if cart_count%}
+									<span class="pro-count blue">{{cart_count}}</span>
+									{%else%}
+									<span class="pro-count blue">0</span>
+									{%endif%}
+								</a>
+								<a href="{% url 'orders:cart'%}"><span class="lable">Cart</span></a>
+								{% if cart_count%}								
+								<div class="{% if   order_context is None %}  not-visible {%endif%} cart-dropdown-wrap cart-dropdown-hm2">
+									
+									<ul>
+										{% for order in order_details_context%}
+										<li>
+											<div class="shopping-cart-img">
+												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+											</div>
+											<div class="shopping-cart-title">
+												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+												<h4><span>{{order.quantity}} × </span>${{order.price}}</h4>
+											</div>
+											<div class="shopping-cart-delete">
+												<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
+											</div>
+										</li>
+										{%endfor%}
+									</ul>
+									<div class="shopping-cart-footer">
+										<div class="shopping-cart-total">
+											{% if order_context.amount%}
+											 <h4>Total <span>${{order_context.amount}}</span></h4> 
+											{%endif%}
+										</div>
+										<div class="shopping-cart-button">
+											<a href="{% url 'orders:cart'%}" class="outline">View cart</a>
+											<a href="{% url 'orders:cart'%}">Checkout</a>
+										</div>
+									</div>
+								</div>
+								{%endif%}								
+							</div>
+							
+							<!-- Compte de Connexion -->
+							<div class="header-action-icon-2">
+								<a href="{% url 'accounts:dashboard_customer' %}">
+									<img class="svgInject" alt="Gabomazone" src="{% static 'assets/imgs/theme/icons/icon-user.svg'%}" />
+								</a>
+								<a href="{% url 'accounts:dashboard_customer' %}"><span class="lable ml-0">Account</span></a>
+								<div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
+									<ul>
+										{% if user.is_authenticated %}
+										<!-- <li>
+											<a href="{% url 'accounts:order_tracking'%}"><i class="fi fi-rs-location-alt mr-10"></i>Order Tracking</a>
+										</li> -->
+										<li>
+											<a href="{% url 'accounts:dashboard_customer'%}"><i class="fi fi-rs-label mr-10"></i>My Orders</a>
+										</li>
+									
+										<li>
+											<a href="{% url 'accounts:account_details'%}"><i class="fi fi-rs-settings-sliders mr-10"></i>Setting</a>
+										</li>
+										<li>
+											<a href="{% url 'accounts:logout'%}"><i class="fi fi-rs-sign-out mr-10"></i>Sign out</a>
+										</li>
+										{% else %}
+										
+											<li><a href="{% url 'accounts:login'%}"><i class="fi fi-rs-user mr-10"></i>Login</a></li>
+											<li><a href="{% url 'accounts:register'%}"><i class="fi fi-rs-user-add mr-10"></i>Register</a></li>
+										
+										{% endif %}
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% block sticky_bar %}
+
+	<!-- 3e Niveau de Banniere : Menu dans banderole Verte : Categories en vogue / Accueil / Promos / Categories / Magasins / Blog / Contact / SAV -->
+	<div class="header-bottom header-bottom-bg-color sticky-bar">
+		<div class="container">
+			<div class="header-wrap header-space-between position-relative">
+				<div class="logo logo-width-1 d-block d-lg-none">
+					<a href="{% url 'home:index' %}"><img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" /></a>
+				</div>
+				<div class="header-nav d-none d-lg-flex">
+
+					<!-- Categories en vogue -->
+					<div class="main-categori-wrap d-none d-lg-block">
+						<a class="categories-button-active" href="#">
+							<span class="fi-rs-apps"></span> <span class="et">Trending</span> Categories
+							<i class="fi-rs-angle-down"></i>
+						</a>
+						<div class="categories-dropdown-wrap categories-dropdown-active-large font-heading">
+							<div class="d-flex categori-dropdown-inner">
+								<ul>
+									{% for categori in supercategory|slice:":5"%}
+									<li>
+										<a href="{% url 'categories:super-category' categori.slug%}"> <img src="{%if categori.category_image %}{{categori.category_image.url}} {%else%} {% static 'assets/imgs/theme/icons/category-1.svg'%} {%endif%}" alt="{{categori.name}}" />{{categori.name}}</a>
+									</li>
+   
+									{% endfor %}
+								</ul>
+								<ul class="end">
+									{% for categori in supercategory|slice:"5:10"%}
+									<li>
+										<a href="{% url 'categories:super-category' categori.slug%}"> <img src="{%if categori.category_image %}{{categori.category_image.url}} {%else%} {% static 'assets/imgs/theme/icons/category-1.svg'%} {%endif%}" alt="{{categori.name}}" />{{categori.name}}</a>
+									</li>
+									{% endfor %}
+								</ul>
+							</div>
+							
+							{%if supercategory.count >= 11  %} 
+							<div class="more_categories"> <a href="{% url 'categories:category-list'%}"><span class="fi-rs-apps"></span> <span class="heading-sm-1"> All Categories...</span> </a></div>
+							{%endif%}
+						</div>
+					</div>
+
+					<!-- Barre d'accueil -->
+					<div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block font-heading">
+						<nav>
+							<ul>
+								
+								<!-- Accueil -->
+								<li>
+									<a class="active" href="{%url 'categories:shop' %}">Our Articles </a>
+								</li>
+								
+								<!-- Promos -->
+								<li class="position-static hot-deals">
+									<img src="{% static 'assets/imgs/theme/icons/icon-hot-white.svg'%}" alt="hot deals" /><a href="{%url 'categories:shop' %}">Trendings <i class="fi-rs-angle-down"></i></a>
+									<ul class="mega-menu">
+										{% for deal in hot_dael|slice:":3" %}
+										<li class="sub-mega-menu" style="width: 33%;">
+											<div class="menu-banner-wrap">
+												<a href="{{deal.ad_URL}}">
+													<img {%if deal.ad_mage%} src="{{deal.ad_mage.url}}" {%else%} src="{% static 'assets/imgs/banner/banner-menu.png'%}" {%endif%} alt="Gabomazone" /></a>
+												<div class="menu-banner-content">
+													<h4>Hot deals</h4>
+													<h3>
+														Don't miss<br />
+														Trending
+													</h3>
+													<div class="menu-banner-price">
+														<span class="new-price text-success">Save to {{deal.rate}}%</span>
+													</div>
+													<div class="menu-banner-btn">
+														<a href="{{deal.ad_URL}}">Shop now</a>
+													</div>
+												</div>
+												<div class="menu-banner-discount">
+													<h3>
+														<span>{{deal.rate}}%</span>
+														off
+													</h3>
+												</div>
+											</div>
+										</li>
+										{%endfor%}
+										
+									</ul>
+								</li>
+								
+								<!-- Vendeurs -->
+								<!--
+								<li>
+									<a href="{% url 'suppliers:supplier-list'%}">Vendors</a>
+								</li> -->
+
+								<!-- Categories -->
+								<li class="position-static">
+									<a href="{% url 'categories:category-list'%}">All the Categories </a>
+								</li>
+								
+								<!-- Magasins -->
+								<li>
+									<a href="{% url 'suppliers:supplier-list'%}">Partner Stores</a>
+								</li>
+
+								<!-- Blog -->
+								<!--
+								<li>
+									<a href="{% url 'blog:home-blog' %}">Blog</a>
+								</li> -->
+
+								<!-- Contact -->
+								<!--
+								<li>
+									<a href="{%url 'contact:contact'%}">Contact</a>
+								</li> -->
+							</ul>
+						</nav>
+					</div>
+				</div>
+				
+				<!-- Contact & Permanence SAV -->
+				<div class="hotline d-none d-lg-flex">
+					<img src="{% static 'assets/imgs/theme/icons/icon-headphone-white.svg'%}" alt="hotline" />
+					{% for number_obj in support_number|slice:"0:1"%}
+					<p>{{number_obj.number}}<span>{{number_obj.Work_time}}</span></p>
+					{%endfor%}
+				</div>
+				
+				<!-- VERSION MOBILE : Burger button -->
+				<div class="header-action-icon-2 d-block d-lg-none">
+					<div class="burger-icon burger-icon-white">
+						<span class="burger-icon-top"></span>
+						<span class="burger-icon-mid"></span>
+						<span class="burger-icon-bottom"></span>
+					</div>
+				</div>
+				<div class="header-action-right d-block d-lg-none">
+					<div class="header-action-2">
+
+						<!-- Compte -->
+						<div class="header-action-icon-2">
+							<a href="{% url 'accounts:dashboard_customer' %}">
+								<img alt="Gabomazone" src="{% static 'assets/imgs/theme/icons/icon-user.svg'%}" />
+								{% comment %} <span class="pro-count white">4</span> {% endcomment %}
+							</a>
+						</div> 
+
+						<!-- Pannier -->
+						<div class="header-action-icon-2">
+							<a class="mini-cart-icon" href="{% url 'orders:cart'%}">
+								<img alt="Gabomazone" src="{% static 'assets/imgs/theme/icons/icon-cart.svg'%}" />
+								{% if cart_count%}
+								<span class="pro-count white">{{cart_count}}</span>
+								{%else%}
+								<span class="pro-count white">0</span>
+								{%endif%}
+							</a>
+							{% if cart_count%}	
+							<div class="{% if   order_context is None %}  not-visible {%endif%} cart-dropdown-wrap cart-dropdown-hm2">
+								<ul>
+									
+									{% for order in order_details_context%}
+									<li>
+										<div class="shopping-cart-img">
+											<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+										</div>
+										<div class="shopping-cart-title">
+											<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+											<h3><span>{{order.quantity}} × </span>${{order.price}}</h3>
+										</div>
+										<div class="shopping-cart-delete">
+											<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
+										</div>
+									</li>
+									{%endfor%}
+   
+								</ul>
+								<div class="shopping-cart-footer">
+									<div class="shopping-cart-total">
+										{% if order_context.amount%}
+											<h4>Total <span>${{order_context.amount}}</span></h4> 
+										{%endif%}
+									</div>
+									<div class="shopping-cart-button">
+										<a href="{% url 'orders:cart'%}">View cart</a>
+										<a href="{% url 'orders:cart'%}">Checkout</a>
+									</div>
+								</div>
+							</div>
+							{%endif%}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	{% endblock sticky_bar %}
+
+	</header>
+
+
+<!-- VERSION MOBILE : Menu Burger -->
+
+<div class="mobile-header-active mobile-header-wrapper-style">
+	<div class="mobile-header-wrapper-inner">
+		<div class="mobile-header-top">
+
+			<!-- Logo -->
+			<div class="mobile-header-logo">
+				<a href="{% url 'home:index' %}"><img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" /></a>
+			</div>
+
+			<!-- Button close -->
+			<div class="mobile-menu-close close-style-wrap close-style-position-inherit">
+				<button class="close-style search-close">
+					<i class="icon-top"></i>
+					<i class="icon-bottom"></i>
+				</button>
+			</div>
+		</div>
+
+		<div class="mobile-header-content-area">
+
+			<!-- Recherche -->
+			<div class="mobile-search search-style-3 mobile-header-border">
+				<form action="{% url 'products:product-search'%}" method="post">
+					{% csrf_token %}
+					<input name="search-product" type="text" placeholder="Search for items…" autocomplete="off" required/>
+					<button type="submit"><i class="fi-rs-search"></i></button>
+				</form>
+			</div>
+
+			<div class="mobile-menu-wrap mobile-header-border">
+				<!-- mobile menu start -->
+				<nav>
+					<ul class="mobile-menu font-heading">
+						<li class="menu-item-has-children">
+							<a href="{% url 'home:index' %}">Accueil</a>
+						</li>
+
+						<li class="menu-item-has-children">
+							<a href="{%url 'categories:shop' %}">Shop</a>
+						</li>
+						
+						<li class="menu-item-has-children">
+							<a href="{% url 'categories:category-list'%}">Categoreis</a>
+							<ul class="dropdown">
+								{% for super in supercategory%}
+								<li class="menu-item-has-children">
+									
+									<a href="{% url 'categories:super-category' super.slug%}">{{super}}</a>
+									<ul class="dropdown">
+										{% for main in maincategory %}
+                                		{% if main.super_category == super %}
+										<li>
+											<a href="{% url 'categories:main-category' main.slug %}">{{main}}</a>
+										</li>
+									
+										{%endif%}
+										{%endfor%}
+									</ul>
+								</li>
+								{%endfor%}
+								
+							</ul>
+						</li>
+						
+						<!-- Vendors -->
+						<!--
+						<li class="menu-item-has-children">
+							<a href="{% url 'suppliers:supplier-list'%}">Vendors</a>
+						</li> -->						
+
+						<li class="menu-item-has-children">
+							<a href="{% url 'suppliers:supplier-list'%}">Partner Stores</a>
+						</li>
+
+						<!--
+						<li class="menu-item-has-children">
+							<a href="{% url 'blog:home-blog' %}">Blog</a>
+						</li> -->
+					</ul>
+				</nav>
+				<!-- mobile menu end -->
+			</div>
+			<div class="mobile-header-info-wrap">
+				<div class="single-mobile-header-info">
+					<a href="{%url 'contact:contact'%}"><i class="fi-rs-marker"></i>Contact</a>
+				</div>
+				<div class="single-mobile-header-info">
+					{% if user.is_authenticated %}
+					<a href="{% url 'accounts:dashboard_customer' %}"><i class="fi-rs-user"></i>My Account</a>
+					{%else%}
+					<a href="{% url 'accounts:login' %}"><i class="fi-rs-user"></i>Log In / Sign Up </a>
+					
+					{%endif%}
+				</div>
+				<div class="single-mobile-header-info">
+					<a href="#"><i class="fi-rs-headphones"></i>(+241) - 7 71 94 43 61 </a>
+				</div>
+			</div>
+			<div class="mobile-social-icon mb-50">
+				<h6 class="mb-15">Follow Us</h6>
+				{% for link in Socail_links|slice:":1"%}
+				<a href="{{link.facebook}}"><img src="{% static 'assets/imgs/theme/icons/icon-facebook-white.svg'%}" alt="" /></a>
+				<a href="{{link.twitter}}"><img src="{% static 'assets/imgs/theme/icons/icon-twitter-white.svg'%}" alt="" /></a>
+				<a href="{{link.instagram}}"><img src="{% static 'assets/imgs/theme/icons/icon-instagram-white.svg'%}" alt="" /></a>
+				<a href="{{link.youtube}}"><img src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg'%}" alt="" /></a>
+				{%endfor%}
+			</div>
+			<div class="site-copyright">Copyright 2024 Gabomazone © tous droits réservés.  Gabomazone</div>
+		</div>
+	</div>
+</div>
+
+<!-- VERSION MOBILE END -->
+
+
+<div id="alert-container" class="not-visible">
+
+
+<!-- 4e Niveau de Banniere : Banderole Verte de pied de page -->
+</div>
+
+		{%block body%}
+			<!-- Contenu : Banniere de Promos + Articles -->
+		{%endblock body%}
+
+		<!-- Footer-->
+        <footer class="main">
+            <section class="newsletter mb-15 wow animate__animated animate__fadeIn">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="position-relative newsletter-inner">
+
+								<!-- Banderole de News letter -->
+                                <div class="newsletter-content">
+                                    <h2 class="mb-20">
+                                        Stay home & get your daily <br />
+                                        needs from our shop
+                                    </h2>
+                                    <p class="mb-45">Start Your Daily Shopping with <span class="text-brand">{{site_info.site_name}}</span></p>
+                                    <form method="POST" class="form-subcriber d-flex selector-2">
+										{% csrf_token %}
+                                        <input id="subscribe-input-2" type="email" placeholder="Your emaill address" required/>
+                                        <button class="btn" type="submit">Subscribe</button>
+                                    </form>
+                                </div>
+                                <img {% if site_info.footer_image %} src="{{site_info.footer_image.url}}" {%endif%} alt="newsletter" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="featured section-padding">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 mb-md-4 mb-xl-0">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay="0">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-1.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Best prices & offers</h3>
+                                    <p>Orders $50 or more</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-2.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Free delivery</h3>
+                                    <p>24/7 amazing services</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-3.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Great daily deal</h3>
+                                    <p>When you sign up</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-4.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Wide assortment</h3>
+                                    <p>Mega Discounts</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-5.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Easy returns</h3>
+                                    <p>Within 30 days</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 d-xl-none">
+                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".5s">
+                                <div class="banner-icon">
+                                    <img src="{% static 'assets/imgs/theme/icons/icon-6.svg'%}" alt="" />
+                                </div>
+                                <div class="banner-text">
+                                    <h3 class="icon-box-title">Safe delivery</h3>
+                                    <p>Within 30 days</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="section-padding footer-mid">
+                <div class="container pt-15 pb-20">
+                    <div class="row">
+                        <div class="col">
+                            <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0 wow animate__animated animate__fadeInUp" data-wow-delay="0">
+                                <div class="logo mb-30">
+                                    <a href="{% url 'home:index' %}" class="mb-15"><img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" /></a>
+                                    <p class="font-lg text-heading"></p>
+                                </div>
+                                <ul class="contact-infor">
+									{%for info in contact_info|slice:":1"%}
+                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-location.svg'%}" alt="" /><strong>Address: </strong> <span>{{info.full_address}}</span></li>
+                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-contact.svg'%}" alt="" /><strong>Call Us:</strong><span>{{info.phone}}</span></li>
+                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-email-2.svg'%}" alt="" /><strong>Email:</strong><span>{{info.email}}</span></li>
+                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-clock.svg'%}" alt="" /><strong>Hours:</strong><span>{{info.Work_time}}</span></li>
+									{%endfor%}
+								</ul>
+                            </div>
+                        </div>
+                        <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
+							<h4 class="widget-title">Company</h4>
+							<ul class="footer-list mb-sm-5 mb-md-0">
+								{% for page_obj in pages_list|slice:"0:7"%}
+
+								<li><a href="{% url 'pages:pages-name' page_obj.slug %}">{{page_obj.name}}</a></li>
+							
+								{%endfor%}
+							</ul>
+                    	</div>
+                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
+                        <h4 class="widget-title">Pages</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">                       
+                            <li><a href="{% url 'orders:cart'%}">View Cart</a></li>                           
+                            <!-- <li><a href="{% url 'accounts:order_tracking'%}">Track My Order</a></li> -->
+							<li><a href="{% url 'supplier_dashboard:supplier-register'%}">Become a Vendor</a></li>
+							<li><a href="{% url 'supplier_dashboard:supplier-login'%}">Vendor Login</a></li>                          
+                            <li><a href="{%url 'contact:contact'%}">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
+                        <h4 class="widget-title">Categories</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+							{% for super_obj in supercategory|slice:"0:7"%}
+                            <li><a href="{% url 'categories:super-category' super_obj.slug%}">{{super_obj.name}}</a></li>
+							{%endfor%}
+                        </ul>
+                    </div>
+             
+                    <div class="footer-link-widget widget-install-app col wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
+                        <h4 class="widget-title">Install App</h4>
+                        <p class="">From App Store or Google Play</p>
+                        <div class="download-app">
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="{% static 'assets/imgs/theme/app-store.jpg'%}" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="{% static 'assets/imgs/theme/google-play.jpg'%}" alt="" /></a>
+                        </div>
+                        <p class="mb-20">Secured Payment</p>
+                        <img class="" src="{% static 'assets/imgs/theme/payment-method.png'%}" alt="" />
+                    </div>
+                </div>
+            </section>
+            <div class="container pb-30 wow animate__animated animate__fadeInUp" data-wow-delay="0">
+                <div class="row align-items-center">
+                    <div class="col-12 mb-30">
+                        <div class="footer-bottom"></div>
+                    </div>
+                    <div class="col-xl-4 col-lg-6 col-md-6">
+                        <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">{{site_info.site_name}}</strong> -  All rights reserved</p>
+                    </div>
+                    <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
+						{% for number_obj in support_number|slice:"0:2"%}
+                        <div class="hotline d-lg-inline-flex mr-30">
+                            <img src="{% static 'assets/imgs/theme/icons/phone-call.svg'%}" alt="hotline" />
+                            <p>{{number_obj.number}}<span>{{number_obj.Work_time}}</span></p>
+                        </div>
+                       {%endfor%}
+                    </div>
+                    <div class="col-xl-4 col-lg-6 col-md-6 text-end d-none d-md-block">
+                        <div class="mobile-social-icon">
+                            <h6>Follow Us</h6>
+							{% for link in Socail_links|slice:":1"%}
+                            <a href="{{link.facebook}}"><img src="{% static 'assets/imgs/theme/icons/icon-facebook-white.svg'%}" alt="" /></a>
+                            <a href="{{link.instagram}}"><img src="{% static 'assets/imgs/theme/icons/icon-instagram-white.svg'%}" alt="" /></a>
+                            <a href="{{link.youtube}}"><img src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg'%}" alt="" /></a>
+							{%endfor%}
+                        </div>
+                        <p class="font-sm">Up to 15% discount on your first subscribe</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- Preloader Start -->
+        <div id="preloader-active">
+            <div class="preloader d-flex align-items-center justify-content-center">
+                <div class="preloader-inner position-relative">
+                    <div class="text-center">
+                        <img src="{% static 'assets/imgs/theme/loading.gif' %}" alt="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+		{% block script%}
+			<!-- Vendor JS-->
+			<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+			<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+			<script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+			<script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+			<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+			<!-- Template  JS -->
+			<script src="{% static 'assets/js/main.js'%}"></script>
+			<script src="{% static 'assets/js/shop.js'%}"></script>		
+		{% endblock script%} 
+
+		<!-- GTranslate: https://gtranslate.io/ -->
+		<div class="gtranslate_wrapper" style="display: block; padding: 0px; margin: 0px; text-align: left; z-index: 2147483647; direction: ltr; position: fixed; left: 24px; bottom: 12px;"></div>
+		<script>window.gtranslateSettings = {"default_language":"en","native_language_names":true,"detect_browser_language":true,"languages":["en","fr"],"wrapper_selector":".gtranslate_wrapper","switcher_horizontal_position":"inline","flag_style":"3d","alt_flags":{"en":"usa"}}</script>
+		<script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+
+
+ 
+		<script>
+			const formOne = document.querySelector(".selector-1");
+			const formTwo = document.querySelector(".selector-2");
+
+			const subscribeInputOne = document.getElementById("subscribe-input-1");
+			const subscribeInputTwo = document.getElementById("subscribe-input-2");
+			const csrf = document.getElementsByName('csrfmiddlewaretoken');
+
+			const boxMessage = document.getElementById("alert-container");
+			if(formOne){					
+				formOne.addEventListener('submit', e =>{
+						
+						e.preventDefault();
+						$.ajax({
+							type: "POST",            
+							url : "{% url 'newsletters:newsletter' %}",
+							data: {
+								'csrfmiddlewaretoken': csrf[0].value ,
+								'value':subscribeInputOne.value,
+									},
+							success : function(response){
+									
+									boxMessage.classList.remove("not-visible")
+									boxMessage.innerHTML=`<div class="alert alert-${response.alert} alert-dismissible">	
+															<i class="fi-rs-${response.mark} message-icon"></i>
+															${response.message}
+															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
+														</div>`
+									setTimeout(()=>{
+										boxMessage.classList.add("not-visible")
+										subscribeInputOne.value=""
+									},3000)
+									},
+							error : function(error){
+										
+										boxMessage.classList.remove("not-visible")
+										boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
+															<i class="fi-rs-cross message-icon"></i>
+															Ops ... some thing went wrong !
+															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
+														</div>`
+									setTimeout(()=>{
+										boxMessage.classList.add("not-visible")
+										subscribeInputOne.value=""
+									},2000)
+									},
+
+
+						})  
+							
+
+					}) 
+			}
+
+
+			if(formTwo){					
+				formTwo.addEventListener('submit', e =>{
+						
+						e.preventDefault();
+						$.ajax({
+							type: "POST",            
+							url : "{% url 'newsletters:newsletter' %}",
+							data: {
+								'csrfmiddlewaretoken': csrf[0].value ,
+								'value':subscribeInputTwo.value,
+									},
+							success : function(response){
+									
+									boxMessage.classList.remove("not-visible")
+									boxMessage.innerHTML=`<div class="alert alert-${response.alert} alert-dismissible">	
+															<i class="fi-rs-${response.mark} message-icon"></i>
+															${response.message}
+															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
+														</div>`
+									setTimeout(()=>{
+										boxMessage.classList.add("not-visible")
+										subscribeInputTwo.value=""
+									},3000)
+									},
+							error : function(error){
+										
+										boxMessage.classList.remove("not-visible")
+										boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
+															<i class="fi-rs-cross message-icon"></i>
+															Ops ... some thing went wrong !
+															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
+														</div>`
+									setTimeout(()=>{
+										boxMessage.classList.add("not-visible")
+										subscribeInputTwo.value=""
+									},2000)
+									},
+
+
+						})  
+							
+
+					}) 
+			}
+			
+	</script>
+    </body>
+</html>

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{%block body%}
+<main class="main page-404">
+    <div class="page-content pt-150 pb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-8 col-lg-10 col-md-12 m-auto text-center">
+                    <p class="mb-20"><img src="{% static 'assets/imgs/page/cancel.png'%}" alt="" class="hover-up" /></p>
+                    <h1 class="display-2 mb-30">Orders Canceled.</h1>
+                    <p class="font-lg text-grey-700 mb-30">
+                        Your Order has not been completed.<br />
+                        visit the <a href="{% url 'home:index'%}"> <span> Homepage</span></a> or <a href="{% url 'contact:contact'%}"><span>Contact us</span></a> if you need help !
+                    </p>
+                    <!-- <div class="search-form">
+                        <form action="#">
+                            <input type="text" placeholder="Search…" />
+                            <button type="submit"><i class="fi-rs-search"></i></button>
+                        </form>
+                    </div> -->
+                    <a class="btn btn-default submit-auto-width font-xs hover-up mt-30" href="{% url 'home:index'%}"><i class="fi-rs-home mr-5"></i> Back To Home Page</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{%endblock body%}
+
+{%block script%}
+    <!-- Vendor JS-->
+    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+    <!-- Template  JS -->
+    <script src="{% static 'assets/js/main.js'%}"></script>
+    <script src="{% static 'assets/js/shop.js'%}"></script>
+  
+
+{%endblock script%}

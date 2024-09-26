@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{%block body%}
+    <main class="main">
+        <div class="page-header mt-30 mb-50">
+            <div class="container">
+                <div class="archive-header">
+                    <div class="row align-items-center">
+                        <div class="col-xl-3">
+                            <h1 id="mini" class="mb-15">{{sub_category_obj.name}}</h1>
+                            <div class="breadcrumb">
+                                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                                <span></span> Shop <span></span> {{sub_category_obj.name}}
+                            </div>
+                        </div>
+                        <!-- <div class="col-xl-9 text-end d-none d-xl-block">
+                            <ul class="tags-list">
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Cabbage</a>
+                                </li>
+                                <li class="hover-up active">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Broccoli</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Artichoke</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Celery</a>
+                                </li>
+                                <li class="hover-up mr-0">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Spinach</a>
+                                </li>
+                            </ul>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container mb-30">
+            <div class="row flex-row-reverse">
+                <div class="col-lg-4-5">
+                    <div class="shop-product-fillter">
+                        <div id="product-num" class="totall-product">
+                            <p>We found <strong class="text-brand">0</strong> items for you!</p>
+                        </div>
+                        <div class="sort-by-product-area">
+                           
+                            <div class="sort-by-cover">
+                                <div class="sort-by-product-wrap">
+                                    <div class="sort-by">
+                                        <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
+                                    </div>
+                                    <div class="sort-by-dropdown-wrap">
+                                        {% comment %} <span> Featured <i class="fi-rs-angle-small-down"></i></span> {% endcomment %}
+                                        <select class="sorting mySelect" id="mySelect">
+                                            <option value="-date" selected>Date, new to old</option>
+                                            <option value="date">Date, old to new</option>
+                                            <option value="PRDPrice">Price, low to high</option>
+                                            <option value="-PRDPrice">Price, high to low</option>
+                                            </select> 
+                                    </div>
+                                </div>
+                                {% comment %} <div class="sort-by-dropdown">
+                                    
+                                      
+                                </div> {% endcomment %}
+                            </div>
+                        </div>
+                    </div>
+                    <div id="products-list" class="row product-grid">
+
+                       
+
+                    </div>
+                    <!--product grid-->
+                    <div class="pagination-area mt-20 mb-20">
+                        <nav aria-label="Page navigation example">
+                            <div id="spinner-box" class="not-visible  text-center">
+                                <div class="spinner-border" role="status">
+                                  <span class="sr-only"></span>
+                                </div>
+                              </div>
+                              <div id="empty-box" class="not-visible  text-center">
+                                
+                              </div>
+
+                            <div id ="loading-box" class="text-center">
+                                <button id="load-btn" type="button" class="btn btn-success">Load More</button>
+                                
+                              </div>
+
+                        </nav>
+                    </div>
+               
+                   
+                </div>
+                <div class="categories-dropdown-wrap col-lg-1-5 primary-sidebar sticky-sidebar">
+                    <div class="sidebar-widget widget-category-2 mb-30">
+                        <h5 class="section-title style-1 mb-30">Mini Category</h5>
+                        <ul class="ul-category">
+
+
+                            {% for mini in mini_category_obj|slice:":10"%}
+                        
+                            <li id="{{mini.name}}"  value="{{mini.id}}">
+                                <a href=""> <img {%if mini.category_image%} src="{{mini.category_image.url}}"{%else%} src="{%if mini.category_image %}{{mini.category_image.url}} {%else%} {% static 'assets/imgs/theme/icons/category-1.svg'%} {%endif%}" {%endif%}  alt="{{mini.name}}" />{{mini.name}}</a>
+                                
+                            </li>
+                            {% endfor %}
+                        </ul>
+                                
+                          {%if mini_category_obj.count >= 11  %}      
+                                <ul class="ul-category more_slide_open mt-20" style="display: none">
+                                    {%for mini in mini_category_obj|slice:"10:" %}
+                                    
+                                    <li id="{{mini.name}}" value="{{mini.id}}">
+                                        <a href=""> <img {%if mini.category_image%} src="{{mini.category_image.url}}" {%else%} src="{%if mini.category_image %}{{mini.category_image.url}} {%else%} {% static 'assets/imgs/theme/icons/category-1.svg'%} {%endif%}" {%endif%}  alt="{{mini.name}}" />{{mini.name}}</a>
+                                        
+                                    </li>
+                                  
+                                    
+                                    {%endfor%}
+                                </ul>
+                            
+                        <div class="more_categories show"><span class="icon"></span> <span class="heading-sm-1">Show more...</span></div>
+                        {%endif%}
+                    </div>
+                    <!-- Fillter By Price -->
+                    {% comment %} <div class="sidebar-widget price_range range mb-30">
+                        <h5 class="section-title style-1 mb-30">Fill by price</h5>
+                        <div class="price-filter">
+                            <div class="price-filter-inner">
+                                <div id="slider-range" class="mb-20"></div>
+                                <div class="d-flex justify-content-between">
+                                    <div class="caption">From: <strong id="slider-range-value1" class="text-brand"></strong></div>
+                                    <div class="caption">To: <strong id="slider-range-value2" class="text-brand"></strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group">
+                            <div class="list-group-item mb-10 mt-10">
+                                <label class="fw-900">Color</label>
+                                <div class="custome-checkbox">
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox1"><span>Red (56)</span></label>
+                                    <br />
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox2"><span>Green (78)</span></label>
+                                    <br />
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox3" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox3"><span>Blue (54)</span></label>
+                                </div>
+                                <label class="fw-900 mt-15">Item Condition</label>
+                                <div class="custome-checkbox">
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox11"><span>New (1506)</span></label>
+                                    <br />
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox21" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox21"><span>Refurbished (27)</span></label>
+                                    <br />
+                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox31" value="" />
+                                    <label class="form-check-label" for="exampleCheckbox31"><span>Used (45)</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
+                    </div> {% endcomment %}
+                    <!-- Product sidebar Widget -->
+                    <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
+                        <h5 class="section-title style-1 mb-30">New products</h5>
+                        {% for new_product in new_products %}
+                        <div class="single-post clearfix">
+                            <div class="image">
+                                <img src="{{new_product.product_image.url}}" width="80" height="80" style="width:80px;height:80px;" alt="#" />
+                            </div>
+                            <div class="content pt-10">
+                                <h5><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h5>
+                                <p class="price mb-0 mt-5">${{new_product.PRDPrice}}</p>
+                                <div class="product-rate">
+                                    <div class="product-rating" style="width: {{new_product.feedbak_average}}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% for shop_ad in  shop_page_ad|slice:"0:1"%}
+                    <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                        <a href="{{shop_ad.ad_URL}} "> <img src="{{shop_ad.ad_mage.url}}" alt="" /> </a>
+                        <div class="banner-text">
+                            <span>{{shop_ad.supplier}}</span>
+                            <a href="{{shop_ad.ad_URL}} "> <h4>
+                                {{shop_ad.ad_title}}
+                            </h4></a>
+                        </div>
+                    </div>
+                    {%endfor%}
+                </div>
+            </div>
+        </div>
+    </main>
+{%endblock body%}
+
+{%block script%}
+        <!-- Vendor JS-->
+        <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/slider-range.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+        <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+        <!-- Template  JS -->
+        <script src="{% static 'assets/js/main.js'%}"></script>
+        <script src="{% static 'assets/js/shop.js'%}"></script>
+        <script>
+            var categoryType= "sub";
+            var categoryID = "{{sub_category_obj.id}}";
+            const miniSelect = document.getElementById("mini");
+        </script>
+        <script src="{% static 'assets/js/filter.js'%}"></script>
+
+
+{%endblock script%}

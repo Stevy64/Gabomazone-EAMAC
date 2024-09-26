@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{%block body%}
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'home:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Store <span></span> Gabomazone
+            </div>
+        </div>
+    </div>
+    <div class="container mb-30">
+        <div class="archive-header-3 mt-30 mb-80" style="background-image: url({% static 'assets/imgs/vendor/vendor-header-bg.png'%})">
+            <div class="archive-header-3-inner">
+                <div class="vendor-logo mr-50">
+                    {%if vendor_detail.image%}
+                    <img class="img-thumbnail" src="{{vendor_detail.image.url}}" alt="{{vendor_detail.user.username}}" />
+                    {%else%}
+                    <img src="{% static 'assets/imgs/vendor/vendor-17.png'%}" alt="{{vendor_detail.user.username}}" />
+                    {%endif%}
+                </div>
+                <div class="vendor-content">
+                    <div class="product-category">
+                        <span class="text-muted">Fait confiance à Gabomazone depuis {{vendor_detail.date|date:"M Y"}}</span>
+                    </div>
+                    <h3 class="mb-5 text-white"><a href="vendor-details-1.html" class="text-white">{{vendor_detail.display_name}}</a></h3>
+                    <!-- <div class="product-rate-cover mb-15">
+                        <div class="product-rate d-inline-block">
+                            <div class="product-rating" style="width: 90%"></div>
+                        </div>
+                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                    </div> -->
+
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="vendor-des mb-15">
+                                <p class="font-sm text-white">{{vendor_detail.bio}}</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="vendor-info text-white mb-15">
+                                <ul class="font-sm">
+                                    <li><img class="mr-5" src="{% static 'assets/imgs/theme/icons/icon-location.svg'%}" alt="" /><strong>Address: </strong> <span>{{vendor_detail.address}},{{vendor_detail.city}} {{vendor_detail.post_code}} {{vendor_detail.country}}</span></li>
+                                    <li><img class="mr-5" src="{% static 'assets/imgs/theme/icons/icon-contact.svg'%}" alt="" /><strong>Call Us:</strong><span> {{vendor_detail.mobile_number}}</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="follow-social">
+                                <h6 class="mb-15 text-white">Follow Us</h6>
+                                <ul class="social-network">
+                                    {%if vendor_social_links.twitter%}
+                                    <li class="hover-up">
+                                        <a href="https://twitter.com/{{vendor_social_links.twitter}}">
+                                            <img src="{% static 'assets/imgs/theme/icons/social-tw.svg'%}" alt="" />
+                                        </a>
+                                    </li>
+                                    {%endif%}
+                                    {%if vendor_social_links.facebook%}
+                                    <li class="hover-up">
+                                        <a href="https://www.facebook.com/{{vendor_social_links.facebook}}">
+                                            <img src="{% static 'assets/imgs/theme/icons/social-fb.svg'%}" alt="" />
+                                        </a>
+                                    </li>
+                                    {%endif%}
+                                    {%if vendor_social_links.instagram%}
+                                    <li class="hover-up">
+                                        <a href="https://www.instagram.com/{{vendor_social_links.instagram}}">
+                                            <img src="{% static 'assets/imgs/theme/icons/social-insta.svg'%}" alt="" />
+                                        </a>
+                                    </li>
+                                    {%endif%}
+                                    {%if vendor_social_links.pinterest%}
+                                    <li class="hover-up">
+                                        <a href="https://www.pinterest.com/{{vendor_social_links.pinterest}}">
+                                            <img src="{% static 'assets/imgs/theme/icons/social-pin.svg'%}" alt="" />
+                                        </a>
+                                    </li>
+                                    {%endif%}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% comment %} <div class="archive-header-2 text-center pt-80 pb-50">
+            <h1 class="display-2 mb-50">Gabomazone Store</h1>
+            <div class="row">
+                <div class="col-lg-5 mx-auto">
+                    <div class="sidebar-widget-2 widget_search mb-50">
+                        <div class="search-form">
+                            <form action="#">
+                                <input type="text" placeholder="Search in this store..." />
+                                <button type="submit"><i class="fi-rs-search"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> {% endcomment %}
+        <div class="row flex-row-reverse">
+            <div class="col-lg-4-5">
+                <div class="shop-product-fillter">
+                    <div class="totall-product">
+                        <p>We found <strong id="items-number" class="text-brand"></strong> items for you!</p>
+                    </div>
+                    <div class="sort-by-product-area">
+                        
+                        <div class="sort-by-cover">
+                            <div class="sort-by-product-wrap">
+                                <div class="sort-by">
+                                    <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
+                                </div>
+                                <div class="sort-by-dropdown-wrap">
+                                    <select class="sorting mySelect" id="mySelect">
+                                        <option value="-date" selected>Date, new to old</option>
+                                        <option value="date">Date, old to new</option>
+                                        <option value="PRDPrice">Price, low to high</option>
+                                        <option value="-PRDPrice">Price, high to low</option>
+                                    </select> 
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+                <div id ="products-list" class="row product-grid">
+
+
+
+                </div>
+                <!--product grid-->
+                <div class="pagination-area mt-20 mb-20">
+                    <nav aria-label="Page navigation example">
+                        <div id="spinner-box" class="not-visible text-center">
+                            <div class="spinner-border" role="status">
+                              <span class="sr-only"></span>
+                            </div>
+                          </div>
+                          <div id="empty-box" class="not-visible  text-center">
+                            
+                          </div>
+    
+                        <div id ="loading-box" class="not-visible text-center">
+    
+                            <button id="load-btn" type="button" class="btn btn-success">Load More</button>
+                            
+                          </div>
+                    </nav>
+                </div>
+                <section class="section-padding pb-5">
+                    <div class="section-title">
+                        <h3 class="">Deals Of The Day</h3>
+                       
+                    </div>
+                    <div class="row">
+                        {% for  home_ad_deal_time in home_ads_deal_time_obj|slice:"0:4" %}
+
+                        <div  class="{% if forloop.counter == 3 %} col-xl-3 col-lg-4 col-md-6 d-none d-lg-block{% elif forloop.counter == 4 %} col-xl-3 col-lg-4 col-md-6 d-none d-xl-block {%else%} col-xl-3 col-lg-4 col-md-6 {%endif%} ">
+                            <div class="product-cart-wrap style-2 wow animate__animated animate__fadeInUp" data-wow-delay=".{{ forloop.counter }}s">
+                                <div class="product-img-action-wrap">
+                                    <div class="product-img">
+                                        <a href="{{home_ad_deal_time.ad_URL}}">
+                                            <img {%if home_ad_deal_time.ad_mage%} src="{{home_ad_deal_time.ad_mage.url}}" {%else%} src="{% static 'assets/imgs/banner/banner-6.png'%}" {%endif%}alt="" />
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="product-content-wrap">
+                                    <div class="deals-countdown-wrap">
+                                        <div class="deals-countdown" data-countdown="{{home_ad_deal_time.PRDdealtime|date:"Y/m/d"}} {{home_ad_deal_time.PRDdealtime|time:"H:i:s"}}"></div>
+                                    </div>
+                                    <div class="deals-content">
+                                        <h2><a href="{{home_ad_deal_time.ad_URL}}">{{home_ad_deal_time.ad_title|truncatechars:34}}</a></h2>
+                                        <div class="product-rate-cover">
+                                            <div class="product-rate d-inline-block">
+                                                <div class="product-rating" style="width: 90%"></div>
+                                            </div>
+                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-small text-muted">By <a href="{%url 'suppliers:vendor-details' home_ad_deal_time.supplier.slug %}">{{home_ad_deal_time.supplier.display_name}}</a></span>
+                                        </div>
+                                        <div class="product-card-bottom">
+                                            <div class="product-price">
+                                                <span>${{home_ad_deal_time.PRDPrice}}</span>
+                                                {% if home_ad_deal_time.PRDDiscountPrice%}
+                                                <span class="old-price">${{home_ad_deal_time.PRDDiscountPrice}}</span>
+                                                {%endif %}
+                                            </div>
+                                            <div class="add-cart">
+                                                <a class="add" href="{{home_ad_deal_time.ad_URL}}"><i class="fi-rs-shopping-cart mr-5"></i>View</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+       
+                        {%endfor%}
+                    </div>
+                </section>
+                <!--End Deals-->
+            </div>
+            <div class="col-lg-1-5 primary-sidebar sticky-sidebar">
+            {% for image_ad in vendor_page_ad_image|slice:"0:1"  %}
+                <div class="banner-img mb-30">
+                   <a href="{{image_ad.ad_URL}} "> <img src="{{image_ad.ad_mage.url}}" alt=""/> </a>
+                </div>
+            {% endfor%}
+                <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
+                    <h5 class="section-title style-1 mb-30">New products</h5>
+                    {% for new_product in new_products %}
+                    <div class="single-post clearfix">
+                        <div class="image">
+                            <img src="{{new_product.product_image.url}}" width="80" height="80" style="width:80px;height:80px;" alt="{{new_product.product_name}}" />
+                        </div>
+                        <div class="content pt-10">
+                            <h6><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h6>
+                            <p class="price mb-0 mt-5">${{new_product.PRDPrice}}</p>
+                            <div class="product-rate">
+                                <div class="product-rating" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% for shop_ad in  shop_page_ad|slice:"0:1"%}
+                <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                    <a href="{{shop_ad.ad_URL}} "> <img src="{{shop_ad.ad_mage.url}}" alt="" /> </a>
+                    <div class="banner-text">
+                        <span>{{shop_ad.supplier}}</span>
+                        <a href="{{shop_ad.ad_URL}} "> <h4>
+                            {{shop_ad.ad_title}}
+                        </h4></a>
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+    </div>
+</main>
+{%endblock body%}
+
+{%block script%}
+    <!-- Vendor JS-->
+    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/slider-range.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
+    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
+    <!-- Template  JS -->
+    <script src="{% static 'assets/js/main.js'%}"></script>
+    <script src="{% static 'assets/js/shop.js'%}"></script>
+    <script>
+        
+        var vendorSlug = "{{vendor_detail.id}}";
+    </script>
+    <script src="{% static 'assets/js/vendor-details.js'%}"></script>
+ 
+  
+
+{%endblock script%}
