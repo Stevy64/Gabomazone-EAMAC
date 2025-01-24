@@ -26,4 +26,8 @@ python3 manage.py runserver 8001
 # Netlify : Deploy Static Django Site using Distill and CacheKiller
 https://pypi.org/project/django-distill/
 
+# PythonAnyWhere Deployment
+1) Deployment steps : https://help.pythonanywhere.com/pages/DeployExistingDjangoProject/
+2) Collect Static files : https://help.pythonanywhere.com/pages/DjangoStaticFiles
+
 
