@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-mysecret'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gabomazone.pythonanywhere.com', '*']
 
 
 # Application definition
