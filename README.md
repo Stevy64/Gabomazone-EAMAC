@@ -30,4 +30,8 @@ https://pypi.org/project/django-distill/
 1) Deployment steps : https://help.pythonanywhere.com/pages/DeployExistingDjangoProject/
 2) Collect Static files : https://help.pythonanywhere.com/pages/DjangoStaticFiles
 
-
+# Remove an app (module) from the project
+1) Revert all migrations for the app : python manage.py migrate <app_name> zero
+2) Remove app : INSTALLED_apps, urls.py
+3) Deploy : python manage.py makemigrations // python manage.py migrate
+4) Delete the app folder

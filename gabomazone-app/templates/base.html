@@ -313,12 +313,6 @@
 									<a href="{% url 'suppliers:supplier-list'%}">Partner Stores</a>
 								</li>
 
-								<!-- Blog -->
-								<!--
-								<li>
-									<a href="{% url 'blog:home-blog' %}">Blog</a>
-								</li> -->
-
 								<!-- Contact -->
 								<!--
 								<li>
@@ -487,10 +481,6 @@
 							<a href="{% url 'suppliers:supplier-list'%}">Partner Stores</a>
 						</li>
 
-						<!--
-						<li class="menu-item-has-children">
-							<a href="{% url 'blog:home-blog' %}">Blog</a>
-						</li> -->
 					</ul>
 				</nav>
 				<!-- mobile menu end -->
@@ -779,96 +769,6 @@
 			const csrf = document.getElementsByName('csrfmiddlewaretoken');
 
 			const boxMessage = document.getElementById("alert-container");
-			if(formOne){					
-				formOne.addEventListener('submit', e =>{
-						
-						e.preventDefault();
-						$.ajax({
-							type: "POST",            
-							url : "{% url 'newsletters:newsletter' %}",
-							data: {
-								'csrfmiddlewaretoken': csrf[0].value ,
-								'value':subscribeInputOne.value,
-									},
-							success : function(response){
-									
-									boxMessage.classList.remove("not-visible")
-									boxMessage.innerHTML=`<div class="alert alert-${response.alert} alert-dismissible">	
-															<i class="fi-rs-${response.mark} message-icon"></i>
-															${response.message}
-															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
-														</div>`
-									setTimeout(()=>{
-										boxMessage.classList.add("not-visible")
-										subscribeInputOne.value=""
-									},3000)
-									},
-							error : function(error){
-										
-										boxMessage.classList.remove("not-visible")
-										boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
-															<i class="fi-rs-cross message-icon"></i>
-															Ops ... some thing went wrong !
-															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
-														</div>`
-									setTimeout(()=>{
-										boxMessage.classList.add("not-visible")
-										subscribeInputOne.value=""
-									},2000)
-									},
-
-
-						})  
-							
-
-					}) 
-			}
-
-
-			if(formTwo){					
-				formTwo.addEventListener('submit', e =>{
-						
-						e.preventDefault();
-						$.ajax({
-							type: "POST",            
-							url : "{% url 'newsletters:newsletter' %}",
-							data: {
-								'csrfmiddlewaretoken': csrf[0].value ,
-								'value':subscribeInputTwo.value,
-									},
-							success : function(response){
-									
-									boxMessage.classList.remove("not-visible")
-									boxMessage.innerHTML=`<div class="alert alert-${response.alert} alert-dismissible">	
-															<i class="fi-rs-${response.mark} message-icon"></i>
-															${response.message}
-															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
-														</div>`
-									setTimeout(()=>{
-										boxMessage.classList.add("not-visible")
-										subscribeInputTwo.value=""
-									},3000)
-									},
-							error : function(error){
-										
-										boxMessage.classList.remove("not-visible")
-										boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
-															<i class="fi-rs-cross message-icon"></i>
-															Ops ... some thing went wrong !
-															<span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
-														</div>`
-									setTimeout(()=>{
-										boxMessage.classList.add("not-visible")
-										subscribeInputTwo.value=""
-									},2000)
-									},
-
-
-						})  
-							
-
-					}) 
-			}
 			
 	</script>
     </body>
