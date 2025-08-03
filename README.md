@@ -35,3 +35,6 @@ https://pypi.org/project/django-distill/
 2) Remove app : INSTALLED_apps, urls.py
 3) Deploy : python manage.py makemigrations // python manage.py migrate
 4) Delete the app folder
+
+# Loading image (TO BE REMOVED)
+/home/stevy64/Developpement/DjangoDev/Gabomazone-EAMAC/gabomazone-app/static/assets/imgs/theme/loading.gif

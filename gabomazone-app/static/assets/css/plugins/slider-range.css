@@ -80,7 +80,7 @@
   border-radius: 50%;
   left: -7px;
   top: -7px;
-  background-color: #3BB77E;
+  background-color: #1a2e49;
 }
 
 /* Styling;
@@ -90,7 +90,7 @@
 }
 
 .noUi-connect {
-  background: #3BB77E;
+  background: #1a2e49;
   -webkit-transition: background 450ms;
   transition: background 450ms;
 }
@@ -121,7 +121,7 @@
 }
 
 .noUi-handle:active {
-  border: 8px solid #3BB77E;
+  border: 8px solid #1a2e49;
   border: 8px solid rgba(59,183,126,0.38);
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
