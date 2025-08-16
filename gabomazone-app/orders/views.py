@@ -728,7 +728,6 @@ def payment(request):
 
         street_address = request.POST['street']
 
-        ZIP = request.POST['ZIP']
         city = request.POST['city']
         email_address = request.POST['email_address']
         phone = request.POST['phone']
@@ -769,7 +768,6 @@ def payment(request):
                     "Line1": "",
                     "Line2": "",
                     "Line3": "",
-                    "PostCode": ZIP,
                     "City": state,
                     "CountryCode": country_code
                 },
@@ -837,7 +835,6 @@ def payment(request):
                 country_code=country_code,
                 state=state_obj,
                 street_address=street_address,
-                post_code=ZIP,
                 # by_blance=notes,
                 City=city,
                 Email_Address=email_address,
@@ -1011,7 +1008,6 @@ def payment_blance(request):
                                     "Line3": "",
                                     "City": f"{payment_method.City}",
                                     "StateOrProvinceCode": f"{payment_method.state}",
-                                    "PostCode": f"{payment_method.post_code}",
                                     "CountryCode": f"{payment_method.country_code}",
                                     "Longitude": 0,
                                     "Latitude": 0,
@@ -1253,7 +1249,6 @@ def payment_cash(request):
                                 "Line3": "",
                                 "City": f"{payment_method.City}",
                                 "StateOrProvinceCode": f"{payment_method.state}",
-                                "PostCode": f"{payment_method.post_code}",
                                 "CountryCode": f"{payment_method.country_code}",
                                 "Longitude": 0,
                                 "Latitude": 0,
@@ -1597,7 +1592,6 @@ def my_webhook_view(request):
                                         "Line3": "",
                                         "City": f"{payment_method.City}",
                                         "StateOrProvinceCode": f"{payment_method.state}",
-                                        "PostCode": f"{payment_method.post_code}",
                                         "CountryCode": f"{payment_method.country_code}",
                                         "Longitude": 0,
                                         "Latitude": 0,
@@ -1837,7 +1831,6 @@ def my_webhook_view(request):
                                     "Line3": "",
                                     "City": f"{payment_method.City}",
                                     "StateOrProvinceCode": f"{payment_method.state}",
-                                    "PostCode": f"{payment_method.post_code}",
                                     "CountryCode": f"{payment_method.country_code}",
                                     "Longitude": 0,
                                     "Latitude": 0,
@@ -2198,7 +2191,6 @@ def my_webhook_view_paymob(request, *args, **kwargs):
                                             "Line3": "",
                                             "City": f"{payment_method.City}",
                                             "StateOrProvinceCode": f"{payment_method.state}",
-                                            "PostCode": f"{payment_method.post_code}",
                                             "CountryCode": f"{payment_method.country_code}",
                                             "Longitude": 0,
                                             "Latitude": 0,
@@ -2462,7 +2454,6 @@ def verify_payment_razorpay(request):
                                         "Line3": "",
                                         "City": f"{payment_method.City}",
                                         "StateOrProvinceCode": f"{payment_method.state}",
-                                        "PostCode": f"{payment_method.post_code}",
                                         "CountryCode": f"{payment_method.country_code}",
                                         "Longitude": 0,
                                         "Latitude": 0,
@@ -2721,7 +2712,6 @@ def verify_payment_paypal(request):
                                         "Line3": "",
                                         "City": f"{payment_method.City}",
                                         "StateOrProvinceCode": f"{payment_method.state}",
-                                        "PostCode": f"{payment_method.post_code}",
                                         "CountryCode": f"{payment_method.country_code}",
                                         "Longitude": 0,
                                         "Latitude": 0,
