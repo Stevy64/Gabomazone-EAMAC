@@ -184,6 +184,18 @@ class Country(models.Model):
         ordering = ('name_country',)
 
 
+class Province(models.Model):
+    code_province = models.CharField(max_length=10, unique=True)
+    name_province = models.CharField(max_length=100)
+    capitale_province = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name_province
+
+    class Meta:
+        ordering = ['name_province']
+
+
 class OrderSupplier(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL,  blank=True, null=True)

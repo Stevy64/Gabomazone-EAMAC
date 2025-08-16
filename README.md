@@ -1,6 +1,10 @@
 # GabomaZone
 My multivendor app just like LeBonCoin
 
+# Lancer le projet
+Lancer le fichier 'launcher.sh'
+Assurez vous que le fichier est exécutable
+
 # Create venv
 virtualenv venv-gabomazone
 source venv-gabomazone/bin/activate (Linux)

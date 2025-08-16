@@ -4,6 +4,7 @@ from .models import (
     HomeAdDaily, HomeAdDealTime, VendorDetailsAdImage, ShopAdSidebar, HotDealAd , HeadTextAd
 )
 # Register your models here.
+from orders.models import Province
 
 admin.site.register(Carousel)
 admin.site.register(HomeAdSidebar)
@@ -15,3 +16,4 @@ admin.site.register(VendorDetailsAdImage)
 admin.site.register(ShopAdSidebar)
 admin.site.register(HotDealAd)
 admin.site.register(HeadTextAd)
+admin.site.register(Province)
