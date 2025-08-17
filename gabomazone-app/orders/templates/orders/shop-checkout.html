@@ -95,12 +95,12 @@
                                             <h6 class="text-muted">Full Name</h6>
                                         </td>
                                         <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.first_name}} {{payment_info.last_name}}</h4>
+                                            <h4 class="text-brand text-end">{{payment_info.last_name}} {{payment_info.first_name}}</h4>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">
-                                            <h6 class="text-muted">street address</h6>
+                                            <h6 class="text-muted">Complete address</h6>
                                         </td>
                                         <td class="cart_total_amount">
                                             <h4 class="text-brand text-end">{{payment_info.street_address}}</h4>
@@ -113,7 +113,7 @@
                                     </tr>
                                     <tr>
                                         <td class="cart_total_label">
-                                            <h6 class="text-muted">City</h6>
+                                            <h6 class="text-muted">Neighborhood</h6>
                                         </td>
                                         <td class="cart_total_amount">
                                             <h5 class="text-brand text-end">{{payment_info.City}}</h5></td>
@@ -121,7 +121,7 @@
                                     
                                     <tr>
                                         <td class="cart_total_label">
-                                            <h6 class="text-muted">State</h6>
+                                            <h6 class="text-muted">Province</h6>
                                         </td>
                                         <td class="cart_total_amount">
                                             <h5 class="text-brand text-end"> {{payment_info.state}}</h5></td> </tr> <tr>
@@ -196,7 +196,7 @@
                                         <h6 class="text-muted pl-20 pr-20">x {{item.quantity }}</h6>
                                     </td>
                                     <td>
-                                        <h4 class="text-brand">{{request.session.currency}}{% widthratio item.price|currency:request.session.currency  1 item.quantity%}</h4>
+                                        <h4 class="text-brand">{% widthratio item.price|currency:request.session.currency  1 item.quantity%} FCFA</h4>
                                     </td>
                                 </tr>
                                 {%endfor%}
@@ -208,7 +208,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">{{request.session.currency}}{{order.sub_total|currency:request.session.currency}}</h4>
+                                        <h4 class="text-brand">{{order.sub_total|currency:request.session.currency}} FCFA</h4>
                                     </td>
                                 </tr>
                                 <tr>
@@ -244,7 +244,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h5 class="text-brand">-{{request.session.currency}}{{order.discount|floatformat:"2"|currency:request.session.currency}}</h5>
+                                        <h5 class="text-brand">{{order.discount|floatformat:"2"|currency:request.session.currency}} FCFA</h5>
                                     </td>
                                 </tr>
                                 {%endif%}
@@ -257,7 +257,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">+{{request.session.currency}}{{order.shipping|floatformat:"2"|currency:request.session.currency}}</h4>
+                                        <h4 class="text-brand">{{order.shipping|floatformat:"2"|currency:request.session.currency}} FCFA</h4>
                                     </td>
                                 </tr>
                                 {%endif%}
@@ -269,7 +269,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">{{request.session.currency}}{{order.amount|floatformat:"2"|currency:request.session.currency}}</h4>
+                                        <h4 class="text-brand">{{order.amount|floatformat:"2"|currency:request.session.currency}} FCFA</h4>
                                     </td>
                                 </tr>
                             </tbody>
@@ -279,28 +279,22 @@
                 <div class="payment ml-50">
                     <h4 class="mb-30">Payment</h4>
                     <div class="payment_option">
-                        {% if order_amount <= blance %}
-                        {% comment %}
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="flexRadioDefault2" checked>
-                            <label class="form-check-label" for="flexRadioDefault2" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">Direct Balance (${{blance}})</label>
-                        </div>
-                        {% endcomment %}
-                        {%endif%}
 
                         <div class="custome-radio">
                             <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked>
                             <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Cash on delivery</label>
                         </div>
 
+                        <!--
                         {% if RAZORPAY_KEY_ID %}   
                         <div class="custome-radio">
                             <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" >
                             <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer"><img width="90" height="15" src="{% static 'assets/imgs/theme/icons/razorpay-logo.5cdb58df.svg'%}" alt="razorpay"></label>
                             
                         </div> 
-                        {% endif %} 
-                        {% if api_key_paymob %}   
+                        {% endif %} -->
+                        
+                        <!-- {% if api_key_paymob %}   
                         <div class="custome-radio">
                             <input class="form-check-input" required="" type="radio" name="payment_option" id="paymob" >
                             <label class="form-check-label" for="paymob" data-bs-toggle="collapse" data-target="#paymob" aria-controls="paymob"><img width="90" height="15" src="{% static 'assets/imgs/theme/icons/paymobLogo.png' %}" alt="paymob"></label>
@@ -315,6 +309,7 @@
                             
                         </div> 
                         {% endif %}
+                        -->
 
 
                         {% if paypal_client_id %}

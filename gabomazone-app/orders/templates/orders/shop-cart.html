@@ -47,7 +47,7 @@
                                     <label class="form-check-label" for="exampleCheckbox11"></label>
                                 </th> {% endcomment %}
                                 <th scope="col" class="pl-30" colspan="2">Product Details</th>
-                                <th scope="col">WEIGHT</th>
+                                <th scope="col">Weight</th>
                                 <th scope="col">Unit Price</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Subtotal</th>
@@ -131,19 +131,6 @@
                                 <input type="text" required="" name="last_name" placeholder="Last name *">
                             </div>
                         </div>
-
-                        <div class="row">
-                            <!-- Adresse -->
-                            <div class="form-group col-lg-6">
-                                <input type="text" name="street" required="" placeholder="Street Address *">
-                            </div>
-
-                            <!-- Téléphone -->
-                            <div class="form-group col-lg-6">
-                                <input required="" type="text" name="phone" placeholder="Phone *">
-                            </div>
-                    
-                        </div>
                         
                         <!-- Countries -->
                         <div class="row shipping_calculator">
@@ -161,34 +148,62 @@
                                 </div>
                             </div>
 
-                            <!-- Provinces -->
-                                <div class="form-group col-lg-6" id="stateDiv">
-                                    <div class="custom_select" >
-                                        <select id="state" name="state" class="form-control select-active">
-                                            {% for state in states %}
-                                                <option data-code="{{ state.code }}" value="{{ state.code }}">{{ state.name }}</option>
-                                            {% endfor%}
-                                        </select>
-                                    </div>
-                                </div>
-
                             <!-- Cities -->
                             <div class="form-group col-lg-6">
-                                <input required="" type="text" name="city" placeholder="City / Town *">
+                                <input required="" type="text" name="city" placeholder="Neighborhood / Village *">
+                            </div>
+                            
+                        </div>
+
+                        <!-- Provinces & Ville -->
+                        <div class="form-group col-lg-6">
+                            
+                            <div class="custom_select">
+
+                                <!-- Provinces -->
+                                <select id="province" name="province" class="form-control select-active province">
+                                    {% for province in provinces %}
+                                        <small></small><option value="{{ province.code_province }}">{{ province.name_province }}</option></small>
+                                    {% empty %}
+                                        <option disabled>Aucune province disponible </option>
+                                    {% endfor%}
+                                </select>
+
+                                <!-- Villes -->
+                                <select id="state" name="state" class="form-control select-active">
+                                    {% for province in provinces %}
+                                        <small></small><option value="{{ province.code_province }}">{{ province.capitale_province }}</option></small>
+                                    {% empty %}
+                                        <option disabled>Aucune province disponible </option>
+                                    {% endfor%}
+                                </select>
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
-                            {% comment %} <div class="form-group col-lg-6">
-                                <input required="" type="text" name="market_name" placeholder="SuperMarket Name">
-                            </div> {% endcomment %}
-                            <div class="form-group col-lg-6">
-                                <input required="" type="text" name="email_address" placeholder="Email address *">
+                            <!-- Adresse -->
+                            <div class="form-group col-lg-4">
+                                <input type="text" name="street" required="" placeholder="Complete Address *">
                             </div>
+
+                            <!-- Téléphone -->
+                            <div class="form-group col-lg-4">
+                                <input required="" type="text" name="phone" placeholder="Phone *">
+                            </div>
+
+                            <!-- eMail -->
+                            <div class="form-group col-lg-4">
+                                <input type="text" name="email_address" placeholder="Email address">
+                            </div>
+
                         </div>
-                        {% comment %} <div class="form-group mb-30">
+
+                        <!-- Others -->
+                        <!-- <div class="form-group mb-30">
                             <textarea rows="5" placeholder="Additional information"></textarea>
-                        </div> {% endcomment %}
+                        </div> -->
+
                         <button type="submit"class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></button>
                     
                     </form>

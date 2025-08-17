@@ -11,7 +11,6 @@ from django_countries.fields import CountryField
 
 # Create your models here.
 
-
 class Order(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='user_client',  blank=True, null=True)

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier, OrderDetailsSupplier
+from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier, OrderDetailsSupplier, Province
 from products.models import Product
 from django.contrib import messages
 from django.utils import timezone
@@ -405,6 +405,7 @@ def cart(request):
     # if request.user.is_authenticated and not request.user.is_anonymous:
     # countries = Country.objects.all().filter().order_by('-name_country')
     countries = allcountries
+    provinces = Province.objects.all()
     first_country = Country.objects.all(
     ).filter().order_by('-name_country')[0:1]
     # states = State.objects.filter(country=first_country)
@@ -512,6 +513,7 @@ def cart(request):
             "blance": blance,
             "PUBLIC_KEY": PUBLIC_KEY,
             "countries": countries,
+            "provinces": provinces,
             # "states": states,
             "weight": weight,
         }
@@ -523,6 +525,7 @@ class StatesJsonListView(View):
         country = kwargs.get('country')
 
         states = None
+        provinces = Province.objects.all()
         # country_id = Country.objects.get(country_code=country)
 
         # qs = list(State.objects.all().filter(country=country_id).values())
@@ -719,6 +722,8 @@ def payment(request):
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
         country = request.POST['country']
+        province = request.POST['province']
+        
         try:
             state = request.POST['state']
         except:
