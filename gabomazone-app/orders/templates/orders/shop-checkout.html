@@ -89,7 +89,10 @@
                         <h4 class="mb-30">Billing Details</h4>
                         <div class="table-responsive">
                             <table class="table no-border">
+
                                 <tbody>
+
+                                    <!-- Nom et Prenom -->
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Full Name</h6>
@@ -98,6 +101,8 @@
                                             <h4 class="text-brand text-end">{{payment_info.last_name}} {{payment_info.first_name}}</h4>
                                         </td>
                                     </tr>
+
+                                    <!-- Adresse -->
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Complete address</h6>
@@ -111,26 +116,8 @@
                                             <div class="divider-2 mt-10 mb-10"></div>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Neighborhood</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h5 class="text-brand text-end">{{payment_info.City}}</h5></td>
-                                    </tr>
-                                    
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Province</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h5 class="text-brand text-end"> {{payment_info.state}}</h5></td> </tr> <tr>
 
-                                        <td scope="col" colspan="2">
-                                            <div class="divider-2 mt-10 mb-10"></div>
-                                        </td>
-                                    </tr>
-                                   
+                                    <!-- Pays -->
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Country</h6>
@@ -139,6 +126,42 @@
                                             <h4 class="text-brand text-end">{{payment_info.country}}</h4>
                                         </td>
                                     </tr>
+                                    
+                                    <!-- Province -->
+                                    <tr>
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Province</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-brand text-end"> {{payment_info.province}}</h5>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Ville -->
+                                    <tr>
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">City</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-brand text-end"> {{payment_info.state}}</h5>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Quartier -->
+                                    <tr>
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Neighborhood</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-brand text-end">{{payment_info.City}}</h5></td> <tr> </tr>
+                                    </tr>
+                                    <tr>
+                                        <td scope="col" colspan="2">
+                                            <div class="divider-2 mt-10 mb-10"></div>
+                                        </td>
+                                    </tr>
+                                   
+                                    <!-- Email -->
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Email Address</h6>
@@ -147,11 +170,8 @@
                                             <h4 class="text-brand text-end">{{payment_info.Email_Address}}</h4>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td scope="col" colspan="2">
-                                            <div class="divider-2 mt-10 mb-10"></div>
-                                        </td>
-                                    </tr>
+
+                                    <!-- Telephone -->
                                     <tr>
                                         <td class="cart_total_label">
                                             <h6 class="text-muted">Phone</h6>

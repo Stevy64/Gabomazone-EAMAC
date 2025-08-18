@@ -722,10 +722,25 @@ def payment(request):
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
         country = request.POST['country']
-        province = request.POST['province']
         
+
         try:
-            state = request.POST['state']
+            province_state = request.POST.get('state')
+            other_state = request.POST.get('other_state')
+            # print("STATE : ", province_state)
+            # print("OTHER_STATE : ", other_state)
+
+            if province_state == 'autre_ville' and other_state:
+                state = other_state  # On récupère ce que l'utilisateur a saisi
+                province = request.POST.get('province')
+                # print("STATE Changed : ", state)
+            else:
+                state = request.POST['state']
+                if request.method == "POST":
+                    province, state = state.split("|")
+                    print("STATE : ", state)
+                    print("PROVINCE : ", province)
+
         except:
             messages.warning(
                 request, 'Please contact us because this country is not in our shipping list')
@@ -739,6 +754,7 @@ def payment(request):
 
         # return HttpResponse(f"your info is request")
         state_obj = state
+        province_obj = province
         country_obj = dict(allcountries)[str(country)]
         country_code = country
         if country_code == settings.ARAMEX_ACCOUNTCOUNTRYCODE:
@@ -839,6 +855,7 @@ def payment(request):
                 country=country_obj,
                 country_code=country_code,
                 state=state_obj,
+                province=province_obj,
                 street_address=street_address,
                 # by_blance=notes,
                 City=city,

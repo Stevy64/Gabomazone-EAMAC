@@ -156,6 +156,7 @@ class Payment(models.Model):
     # state = models.ForeignKey(
     #     State, on_delete=models.SET_NULL, blank=True, null=True)
     state = models.CharField(max_length=100, blank=True, null=True)
+    province = models.CharField(max_length=100, blank=True, null=True)
     street_address = models.CharField(max_length=100,)
     post_code = models.CharField(max_length=10, )
     # by_blance = models.CharField(max_length=100, )

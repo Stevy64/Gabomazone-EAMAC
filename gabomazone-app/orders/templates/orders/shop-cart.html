@@ -150,7 +150,7 @@
 
                             <!-- Cities -->
                             <div class="form-group col-lg-6">
-                                <input required="" type="text" name="city" placeholder="Neighborhood / Village *">
+                                <input required="" type="text" name="city" placeholder="Neighborhood *">
                             </div>
                             
                         </div>
@@ -163,21 +163,26 @@
                                 <!-- Provinces -->
                                 <select id="province" name="province" class="form-control select-active province">
                                     {% for province in provinces %}
-                                        <small></small><option value="{{ province.code_province }}">{{ province.name_province }}</option></small>
+                                        <small></small><option value="{{ province.name_province }}">{{ province.name_province }}</option></small>
                                     {% empty %}
                                         <option disabled>Aucune province disponible </option>
                                     {% endfor%}
                                 </select>
 
-                                <!-- Villes -->
-                                <select id="state" name="state" class="form-control select-active">
+                                <!-- Capitales_Provinces -->
+                                <select id="state" name="state" class="form-control select-active" onchange="toggleOtherInput(this)">
                                     {% for province in provinces %}
-                                        <small></small><option value="{{ province.code_province }}">{{ province.capitale_province }}</option></small>
-                                    {% empty %}
-                                        <option disabled>Aucune province disponible </option>
-                                    {% endfor%}
+                                        <option value="{{ province.name_province }} | {{ province.capitale_province }}">{{ province.capitale_province }}</option>
+                                    {% endfor %}
+                                    <option value="autre_ville">Autre</option>
                                 </select>
                                 </div>
+
+                                <!-- Champ caché qui s’affiche si "Autre" est choisi -->
+                                <input type="text" id="other_state" name="other_state"
+                                        class="form-control mt-2"
+                                        placeholder="Entrez votre ville"
+                                        style="display:none;">
                             </div>
                         </div>
 
@@ -302,6 +307,23 @@
     <!-- Template  JS -->
     <script src="{% static 'assets/js/main.js'%}"></script>
     <script src="{% static 'assets/js/shop.js'%}"></script>
+
+    <!-- Script pour la ville "Autre"-->
+    <script>
+        function toggleOtherInput(selectElement) {
+            var otherInput = document.getElementById("other_state");
+            if (selectElement.value === "autre_ville") {
+                otherInput.style.display = "block";
+                otherInput.required = true;
+            } else {
+                otherInput.style.display = "none";
+                otherInput.required = false;
+                otherInput.value = "";
+            }
+        }
+
+    </script>
+
     <script>
         
           const country = document.getElementById("country");
