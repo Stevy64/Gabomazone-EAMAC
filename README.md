@@ -1,5 +1,5 @@
 # GabomaZone
-My multivendor app just like LeBonCoin
+My multivendor app just like LeBonCoin and Amazon
 
 # Lancer le projet
 Lancer le fichier 'launcher.sh'
