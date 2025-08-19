@@ -18,7 +18,6 @@ echo "==================================="
 echo
 
 
-
 # 1. Demande si on veut créer un nouvel environnement
 read -p "Voulez-vous créer un nouvel environnement Python ? (y/n) : " create_env
 
@@ -37,11 +36,23 @@ else
     
     # Vérifie si un environnement est déjà actif
     if [ -z "$VIRTUAL_ENV" ]; then
-        echo "⚠️ Aucun environnement activé. Pense à activer ton venv avant d’installer. \n"
+        echo "➡️ Recherche d'un environnement existant dans le dossier courant..."
+        
+        # Cherche un dossier contenant "bin/activate"
+        existing_env=$(find . -maxdepth 1 -type d -exec test -f "{}/bin/activate" \; -print | head -n 1)
+
+        if [ -n "$existing_env" ]; then
+            echo "✅ Environnement trouvé : $existing_env"
+            source "$existing_env/bin/activate"
+            echo "➡️ Environnement '$existing_env' activé. \n"
+        else
+            echo "❌ Aucun environnement trouvé dans le répertoire courant. Pense à en créer un. \n"
+        fi
     else
         echo "➡️ Environnement déjà actif : $VIRTUAL_ENV \n"
     fi
 fi
+
 
 # 2. Installation des dépendances
 if [ -f "requirements.txt" ]; then
@@ -50,6 +61,7 @@ if [ -f "requirements.txt" ]; then
 else
     echo "⚠️ Fichier requirements.txt introuvable. \n"
 fi
+
 
 # 3. Demande si on veut lancer le serveur Django
 read -p "Voulez-vous lancer le serveur Django ? (y/n) : " run_server

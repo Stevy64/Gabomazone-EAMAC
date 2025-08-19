@@ -154,7 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 ###DEFAULT_CURRENCY##
-DEFAULT_CURRENCY = 'FCFA'
+DEFAULT_CURRENCY = 'CFA'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
