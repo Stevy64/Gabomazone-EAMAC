@@ -20,10 +20,9 @@
 
             {% endfor %}
             {% endif %}
-            <div>
-                {% comment %} <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a> {% endcomment %}
-            </div>
         </div>
+
+        <!-- Revenus -->
         <div class="row">
             <div class="col-lg-3">
                 <div class="card card-body mb-4">
@@ -32,11 +31,12 @@
                         <div class="text">
                             <h6 class="mb-1 card-title">Revenue</h6>
                             <span>${{vendor.blance|floatformat:"2"}}</span>
-                            {% comment %} <span class="text-sm"> Shipping fees are not included </span> {% endcomment %}
                         </div>
                     </article>
                 </div>
             </div>
+
+            <!-- Commandes en cours -->
             <div class="col-lg-3">
                 <div class="card card-body mb-4">
                     <article class="icontext">
@@ -49,6 +49,8 @@
                     </article>
                 </div>
             </div>
+
+            <!-- Produits -->
             <div class="col-lg-3">
                 <div class="card card-body mb-4">
                     <article class="icontext">
@@ -61,12 +63,14 @@
                     </article>
                 </div>
             </div>
+
+            <!-- Commandes Totales -->
             <div class="col-lg-3">
                 <div class="card card-body mb-4">
                     <article class="icontext">
                         <span class="icon icon-sm rounded-circle bg-info-light"><i class="text-info material-icons md-shopping_basket"></i></span>
                         <div class="text">
-                            <h6 class="mb-1 card-title">Orders</h6>
+                            <h6 class="mb-1 card-title">Total Orders</h6>
                             <span>{{orders_supplier.count}}</span>
                             {% comment %} <span class="text-sm"> Based in your local time. </span> {% endcomment %}
                         </div>
@@ -74,6 +78,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Statistiques de vente -->
         <div class="row">
             <div class="col-xl-12 col-lg-12">
                 <div class="card mb-4">
@@ -131,40 +137,9 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="col-xl-4 col-lg-12">
-                <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Revenue Base on Area</h5>
-                        <canvas id="myChart2" height="217"></canvas>
-                    </article>
-                </div>
-                <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Marketing Chanel</h5>
-                        <span class="text-muted font-xs">Facebook</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 15%">15%</div>
-                        </div>
-                        <span class="text-muted font-xs">Instagram</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 65%">65%</div>
-                        </div>
-                        <span class="text-muted font-xs">Google</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 51%">51%</div>
-                        </div>
-                        <span class="text-muted font-xs">Twitter</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 80%">80%</div>
-                        </div>
-                        <span class="text-muted font-xs">Other</span>
-                        <div class="progress mb-3">
-                            <div class="progress-bar" role="progressbar" style="width: 80%">80%</div>
-                        </div>
-                    </article>
-                </div>
-            </div> -->
         </div>
+
+        <!-- Commandes récentes -->
         <div class="card mb-4">
             <header class="card-header">
                 <h4 class="card-title">Latest orders</h4>
@@ -202,6 +177,7 @@
                     </div>
                 </div> {% endcomment %}
             </header>
+            
             <div class="card-body">
                 <div class="table-responsive">
                     <div class="table-responsive">

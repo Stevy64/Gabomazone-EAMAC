@@ -13,8 +13,10 @@ from accounts.models import Profile
 
 
 def product_details(request, slug):
+    print("DEFAULT_Currency: ", settings.DEFAULT_CURRENCY)
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
+        print("SESSION_Currency: ", request.session['currency'])
 
     product_detail = get_object_or_404(Product, PRDSlug=slug, PRDISactive=True)
     product_variations = ProductSize.objects.all().filter(PRDIProduct=product_detail)

@@ -19,61 +19,37 @@
 		<meta name="twitter:description" content="{{site_info.description}}" />
 		<meta name="twitter:site" content="@{{site_info.site_name}}" />
         <!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets-supplier/imgs/theme/favicon.svg'%}" />
+         <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
         <!-- Template CSS -->
         <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
     </head>
 
     <body>
         <main>
+            <!-- Header -->
             <header class="main-header style-2 navbar">
                 <div class="col-brand">
                     <a href="{% url 'home:index'%}" class="brand-wrap">
-                        <img src="{{site_info.site_logo.url}}" class="logo" alt="Gabomazone Dashboard" />
+                        <img src="{{site_info.site_logo.url}}" class="logo" alt="GabomaZone Dashboard" />
                     </a>
                 </div>
                 <div class="col-nav">
                     <ul class="nav">
-                        <!-- <li class="nav-item">
-                            <a class="nav-link btn-icon" href="#">
-                                <i class="material-icons md-notifications animation-shake"></i>
-                                <span class="badge rounded-pill">3</span>
-                            </a>
-                        </li> -->
+
+                        <!-- Google Translate Banner-->
                         <li class="nav-item">
-                            <div id="google_translate_element2"></div>
+                            <div id="google_translate_element1"></div>
                         </li>
-                        
+
+                        <!-- Mode Jour/Nuit -->
                         <li class="nav-item">
                             <a class="nav-link btn-icon darkmode" href="#"> <i class="material-icons md-nights_stay"></i> </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="#" class="requestfullscreen nav-link btn-icon"><i class="material-icons md-cast"></i></a>
-                        </li>
-                        <!-- <li class="dropdown nav-item">
-                            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownLanguage" aria-expanded="false"><i class="material-icons md-public"></i></a>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownLanguage">
-                                <a class="dropdown-item text-brand" href="#"><img src="{% static 'assets-supplier/imgs/theme/flag-us.png'%}" alt="English" />English</a>
-                                <a class="dropdown-item" href="#"><img src="{% static 'assets-supplier/imgs/theme/flag-fr.png'%}" alt="Français" />Français</a>
-                                <a class="dropdown-item" href="#"><img src="{% static 'assets-supplier/imgs/theme/flag-jp.png'%}" alt="Français" />日本語</a>
-                                <a class="dropdown-item" href="#"><img src="{% static 'assets-supplier/imgs/theme/flag-cn.png'%}" alt="Français" />中国人</a>
-                            </div>
-                        </li>
-                        <li class="dropdown nav-item">
-                            <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="{% static 'assets-supplier/imgs/people/avatar-2.png'%}" alt="User" /></a>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                                <a class="dropdown-item" href="#"><i class="material-icons md-perm_identity"></i>Edit Profile</a>
-                                <a class="dropdown-item" href="#"><i class="material-icons md-settings"></i>Account Settings</a>
-                                <a class="dropdown-item" href="#"><i class="material-icons md-account_balance_wallet"></i>Wallet</a>
-                                <a class="dropdown-item" href="#"><i class="material-icons md-receipt"></i>Billing</a>
-                                <a class="dropdown-item" href="#"><i class="material-icons md-help_outline"></i>Help center</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#"><i class="material-icons md-exit_to_app"></i>Logout</a>
-                            </div>
-                        </li> -->
+
                     </ul>
                 </div>
             </header>
+
             <section class="content-main mt-80 mb-80">
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 m-auto text-center">
@@ -88,46 +64,55 @@
                     {% endfor %}
                     {% endif %}
                     </div> 
-                </div>  
+                </div>
+                
+                <!-- Formulaire Creai=tion Compte -->
                 <div class="card mx-auto card-login">
                     <div class="card-body">
                         <h4 class="card-title mb-4">Create an Account</h4>
                         <form method="post">
                             {% csrf_token %}
+
+                            <!-- username -->
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
                                 <input class="form-control" placeholder="Your Username" name="username" maxlength="149" type="text" required/>
                                 <small id="hint_id_username" class="form-text text-muted">usernames can't contain spaces, only letters, numbers and @/./+/-/_ characters.</small>
                             </div>
+
+                            <!-- eMail -->
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input class="form-control" placeholder="Your email" name="email" type="text" required/>
                             </div>
-                            <!-- form-group// -->
+                            
+                            <!-- Telephone -->
                             <div class="mb-3">
                                 <label class="form-label">Phone</label>
                                 <div class="row gx-2">
-                                    <!-- <div class="col-4"><input class="form-control" value="+971" type="text" disabled /></div> -->
                                     <div class="col-12"><input class="form-control" placeholder="Phone" name="phone" type="number" required/></div>
                                 </div>
                             </div>
-                            <!-- form-group// -->
+
+                            <!-- password -->
                             <div class="mb-3">
                                 <label class="form-label">Create password</label>
                                 <input class="form-control" placeholder="Password" name="password" type="password" required/>
                             </div>
-                            <!-- form-group// -->
+
+                            <!-- Conditions d'utilisation -->
                             <div class="mb-3">
                                 <p class="small text-center text-muted">By signing up, you confirm that you’ve read and accepted our User Notice and Privacy Policy.</p>
                             </div>
-                            <!-- form-group  .// -->
+
+                            <!-- Bouton de creation -->
                             <div class="mb-4">
-                                <button type="submit" class="btn btn-primary w-100" style="padding-left: 124px;">Register</button>
+                                <button type="submit" class="btn btn-primary w-100" style="padding-left: 124px;">Submit</button>
                             </div>
                             <!-- form-group// -->
                         </form>
                     
-                        <p class="text-center mb-2">Already have an account? <a href="{% url 'supplier_dashboard:supplier-login' %}">Sign in now</a></p>
+                        <p class="text-center mb-2">Already have an account? <a href="{% url 'supplier_dashboard:supplier-login' %}">Sign in using your account</a></p>
                     </div>
                 </div>
             </section>

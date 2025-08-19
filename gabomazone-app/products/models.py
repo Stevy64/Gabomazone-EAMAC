@@ -111,8 +111,8 @@ class Product(models.Model):
     height = models.FloatField(
         blank=True, null=True, verbose_name=_("Height"))
 
-    PRDWeight = models.DecimalField(default=0,
-                                    max_digits=10, decimal_places=3, blank=True, null=True,  verbose_name=_("SET WEIGHT_KG"))
+    PRDProduct_condition = models.PositiveIntegerField(
+        default=0, blank=True, null=True, verbose_name=_("Neuf"))
 
     # PRDWeight_oz = models.DecimalField(default=0,
     #                                    max_digits=10, decimal_places=3,  blank=True, null=True,  verbose_name=_("SET WEIGHT_OZ"))
