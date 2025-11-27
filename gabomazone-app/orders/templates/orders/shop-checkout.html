@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load currency %}
-{% currency_context %}
 
 {% block headextra%}
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -216,7 +214,7 @@
                                         <h6 class="text-muted pl-20 pr-20">x {{item.quantity }}</h6>
                                     </td>
                                     <td>
-                                        <h4 class="text-brand">{% widthratio item.price|currency:request.session.currency  1 item.quantity%} FCFA</h4>
+                                        <h4 class="text-brand currency-xof">{% widthratio item.price 1 item.quantity|floatformat:0 %} XOF</h4>
                                     </td>
                                 </tr>
                                 {%endfor%}
@@ -228,7 +226,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">{{order.sub_total|currency:request.session.currency}} FCFA</h4>
+                                        <h4 class="text-brand currency-xof">{{order.sub_total|floatformat:0}} XOF</h4>
                                     </td>
                                 </tr>
                                 <tr>
@@ -264,7 +262,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h5 class="text-brand">{{order.discount|floatformat:"2"|currency:request.session.currency}} FCFA</h5>
+                                        <h5 class="text-brand currency-xof">{{order.discount|floatformat:0}} XOF</h5>
                                     </td>
                                 </tr>
                                 {%endif%}
@@ -277,7 +275,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">{{order.shipping|floatformat:"2"|currency:request.session.currency}} FCFA</h4>
+                                        <h4 class="text-brand currency-xof">{{order.shipping|floatformat:0}} XOF</h4>
                                     </td>
                                 </tr>
                                 {%endif%}
@@ -289,7 +287,7 @@
                                     </td>
                                    
                                     <td>
-                                        <h4 class="text-brand">{{order.amount|floatformat:"2"|currency:request.session.currency}} FCFA</h4>
+                                        <h4 class="text-brand currency-xof">{{order.amount|floatformat:0}} XOF</h4>
                                     </td>
                                 </tr>
                             </tbody>

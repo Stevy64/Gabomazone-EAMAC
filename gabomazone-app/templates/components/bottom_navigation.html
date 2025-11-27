@@ -1,0 +1,27 @@
+{% load static %}
+<nav class="bottom-nav d-lg-none">
+    <a href="{% url 'home:index' %}" class="bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+        <i class="fi-rs-home"></i>
+        <span>Accueil</span>
+    </a>
+    <a href="{% url 'categories:category-list' %}" class="bottom-nav-item">
+        <i class="fi-rs-apps"></i>
+        <span>Catégories</span>
+    </a>
+    <a href="{% url 'products:product-search' %}" class="bottom-nav-item">
+        <i class="fi-rs-search"></i>
+        <span>Recherche</span>
+    </a>
+    <a href="{% url 'orders:cart' %}" class="bottom-nav-item">
+        <i class="fi-rs-shopping-cart"></i>
+        <span>Panier</span>
+        {% if cart_count %}
+        <span class="badge-modern badge-primary position-absolute top-0 start-100 translate-middle">{{ cart_count }}</span>
+        {% endif %}
+    </a>
+    <a href="{% url 'accounts:dashboard_customer' %}" class="bottom-nav-item">
+        <i class="fi-rs-user"></i>
+        <span>Compte</span>
+    </a>
+</nav>
+

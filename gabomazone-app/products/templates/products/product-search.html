@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load currency %}
-{% currency_context %}
 
 
 {%block body%}
@@ -122,9 +120,9 @@
                           </div>
                           <div><span class="font-small text-muted">Sold By <a href="{%url 'suppliers:vendor-details' product.product_vendor.slug %}">{{product.product_vendor}}</a></span></div>
                           <div class="product-card-bottom">
-                             <div class="product-price"><span>{{request.session.currency}}{{product.PRDPrice|currency:request.session.currency}}</span> 
+                             <div class="product-price"><span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span> 
                                 {% if product.PRDDiscountPrice%}
-                                <span class="old-price">{{request.session.currency}}{{product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
                                 {%endif%}
                             </div>
                              <div class="add-cart">

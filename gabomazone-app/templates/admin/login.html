@@ -50,10 +50,8 @@
 
     {% if user.is_authenticated %}
         <p class="alert alert-danger">
-            {% blocktrans trimmed %}
-                You are authenticated as {{ username }}, but are not authorized to
-                access this page. Would you like to login to a different account?
-            {% endblocktrans %}
+                Vous êtes authentifié en tant que {{ username }}, mais vous n'êtes pas autorisé à
+                accéder à cette page. Souhaitez-vous vous connecter avec un autre compte ?
         </p>
     {% endif %}
 

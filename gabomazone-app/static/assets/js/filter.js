@@ -37,79 +37,46 @@ window.onload = function () {
                     loadsBox.classList.remove("not-visible")
 
                     if (response.products_size > 0) {
-                        productNum.innerHTML = `<p>We found <strong class="text-brand">${response.products_size}</strong> items for you!</p>`
+                        productNum.innerHTML = `<p style="margin: 0;">Nous avons trouvé <strong>${response.products_size}</strong> articles pour vous !</p>`
                     }
                     else {
-                        productNum.innerHTML = ` <p>Show 0 Of 0 Product</p>`
+                        productNum.innerHTML = `<p style="margin: 0;">Aucun produit disponible</p>`
                     }
 
                     data.map(product => {
-                        let discount = ""
-                        if (product.PRDDiscountPrice > 0) {
-                            discount = `$${product.PRDDiscountPrice}`
-                        }
+                        const price = parseFloat(product.PRDPrice || 0).toFixed(0);
+                        const discountPrice = product.PRDDiscountPrice > 0 ? parseFloat(product.PRDDiscountPrice).toFixed(0) : null;
+                        const viewCount = product.view_count || 0;
+                        const productName = product.product_name || 'Produit sans nom';
+                        const productSlug = product.PRDSlug || '';
 
-                        if (product.promotional == "New") {
-                            promotional = 'new'
-                        }
-                        if (product.promotional == "Hot") {
-                            promotional = 'hot'
-                        }
-
-                        let text = product.product_name
-                        let textSlice = text.slice(0, 39);
-
-
-                        productList.innerHTML += `<div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                                    <div class="product-cart-wrap mb-30">
-                                        <div class="product-img-action-wrap">
-                                            <div class="product-img product-img-zoom">
-                                                <a href="/product-details/${product.PRDSlug}">
-                                                    <img class="default-img" src="/media/${product.product_image}" width="182" height="182" style="width:182px;height:182px;" alt="${product.product_name}" />
-                                                    <img class="hover-img" src="/media/${product.product_image}" width="182" height="182" style="width:182px;height:182px;" alt="${product.product_name}" />
-                                                </a>
-                                            </div>
-                                            <div class="product-action-1">
-                                         
-                                            </div>
-                                            <div class="product-badges product-badges-position product-badges-mrg">
-                                                <span class="${promotional}">${product.promotional}</span>
-                                            </div>
-                                        </div>
-                                        <div class="product-content-wrap">
-                                            <div class="product-category">
-                                                
-                                            </div>
-                                            <h2><a href="/product-details/${product.PRDSlug}">${textSlice}</a></h2>
-                                            <div class="product-rate-cover">
-                                                <div class="product-rate d-inline-block">
-                                                    <div class="product-rating" style="width: ${product.feedbak_average}%"></div>
-                                                </div>
-                                                <span class="font-small ml-5 text-muted"> (${product.feedbak_number})</span>
-                                            </div>
-                                               
-                                            <div>
-                                            
-                                            </div>
-                                            <div class="product-card-bottom">
-                                                <div class="product-price">
-                                                    <span>$${product.PRDPrice}</span>
-                                                    <span class="old-price">${discount}</span>
-                                                </div>
-                                                <div class="add-cart">
-                                                    <a class="add" href="/product-details/${product.PRDSlug}"><i class="fi-rs-eye mr-5"></i>View </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                        productList.innerHTML += `
+                            <div class="flavoriz-product-card" onclick="window.location.href='/product-details/${productSlug}'" style="cursor: pointer;">
+                                <img src="/media/${product.product_image}" alt="${productName}" class="flavoriz-product-image" />
+                                <div class="flavoriz-product-body">
+                                    <div class="flavoriz-product-views">
+                                        <i class="fi-rs-eye"></i>
+                                        <span>${viewCount}+ vues</span>
                                     </div>
-                                </div>`
+                                    <h3 class="flavoriz-product-title">${productName}</h3>
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                        <span style="font-size: 20px; font-weight: 700; color: #FF7B2C;">${price} XOF</span>
+                                        ${discountPrice ? `<span style="font-size: 14px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} XOF</span>` : ''}
+                                    </div>
+                                    <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${productSlug}'">
+                                        <i class="fi-rs-eye"></i>
+                                        <span>Voir le produit</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `
 
                     })
                     if (maxSize) {
 
                         loadsBox.classList.add("not-visible")
                         emptyBox.classList.remove("not-visible")
-                        emptyBox.innerHTML = `<strong class="current-price text-brand">No More Products !</strong>`
+                        emptyBox.innerHTML = `<p style="font-size: 16px; font-weight: 600; color: #6B7280;">Aucun autre produit disponible !</p>`
                     }
 
                 }, 500)

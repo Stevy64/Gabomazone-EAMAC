@@ -1,0 +1,135 @@
+/* ============================================
+   FORCE FLAVORIZ DESIGN - OVERRIDE TOUT
+   ============================================ */
+
+/* Cacher ABSOLUMENT TOUT NEST */
+header.header-area,
+.header-area,
+.header-top,
+.header-middle,
+.header-bottom,
+.header-wrap,
+.mobile-promotion,
+.home-slider,
+.section-padding,
+.product-cart-wrap:not(.flavoriz-product-card),
+.banner-img,
+footer.main:not(.flavoriz-footer),
+.footer-top,
+.footer-middle,
+.footer-bottom,
+.mobile-header-active,
+.mobile-header-wrapper-style,
+.page-header,
+.archive-header,
+.main-menu,
+.categories-dropdown-wrap,
+.archive-header,
+.page-header,
+.container .row:not(.flavoriz-product-grid),
+header:not(.flavoriz-header) {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Forcer le body blanc */
+body {
+    background: #FFFFFF !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Forcer le header FLAVORIZ visible */
+.flavoriz-header {
+    display: block !important;
+    visibility: visible !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9999 !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px 0 !important;
+}
+
+/* FORCER 2 colonnes sur mobile - Override absolu */
+@media (max-width: 768px) {
+    .flavoriz-product-grid,
+    #products-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+    }
+    
+    .flavoriz-product-card {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Cacher la recherche desktop */
+    .flavoriz-header-actions-desktop {
+        display: none !important;
+    }
+    
+    /* Afficher la recherche mobile */
+    .flavoriz-header-actions-mobile {
+        display: flex !important;
+    }
+}
+
+.flavoriz-header-top {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+.flavoriz-logo {
+    display: block !important;
+    visibility: visible !important;
+}
+
+.flavoriz-nav {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+.flavoriz-header-actions {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+/* Forcer les sections FLAVORIZ visibles */
+.flavoriz-hero,
+.flavoriz-section,
+.flavoriz-product-grid,
+.flavoriz-newsletter,
+.flavoriz-footer {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Reset complet des marges NEST */
+.main {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #FFFFFF !important;
+}
+
+/* Cacher tous les containers NEST */
+.container:not(.flavoriz-hero):not(.flavoriz-section):not(.flavoriz-newsletter):not(.flavoriz-footer) {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 24px !important;
+}
+
+/* Forcer la bottom nav visible sur mobile */
+@media (max-width: 768px) {
+    .flavoriz-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+    }
+}
+

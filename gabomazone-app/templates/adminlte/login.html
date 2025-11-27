@@ -1,5 +1,5 @@
 {% extends "adminlte/base.html" %}
-{% load i18n static %}
+{% load static %}
 
 {% block body_class %}login-page{% endblock %}
 
@@ -16,8 +16,8 @@
             {% block login_errors %}
                 {% if form.errors and not form.non_field_errors %}
                     <p class="alert alert-danger">
-                        {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}
-                            {% trans "Please correct the errors below." %}{% endif %}
+                        {% if form.errors.items|length == 1 %}Veuillez corriger l'erreur ci-dessous.{% else %}
+                            Veuillez corriger les erreurs ci-dessous.{% endif %}
                     </p>
                 {% endif %}
 
@@ -37,11 +37,11 @@
                         <p class="login-box-msg" style="color: red;">{{ message }}</p>
                     {% endif %}
                     <div class="form-group has-feedback">
-                        <input name="username" class="form-control" placeholder="{% trans 'Username' %}">
+                        <input name="username" class="form-control" placeholder="Nom d'utilisateur">
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
+                        <input type="password" name="password" class="form-control" placeholder="Mot de passe">
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                     </div>
                     <div class="row">
@@ -50,7 +50,7 @@
                             {% endblock %}
                         </div>
                         <div class="col-xs-4">
-                            <button type="submit" class="btn btn-primary btn-block btn-flat">{% trans 'Login' %}</button>
+                            <button type="submit" class="btn btn-primary btn-block btn-flat">Connexion</button>
                         </div>
                     </div>
                 </form>

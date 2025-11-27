@@ -1,0 +1,18 @@
+{% load static %}
+<div class="search-bar-modern">
+    <form action="{% url 'products:product-search' %}" method="post" class="d-flex">
+        {% csrf_token %}
+        <input 
+            type="text" 
+            name="search-product" 
+            placeholder="Rechercher un produit..." 
+            autocomplete="off" 
+            required 
+            class="form-input-modern"
+        />
+        <button type="submit" aria-label="Rechercher">
+            <i class="fi-rs-search"></i>
+        </button>
+    </form>
+</div>
+

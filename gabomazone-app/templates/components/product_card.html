@@ -1,0 +1,45 @@
+{% load static %}
+<div class="card-product">
+    <div class="product-img-wrapper">
+        <a href="{% url 'products:product-details' product.PRDSlug %}">
+            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" />
+        </a>
+        {% if product.PRDDiscountPrice %}
+        <span class="badge-modern badge-new">Promo</span>
+        {% endif %}
+    </div>
+    <div class="card-product-body">
+        <div class="product-category mb-2">
+            {% if product.product_supercategory %}
+            <a href="{% url 'categories:super-category' product.product_supercategory.slug %}" class="text-muted small">
+                {{ product.product_supercategory.name }}
+            </a>
+            {% else %}
+            <span class="text-muted small">{{ product.product_vendor }}</span>
+            {% endif %}
+        </div>
+        <h3 class="product-title mb-2">
+            <a href="{% url 'products:product-details' product.PRDSlug %}" class="text-decoration-none text-dark">
+                {{ product.product_name|truncatechars:50 }}
+            </a>
+        </h3>
+        {% if product.feedbak_average %}
+        <div class="product-rating mb-2">
+            <div class="d-inline-flex align-items-center">
+                <span class="text-warning">★★★★★</span>
+                <span class="ms-2 small text-muted">({{ product.feedbak_number }})</span>
+            </div>
+        </div>
+        {% endif %}
+        <div class="product-price mb-3">
+            <span class="currency-xof">{{ product.PRDPrice|floatformat:0 }} XOF</span>
+            {% if product.PRDDiscountPrice %}
+            <span class="old-price ms-2">{{ product.PRDDiscountPrice|floatformat:0 }} XOF</span>
+            {% endif %}
+        </div>
+        <a href="{% url 'products:product-details' product.PRDSlug %}" class="btn-primary btn-sm w-100">
+            Voir le produit
+        </a>
+    </div>
+</div>
+

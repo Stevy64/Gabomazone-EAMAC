@@ -1,0 +1,494 @@
+/* ============================================
+   GABOMAZONE - OVERRIDE STYLES
+   Force le nouveau design White/Orange
+   ============================================ */
+
+/* ===== Body & Background ===== */
+body {
+    background-color: #FDF8F3 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* ===== Header Override ===== */
+.header-area {
+    background: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.08) !important;
+}
+
+.header-top {
+    background: #FDF8F3 !important;
+    border-bottom: 1px solid rgba(255, 123, 44, 0.1) !important;
+}
+
+.header-middle {
+    background: #FFFFFF !important;
+    padding: 20px 0 !important;
+}
+
+.header-bottom {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+    border-radius: 0 !important;
+}
+
+.header-bottom-bg-color {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+}
+
+/* ===== Navigation Links ===== */
+.header-nav a,
+.main-menu a {
+    color: #FFFFFF !important;
+    font-weight: 500 !important;
+    padding: 12px 16px !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.header-nav a:hover,
+.main-menu a:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+
+.main-menu a.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ===== Logo ===== */
+.logo img {
+    max-height: 50px !important;
+}
+
+/* ===== Search Bar ===== */
+.search-style-2 {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 16px rgba(255, 123, 44, 0.12) !important;
+}
+
+.search-style-2 input {
+    border: 2px solid rgba(255, 123, 44, 0.2) !important;
+    border-radius: 20px !important;
+    padding: 14px 20px !important;
+}
+
+.search-style-2 input:focus {
+    border-color: #FF7B2C !important;
+    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.1) !important;
+}
+
+.search-style-2 button {
+    background: #FF7B2C !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 0 20px 20px 0 !important;
+}
+
+.search-style-2 button:hover {
+    background: #E55A00 !important;
+}
+
+/* ===== Buttons ===== */
+.btn,
+.button {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 20px !important;
+    padding: 14px 32px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 16px rgba(255, 123, 44, 0.12) !important;
+}
+
+.btn:hover,
+.button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.2) !important;
+    background: linear-gradient(135deg, #FF8F4D 0%, #FF7B2C 100%) !important;
+    color: white !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+}
+
+/* ===== Product Cards ===== */
+.product-cart-wrap,
+.product-card {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.08) !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid rgba(255, 123, 44, 0.08) !important;
+}
+
+.product-cart-wrap:hover,
+.product-card:hover {
+    box-shadow: 0 12px 32px rgba(255, 123, 44, 0.2) !important;
+    transform: translateY(-6px) !important;
+}
+
+.product-img img {
+    border-radius: 20px 20px 0 0 !important;
+    transition: transform 0.5s ease !important;
+}
+
+.product-cart-wrap:hover .product-img img,
+.product-card:hover .product-img img {
+    transform: scale(1.05) !important;
+}
+
+/* ===== Product Price ===== */
+.product-price {
+    color: #FF7B2C !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+}
+
+.product-price .old-price {
+    color: #AAAAAA !important;
+    text-decoration: line-through !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+}
+
+.text-brand {
+    color: #FF7B2C !important;
+}
+
+/* ===== Categories Button ===== */
+.categories-button-active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+    border-radius: 12px !important;
+    padding: 12px 20px !important;
+}
+
+.categories-button-active:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ===== Hotline/Support ===== */
+.hotline {
+    color: #FFFFFF !important;
+}
+
+.hotline img {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* ===== Footer ===== */
+footer.main {
+    background: #2C2C2C !important;
+    color: #FFFFFF !important;
+}
+
+.newsletter-inner {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+}
+
+.newsletter-content h2 {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+.newsletter-content .text-brand {
+    color: #FFFFFF !important;
+}
+
+/* ===== Form Inputs ===== */
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+    border: 2px solid rgba(255, 123, 44, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    transition: all 0.3s ease !important;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #FF7B2C !important;
+    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.1) !important;
+    outline: none !important;
+}
+
+/* ===== Badges ===== */
+.badge,
+.pro-count {
+    background: #FF7B2C !important;
+    color: white !important;
+    border-radius: 12px !important;
+}
+
+/* ===== Cart Icon ===== */
+.header-action-icon-2 a {
+    color: #2C2C2C !important;
+}
+
+.header-action-icon-2 .lable {
+    color: #555555 !important;
+}
+
+/* ===== Mobile Bottom Navigation ===== */
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1) !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    padding: 12px 0 !important;
+    z-index: 1000 !important;
+    border-top: 1px solid rgba(255, 123, 44, 0.1) !important;
+}
+
+.bottom-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    color: #888888 !important;
+    transition: all 0.2s ease !important;
+    padding: 8px 16px !important;
+    border-radius: 12px !important;
+}
+
+.bottom-nav-item.active {
+    color: #FF7B2C !important;
+}
+
+.bottom-nav-item i {
+    font-size: 24px !important;
+    margin-bottom: 4px !important;
+}
+
+.bottom-nav-item span {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+}
+
+/* ===== Hero Sections ===== */
+.hero-slider-1,
+.home-slide-cover {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+}
+
+.slider-content h1 {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+/* ===== Category Icons ===== */
+.categories-dropdown-wrap a img {
+    border-radius: 50% !important;
+    background: #FFFFFF !important;
+    padding: 8px !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.08) !important;
+}
+
+/* ===== Cards & Sections ===== */
+.card,
+.card-body {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.08) !important;
+    border: 1px solid rgba(255, 123, 44, 0.08) !important;
+}
+
+/* ===== Links ===== */
+a {
+    color: #FF7B2C !important;
+    transition: color 0.2s ease !important;
+}
+
+a:hover {
+    color: #E55A00 !important;
+}
+
+/* ===== Text Colors ===== */
+.text-heading {
+    color: #2C2C2C !important;
+}
+
+.text-muted {
+    color: #888888 !important;
+}
+
+/* ===== Responsive Padding for Bottom Nav ===== */
+@media (max-width: 991px) {
+    body {
+        padding-bottom: 80px !important;
+    }
+    
+    .main {
+        padding-bottom: 80px !important;
+    }
+}
+
+/* ===== Override Specific NEST Colors ===== */
+.header-bottom-bg-color {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+}
+
+/* Force orange on all primary elements */
+.btn-primary,
+.button-primary,
+.btn-orange {
+    background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%) !important;
+    color: white !important;
+}
+
+/* ===== Additional Overrides for NEST Template ===== */
+
+/* Header Top Bar */
+.header-top .header-info a {
+    color: #555555 !important;
+}
+
+.header-top .header-info a:hover {
+    color: #FF7B2C !important;
+}
+
+/* Mobile Promotion Bar */
+.mobile-promotion {
+    background: #FF7B2C !important;
+    color: white !important;
+    padding: 8px 0 !important;
+    text-align: center !important;
+}
+
+.mobile-promotion a {
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* Product Grid */
+.product-grid-4 .product-cart-wrap {
+    margin-bottom: 30px !important;
+}
+
+/* Section Backgrounds */
+.section-padding {
+    background: #FDF8F3 !important;
+}
+
+/* Newsletter Form */
+.form-subcriber input {
+    border-radius: 20px 0 0 20px !important;
+    border: 2px solid rgba(255, 123, 44, 0.2) !important;
+}
+
+.form-subcriber button {
+    border-radius: 0 20px 20px 0 !important;
+    background: #FF7B2C !important;
+    border: none !important;
+    color: white !important;
+}
+
+/* Featured Section Icons */
+.banner-left-icon {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    padding: 20px !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.08) !important;
+}
+
+.banner-icon {
+    background: rgba(255, 123, 44, 0.1) !important;
+    border-radius: 50% !important;
+    width: 60px !important;
+    height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Footer Links */
+.footer-list a {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.footer-list a:hover {
+    color: #FF7B2C !important;
+}
+
+/* Shopping Cart Dropdown */
+.cart-dropdown-wrap {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.16) !important;
+    border: 1px solid rgba(255, 123, 44, 0.1) !important;
+}
+
+.shopping-cart-button a {
+    border-radius: 12px !important;
+}
+
+.shopping-cart-button a.outline {
+    border: 2px solid #FF7B2C !important;
+    color: #FF7B2C !important;
+    background: transparent !important;
+}
+
+.shopping-cart-button a.outline:hover {
+    background: #FF7B2C !important;
+    color: white !important;
+}
+
+/* Account Dropdown */
+.account-dropdown {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.16) !important;
+}
+
+.account-dropdown a {
+    color: #2C2C2C !important;
+    padding: 12px 20px !important;
+    border-radius: 12px !important;
+}
+
+.account-dropdown a:hover {
+    background: rgba(255, 123, 44, 0.1) !important;
+    color: #FF7B2C !important;
+}
+
+/* Hot Deals Section */
+.hot-deals img {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* Categories Dropdown */
+.categories-dropdown-active-large {
+    background: #FFFFFF !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.16) !important;
+    border: 1px solid rgba(255, 123, 44, 0.1) !important;
+}
+
+/* Add to Cart Links */
+.add-cart a,
+.add {
+    color: #FF7B2C !important;
+    font-weight: 600 !important;
+}
+
+.add-cart a:hover,
+.add:hover {
+    color: #E55A00 !important;
+}
+

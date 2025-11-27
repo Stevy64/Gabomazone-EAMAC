@@ -3,13 +3,15 @@
 
 {%block section %}
 
-    <section class="content-main">
-        <div class="content-header">
-            <div>
-                <h2 class="content-title card-title">{{vendor}} - Dashboard </h2>
-                <p>Hi {{vendor}} ! Here are all the data about your business </p>
-            
-            </div>
+    <section>
+        {% block page_title %}Tableau de bord{% endblock %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}} mb-3">
+            <span>{{message}}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
             {% if messages %}
             {% for message in messages %}
 
@@ -22,77 +24,60 @@
             {% endif %}
         </div>
 
-        <!-- Revenus -->
-        <div class="row">
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
-                    <article class="icontext">
-                        <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
-                        <div class="text">
-                            <h6 class="mb-1 card-title">Revenue</h6>
-                            <span>${{vendor.blance|floatformat:"2"}}</span>
-                        </div>
-                    </article>
+        <!-- Statistiques -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card-stat">
+                    <div class="card-stat-icon primary">
+                        <i class="material-icons md-monetization_on"></i>
+                    </div>
+                    <div class="card-stat-value">{{vendor.blance|floatformat:0}} XOF</div>
+                    <div class="card-stat-label">Revenus</div>
                 </div>
             </div>
 
-            <!-- Commandes en cours -->
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
-                    <article class="icontext">
-                        <span class="icon icon-sm rounded-circle bg-success-light"><i class="text-success material-icons md-local_shipping"></i></span>
-                        <div class="text">
-                            <h6 class="mb-1 card-title">Underway Orders</h6>
-                            <span>{{orders_underway.count}}</span>
-                            {% comment %} <span class="text-sm"> Excluding orders in transit </span> {% endcomment %}
-                        </div>
-                    </article>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card-stat">
+                    <div class="card-stat-icon success">
+                        <i class="material-icons md-local_shipping"></i>
+                    </div>
+                    <div class="card-stat-value">{{orders_underway.count}}</div>
+                    <div class="card-stat-label">Commandes en cours</div>
                 </div>
             </div>
 
-            <!-- Produits -->
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
-                    <article class="icontext">
-                        <span class="icon icon-sm rounded-circle bg-warning-light"><i class="text-warning material-icons md-qr_code"></i></span>
-                        <div class="text">
-                            <h6 class="mb-1 card-title">Products</h6>
-                            <span>{{products_supplier.count}}</span>
-                            {% comment %} <span class="text-sm"> In 19 Categories </span> {% endcomment %}
-                        </div>
-                    </article>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card-stat">
+                    <div class="card-stat-icon warning">
+                        <i class="material-icons md-shopping_bag"></i>
+                    </div>
+                    <div class="card-stat-value">{{products_supplier.count}}</div>
+                    <div class="card-stat-label">Produits</div>
                 </div>
             </div>
 
-            <!-- Commandes Totales -->
-            <div class="col-lg-3">
-                <div class="card card-body mb-4">
-                    <article class="icontext">
-                        <span class="icon icon-sm rounded-circle bg-info-light"><i class="text-info material-icons md-shopping_basket"></i></span>
-                        <div class="text">
-                            <h6 class="mb-1 card-title">Total Orders</h6>
-                            <span>{{orders_supplier.count}}</span>
-                            {% comment %} <span class="text-sm"> Based in your local time. </span> {% endcomment %}
-                        </div>
-                    </article>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card-stat">
+                    <div class="card-stat-icon info">
+                        <i class="material-icons md-shopping_basket"></i>
+                    </div>
+                    <div class="card-stat-value">{{orders_supplier.count}}</div>
+                    <div class="card-stat-label">Total commandes</div>
                 </div>
             </div>
         </div>
 
         <!-- Statistiques de vente -->
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-xl-12 col-lg-12">
-                <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Sale statistics</h5>
-                        <canvas id="myChart" height="120px"></canvas>
-                    </article>
+                <div class="chart-container">
+                    <h5 class="mb-3">Statistiques de vente</h5>
+                    <canvas id="myChart" height="120px"></canvas>
                 </div>
                 <div class="row">
                     <div class="col-lg-7">
-                        <div class="card mb-4">
-                            <article class="card-body">
-                                <h5 class="card-title">New Products</h5>
+                        <div class="glass-card mb-4">
+                            <h5 class="mb-3">Nouveaux produits</h5>
                                 <div class="new-member-list">
                                     {% for product in products_supplier|slice:"0:3"%}
                                     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -103,7 +88,7 @@
                                                 <p class="text-muted font-xs">{{product.product_supercategory}}</p>
                                             </div>
                                         </div>
-                                        <a href="{% url 'supplier_dashboard:supplier-edit-product' product.id %}" class="btn btn-xs"><i class="material-icons "></i> View</a>
+                                        <a href="{% url 'supplier_dashboard:supplier-edit-product' product.id %}" class="btn-purple btn-sm">Voir</a>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -111,9 +96,8 @@
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <div class="card mb-4">
-                            <article class="card-body">
-                                <h5 class="card-title">Recent Underway Orders</h5>
+                        <div class="glass-card mb-4">
+                            <h5 class="mb-3">Commandes récentes en cours</h5>
                                 <ul class="verti-timeline list-unstyled font-sm">
                                     {% for order in orders_underway|slice:"0:5"%}
                                     <li class="event-list active">
@@ -126,7 +110,7 @@
                                             </div>
                                             <div class="media-body">
                                                 <div>
-                                                    Order ID: #<a  href="{% url 'supplier_dashboard:order-details' order.id %}">{{order.id}}</a>
+                                                    Commande #<a  href="{% url 'supplier_dashboard:order-details' order.id %}">{{order.id}}</a>
                                             </div>
                                         </div>
                                     </li>
@@ -140,9 +124,10 @@
         </div>
 
         <!-- Commandes récentes -->
-        <div class="card mb-4">
-            <header class="card-header">
-                <h4 class="card-title">Latest orders</h4>
+        <div class="table-modern mb-4">
+            <div style="padding: 20px; border-bottom: 1px solid rgba(108, 59, 255, 0.1);">
+                <h4 class="mb-0">Dernières commandes</h4>
+            </div>
                 {% comment %} <div class="row align-items-center">
                     <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
                         <div class="custom_select">
@@ -182,17 +167,15 @@
                 <div class="table-responsive">
                     <div class="table-responsive">
                         <table class="table align-middle table-nowrap mb-0">
-                            <thead class="table-light">
+                                <thead>
                                 <tr>
-                                    
-                                    <th class="align-middle" scope="col">Order ID</th>
-                                    <th class="align-middle" scope="col">Billing Email</th>
-                                    <th class="align-middle" scope="col">Date</th>
-                                    <th class="align-middle" scope="col">Weight</th>
-                                    <th class="align-middle" scope="col">Total</th>
-                                    <th class="align-middle" scope="col">Payment Status</th>
-                                    
-                                    <th class="align-middle" scope="col">View Details</th>
+                                    <th scope="col">ID Commande</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Poids</th>
+                                    <th scope="col">Total</th>
+                                    <th scope="col">Statut paiement</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -203,14 +186,14 @@
                                     <td>{{order.vendor.user.email}}</td>
                                     <td>{{order.date_update}}</td>
                                     <td>{{order.weight}}</td>
-                                    <td>${{order.amount}}</td>
+                                    <td>{{order.amount|floatformat:0}} XOF</td>
                                     <td>
 
                                         <span class="badge badge-pill badge-soft-{%if order.status == "COMPLETE" %}success{% elif order.status == "Refunded" %}danger{%else%}warning{%endif%}">{{order.status}}</span>
                                     </td>
                                     
                                     <td>
-                                        <a href="{% url 'supplier_dashboard:order-details' order.id %}" class="btn btn-xs"> View details</a>
+                                        <a href="{% url 'supplier_dashboard:order-details' order.id %}" class="btn-purple btn-sm">Voir détails</a>
                                     </td>
                                 </tr>
                                 {%endfor%}
@@ -226,7 +209,7 @@
                 <nav aria-label="Page navigation example">
         
                     <div id ="loading-box" class="text-center">
-                        <a href="{% url 'supplier_dashboard:supplier-orders-list' %}"  type="button" class="btn btn-primary">See More</a>
+                        <a href="{% url 'supplier_dashboard:supplier-orders-list' %}"  type="button" class="btn-purple">Voir plus</a>
                         
                     </div>
                 </nav>

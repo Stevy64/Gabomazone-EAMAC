@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load currency %}
-{% currency_context %}
 
 
 {%block body%}
@@ -10,18 +8,18 @@
     <div class="page-header breadcrumb-wrap">
         <div class="container">
             <div class="breadcrumb">
-                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Shop
-                <span></span> Cart
+                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Accueil</a>
+                <span></span> Boutique
+                <span></span> Panier
             </div>
         </div>
     </div>
     <div class="container mb-80 mt-50">
         <div class="row">
             <div class="col-lg-8 mb-40">
-                <h1 class="heading-2 mb-10">Your Cart</h1>
+                <h1 class="heading-2 mb-10">Votre panier</h1>
                 <div class="d-flex justify-content-between">
-                    <h6 class="text-body">There are <span class="text-brand">{{order_details.count}}</span> Items in your cart</h6>
+                    <h6 class="text-body">Il y a <span class="text-brand">{{order_details.count}}</span> article(s) dans votre panier</h6>
                     {% comment %} <h6 class="text-body"><a href="#" class="text-muted"><i class="fi-rs-trash mr-5"></i>Clear Cart</a></h6> {% endcomment %}
                 </div>
             </div>
@@ -46,12 +44,12 @@
                                     <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
                                     <label class="form-check-label" for="exampleCheckbox11"></label>
                                 </th> {% endcomment %}
-                                <th scope="col" class="pl-30" colspan="2">Product Details</th>
-                                <th scope="col">Weight</th>
-                                <th scope="col">Unit Price</th>
-                                <th scope="col">Quantity</th>
-                                <th scope="col">Subtotal</th>
-                                <th scope="col" class="end">Remove</th>
+                                <th scope="col" class="pl-30" colspan="2">Détails du produit</th>
+                                <th scope="col">Poids</th>
+                                <th scope="col">Prix unitaire</th>
+                                <th scope="col">Quantité</th>
+                                <th scope="col">Sous-total</th>
+                                <th scope="col" class="end">Retirer</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,7 +76,7 @@
                                     <h4 class="text-brand">{{item.weight }}KG</h4>
                                 </td>
                                 <td class="price" data-title="Price">
-                                    <h4 class="text-body">{{request.session.currency }} {{item.price|currency:request.session.currency  }} </h4>
+                                    <h4 class="text-body currency-xof">{{item.price|floatformat:0}} XOF</h4>
                                 </td>
                                 <td class="text-center detail-info" data-title="Stock">
                                     {% comment %} <div class="detail-extralink mr-15">
@@ -92,7 +90,7 @@
                                     <h4 class="text-body">{{item.quantity }}</h4>
                                 </td>
                                 <td class="price" data-title="Price">
-                                    <h4 class="text-brand">{{request.session.currency}} {% widthratio item.price|currency:request.session.currency  1 item.quantity%} </h4>
+                                    <h4 class="text-brand currency-xof">{% widthratio item.price 1 item.quantity|floatformat:0 %} XOF</h4>
                                 </td>
                                 <td class="action text-center" data-title="Remove"><a href="{% url "orders:remove-item" productdeatails_id=item.id %}" class="text-body"><i class="fi-rs-trash"></i></a></td>
                             </tr>
@@ -108,14 +106,14 @@
                     <div class="col-lg-8">
                         <form method="post" class="apply-coupon">
                             {% csrf_token %}
-                            <input name="code" type="text" placeholder="Enter Coupon Code...">
-                            <button  type="submit" class="btn  btn-md" name="login">Apply</button>
+                            <input name="code" type="text" placeholder="Entrer le code promo...">
+                            <button  type="submit" class="btn-primary btn-md" name="login">Appliquer</button>
                         </form>
                     </div>
                 </div>
                 
                 <div class="row mt-30">
-                    <h4 class="mb-30">Shipping Details</h4>
+                    <h4 class="mb-30">Détails de livraison</h4>
                     <form method="post" action="{% url "orders:payment" %}" >
 
                         {% csrf_token %}
@@ -123,12 +121,12 @@
                         <div class="row">
                             <!-- Prénom -->
                             <div class="form-group col-lg-6">
-                                <input type="text" required="" name="first_name" placeholder="First name *">
+                                <input type="text" required="" name="first_name" placeholder="Prénom *" class="form-input-modern">
                             </div>
 
                             <!-- Nom -->
                             <div class="form-group col-lg-6">
-                                <input type="text" required="" name="last_name" placeholder="Last name *">
+                                <input type="text" required="" name="last_name" placeholder="Nom *" class="form-input-modern">
                             </div>
                         </div>
                         
@@ -150,7 +148,7 @@
 
                             <!-- Cities -->
                             <div class="form-group col-lg-6">
-                                <input required="" type="text" name="city" placeholder="Neighborhood *">
+                                <input required="" type="text" name="city" placeholder="Quartier *" class="form-input-modern">
                             </div>
                             
                         </div>
@@ -189,17 +187,17 @@
                         <div class="row">
                             <!-- Adresse -->
                             <div class="form-group col-lg-4">
-                                <input type="text" name="street" required="" placeholder="Complete Address *">
+                                <input type="text" name="street" required="" placeholder="Adresse complète *" class="form-input-modern">
                             </div>
 
                             <!-- Téléphone -->
                             <div class="form-group col-lg-4">
-                                <input required="" type="text" name="phone" placeholder="Phone *">
+                                <input required="" type="text" name="phone" placeholder="Téléphone *" class="form-input-modern">
                             </div>
 
                             <!-- eMail -->
                             <div class="form-group col-lg-4">
-                                <input type="text" name="email_address" placeholder="Email address">
+                                <input type="text" name="email_address" placeholder="Adresse email" class="form-input-modern">
                             </div>
 
                         </div>
@@ -209,7 +207,7 @@
                             <textarea rows="5" placeholder="Additional information"></textarea>
                         </div> -->
 
-                        <button type="submit"class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></button>
+                        <button type="submit" class="btn-primary mb-20 w-100">Procéder au paiement<i class="fi-rs-sign-out ml-15"></i></button>
                     
                     </form>
                 </div>
@@ -222,15 +220,15 @@
                             <tbody>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Subtotal</h6>
+                                        <h6 class="text-muted">Sous-total</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">{{request.session.currency}} {{f_total|currency:request.session.currency}}</h4>
+                                        <h4 class="text-brand text-end currency-xof">{{f_total|floatformat:0}} XOF</h4>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Items</h6>
+                                        <h6 class="text-muted">Articles</h6>
                                     </td>
                                     <td class="cart_total_amount">
                                         <h4 class="text-brand text-end">{{order_details.count}}</h4>
@@ -243,18 +241,21 @@
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Shipping</h6>
+                                        <h6 class="text-muted">Livraison</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">Calculated at next step</h4></td>
+                                        <h5 class="text-heading text-end">Calculé à l'étape suivante</h5></td>
                                 </tr>
                                 {% if coupon_id%}
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Coupon</h6>
+                                        <h6 class="text-muted">Code promo</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">{{code}} <span> -{{request.session.currency}}{{value|floatformat:"2"|currency:request.session.currency}}</h4</td> </tr> <tr>
+                                        <h5 class="text-heading text-end">{{code}} <span class="text-success"> -{{value|floatformat:0}} XOF</span></h5>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td scope="col" colspan="2">
                                         <div class="divider-2 mt-10 mb-10"></div>
                                     </td>
@@ -265,7 +266,7 @@
                                         <h6 class="text-muted">Total</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">{{request.session.currency}}{{total|floatformat:"2"|currency:request.session.currency}}</h4>
+                                        <h4 class="text-brand text-end currency-xof">{{total|floatformat:0}} XOF</h4>
                                     </td>
                                 </tr>
                             </tbody>

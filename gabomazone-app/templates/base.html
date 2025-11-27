@@ -1,9 +1,7 @@
 {% load static%}
 {% load cart_template_tags%}
-{% load currency %}
-{% currency_context %}
 <!DOCTYPE html>
-<html class="no-js'" lang="en">
+<html class="no-js'" lang="fr">
     <head>
 		{%block head%}
         <meta charset="utf-8" />
@@ -28,6 +26,10 @@
         <!-- Template CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
+        <!-- Gabomazone FLAVORIZ Design - DOIT être chargé APRÈS main.css pour écraser NEST -->
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=5.0" />
+        <!-- Force FLAVORIZ - Override absolu -->
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=5.0" />
 		{%endblock head%}
 
 		{%block headextra%}
@@ -37,8 +39,100 @@
 
     <body>
 
-	<!-- 1er Niveau de Banniere : About Us / My Account / Publicite 25% de discount / Devises -->
-	<header class="header-area header-style-1 header-style-5 header-height-2">
+	<!-- ===== NOUVEAU HEADER FLAVORIZ ===== -->
+	<header class="flavoriz-header">
+		<div class="flavoriz-header-top">
+			<!-- Logo -->
+			<a href="{% url 'home:index' %}" class="flavoriz-logo">
+				<span class="flavoriz-logo-part1">Gaboma</span><span class="flavoriz-logo-part2">Zone</span>
+			</a>
+			
+			<!-- Navigation Desktop -->
+			<nav class="flavoriz-nav-desktop">
+				<ul class="flavoriz-nav">
+					<li><a href="{% url 'home:index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">ACCUEIL</a></li>
+					<li><a href="{% url 'categories:shop' %}" class="{% if 'shop' in request.path %}active{% endif %}">PRODUITS</a></li>
+					<li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
+					<li><a href="{% url 'suppliers:supplier-list' %}" class="{% if 'supplier' in request.path %}active{% endif %}">MAGASINS</a></li>
+					{% for page_obj in pages_list|slice:"0:1"%}
+					<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name|upper}}</a></li>
+					{%endfor%}
+				</ul>
+			</nav>
+			
+			<!-- Actions Header Desktop -->
+			<div class="flavoriz-header-actions flavoriz-header-actions-desktop">
+				<!-- Search -->
+				<div class="flavoriz-search">
+					<form action="{% url 'products:product-search'%}" method="post">
+						{% csrf_token %}
+						<input type="text" name="search-product" placeholder="Rechercher..." autocomplete="off" required/>
+						<button type="submit"><i class="fi-rs-search"></i></button>
+					</form>
+				</div>
+				
+				<!-- Cart Icon -->
+				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn" title="Panier">
+					<i class="fi-rs-shopping-cart"></i>
+					{% if cart_count %}
+					<span style="position: absolute; top: -4px; right: -4px; background: var(--color-orange); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">{{cart_count}}</span>
+					{% endif %}
+				</a>
+				
+				<!-- Account Icon -->
+				<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn" title="Compte">
+					<i class="fi-rs-user"></i>
+				</a>
+			</div>
+			
+			<!-- Actions Header Mobile - Recherche, Panier, Login sur même ligne -->
+			<div class="flavoriz-header-actions-mobile">
+				<!-- Search Mobile avec expansion - Icône seulement par défaut -->
+				<div class="flavoriz-search-mobile">
+					<!-- Icône de recherche (visible par défaut) -->
+					<button type="button" class="flavoriz-search-trigger-mobile" title="Rechercher">
+						<i class="fi-rs-search"></i>
+					</button>
+					<!-- Formulaire de recherche (caché par défaut, s'affiche au clic) -->
+					<form action="{% url 'products:product-search'%}" method="post" class="flavoriz-search-form-mobile" style="display: none;">
+						{% csrf_token %}
+						<input type="text" name="search-product" id="mobile-search-input" placeholder="Rechercher..." autocomplete="off" required/>
+						<button type="submit" class="flavoriz-search-submit-mobile"><i class="fi-rs-search"></i></button>
+						<button type="button" class="flavoriz-search-close-mobile"><i class="fi-rs-cross"></i></button>
+					</form>
+				</div>
+				
+				<!-- Cart Icon Mobile -->
+				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn-mobile" title="Panier">
+					<i class="fi-rs-shopping-cart"></i>
+					{% if cart_count %}
+					<span class="flavoriz-badge-mobile">{{cart_count}}</span>
+					{% endif %}
+				</a>
+				
+				<!-- Account Icon Mobile -->
+				<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte">
+					<i class="fi-rs-user"></i>
+				</a>
+			</div>
+		</div>
+		
+		<!-- Navigation Mobile -->
+		<nav class="flavoriz-nav-mobile">
+			<ul class="flavoriz-nav-mobile-list">
+				<li><a href="{% url 'home:index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">ACCUEIL</a></li>
+				<li><a href="{% url 'categories:shop' %}" class="{% if 'shop' in request.path %}active{% endif %}">PRODUITS</a></li>
+				<li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
+				<li><a href="{% url 'suppliers:supplier-list' %}" class="{% if 'supplier' in request.path %}active{% endif %}">MAGASINS</a></li>
+				{% for page_obj in pages_list|slice:"0:1"%}
+				<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name|upper}}</a></li>
+				{%endfor%}
+			</ul>
+		</nav>
+	</header>
+
+	<!-- ===== ANCIEN HEADER NEST (CACHÉ) ===== -->
+	<header class="header-area header-style-1 header-style-5 header-height-2" style="display: none;">
 	<div class="mobile-promotion">	
 		{% for text_ad in head_text%}
 		<span>{{text_ad.ad_title}} <a class="active d-inline-block" style="color:#090101;" href="{{text_ad.ad_URL}}">Shop now</a></span>
@@ -121,7 +215,7 @@
 								{%endfor%}
 							</select>
 
-							<input type="text" name="search-product" placeholder="Rechercher un article" autocomplete="off" required/>
+							<input type="text" name="search-product" placeholder="Rechercher un produit..." autocomplete="off" required/>
 							<button type="submit"><i class="fi-rs-search"></i></button>
 						</form>
 					</div>
@@ -138,7 +232,7 @@
 									<span class="pro-count blue">0</span>
 									{%endif%}
 								</a>
-								<a href="{% url 'orders:cart'%}"><span class="lable">Cart</span></a>
+								<a href="{% url 'orders:cart'%}"><span class="lable">Panier</span></a>
 								{% if cart_count%}								
 								<div class="{% if   order_context is None %}  not-visible {%endif%} cart-dropdown-wrap cart-dropdown-hm2">
 									
@@ -150,7 +244,7 @@
 											</div>
 											<div class="shopping-cart-title">
 												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
-												<h4><span>{{order.quantity}} × </span>${{order.price}}</h4>
+												<h4><span>{{order.quantity}} × </span>{{order.price|floatformat:0}} XOF</h4>
 											</div>
 											<div class="shopping-cart-delete">
 												<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
@@ -161,12 +255,12 @@
 									<div class="shopping-cart-footer">
 										<div class="shopping-cart-total">
 											{% if order_context.amount%}
-											 <h4>Total <span>${{order_context.amount}}</span></h4> 
+											 <h4>Total <span>{{order_context.amount|floatformat:0}} XOF</span></h4> 
 											{%endif%}
 										</div>
 										<div class="shopping-cart-button">
-											<a href="{% url 'orders:cart'%}" class="outline">View cart</a>
-											<a href="{% url 'orders:cart'%}">Checkout</a>
+											<a href="{% url 'orders:cart'%}" class="outline">Voir le panier</a>
+											<a href="{% url 'orders:cart'%}">Commander</a>
 										</div>
 									</div>
 								</div>
@@ -178,7 +272,7 @@
 								<a href="{% url 'accounts:dashboard_customer' %}">
 									<img class="svgInject" alt="Gabomazone" src="{% static 'assets/imgs/theme/icons/icon-user.svg'%}" />
 								</a>
-								<a href="{% url 'accounts:dashboard_customer' %}"><span class="lable ml-0">Account</span></a>
+								<a href="{% url 'accounts:dashboard_customer' %}"><span class="lable ml-0">Compte</span></a>
 								<div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
 									<ul>
 										{% if user.is_authenticated %}
@@ -186,19 +280,19 @@
 											<a href="{% url 'accounts:order_tracking'%}"><i class="fi fi-rs-location-alt mr-10"></i>Order Tracking</a>
 										</li> -->
 										<li>
-											<a href="{% url 'accounts:dashboard_customer'%}"><i class="fi fi-rs-label mr-10"></i>My Orders</a>
+											<a href="{% url 'accounts:dashboard_customer'%}"><i class="fi fi-rs-label mr-10"></i>Mes commandes</a>
 										</li>
 									
 										<li>
-											<a href="{% url 'accounts:account_details'%}"><i class="fi fi-rs-settings-sliders mr-10"></i>Setting</a>
+											<a href="{% url 'accounts:account_details'%}"><i class="fi fi-rs-settings-sliders mr-10"></i>Paramètres</a>
 										</li>
 										<li>
-											<a href="{% url 'accounts:logout'%}"><i class="fi fi-rs-sign-out mr-10"></i>Sign out</a>
+											<a href="{% url 'accounts:logout'%}"><i class="fi fi-rs-sign-out mr-10"></i>Déconnexion</a>
 										</li>
 										{% else %}
 										
-											<li><a href="{% url 'accounts:login'%}"><i class="fi fi-rs-user mr-10"></i>Login</a></li>
-											<li><a href="{% url 'accounts:register'%}"><i class="fi fi-rs-user-add mr-10"></i>Register</a></li>
+											<li><a href="{% url 'accounts:login'%}"><i class="fi fi-rs-user mr-10"></i>Connexion</a></li>
+											<li><a href="{% url 'accounts:register'%}"><i class="fi fi-rs-user-add mr-10"></i>Inscription</a></li>
 										
 										{% endif %}
 									</ul>
@@ -224,7 +318,7 @@
 					<!-- Categories en vogue -->
 					<div class="main-categori-wrap d-none d-lg-block">
 						<a class="categories-button-active" href="#">
-							<span class="fi-rs-apps"></span> <span class="et">Trending</span> Categories
+							<span class="fi-rs-apps"></span> <span class="et">Catégories</span> tendances
 							<i class="fi-rs-angle-down"></i>
 						</a>
 						<div class="categories-dropdown-wrap categories-dropdown-active-large font-heading">
@@ -247,7 +341,7 @@
 							</div>
 							
 							{%if supercategory.count >= 11  %} 
-							<div class="more_categories"> <a href="{% url 'categories:category-list'%}"><span class="fi-rs-apps"></span> <span class="heading-sm-1"> All Categories...</span> </a></div>
+							<div class="more_categories"> <a href="{% url 'categories:category-list'%}"><span class="fi-rs-apps"></span> <span class="heading-sm-1"> Toutes les catégories...</span> </a></div>
 							{%endif%}
 						</div>
 					</div>
@@ -259,12 +353,12 @@
 								
 								<!-- Accueil -->
 								<li>
-									<a class="active" href="{%url 'categories:shop' %}">Our Articles </a>
+									<a class="active" href="{%url 'categories:shop' %}">Nos produits </a>
 								</li>
 								
 								<!-- Promos -->
 								<li class="position-static hot-deals">
-									<img src="{% static 'assets/imgs/theme/icons/icon-hot-white.svg'%}" alt="hot deals" /><a href="{%url 'categories:shop' %}">Trendings <i class="fi-rs-angle-down"></i></a>
+									<img src="{% static 'assets/imgs/theme/icons/icon-hot-white.svg'%}" alt="promotions" /><a href="{%url 'categories:shop' %}">Tendances <i class="fi-rs-angle-down"></i></a>
 									<ul class="mega-menu">
 										{% for deal in hot_dael|slice:":3" %}
 										<li class="sub-mega-menu" style="width: 33%;">
@@ -272,16 +366,16 @@
 												<a href="{{deal.ad_URL}}">
 													<img {%if deal.ad_mage%} src="{{deal.ad_mage.url}}" {%else%} src="{% static 'assets/imgs/banner/banner-menu.png'%}" {%endif%} alt="Gabomazone" /></a>
 												<div class="menu-banner-content">
-													<h4>Hot deals</h4>
+													<h4>Promotions</h4>
 													<h3>
-														Don't miss<br />
-														Trending
+														Ne manquez pas<br />
+														Les tendances
 													</h3>
 													<div class="menu-banner-price">
-														<span class="new-price text-success">Save to {{deal.rate}}%</span>
+														<span class="new-price text-success">Économisez jusqu'à {{deal.rate}}%</span>
 													</div>
 													<div class="menu-banner-btn">
-														<a href="{{deal.ad_URL}}">Shop now</a>
+														<a href="{{deal.ad_URL}}">Acheter maintenant</a>
 													</div>
 												</div>
 												<div class="menu-banner-discount">
@@ -305,12 +399,12 @@
 
 								<!-- Categories -->
 								<li class="position-static">
-									<a href="{% url 'categories:category-list'%}">All the Categories </a>
+									<a href="{% url 'categories:category-list'%}">Toutes les catégories </a>
 								</li>
 								
 								<!-- Magasins -->
 								<li>
-									<a href="{% url 'suppliers:supplier-list'%}">Partner Stores</a>
+									<a href="{% url 'suppliers:supplier-list'%}">Magasins partenaires</a>
 								</li>
 
 								<!-- Contact -->
@@ -371,7 +465,7 @@
 										</div>
 										<div class="shopping-cart-title">
 											<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
-											<h3><span>{{order.quantity}} × </span>${{order.price}}</h3>
+											<h3><span>{{order.quantity}} × </span>{{order.price|floatformat:0}} XOF</h3>
 										</div>
 										<div class="shopping-cart-delete">
 											<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
@@ -383,12 +477,12 @@
 								<div class="shopping-cart-footer">
 									<div class="shopping-cart-total">
 										{% if order_context.amount%}
-											<h4>Total <span>${{order_context.amount}}</span></h4> 
+											<h4>Total <span>{{order_context.amount|floatformat:0}} XOF</span></h4> 
 										{%endif%}
 									</div>
 									<div class="shopping-cart-button">
-										<a href="{% url 'orders:cart'%}">View cart</a>
-										<a href="{% url 'orders:cart'%}">Checkout</a>
+										<a href="{% url 'orders:cart'%}">Voir le panier</a>
+										<a href="{% url 'orders:cart'%}">Commander</a>
 									</div>
 								</div>
 							</div>
@@ -431,7 +525,7 @@
 			<div class="mobile-search search-style-3 mobile-header-border">
 				<form action="{% url 'products:product-search'%}" method="post">
 					{% csrf_token %}
-					<input name="search-product" type="text" placeholder="Search for items…" autocomplete="off" required/>
+					<input name="search-product" type="text" placeholder="Rechercher un produit…" autocomplete="off" required/>
 					<button type="submit"><i class="fi-rs-search"></i></button>
 				</form>
 			</div>
@@ -491,9 +585,9 @@
 				</div>
 				<div class="single-mobile-header-info">
 					{% if user.is_authenticated %}
-					<a href="{% url 'accounts:dashboard_customer' %}"><i class="fi-rs-user"></i>My Account</a>
+					<a href="{% url 'accounts:dashboard_customer' %}"><i class="fi-rs-user"></i>Mon compte</a>
 					{%else%}
-					<a href="{% url 'accounts:login' %}"><i class="fi-rs-user"></i>Log In / Sign Up </a>
+					<a href="{% url 'accounts:login' %}"><i class="fi-rs-user"></i>Connexion / Inscription </a>
 					
 					{%endif%}
 				</div>
@@ -528,6 +622,9 @@
 			<!-- Contenu : Banniere de Promos + Articles -->
 		{%endblock body%}
 
+		<!-- Bottom Navigation for Mobile -->
+		{% include 'components/bottom_navigation.html' %}
+
 		<!-- Footer-->
         <footer class="main">
             <section class="newsletter mb-15 wow animate__animated animate__fadeIn">
@@ -542,11 +639,11 @@
                                         GabomaZone <br />
                                         Par les gabomas, pour les gabomas
                                     </h2>
-                                    <p class="mb-45">Tous les bons waz à dealer sont sur <span class="text-brand">{{site_info.site_name}}</span></p>
+                                    <p class="mb-45">Tous les bons produits sont sur <span class="text-brand">{{site_info.site_name}}</span></p>
                                     <form method="POST" class="form-subcriber d-flex selector-2">
 										{% csrf_token %}
-                                        <input id="subscribe-input-2" type="email" placeholder="Your emaill address" required/>
-                                        <button class="btn" type="submit">Subscribe</button>
+                                        <input id="subscribe-input-2" type="email" placeholder="Votre adresse email" required/>
+                                        <button class="btn" type="submit">S'abonner</button>
                                     </form>
                                 </div>
                                 <img {% if site_info.footer_image %} src="{{site_info.footer_image.url}}" {%endif%} alt="newsletter" />
@@ -564,8 +661,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-1.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Best prices & offers</h3>
-                                    <p>Orders $50 or more</p>
+                                    <h3 class="icon-box-title">Meilleurs prix et offres</h3>
+                                    <p>Commandes de 30 000 XOF ou plus</p>
                                 </div>
                             </div>
                         </div>
@@ -575,8 +672,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-2.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Free delivery</h3>
-                                    <p>24/7 amazing services</p>
+                                    <h3 class="icon-box-title">Livraison gratuite</h3>
+                                    <p>Service disponible 24/7</p>
                                 </div>
                             </div>
                         </div>
@@ -586,8 +683,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-3.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Great daily deal</h3>
-                                    <p>When you sign up</p>
+                                    <h3 class="icon-box-title">Offres quotidiennes</h3>
+                                    <p>Lors de votre inscription</p>
                                 </div>
                             </div>
                         </div>
@@ -597,8 +694,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-4.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Wide assortment</h3>
-                                    <p>Mega Discounts</p>
+                                    <h3 class="icon-box-title">Large sélection</h3>
+                                    <p>Mégas réductions</p>
                                 </div>
                             </div>
                         </div>
@@ -608,8 +705,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-5.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Easy returns</h3>
-                                    <p>Within 30 days</p>
+                                    <h3 class="icon-box-title">Retours faciles</h3>
+                                    <p>Sous 30 jours</p>
                                 </div>
                             </div>
                         </div>
@@ -619,8 +716,8 @@
                                     <img src="{% static 'assets/imgs/theme/icons/icon-6.svg'%}" alt="" />
                                 </div>
                                 <div class="banner-text">
-                                    <h3 class="icon-box-title">Safe delivery</h3>
-                                    <p>Within 30 days</p>
+                                    <h3 class="icon-box-title">Livraison sécurisée</h3>
+                                    <p>Sous 30 jours</p>
                                 </div>
                             </div>
                         </div>
@@ -647,7 +744,7 @@
                             </div>
                         </div>
                         <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
-							<h4 class="widget-title">Company</h4>
+							<h4 class="widget-title">Entreprise</h4>
 							<ul class="footer-list mb-sm-5 mb-md-0">
 								{% for page_obj in pages_list|slice:"0:7"%}
 
@@ -659,15 +756,15 @@
                     <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
                         <h4 class="widget-title">Pages</h4>
                         <ul class="footer-list mb-sm-5 mb-md-0">                       
-                            <li><a href="{% url 'orders:cart'%}">View Cart</a></li>                           
-                            <!-- <li><a href="{% url 'accounts:order_tracking'%}">Track My Order</a></li> -->
-							<li><a href="{% url 'supplier_dashboard:supplier-register'%}">Become a Vendor</a></li>
-							<li><a href="{% url 'supplier_dashboard:supplier-login'%}">Vendor Login</a></li>                          
-                            <li><a href="{%url 'contact:contact'%}">Contact Us</a></li>
+                            <li><a href="{% url 'orders:cart'%}">Voir le panier</a></li>                           
+                            <!-- <li><a href="{% url 'accounts:order_tracking'%}">Suivre ma commande</a></li> -->
+							<li><a href="{% url 'supplier_dashboard:supplier-register'%}">Devenir vendeur</a></li>
+							<li><a href="{% url 'supplier_dashboard:supplier-login'%}">Connexion vendeur</a></li>                          
+                            <li><a href="{%url 'contact:contact'%}">Nous contacter</a></li>
                         </ul>
                     </div>
                     <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
-                        <h4 class="widget-title">Categories</h4>
+                        <h4 class="widget-title">Catégories</h4>
                         <ul class="footer-list mb-sm-5 mb-md-0">
 							{% for super_obj in supercategory|slice:"0:7"%}
                             <li><a href="{% url 'categories:super-category' super_obj.slug%}">{{super_obj.name}}</a></li>
@@ -676,13 +773,13 @@
                     </div>
              
                     <div class="footer-link-widget widget-install-app col wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
-                        <h4 class="widget-title">Install App</h4>
-                        <p class="">From App Store or Google Play</p>
+                        <h4 class="widget-title">Installer l'application</h4>
+                        <p class="">Depuis l'App Store ou Google Play</p>
                         <div class="download-app">
                             <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="{% static 'assets/imgs/theme/app-store.jpg'%}" alt="" /></a>
                             <a href="#" class="hover-up mb-sm-2"><img src="{% static 'assets/imgs/theme/google-play.jpg'%}" alt="" /></a>
                         </div>
-                        <p class="mb-20">Secured Payment</p>
+                        <p class="mb-20">Paiement sécurisé</p>
                         <img class="" src="{% static 'assets/imgs/theme/payment-method.png'%}" alt="" />
                     </div>
                 </div>
@@ -712,22 +809,55 @@
                             <a href="{{link.youtube}}"><img src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg'%}" alt="" /></a>
 							{%endfor%}
                         </div>
-                        <p class="font-sm">Up to 15% discount on your first subscribe</p>
+                        <p class="font-sm">Jusqu'à 15% de réduction lors de votre premier abonnement</p>
                     </div>
                 </div>
             </div>
         </footer>
+        
+        <!-- ===== Mobile Bottom Navigation - PERMANENTE SUR TOUTES LES PAGES ===== -->
+        <nav class="flavoriz-bottom-nav">
+            <a href="{% url 'home:index' %}" class="flavoriz-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                <i class="fi-rs-home"></i>
+                <span>Accueil</span>
+            </a>
+            <a href="{% url 'categories:category-list' %}" class="flavoriz-bottom-nav-item {% if 'category' in request.path %}active{% endif %}">
+                <i class="fi-rs-apps"></i>
+                <span>Catégories</span>
+            </a>
+            <a href="{% url 'products:product-search' %}" class="flavoriz-bottom-nav-item {% if 'search' in request.path %}active{% endif %}">
+                <i class="fi-rs-search"></i>
+                <span>Recherche</span>
+            </a>
+            <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
+                <i class="fi-rs-shopping-cart"></i>
+                <span>Panier</span>
+            </a>
+            <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-bottom-nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+                <i class="fi-rs-user"></i>
+                <span>Compte</span>
+            </a>
+        </nav>
+        
         <!-- Preloader Start -->
         <div id="preloader-active">
             <div class="preloader d-flex align-items-center justify-content-center">
                 <div class="preloader-inner position-relative">
                     <div class="text-center">
-                        <img src="{% static 'assets/imgs/theme/loading.gif' %}" alt="" />
+                        <div class="flavoriz-spinner"></div>
                     </div>
                 </div>
             </div>
         </div>
 		{% block script%}
+			<!-- Smart Header - Barre de navigation intelligente -->
+			<script src="{% static 'gabomazone-client/js/smart-header.js' %}?v=5.0"></script>
+			<!-- Custom Dropdown -->
+			<script src="{% static 'gabomazone-client/js/custom-dropdown.js' %}?v=5.0"></script>
+			<!-- Mobile Search Expansion -->
+			<script src="{% static 'gabomazone-client/js/mobile-search-expand.js' %}?v=5.0"></script>
+			<!-- Infinite Scroll + Lazy Loading -->
+			<script src="{% static 'gabomazone-client/js/infinite-scroll.js' %}?v=5.0"></script>
 			<!-- Vendor JS-->
 			<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
 			<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
@@ -753,10 +883,7 @@
 			<script src="{% static 'assets/js/shop.js'%}"></script>		
 		{% endblock script%} 
 
-		<!-- GTranslate: https://gtranslate.io/ -->
-		<div class="gtranslate_wrapper" style="display: block; padding: 0px; margin: 0px; text-align: left; z-index: 2147483647; direction: ltr; position: fixed; left: 24px; bottom: 12px;"></div>
-		<script>window.gtranslateSettings = {"default_language":"en","native_language_names":true,"detect_browser_language":true,"languages":["en","fr"],"wrapper_selector":".gtranslate_wrapper","switcher_horizontal_position":"inline","flag_style":"3d","alt_flags":{"en":"usa"}}</script>
-		<script src="https://cdn.gtranslate.net/widgets/latest/float.js" defer></script>
+		<!-- Language switcher removed - French only -->
 
 
  

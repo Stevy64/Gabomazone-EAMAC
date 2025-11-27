@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -88,7 +87,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'currencies.context_processors.currencies',
                 'categories.context_processors.category_obj',
                 'products.context_processors.new_products_obj',
                 'orders.context_processors.orders_cart_obj',
@@ -154,16 +152,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 ###DEFAULT_CURRENCY##
-DEFAULT_CURRENCY = 'CFA'
+DEFAULT_CURRENCY = 'XOF'
 
-# Internationalization
+# Internationalization - French only
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Libreville'
 
-USE_I18N = True
+USE_I18N = False
 
 USE_L10N = True
 

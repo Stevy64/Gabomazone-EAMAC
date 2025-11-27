@@ -39,18 +39,8 @@ def home_page(request):
         "home_ad_daily": home_ad_daily,
         "home_ads_deal_time": home_ads_deal_time,
     }
-    # return render(request, 'home/home-page.html', context)
-    if index == "random":
-        index = random.randrange(1, 5)
-        try:
-            return render(request, f'home/index-{index}.html', context)
-        except:
-            return render(request, 'home/index-1.html', context)
-    else:
-        try:
-            return render(request, f'home/{index}.html', context)
-        except:
-            return render(request, 'home/index-1.html', context)
+    # FORCER LE NOUVEAU DESIGN FLAVORIZ - TOUJOURS
+    return render(request, 'home/index-flavoriz.html', context)
 
 
 def set_currency(request):

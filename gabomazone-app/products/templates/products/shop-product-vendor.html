@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load currency %}
-{% currency_context %}
 
 {%block body%}
 <main class="main">
@@ -140,11 +138,11 @@
                                         </div>
                                         <div class="clearfix product-price-cover">
                                             <div class="product-price primary-color float-left">
-                                                <span class="current-price text-brand">{{request.session.currency}}{{product_detail.PRDPrice|currency:request.session.currency}}</span>
+                                                <span class="current-price text-brand currency-xof">{{product_detail.PRDPrice|floatformat:0}} XOF</span>
                                                 <span>
                                                     {% comment %} <span class="save-price font-md color3 ml-15">26% Off</span> {% endcomment %}
                                                     {% if product_detail.PRDDiscountPrice%}
-                                                    <span class="old-price font-md ml-15">{{request.session.currency}}{{product_detail.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                    <span class="old-price font-md ml-15">{{product_detail.PRDDiscountPrice|floatformat:0}} XOF</span>
                                                     {%endif%}
                                                 </span>
                                             </div>
@@ -154,7 +152,7 @@
                                         </div>
                                         {% if product_variations %}
                                         <div class="attr-detail attr-size mb-30">
-                                            <strong class="mr-10">Size: </strong>
+                                            <strong class="mr-10">Taille: </strong>
                                             <ul class="list-filter size-filter font-small">
                                                 {% for product_variation in product_variations  %}
                                                     {% if forloop.counter  == 1 %}
@@ -182,7 +180,7 @@
                                                 <input type="hidden" id="product_variation" value="" name="name_variation" type="text" >
                                                 <input type="hidden" value="{{product_detail.id}}" name="product_id">
                                                 <input type="hidden" value="{{product_detail.PRDPrice}}" name="product_Price">
-                                                <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
+                                                <button type="submit" class="btn-primary"><i class="fi-rs-shopping-cart"></i>Ajouter au panier</button>
                                             
                                                 {% comment %} <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                                 <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
@@ -233,7 +231,7 @@
                                                     <tr class="stand-up">
                                                         <th>Price</th>
                                                         <td>
-                                                            <p>{{request.session.currency}} {{product_detail.PRDPrice|currency:request.session.currency}}</p>
+                                                            <p class="currency-xof">{{product_detail.PRDPrice|floatformat:0}} XOF</p>
                                                         </td>
                                                     </tr>
                                                     <tr class="folded-wo-wheels">
@@ -546,9 +544,9 @@
                                                         <span> </span>
                                                     </div>
                                                     <div class="product-price">
-                                                        <span>{{request.session.currency}}{{related_product.PRDPrice|currency:request.session.currency}} </span>
+                                                        <span class="currency-xof">{{related_product.PRDPrice|floatformat:0}} XOF</span>
                                                         {% if related_product.PRDDiscountPrice%}
-                                                        <span class="old-price">{{request.session.currency}}{{related_product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                        <span class="old-price">{{related_product.PRDDiscountPrice|floatformat:0}} XOF</span>
                                                         {%endif%}
                                                     </div>
                                                 </div>
@@ -604,9 +602,9 @@
                                                         <span> </span>
                                                     </div>
                                                     <div class="product-price">
-                                                        <span>{{request.session.currency}}{{supplier_Product.PRDPrice|currency:request.session.currency}}</span>
+                                                        <span class="currency-xof">{{supplier_Product.PRDPrice|floatformat:0}} XOF</span>
                                                         {% if supplier_Product.PRDDiscountPrice%}
-                                                        <span class="old-price">{{request.session.currency}}{{supplier_Product.PRDDiscountPrice|currency:request.session.currency}}</span>
+                                                        <span class="old-price">{{supplier_Product.PRDDiscountPrice|floatformat:0}} XOF</span>
                                                         {%endif%}
                                                     </div>
                                                 </div>
@@ -706,7 +704,7 @@
                                 </div>
                                 <div class="content pt-10">
                                     <h6><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h6>
-                                    <p class="price mb-0 mt-5">{{request.session.currency}} {{new_product.PRDPrice|currency:request.session.currency}}</p>
+                                    <p class="price mb-0 mt-5 currency-xof">{{new_product.PRDPrice|floatformat:0}} XOF</p>
                                     <div class="product-rate">
                                         <div class="product-rating" style="width: {{new_product.feedbak_average}}%"></div>
                                     </div>

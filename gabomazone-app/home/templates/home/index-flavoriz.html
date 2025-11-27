@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{%block body%}
+
+<!-- ===== Hero Section FLAVORIZ ===== -->
+<section class="flavoriz-hero">
+    <div class="flavoriz-hero-content">
+        <div class="flavoriz-hero-text">
+            <h1 class="flavoriz-hero-title">
+                Explorez
+                <span class="flavoriz-hero-highlight">Notre Marché</span>
+            </h1>
+        </div>
+        <div class="flavoriz-hero-image">
+            {% if carousels %}
+            {% with carousel=carousels|first %}
+            {% if carousel.CARImage %}
+            <img src="{{carousel.CARImage.url}}" alt="{{carousel.CARtitle}}" />
+            {% else %}
+            <div class="flavoriz-hero-placeholder">
+                {{carousel.CARtitle}}
+            </div>
+            {% endif %}
+            {% endwith %}
+            {% else %}
+            <div class="flavoriz-hero-placeholder">
+                Gabomazone
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ===== Section "Que recherchez-vous?" ===== -->
+<section class="flavoriz-section" style="padding: 0 var(--spacing-lg); margin-bottom: var(--spacing-2xl);">
+    <h2 class="flavoriz-section-title" style="font-size: 36px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-md);">
+        Que recherchez-vous<span style="color: var(--color-orange);"> ?</span>
+    </h2>
+    
+    <!-- Category Tags -->
+    <div class="flavoriz-category-tags">
+        <a href="{% url 'categories:shop' %}" class="flavoriz-tag active">
+            <i class="fi-rs-apps"></i>
+            <span>Tous les types</span>
+        </a>
+        {% for categori in super_category|slice:":8" %}
+        <a href="{% url 'categories:super-category' categori.slug%}" class="flavoriz-tag">
+            {% if "électronique" in categori.name|lower or "electronique" in categori.name|lower or "tech" in categori.name|lower or "informatique" in categori.name|lower %}
+                <i class="fi-rs-laptop"></i>
+            {% elif "mode" in categori.name|lower or "vêtement" in categori.name|lower or "vetement" in categori.name|lower or "fashion" in categori.name|lower %}
+                <i class="fi-rs-shopping-bag"></i>
+            {% elif "immobilier" in categori.name|lower or "maison" in categori.name|lower or "logement" in categori.name|lower %}
+                <i class="fi-rs-building"></i>
+            {% elif "scolaire" in categori.name|lower or "fourniture" in categori.name|lower or "livre" in categori.name|lower or "papeterie" in categori.name|lower %}
+                <i class="fi-rs-book"></i>
+            {% elif "loisir" in categori.name|lower or "sport" in categori.name|lower or "jeu" in categori.name|lower or "musique" in categori.name|lower %}
+                <i class="fi-rs-heart"></i>
+            {% elif "service" in categori.name|lower or "autre" in categori.name|lower or "divers" in categori.name|lower %}
+                <i class="fi-rs-briefcase"></i>
+            {% else %}
+                <i class="fi-rs-apps"></i>
+            {% endif %}
+            <span>{{categori.name}}</span>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <!-- Product Count & Sort - Design Moderne -->
+    <div class="flavoriz-filter-section">
+        <div id="product-num" class="flavoriz-filter-count">
+            <p style="margin: 0;">Chargement...</p>
+        </div>
+        <div class="flavoriz-filter-sort">
+            <span class="flavoriz-filter-sort-label">
+                <i class="fi-rs-apps-sort"></i> Trier par:
+            </span>
+            <div class="flavoriz-filter-select">
+                <select id="mySelect" class="sorting">
+                    <option value="-date" selected>Date, nouveau à ancien</option>
+                    <option value="date">Date, ancien à nouveau</option>
+                    <option value="PRDPrice">Prix, bas à haut</option>
+                    <option value="-PRDPrice">Prix, haut à bas</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Grid avec Infinite Scroll -->
+    <div id="products-list" class="flavoriz-product-grid">
+        <!-- Les produits seront chargés ici via infinite scroll -->
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div id="spinner-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
+        <div class="flavoriz-spinner"></div>
+    </div>
+    
+    <!-- Empty Box -->
+    <div id="empty-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl); color: var(--text-gray);">
+        <p style="font-size: 14px; font-weight: 600;">Tous les produits ont été chargés !</p>
+    </div>
+    
+    <!-- Load More Button (caché, remplacé par infinite scroll) -->
+    <div id="loading-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
+        <div style="height: 20px;"></div>
+    </div>
+    
+    <style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .not-visible {
+        display: none !important;
+    }
+    
+    .lazy-load {
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        background: #F3F4F6;
+    }
+    
+    .lazy-load.loaded {
+        opacity: 1;
+    }
+    </style>
+</section>
+
+<!-- ===== Newsletter Section ===== -->
+<section class="flavoriz-newsletter" style="padding: var(--spacing-xl) var(--spacing-lg); margin: var(--spacing-2xl) auto;">
+    <div class="flavoriz-newsletter-logo" style="font-size: 32px; margin-bottom: var(--spacing-sm);">{{site_info.site_name}}</div>
+    <p class="flavoriz-newsletter-text" style="font-size: 14px; margin-bottom: var(--spacing-md);">
+        Rejoignez {{site_info.site_name}} maintenant et découvrez une expérience d'achat exceptionnelle avec des produits de qualité et des prix compétitifs !
+    </p>
+    <form method="POST" class="flavoriz-newsletter-form">
+        {% csrf_token %}
+        <input type="email" name="email" class="flavoriz-newsletter-input" placeholder="Entrez votre adresse e-mail..." required style="padding: 14px 18px; font-size: 13px;" />
+        <button type="submit" class="flavoriz-newsletter-btn" style="padding: 14px 28px; font-size: 13px;">S'abonner</button>
+    </form>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="flavoriz-footer" style="padding: var(--spacing-xl) var(--spacing-lg);">
+    <div class="flavoriz-footer-content">
+        <div class="flavoriz-footer-column">
+            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Entreprise</h4>
+            <ul>
+                {% for page_obj in pages_list|slice:"0:3"%}
+                <li><a href="{%url 'pages:pages-name' page_obj.slug %}" style="font-size: 13px;">{{page_obj.name}}</a></li>
+                {%endfor%}
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Support</h4>
+            <ul>
+                <li><a href="#" style="font-size: 13px;">FAQ</a></li>
+                <li><a href="#" style="font-size: 13px;">Membres</a></li>
+                <li><a href="#" style="font-size: 13px;">Politique d'utilisation</a></li>
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Contact</h4>
+            <ul>
+                {% for number_obj in support_number|slice:"0:1"%}
+                <li><a href="tel:{{number_obj.number}}" style="font-size: 13px;">Téléphone: {{number_obj.number}}</a></li>
+                {%endfor%}
+                <li><a href="mailto:{{site_info.email|default:'contact@gabomazone.com'}}" style="font-size: 13px;">Email: {{site_info.email|default:'contact@gabomazone.com'}}</a></li>
+                <li><a href="#" style="font-size: 13px;">Réseaux sociaux</a></li>
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Suivez-nous</h4>
+            <ul>
+                <li><a href="#" style="font-size: 13px;">Facebook</a></li>
+                <li><a href="#" style="font-size: 13px;">Instagram</a></li>
+                <li><a href="#" style="font-size: 13px;">Twitter</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="flavoriz-footer-bottom" style="font-size: 12px; padding-top: var(--spacing-md);">
+        <p>Copyright 2024 {{site_info.site_name}} © Tous droits réservés.</p>
+    </div>
+</footer>
+
+{% endblock %}
