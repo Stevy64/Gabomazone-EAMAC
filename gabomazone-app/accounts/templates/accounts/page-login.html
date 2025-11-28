@@ -3,75 +3,431 @@
 {% load crispy_forms_tags %}
 
 {%block body%}
-<main class="main pages">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{% url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Pages <span></span> My Account
-            </div>
-        </div>
-    </div>
-    <div class="page-content pt-150 pb-150">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
-                    <div class="row">
-                        <div class="col-lg-6 pr-30 d-none d-lg-block">
-                            <img class="border-radius-15" {% if site_info.login_image %} src="{{site_info.login_image.url}}" {% else %} src="{% static 'assets/imgs/page/login-1.png'%}" {% endif %}  alt="{{site_info.site_name}}" />
+<!-- ===== Modern Login Page FLAVORIZ Design ===== -->
+<section class="flavoriz-section" style="margin-top: 0; padding: 0; min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-beige) 0%, var(--color-white) 100%);">
+    <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg);">
+        <div class="login-card" style="background: var(--color-white); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); overflow: hidden; position: relative;">
+            
+            <!-- Login Form Panel -->
+            <div class="login-form-panel" id="login-panel" style="padding: var(--spacing-2xl); display: flex; flex-direction: column; background: var(--color-white); position: relative; transition: opacity 0.3s ease, transform 0.3s ease;">
+                <!-- Logo & Welcome -->
+                <div style="margin-bottom: var(--spacing-lg); text-align: center;">
+                    <a href="{% url 'home:index'%}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: var(--spacing-md); justify-content: center;">
+                        <div style="width: 40px; height: 40px; background: var(--color-black); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: white; font-size: 20px; font-weight: 800;">G</span>
                         </div>
-                        <div class="col-lg-6 col-md-8">
-                            {% if messages %}
-                            {% for message in messages %}
-              
-                            <div    class="alert align-middle alert-{{message.tags}}">
-                               
-                                <span class="align-middle"> {{message}}</span>
+                        <div>
+                            <span style="font-size: 24px; font-weight: 800; color: var(--color-black);">Gaboma</span>
+                            <span style="font-size: 24px; font-weight: 800; color: var(--color-orange);">Zone</span>
+                        </div>
+                    </a>
+                    <h1 style="font-size: 32px; font-weight: 800; color: var(--color-black); margin: var(--spacing-sm) 0 var(--spacing-xs) 0; line-height: 1.2;">Bienvenue !</h1>
+                    <p style="font-size: 15px; color: var(--text-gray); margin: 0;">Nous sommes heureux de vous revoir</p>
+                </div>
+
+                <!-- Tabs: Sign In / Sign Up -->
+                <div class="tab-switcher" style="display: flex; gap: var(--spacing-xs); margin-bottom: var(--spacing-lg); background: var(--color-beige); padding: 4px; border-radius: var(--radius-md); position: relative;">
+                    <button type="button" class="tab-btn {% if active_tab != 'register' %}active{% endif %}" data-tab="login" style="flex: 1; padding: 10px 20px; text-align: center; border-radius: var(--radius-sm); {% if active_tab != 'register' %}background: var(--color-orange); color: white;{% else %}background: transparent; color: var(--text-gray);{% endif %} border: none; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: var(--font-primary); z-index: 2; position: relative;">
+                        Connexion
+                    </button>
+                    <button type="button" class="tab-btn {% if active_tab == 'register' %}active{% endif %}" data-tab="register" style="flex: 1; padding: 10px 20px; text-align: center; border-radius: var(--radius-sm); {% if active_tab == 'register' %}background: var(--color-orange); color: white;{% else %}background: transparent; color: var(--text-gray);{% endif %} border: none; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: var(--font-primary); z-index: 2; position: relative;">
+                        Inscription
+                    </button>
+                </div>
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 12px 14px; border-radius: var(--radius-md); margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %};">
+                    {{message}}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <!-- Login Form -->
+                <div id="login-form-container" class="form-container {% if active_tab != 'register' %}active{% endif %}" style="{% if active_tab == 'register' %}display: none;{% else %}display: flex; flex-direction: column;{% endif %}">
+                    <form method="post" action="{% url 'accounts:login' %}" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                        {% csrf_token %}
+                        
+                        <!-- Email Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Email</label>
+                            <div style="position: relative;">
+                                <input type="text" name="username" placeholder="Entrez votre email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
                             </div>
-              
-                            {% endfor %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Mot de passe</label>
+                            <div style="position: relative;">
+                                <input type="password" name="password" placeholder="Entrez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
+                                <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
+                                <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">
+                                    <i class="fi-rs-eye" id="password-toggle"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dark); cursor: pointer;">
+                                <input type="checkbox" name="checkbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-orange);" />
+                                <span>Se souvenir de moi</span>
+                            </label>
+                            <a href="{% url 'accounts:password_reset' %}" style="color: var(--color-orange); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s ease; white-space: nowrap;" onmouseover="this.style.color='var(--color-orange-dark)'" onmouseout="this.style.color='var(--color-orange)'">Mot de passe oublié ?</a>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" name="login" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: var(--font-primary); margin-top: var(--spacing-xs);" onmouseover="this.style.background='var(--color-orange-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='var(--color-orange)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            Se connecter
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form-container" class="form-container {% if active_tab == 'register' %}active{% endif %}" style="{% if active_tab == 'register' %}display: flex; flex-direction: column;{% else %}display: none;{% endif %}">
+                    <form method="post" action="{% url 'accounts:register' %}" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                        {% csrf_token %}
+                        
+                        <!-- Username Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Nom d'utilisateur</label>
+                            <div style="position: relative;">
+                                <input type="text" name="username" value="{% if register_form and register_form.username.value %}{{ register_form.username.value }}{% endif %}" placeholder="Choisissez un nom d'utilisateur" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
+                            </div>
+                            {% if register_form and register_form.username.errors %}
+                            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.username.errors.0 }}</div>
                             {% endif %}
-                            <div class="login_wrap widget-taber-content background-white">
-                                <div class="padding_eight_all bg-white">
-                                    <div class="heading_s1">
-                                        <h1 class="mb-5">Login</h1>
-                                        <p class="mb-30">Don't have an account? <a href="{% url 'accounts:register'%}">Create here</a></p>
-                                    </div>
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        {{form|crispy}} 
-                                        {% comment %} <div class="login_footer form-group">
-                                            <div class="chek-form">
-                                                <input type="text" required="" name="email" placeholder="Security code *" />
-                                            </div>
-                                            <span class="security-code">
-                                                <b class="text-new">8</b>
-                                                <b class="text-hot">6</b>
-                                                <b class="text-sale">7</b>
-                                                <b class="text-best">5</b>
-                                            </span>
-                                        </div> {% endcomment %}
-                                        <div class="login_footer form-group mb-50">
-                                            <div class="chek-form">
-                                                <div class="custome-checkbox">
-                                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="" />
-                                                    <label class="form-check-label" for="exampleCheckbox1"><span>Remember me</span></label>
-                                                </div>
-                                            </div>
-                                            <a class="text-muted" href="{% url 'accounts:password_reset' %}">Forgot password?</a>
-                                        </div>
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-heading btn-block hover-up" name="login">Log in</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                         </div>
-                    </div>
+
+                        <!-- Email Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Email</label>
+                            <div style="position: relative;">
+                                <input type="email" name="email" value="{% if register_form and register_form.email.value %}{{ register_form.email.value }}{% endif %}" placeholder="Entrez votre email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
+                            </div>
+                            {% if register_form and register_form.email.errors %}
+                            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Mot de passe</label>
+                            <div style="position: relative;">
+                                <input type="password" name="password1" placeholder="Créez un mot de passe (min. 8 caractères)" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" id="register-password1" />
+                                <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
+                                <button type="button" onclick="toggleRegisterPassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">
+                                    <i class="fi-rs-eye" id="register-password-toggle"></i>
+                                </button>
+                            </div>
+                            {% if register_form and register_form.password1.errors %}
+                            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div style="position: relative;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px;">Confirmer le mot de passe</label>
+                            <div style="position: relative;">
+                                <input type="password" name="password2" placeholder="Confirmez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
+                            </div>
+                            {% if register_form and register_form.password2.errors %}
+                            <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Register Button -->
+                        <button type="submit" name="register" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: var(--font-primary); margin-top: var(--spacing-xs);" onmouseover="this.style.background='var(--color-orange-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='var(--color-orange)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            Créer un compte
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</main>
-{%endblock body%}
+</section>
 
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password-input');
+    const passwordToggle = document.getElementById('password-toggle');
+    if (passwordInput && passwordToggle) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggle.classList.remove('fi-rs-eye');
+            passwordToggle.classList.add('fi-rs-eye-crossed');
+        } else {
+            passwordInput.type = 'password';
+            passwordToggle.classList.remove('fi-rs-eye-crossed');
+            passwordToggle.classList.add('fi-rs-eye');
+        }
+    }
+}
+
+function toggleRegisterPassword() {
+    const passwordInput = document.getElementById('register-password1');
+    const passwordToggle = document.getElementById('register-password-toggle');
+    if (passwordInput && passwordToggle) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggle.classList.remove('fi-rs-eye');
+            passwordToggle.classList.add('fi-rs-eye-crossed');
+        } else {
+            passwordInput.type = 'password';
+            passwordToggle.classList.remove('fi-rs-eye-crossed');
+            passwordToggle.classList.add('fi-rs-eye');
+        }
+    }
+}
+
+// Tab switching avec animation smooth
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const loginForm = document.getElementById('login-form-container');
+    const registerForm = document.getElementById('register-form-container');
+    
+    // Vérifier quel onglet doit être actif au chargement
+    const activeTabFromServer = '{{ active_tab|default:"login" }}';
+    
+    // Fonction pour basculer entre les formulaires
+    function switchTab(targetTab) {
+        // Mettre à jour les boutons actifs
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.tab === targetTab) {
+                btn.style.background = 'var(--color-orange)';
+                btn.style.color = 'white';
+                btn.classList.add('active');
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--text-gray)';
+            }
+        });
+        
+        // Basculer entre les formulaires avec animation smooth
+        if (targetTab === 'login') {
+            // Masquer le formulaire d'inscription
+            registerForm.style.opacity = '0';
+            registerForm.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                registerForm.style.display = 'none';
+                // Afficher le formulaire de connexion
+                loginForm.style.display = 'flex';
+                loginForm.style.flexDirection = 'column';
+                setTimeout(() => {
+                    loginForm.style.opacity = '1';
+                    loginForm.style.transform = 'translateX(0)';
+                }, 10);
+            }, 300);
+        } else {
+            // Masquer le formulaire de connexion
+            loginForm.style.opacity = '0';
+            loginForm.style.transform = 'translateX(-20px)';
+            setTimeout(() => {
+                loginForm.style.display = 'none';
+                // Afficher le formulaire d'inscription
+                registerForm.style.display = 'flex';
+                registerForm.style.flexDirection = 'column';
+                setTimeout(() => {
+                    registerForm.style.opacity = '1';
+                    registerForm.style.transform = 'translateX(0)';
+                }, 10);
+            }, 300);
+        }
+    }
+    
+    // Initialiser l'onglet actif au chargement
+    if (activeTabFromServer === 'register') {
+        switchTab('register');
+    }
+    
+    // Ajouter les event listeners
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetTab = this.dataset.tab;
+            switchTab(targetTab);
+        });
+    });
+    
+    // Initialiser les styles des formulaires
+    [loginForm, registerForm].forEach(form => {
+        form.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        if (form.style.display !== 'none') {
+            form.style.opacity = '1';
+            form.style.transform = 'translateX(0)';
+        }
+    });
+    
+    // S'assurer que l'onglet inscription est visible si nécessaire
+    if (activeTabFromServer === 'register') {
+        // Scroll vers le formulaire d'inscription si nécessaire
+        setTimeout(() => {
+            const registerContainer = document.getElementById('register-form-container');
+            if (registerContainer) {
+                registerContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
+    }
+});
+</script>
+
+<style>
+/* Desktop - Carte centrée et réduite */
+@media (min-width: 1024px) {
+    .login-container {
+        max-width: 480px !important;
+    }
+    .login-card {
+        min-height: auto !important;
+    }
+    .login-form-panel {
+        padding: var(--spacing-xl) !important;
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .login-container {
+        max-width: 500px !important;
+        padding: var(--spacing-lg) var(--spacing-md) !important;
+    }
+    .login-form-panel {
+        padding: var(--spacing-xl) !important;
+    }
+}
+
+/* Mobile - Design compact et moderne */
+@media (max-width: 767px) {
+    .flavoriz-section {
+        min-height: calc(100vh - 80px - 64px) !important;
+        padding: var(--spacing-md) 0 !important;
+        align-items: flex-start !important;
+    }
+    
+    .login-container {
+        max-width: 100% !important;
+        padding: var(--spacing-md) var(--spacing-sm) !important;
+    }
+    
+    .login-card {
+        border-radius: var(--radius-lg) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    
+    .login-form-panel {
+        padding: var(--spacing-lg) var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:first-child {
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:first-child a {
+        margin-bottom: var(--spacing-sm) !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:first-child {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:first-child span {
+        font-size: 18px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:last-child span {
+        font-size: 20px !important;
+    }
+    
+    .login-form-panel h1 {
+        font-size: 28px !important;
+        margin: var(--spacing-xs) 0 !important;
+    }
+    
+    .login-form-panel > div:first-child p {
+        font-size: 14px !important;
+    }
+    
+    .login-form-panel > div:nth-child(2) {
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:nth-child(2) button {
+        padding: 8px 16px !important;
+        font-size: 12px !important;
+    }
+    
+    .form-container {
+        gap: var(--spacing-sm) !important;
+    }
+    
+    .form-container label {
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .form-container input {
+        padding: 10px 12px 10px 40px !important;
+        font-size: 14px !important;
+    }
+    
+    .form-container button[type="submit"] {
+        padding: 12px !important;
+        font-size: 14px !important;
+        margin-top: var(--spacing-xs) !important;
+    }
+    
+    .flavoriz-alert {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 360px) {
+    .login-container {
+        padding: var(--spacing-sm) 8px !important;
+    }
+    
+    .login-form-panel {
+        padding: var(--spacing-md) var(--spacing-sm) !important;
+    }
+    
+    .login-form-panel h1 {
+        font-size: 24px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:last-child span {
+        font-size: 18px !important;
+    }
+}
+
+/* Animation smooth pour les formulaires */
+.form-container {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-container.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animation pour les boutons d'onglets */
+.tab-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tab-btn:hover {
+    transform: translateY(-1px);
+}
+</style>
+{%endblock body%}

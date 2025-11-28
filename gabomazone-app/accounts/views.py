@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Profile
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from .forms import CustomPasswordChangeForm
 from PIL import Image
 from django.conf import settings
 from wsgiref.util import FileWrapper
@@ -43,12 +44,30 @@ def register(request):
             # profile_obj.save()
             # messages.success(request, f'Congratulations {username}, your account has been created')
             messages.success(
-                request, 'Congratulations {}, your account has been created .'.format(new_user))
+                request, 'Félicitations {}, votre compte a été créé avec succès.'.format(new_user))
             return redirect('accounts:login')
+        else:
+            # Si le formulaire est invalide, rediriger vers login avec l'onglet inscription actif
+            # On passe les erreurs via les messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+            # Créer aussi le formulaire de login pour le template
+            login_form = LoginForm()
+            return render(request, 'accounts/page-login.html', {
+                'title': 'Login',
+                'form': login_form,
+                'register_form': form,
+                'active_tab': 'register'  # Indiquer que l'onglet inscription doit être actif
+            })
 
-    return render(request, 'accounts/page-register.html', {
-        'title': 'register',
-        'form': form,
+    # Si GET, rediriger vers login avec l'onglet inscription
+    login_form = LoginForm()
+    return render(request, 'accounts/page-login.html', {
+        'title': 'Login',
+        'form': login_form,
+        'register_form': form,
+        'active_tab': 'register'
     })
 
 
@@ -76,10 +95,14 @@ def login_user(request):
 
     else:
         form = LoginForm()
+    
+    # Passer aussi le formulaire d'inscription pour le switch d'onglets
+    register_form = UserCreationForm()
 
     return render(request, 'accounts/page-login.html', {
         'title': 'Login',
-        'form': form
+        'form': form,
+        'register_form': register_form
     })
 
 
@@ -151,18 +174,18 @@ def dashboard_account_details(request):
         display_name = request.POST['display_name']
         bio = request.POST['bio']
         mobile_number = request.POST['mobile_number']
-        city = request.POST['city']
-        address = request.POST['address']
-        post_code = request.POST['post_code']
-        country = request.POST['country']
-        state = request.POST['state']
+        province = request.POST.get('province', '')
+        city = request.POST.get('city', '')
+        quartier = request.POST.get('quartier', '')
+        address = request.POST.get('address', '')
+        country = request.POST.get('country', 'Gabon')
         user = User.objects.get(username=request.user)
         user.first_name = first_name
         user.last_name = last_name
         user.save()
         profile = Profile.objects.get(user=request.user)
         try:
-            image = request.FILES["image"]
+            image = request.FILES.get("image")
 
         except:
             image = None
@@ -175,19 +198,19 @@ def dashboard_account_details(request):
                 Image.open(image)
 
             except:
-                messages.warning(request, 'sorry, your image is invalid')
+                messages.warning(request, 'Désolé, votre image est invalide')
                 return redirect("accounts:account_details")
         profile.display_name = display_name
         profile.bio = bio
         profile.mobile_number = mobile_number
         profile.city = city
         profile.address = address
-        profile.post_code = post_code
+        profile.post_code = quartier  # Utiliser post_code pour stocker le quartier
         profile.country = country
-        profile.state = state
+        profile.state = province  # Utiliser state pour stocker la province
         profile.save()
         messages.success(
-            request, 'Your Profile Info Has Been Saved !')
+            request, 'Vos informations ont été enregistrées avec succès !')
         return redirect("accounts:account_details")
 
     else:
@@ -208,27 +231,24 @@ def order_tracking(request):
 @login_required(login_url='accounts:login')
 def change_password(request):
     if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
+        form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             login(request, request.user)
             messages.success(
-                request, 'Password successfully changed!')
+                request, 'Votre mot de passe a été modifié avec succès !')
             return redirect('accounts:change_password')
 
         else:
-            messages.warning(request, 'Please fix the error below.')
+            messages.warning(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
-        form = PasswordChangeForm(request.user)
+        form = CustomPasswordChangeForm(request.user)
 
     return render(request, "accounts/change-password.html",  {
         'form': form,
-
-        'title': 'Change Password',
-    }
-
-    )
+        'title': 'Changer le mot de passe',
+    })
 
 
 class MyOrdersJsonListView(LoginRequiredMixin, View):

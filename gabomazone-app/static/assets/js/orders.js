@@ -16,7 +16,7 @@ window.onload = function () {
     const handleGetOrders = (sorted) => {
         $.ajax({
             type: "GET",
-            url: `/orders-ajax/`,
+            url: `/accounts/orders-ajax/`,
             data: {
                 "num_products": visible,
             },

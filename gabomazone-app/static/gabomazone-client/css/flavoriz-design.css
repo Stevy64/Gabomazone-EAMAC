@@ -98,7 +98,7 @@ footer.main:not(.flavoriz-footer),
 .footer-bottom,
 .mobile-header-active,
 .mobile-header-wrapper-style,
-.page-header,
+.page-header:not(.flavoriz-page-header),
 .archive-header {
     display: none !important;
     visibility: hidden !important;
@@ -257,6 +257,8 @@ footer.main:not(.flavoriz-footer),
     position: relative !important;
     width: 280px !important;
     min-width: 200px !important;
+    max-width: 400px !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .flavoriz-search input {
@@ -315,6 +317,130 @@ footer.main:not(.flavoriz-footer),
 .flavoriz-icon-btn:hover {
     background: rgba(255, 123, 44, 0.1) !important;
     color: var(--color-orange) !important;
+}
+
+/* Account Dropdown Menu */
+.flavoriz-account-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+.flavoriz-account-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    background: white !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16) !important;
+    min-width: 200px !important;
+    z-index: 10000 !important;
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+    display: none !important;
+}
+
+.flavoriz-account-menu.show {
+    display: block !important;
+}
+
+.flavoriz-account-menu a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    color: var(--text-dark) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.flavoriz-account-menu a:hover {
+    background: var(--color-beige) !important;
+}
+
+.flavoriz-account-menu a i {
+    margin-right: 12px !important;
+    font-size: 16px !important;
+    width: 20px !important;
+    text-align: center !important;
+}
+
+/* Account Dropdown Menu Mobile */
+.flavoriz-account-dropdown-mobile {
+    position: static !important;
+    display: inline-block !important;
+}
+
+.flavoriz-account-menu-mobile {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 80px !important;
+    right: 16px !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    background: white !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    min-width: 240px !important;
+    max-width: calc(100vw - 32px) !important;
+    z-index: 10001 !important;
+    padding: 12px 0 !important;
+    overflow: hidden !important;
+    display: none !important;
+}
+
+.flavoriz-account-menu-mobile.show {
+    display: block !important;
+}
+
+.flavoriz-account-menu-mobile a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 16px 20px !important;
+    color: var(--text-dark) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+.flavoriz-account-menu-mobile a:hover {
+    background: var(--color-beige) !important;
+}
+
+.flavoriz-account-menu-mobile a i {
+    margin-right: 14px !important;
+    font-size: 18px !important;
+    width: 24px !important;
+    text-align: center !important;
+}
+
+/* S'assurer que le header n'a pas overflow hidden qui coupe le menu */
+.flavoriz-header {
+    overflow: visible !important;
+}
+
+.flavoriz-header-top {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions-mobile {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions-desktop {
+    overflow: visible !important;
+    position: relative !important;
 }
 
 /* ===== Hero Section ===== */
@@ -747,13 +873,27 @@ footer.main:not(.flavoriz-footer),
 /* ===== Product Cards ===== */
 .flavoriz-product-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-    gap: 16px !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
     margin-bottom: var(--spacing-xl) !important;
     position: relative !important;
     width: 100% !important;
     justify-items: stretch !important;
     align-items: stretch !important;
+}
+
+/* Responsive pour la grille */
+@media (max-width: 1199px) and (min-width: 769px) {
+    .flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .flavoriz-product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
 }
 
 .flavoriz-product-grid > * {
@@ -783,24 +923,44 @@ footer.main:not(.flavoriz-footer),
 
 .flavoriz-product-card {
     background: var(--color-white) !important;
-    border-radius: var(--radius-lg) !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
-    box-shadow: var(--shadow-md) !important;
-    transition: all 0.3s ease !important;
-    border: 1px solid #F3F4F6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
     cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
 }
 
 .flavoriz-product-card:hover {
-    transform: translateY(-8px) !important;
-    box-shadow: var(--shadow-xl) !important;
+    transform: translateY(-6px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
 
 .flavoriz-product-image {
     width: 100% !important;
-    height: 160px !important;
+    height: auto !important;
     object-fit: cover !important;
     transition: transform 0.5s ease !important;
+}
+
+.flavoriz-product-card > div:first-child {
+    position: relative !important;
+    overflow: hidden !important;
+    background: #FAFAFA !important;
+    width: 100% !important;
+    padding-top: 65% !important;
+}
+
+.flavoriz-product-card > div:first-child > img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
 
 .flavoriz-product-card:hover .flavoriz-product-image {
@@ -808,7 +968,10 @@ footer.main:not(.flavoriz-footer),
 }
 
 .flavoriz-product-body {
-    padding: 12px 14px !important;
+    padding: 12px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .flavoriz-product-views {
@@ -823,41 +986,43 @@ footer.main:not(.flavoriz-footer),
 .flavoriz-product-title {
     font-size: 13px !important;
     font-weight: 600 !important;
-    color: var(--color-black) !important;
-    margin-bottom: 6px !important;
-    line-height: 1.25 !important;
-    min-height: 34px !important;
+    color: #1F2937 !important;
+    margin-bottom: 8px !important;
+    line-height: 1.4 !important;
+    min-height: 36px !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
+    flex-shrink: 0 !important;
 }
 
 .flavoriz-product-card-btn {
     width: 100% !important;
-    padding: 9px !important;
-    background: var(--color-black) !important;
+    padding: 8px 14px !important;
+    background: #1F2937 !important;
     color: var(--color-white) !important;
     border: none !important;
-    border-radius: var(--radius-md) !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 4px !important;
-    margin-top: 0 !important;
+    gap: 6px !important;
+    margin-top: auto !important;
     font-family: var(--font-secondary) !important;
     letter-spacing: 0.2px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
 .flavoriz-product-card-btn:hover {
     background: var(--color-orange) !important;
     transform: translateY(-2px) !important;
-    box-shadow: var(--shadow-md) !important;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3) !important;
 }
 
 /* ===== Pagination ===== */
@@ -1084,35 +1249,45 @@ footer.main:not(.flavoriz-footer),
 }
 
 @media (min-width: 1200px) {
-    .flavoriz-product-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        gap: 18px !important;
-        justify-content: center !important;
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
     }
     
     .flavoriz-product-card {
-        max-width: 360px !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
     }
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {
-    .flavoriz-product-grid {
-        grid-template-columns: repeat(2, minmax(240px, 1fr)) !important;
-        gap: 14px !important;
-        justify-content: center !important;
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
     }
     
     .flavoriz-product-card {
-        max-width: 420px !important;
-        margin: 0 auto !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
     }
 }
 
 @media (min-width: 992px) and (max-width: 1199px) {
-    .flavoriz-product-grid {
-        grid-template-columns: repeat(3, minmax(240px, 1fr)) !important;
-        gap: 16px !important;
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
     }
 }
 
@@ -1130,9 +1305,11 @@ footer.main:not(.flavoriz-footer),
         height: 280px !important;
     }
     
-    .flavoriz-product-grid {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
         grid-template-columns: repeat(3, 1fr) !important;
-        gap: 12px !important;
+        gap: 20px !important;
     }
     
     .flavoriz-footer-content {
@@ -1439,6 +1616,30 @@ footer.main:not(.flavoriz-footer),
         color: var(--color-orange) !important;
     }
     
+    /* FORCER le menu compte mobile en bas de l'écran - RÈGLE ULTRA AGRESSIVE */
+    .flavoriz-account-dropdown-mobile {
+        position: static !important;
+    }
+    
+    .flavoriz-account-menu-mobile,
+    .flavoriz-account-menu-mobile.show,
+    #account-dropdown-menu-mobile,
+    div.flavoriz-account-menu-mobile {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 80px !important;
+        right: 16px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: auto !important;
+        max-width: calc(100vw - 32px) !important;
+    }
+    
     .flavoriz-badge-mobile {
         position: absolute !important;
         top: -2px !important;
@@ -1484,47 +1685,53 @@ footer.main:not(.flavoriz-footer),
     #products-list.flavoriz-product-grid,
     .flavoriz-product-grid,
     div#products-list,
-    div.flavoriz-product-grid {
+    div.flavoriz-product-grid,
+    #products-list {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
+        gap: 16px !important;
         margin-bottom: 80px !important;
         width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
     }
     
-    /* FORCER les cartes à prendre 50% de largeur */
+    /* FORCER les cartes à prendre 100% de largeur dans la grille */
     .flavoriz-product-grid > .flavoriz-product-card,
     #products-list > .flavoriz-product-card,
-    .flavoriz-product-grid .flavoriz-product-card {
+    .flavoriz-product-grid .flavoriz-product-card,
+    #products-list > * {
         width: 100% !important;
         max-width: 100% !important;
-        flex: 0 0 calc(50% - 3px) !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
     }
     
     .flavoriz-product-card {
-        border-radius: 10px !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
         margin-bottom: 0 !important;
     }
     
     .flavoriz-product-card:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08) !important;
+        transform: translateY(-4px) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
     }
     
-    .flavoriz-product-image {
-        height: 120px !important;
+    .flavoriz-product-card > div:first-child {
+        padding-top: 75% !important;
     }
     
     .flavoriz-product-body {
-        padding: 6px 8px !important;
+        padding: 14px !important;
     }
     
     .flavoriz-product-title {
-        font-size: 11px !important;
-        min-height: 28px !important;
-        margin-bottom: 4px !important;
-        line-height: 1.2 !important;
+        font-size: 13px !important;
+        min-height: 40px !important;
+        margin-bottom: 8px !important;
+        line-height: 1.4 !important;
         font-weight: 600 !important;
     }
     
@@ -1538,10 +1745,10 @@ footer.main:not(.flavoriz-footer),
     }
     
     .flavoriz-product-card-btn {
-        padding: 6px !important;
-        font-size: 9px !important;
+        padding: 10px 14px !important;
+        font-size: 12px !important;
         border-radius: 8px !important;
-        gap: 2px !important;
+        gap: 6px !important;
         font-weight: 600 !important;
     }
     

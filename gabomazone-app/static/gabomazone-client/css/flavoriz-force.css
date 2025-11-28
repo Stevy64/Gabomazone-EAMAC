@@ -20,13 +20,12 @@ footer.main:not(.flavoriz-footer),
 .footer-bottom,
 .mobile-header-active,
 .mobile-header-wrapper-style,
-.page-header,
+.page-header:not(.flavoriz-page-header):not(.breadcrumb-wrap),
 .archive-header,
 .main-menu,
 .categories-dropdown-wrap,
 .archive-header,
-.page-header,
-.container .row:not(.flavoriz-product-grid),
+.container .row:not(.flavoriz-product-grid):not(main.main.pages .row):not(main.main .row):not(main.main:not(.pages) .row):not(.product-detail .row):not(.detail-gallery):not(.slider-nav-thumbnails),
 header:not(.flavoriz-header) {
     display: none !important;
     visibility: hidden !important;
@@ -44,16 +43,34 @@ body {
     margin: 0 !important;
 }
 
-/* Forcer le header FLAVORIZ visible */
+/* Forcer le header FLAVORIZ visible - UN SEUL HEADER */
 .flavoriz-header {
     display: block !important;
     visibility: visible !important;
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     z-index: 9999 !important;
     background: #FFFFFF !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     padding: 12px 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* S'assurer qu'il n'y a qu'un seul header - Masquer tous les doublons */
+body > header.flavoriz-header:not(:first-of-type),
+body > .flavoriz-header:not(:first-of-type),
+.flavoriz-header ~ .flavoriz-header,
+header.flavoriz-header + header.flavoriz-header {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
 }
 
 /* FORCER 2 colonnes sur mobile - Override absolu */
@@ -118,11 +135,89 @@ body {
     background: #FFFFFF !important;
 }
 
-/* Cacher tous les containers NEST */
+/* FORCER l'affichage de main.main (détails produit) */
+main.main:not(.pages) {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding-top: 100px !important;
+}
+
+main.main:not(.pages) .container,
+main.main:not(.pages) .row,
+main.main:not(.pages) .product-detail,
+main.main:not(.pages) .product-detail .row,
+main.main:not(.pages) .detail-gallery,
+main.main:not(.pages) .slider-nav-thumbnails,
+main.main:not(.pages) .col-xl-9,
+main.main:not(.pages) .col-xl-11,
+main.main:not(.pages) .col-md-6,
+main.main:not(.pages) .col-sm-12,
+main.main:not(.pages) .col-lg-12 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+main.main:not(.pages) .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+/* Cacher tous les containers NEST sauf ceux des pages de compte */
 .container:not(.flavoriz-hero):not(.flavoriz-section):not(.flavoriz-newsletter):not(.flavoriz-footer) {
     max-width: 1400px !important;
     margin: 0 auto !important;
     padding: 0 24px !important;
+}
+
+/* FORCER l'affichage des pages de compte */
+main.main.pages,
+main.main.pages .container,
+main.main.pages .row,
+main.main.pages .col-12,
+main.main.pages .col-md-3,
+main.main.pages .col-md-6,
+main.main.pages .col-md-9,
+main.main .container,
+main.main .row,
+main.main .product-detail,
+main.main .product-detail .row,
+main.main .detail-gallery,
+main.main .slider-nav-thumbnails,
+main.main .col-xl-9,
+main.main .col-xl-11,
+main.main .col-md-6,
+main.main .col-sm-12 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+main.main.pages .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+main.main.pages .col-12 {
+    width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    main.main.pages .col-md-3 {
+        width: 25% !important;
+        flex: 0 0 25% !important;
+    }
+    
+    main.main.pages .col-md-6 {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+    
+    main.main.pages .col-md-9 {
+        width: 75% !important;
+        flex: 0 0 75% !important;
+    }
 }
 
 /* Forcer la bottom nav visible sur mobile */
@@ -130,6 +225,37 @@ body {
     .flavoriz-bottom-nav {
         display: flex !important;
         visibility: visible !important;
+    }
+    
+    /* FORCER le menu compte mobile en bas de l'écran - RÈGLE ULTRA AGRESSIVE */
+    .flavoriz-account-dropdown-mobile {
+        position: static !important;
+    }
+    
+    /* S'assurer que le header n'interfère pas */
+    .flavoriz-header,
+    .flavoriz-header-top,
+    .flavoriz-header-actions-mobile {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    .flavoriz-account-menu-mobile,
+    .flavoriz-account-menu-mobile.show,
+    #account-dropdown-menu-mobile,
+    div.flavoriz-account-menu-mobile,
+    div#account-dropdown-menu-mobile {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 80px !important;
+        right: 16px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 }
 

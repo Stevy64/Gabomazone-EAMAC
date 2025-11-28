@@ -27,9 +27,9 @@
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
         <!-- Gabomazone FLAVORIZ Design - DOIT être chargé APRÈS main.css pour écraser NEST -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=5.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=12.0" />
         <!-- Force FLAVORIZ - Override absolu -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=5.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=12.0" />
 		{%endblock head%}
 
 		{%block headextra%}
@@ -72,17 +72,42 @@
 				</div>
 				
 				<!-- Cart Icon -->
-				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn" title="Panier">
-					<i class="fi-rs-shopping-cart"></i>
-					{% if cart_count %}
-					<span style="position: absolute; top: -4px; right: -4px; background: var(--color-orange); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">{{cart_count}}</span>
+				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn" title="Panier" style="position: relative;">
+					<i class="fi-rs-shopping-bag"></i>
+					{% if cart_count and cart_count > 0 %}
+					<span class="flavoriz-cart-badge" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count}}</span>
 					{% endif %}
 				</a>
 				
-				<!-- Account Icon -->
-				<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn" title="Compte">
-					<i class="fi-rs-user"></i>
-				</a>
+				<!-- Account Icon with Dropdown -->
+				<div class="flavoriz-account-dropdown" style="position: relative; display: inline-block;">
+					<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn" title="Compte" id="account-dropdown-trigger" style="position: relative;">
+						<i class="fi-rs-user"></i>
+					</a>
+					{% if user.is_authenticated %}
+					<div class="flavoriz-account-menu" id="account-dropdown-menu">
+						<a href="{% url 'accounts:dashboard_customer' %}">
+							<i class="fi-rs-shopping-bag"></i> Mes commandes
+						</a>
+						<a href="{% url 'accounts:account_details' %}">
+							<i class="fi-rs-settings-sliders"></i> Paramètres
+						</a>
+						<div style="height: 1px; background: #E5E7EB; margin: 6px 0;"></div>
+						<a href="{% url 'accounts:logout' %}" style="color: #dc2626; font-weight: 600;">
+							<i class="fi-rs-sign-out"></i> Déconnexion
+						</a>
+					</div>
+					{% else %}
+					<div class="flavoriz-account-menu" id="account-dropdown-menu">
+						<a href="{% url 'accounts:login' %}">
+							<i class="fi-rs-user"></i> Connexion
+						</a>
+						<a href="{% url 'accounts:register' %}">
+							<i class="fi-rs-user-add"></i> Inscription
+						</a>
+					</div>
+					{% endif %}
+				</div>
 			</div>
 			
 			<!-- Actions Header Mobile - Recherche, Panier, Login sur même ligne -->
@@ -103,17 +128,33 @@
 				</div>
 				
 				<!-- Cart Icon Mobile -->
-				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn-mobile" title="Panier">
-					<i class="fi-rs-shopping-cart"></i>
-					{% if cart_count %}
-					<span class="flavoriz-badge-mobile">{{cart_count}}</span>
+				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn-mobile" title="Panier" style="position: relative;">
+					<i class="fi-rs-shopping-bag"></i>
+					{% if cart_count and cart_count > 0 %}
+					<span class="flavoriz-cart-badge-mobile" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 0 5px; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count}}</span>
 					{% endif %}
 				</a>
 				
-				<!-- Account Icon Mobile -->
-				<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte">
-					<i class="fi-rs-user"></i>
-				</a>
+				<!-- Account Icon Mobile with Dropdown -->
+				<div class="flavoriz-account-dropdown-mobile">
+					<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte" id="account-dropdown-trigger-mobile">
+						<i class="fi-rs-user"></i>
+					</a>
+					{% if user.is_authenticated %}
+					<div class="flavoriz-account-menu-mobile" id="account-dropdown-menu-mobile">
+						<a href="{% url 'accounts:dashboard_customer' %}">
+							<i class="fi-rs-shopping-bag"></i> Mes commandes
+						</a>
+						<a href="{% url 'accounts:account_details' %}">
+							<i class="fi-rs-settings-sliders"></i> Paramètres
+						</a>
+						<div style="height: 1px; background: #E5E7EB; margin: 10px 0;"></div>
+						<a href="{% url 'accounts:logout' %}" style="color: #dc2626; font-weight: 600;">
+							<i class="fi-rs-sign-out"></i> Déconnexion
+						</a>
+					</div>
+					{% endif %}
+				</div>
 			</div>
 		</div>
 		
@@ -612,6 +653,24 @@
 <!-- VERSION MOBILE END -->
 
 
+<!-- Messages d'alerte élégants avec auto-dismiss -->
+<div id="flavoriz-alerts-container" style="position: fixed; top: 100px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 12px; max-width: 400px; pointer-events: none;">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="flavoriz-alert-toast flavoriz-alert-{{message.tags}}" data-alert-id="{{ forloop.counter }}" style="background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); display: flex; align-items: center; gap: 14px; min-width: 320px; pointer-events: auto; animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% elif message.tags == 'warning' %}#F59E0B{% else %}#3B82F6{% endif %};">
+            <div style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1){% elif message.tags == 'error' %}rgba(239, 68, 68, 0.1){% elif message.tags == 'warning' %}rgba(245, 158, 11, 0.1){% else %}rgba(59, 130, 246, 0.1){% endif %}; display: flex; align-items: center; justify-content: center;">
+                <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}info{% else %}info{% endif %}" style="color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% elif message.tags == 'warning' %}#F59E0B{% else %}#3B82F6{% endif %}; font-size: 16px;"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <p style="margin: 0; font-size: 14px; font-weight: 500; color: #1F2937; line-height: 1.5;">{{ message }}</p>
+            </div>
+            <button type="button" class="flavoriz-alert-close" style="flex-shrink: 0; background: none; border: none; color: #9CA3AF; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease;" onclick="this.closest('.flavoriz-alert-toast').remove()">
+                <i class="fi-rs-cross" style="font-size: 14px;"></i>
+            </button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
 <div id="alert-container" class="not-visible">
 
 
@@ -830,10 +889,10 @@
                 <span>Recherche</span>
             </a>
             <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
-                <i class="fi-rs-shopping-cart"></i>
+                <i class="fi-rs-shopping-bag"></i>
                 <span>Panier</span>
             </a>
-            <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-bottom-nav-item {% if 'dashboard' in request.path %}active{% endif %}">
+            <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">
                 <i class="fi-rs-user"></i>
                 <span>Compte</span>
             </a>
@@ -856,6 +915,10 @@
 			<script src="{% static 'gabomazone-client/js/custom-dropdown.js' %}?v=5.0"></script>
 			<!-- Mobile Search Expansion -->
 			<script src="{% static 'gabomazone-client/js/mobile-search-expand.js' %}?v=5.0"></script>
+			<!-- Desktop Search Expansion - Chargé après jQuery -->
+			<script src="{% static 'gabomazone-client/js/desktop-search-expand.js' %}?v=7.0"></script>
+			<!-- Account Dropdown Fix -->
+			<script src="{% static 'gabomazone-client/js/account-dropdown-fix.js' %}?v=8.0"></script>
 			<!-- Infinite Scroll + Lazy Loading -->
 			<script src="{% static 'gabomazone-client/js/infinite-scroll.js' %}?v=5.0"></script>
 			<!-- Vendor JS-->
@@ -897,6 +960,82 @@
 
 			const boxMessage = document.getElementById("alert-container");
 			
+			// Account Dropdown Menu - Géré par account-dropdown-fix.js
+			
+			// Messages d'alerte avec auto-dismiss
+			document.addEventListener('DOMContentLoaded', function() {
+				const alerts = document.querySelectorAll('.flavoriz-alert-toast');
+				alerts.forEach((alert, index) => {
+					// Animation d'entrée avec délai
+					setTimeout(() => {
+						alert.style.opacity = '1';
+						alert.style.transform = 'translateX(0)';
+					}, index * 100);
+					
+					// Auto-dismiss après 4 secondes
+					setTimeout(() => {
+						alert.style.opacity = '0';
+						alert.style.transform = 'translateX(100%)';
+						setTimeout(() => {
+							alert.remove();
+						}, 300);
+					}, 4000);
+					
+					// Hover pour arrêter le dismiss
+					alert.addEventListener('mouseenter', function() {
+						clearTimeout(this.dismissTimeout);
+					});
+					
+					// Bouton de fermeture
+					const closeBtn = alert.querySelector('.flavoriz-alert-close');
+					if (closeBtn) {
+						closeBtn.addEventListener('mouseenter', function() {
+							this.style.background = '#F3F4F6';
+							this.style.color = '#6B7280';
+						});
+						closeBtn.addEventListener('mouseleave', function() {
+							this.style.background = 'none';
+							this.style.color = '#9CA3AF';
+						});
+					}
+				});
+			});
 	</script>
+	
+	<style>
+		@keyframes slideInRight {
+			from {
+				opacity: 0;
+				transform: translateX(100%);
+			}
+			to {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+		
+		.flavoriz-alert-toast {
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		
+		.flavoriz-alert-close:hover {
+			background: #F3F4F6 !important;
+			color: #6B7280 !important;
+		}
+		
+		@media (max-width: 768px) {
+			#flavoriz-alerts-container {
+				top: 80px !important;
+				right: 12px !important;
+				left: 12px !important;
+				max-width: none !important;
+			}
+			
+			.flavoriz-alert-toast {
+				min-width: auto !important;
+				width: 100% !important;
+			}
+		}
+	</style>
     </body>
 </html>

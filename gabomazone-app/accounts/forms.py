@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Profile
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, PasswordChangeForm
 from django.core import validators
 from captcha.fields import CaptchaField
 
@@ -64,3 +64,39 @@ class LoginForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'password')
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """Formulaire personnalisé pour changer le mot de passe avec labels et help_text en français"""
+    old_password = forms.CharField(
+        label='Ancien mot de passe',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Entrez votre mot de passe actuel'}),
+        error_messages={'required': 'Ce champ est obligatoire.'}
+    )
+    new_password1 = forms.CharField(
+        label='Nouveau mot de passe',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Entrez votre nouveau mot de passe'}),
+        help_text='<ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; color: #6B7280;"><li>Votre mot de passe ne doit pas être trop similaire à vos autres informations personnelles.</li><li>Votre mot de passe doit contenir au moins 8 caractères.</li><li>Votre mot de passe ne peut pas être un mot de passe couramment utilisé.</li><li>Votre mot de passe ne peut pas être entièrement numérique.</li></ul>',
+        error_messages={'required': 'Ce champ est obligatoire.'}
+    )
+    new_password2 = forms.CharField(
+        label='Confirmation du nouveau mot de passe',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmez votre nouveau mot de passe'}),
+        help_text='Entrez le même mot de passe qu\'avant, pour vérification.',
+        error_messages={'required': 'Ce champ est obligatoire.'}
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personnaliser les messages d'erreur
+        self.error_messages = {
+            'password_incorrect': 'Votre ancien mot de passe est incorrect. Veuillez réessayer.',
+            'password_mismatch': 'Les deux champs de mot de passe ne correspondent pas.',
+        }
+    
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError('Les deux champs de mot de passe ne correspondent pas.')
+        return password2

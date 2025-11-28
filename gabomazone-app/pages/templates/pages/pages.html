@@ -2,78 +2,59 @@
 {% load static %}
 
 {%block body%}
-
-<main class="main pages">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Pages <span></span> {{page.name}}
-            </div>
+<!-- ===== Page Content FLAVORIZ Design ===== -->
+<section class="flavoriz-section" style="margin-top: var(--spacing-lg); padding: 0 var(--spacing-lg);">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Breadcrumb -->
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px; margin-bottom: var(--spacing-lg);">
+            <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
+            <span>/</span>
+            <span style="color: var(--color-orange);">{{page.name}}</span>
         </div>
-    </div>
-    <div class="page-content pt-50">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-10 col-lg-12 m-auto">
-                    <div class="row">
-                        <div class="col-lg-9">
-                            <div class="single-page pr-30 mb-lg-0 mb-sm-5">
-                                <div class="single-header style-2">
-                                    <h2>{{page.name}}</h2>
-                                    <!-- <div class="entry-meta meta-1 meta-3 font-xs mt-15 mb-15">
-                                        <span class="post-by">By <a href="#">Jonh</a></span>
-                                        <span class="post-on has-dot">9 April 2020</span>
-                                        <span class="time-reading has-dot">8 mins read</span>
-                                        <span class="hit-count has-dot">29k Views</span>
-                                    </div> -->
-                                </div>
-                                <div class="single-content mb-50">
-                                    {{page.content|safe}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 primary-sidebar sticky-sidebar">
-                            <div class="widget-area">
-                            
-                               <!-- Product sidebar Widget -->
-                                <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
-                                    <h5 class="section-title style-1 mb-30">New products</h5>
-                                    {% for new_product in new_products %}
-                                    <div class="single-post clearfix">
-                                        <div class="image">
-                                            <img src="{{new_product.product_image.url}}" width="80" height="80" style="width:80px;height:80px;" alt="{{new_product.product_name}}" />
-                                        </div>
-                                        <div class="content pt-10">
-                                            <h6><a href="{% url 'products:product-details' new_product.PRDSlug%}">{{new_product.product_name|truncatechars:14}}</a></h6>
-                                            <p class="price mb-0 mt-5">${{new_product.PRDPrice}}</p>
-                                            <div class="product-rate">
-                                                <div class="product-rating" style="width: {{new_product.feedbak_average}}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                
-                                {% for shop_ad in  shop_page_ad|slice:"0:1"%}
-                                <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
-                                    <a href="{{shop_ad.ad_URL}} "> <img src="{{shop_ad.ad_mage.url}}" alt="" /> </a>
-                                    <div class="banner-text">
-                                        <span>{{shop_ad.supplier}}</span>
-                                        <a href="{{shop_ad.ad_URL}} "> <h4>
-                                            {{shop_ad.ad_title}}
-                                        </h4></a>
-                                    </div>
-                                </div>
-                                {%endfor%}
-
-                            </div>
-                        </div>
-                    </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: var(--spacing-2xl);">
+            <!-- Main Content -->
+            <div style="background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-2xl); box-shadow: var(--shadow-sm);">
+                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-xl);">{{page.name}}</h1>
+                <div style="font-size: 16px; line-height: 1.8; color: var(--text-dark);">
+                    {{page.content|safe}}
                 </div>
             </div>
+            
+            <!-- Sidebar -->
+            <div style="position: sticky; top: 100px; height: fit-content;">
+                <!-- New Products Widget -->
+                <div style="background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg);">
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-lg);">Nouveaux produits</h3>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                        {% for new_product in new_products %}
+                        <a href="{% url 'products:product-details' new_product.PRDSlug%}" style="display: flex; gap: var(--spacing-sm); text-decoration: none; transition: all 0.2s ease; padding: var(--spacing-sm); border-radius: var(--radius-md);" onmouseover="this.style.background='var(--color-off-white)'" onmouseout="this.style.background='transparent'">
+                            <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); flex-shrink: 0;" />
+                            <div style="flex: 1; min-width: 0;">
+                                <h6 style="font-size: 14px; font-weight: 600; color: var(--color-black); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{new_product.product_name|truncatechars:20}}</h6>
+                                <p style="font-size: 16px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|floatformat:0}} XOF</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Ad Banner -->
+                {% for shop_ad in shop_page_ad|slice:"0:1" %}
+                <div style="background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+                    <a href="{{shop_ad.ad_URL}}">
+                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: var(--radius-md); margin-bottom: var(--spacing-md);" />
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase;">{{shop_ad.supplier}}</span>
+                            <h4 style="font-size: 18px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0;">
+                                <a href="{{shop_ad.ad_URL}}" style="color: var(--color-black); text-decoration: none;">{{shop_ad.ad_title}}</a>
+                            </h4>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</main>
-
+</section>
 {%endblock body%}

@@ -414,13 +414,17 @@ def cart(request):
         if request.user.is_authenticated and not request.user.is_anonymous:
             order_view = Order.objects.all().filter(
                 user=request.user, is_finished=False).first()
-            request.session['cart_id'] = order_view.id
+            if order_view:
+                request.session['cart_id'] = order_view.id
         else:
             cart_id = request.session.get('cart_id')
-            order_view = Order.objects.all().filter(id=cart_id, is_finished=False)
+            if cart_id:
+                order_view = Order.objects.filter(id=cart_id, is_finished=False).first()
+            else:
+                order_view = None
 
-    except:
-        order_view = False
+    except Exception as e:
+        order_view = None
 
     if order_view:
         try:
@@ -516,6 +520,14 @@ def cart(request):
             "provinces": provinces,
             # "states": states,
             "weight": weight,
+        }
+    else:
+        # Panier vide - définir un contexte minimal
+        context = {
+            "order_details": None,
+            "countries": countries,
+            "provinces": provinces,
+            "PUBLIC_KEY": PUBLIC_KEY,
         }
     return render(request, "orders/shop-cart.html", context)
 

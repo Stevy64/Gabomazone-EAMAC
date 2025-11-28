@@ -1,47 +1,140 @@
-
+{% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* S'assurer qu'il n'y a qu'un seul header */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+</style>
+{%endblock head%}
 
-<main class="main page-404">
-    <div class="page-content pt-150 pb-150">
-        <div class="container">
-
-            <div class="row">
-
-
-
-                <div class="col-xl-8 col-lg-10 col-md-12 m-auto text-center">
-                    {% if messages %}
-                    <div class="col-lg-12 text-center">
-                        {% for message in messages %}
-            
-                        <div    class="alert align-middle alert-{{message.tags}}">
-                            
-                            <span class="align-middle"> {{message}}</span>
-                        </div>
+{%block script%}
+{{ block.super }}
+<script>
+    // Supprimer les doublons de header
+    (function() {
+        function removeDuplicateHeaders() {
+            const headers = document.querySelectorAll('header.flavoriz-header');
+            if (headers.length > 1) {
+                // Garder seulement le premier header, supprimer les autres
+                for (let i = 1; i < headers.length; i++) {
+                    headers[i].remove();
+                }
+            }
+        }
         
-                    {% endfor %}
-                </div>
-                    {% endif %}
+        // Exécuter immédiatement
+        removeDuplicateHeaders();
+        
+        // Exécuter après DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', removeDuplicateHeaders);
+        } else {
+            removeDuplicateHeaders();
+        }
+        
+        // Exécuter après window.load
+        window.addEventListener('load', removeDuplicateHeaders);
+    })();
+</script>
+{%endblock script%}
 
-                    <p class="mb-20"><img src="{% static 'assets/imgs/page/empty.png'%}" alt="" class="hover-up" /></p>
-                    <h1 class="display-2 mb-30">Your Cart is Empty.</h1>
-                    <p class="font-lg text-grey-700 mb-30">
-                        Add something to make us happy :)<br />
-                        {% if user.is_authenticated %}
-                        Start<a href="{% url 'categories:shop'%}"> <span> shopping</span></a> Home and computer accessories,shoes, watches, furniture, home supplies... </p>
-                        {%else%}
-                        Start<a href="{% url 'categories:shop'%}"> <span> shopping</span></a> or <a href="{% url 'accounts:login' %}"><span>login</span></a> to view products in your cart</p>
-                        {%endif%}
-                    {% comment %} <div class="search-form">
-                        <form action="#">
-                            <input type="text" placeholder="Search…" />
-                            <button type="submit"><i class="fi-rs-search"></i></button>
-                        </form>
-                    </div> {% endcomment %}
-                    <a class="btn btn-default submit-auto-width font-xs hover-up mt-30" href="{% url 'home:index'%}"><i class="fi-rs-home mr-5"></i> Back To Home Page</a>
-                </div>
-            </div>
+{%block body%}
+<!-- ===== Empty Cart Page FLAVORIZ Design ===== -->
+<main class="main pages" style="padding-top: 120px; padding-bottom: 120px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); display: flex; align-items: center; justify-content: center;">
+    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 24px; text-align: center;">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 16px; border-radius: 10px; margin-bottom: 24px; font-size: 14px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            {{message}}
         </div>
+        {% endfor %}
+        {% endif %}
+        
+        <div style="margin-bottom: 40px;">
+            <i class="fi-rs-shopping-cart" style="font-size: 120px; color: #D1D5DB; opacity: 0.5;"></i>
+        </div>
+        
+        <h1 style="font-size: 36px; font-weight: 700; color: #1F2937; margin-bottom: 20px; font-family: var(--font-primary); line-height: 1.2;">Votre panier est vide</h1>
+        <p style="font-size: 16px; color: #6B7280; margin-bottom: 40px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Ajoutez quelque chose pour nous rendre heureux :)
+            <br />
+            {% if user.is_authenticated %}
+            Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a>
+            {% else %}
+            Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a> ou <a href="{% url 'accounts:login' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">connectez-vous</a> pour voir les produits dans votre panier
+            {% endif %}
+        </p>
+        
+        <a href="{% url 'categories:shop'%}" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; background: var(--color-orange); color: white; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
+            <i class="fi-rs-shopping-bag" style="font-size: 18px;"></i>
+            <span>Découvrir les produits</span>
+        </a>
     </div>
 </main>
+<style>
+@media (min-width: 1200px) {
+    .main.pages {
+        padding-top: 140px !important;
+        padding-bottom: 140px !important;
+    }
+    
+    .main.pages .container {
+        max-width: 900px !important;
+    }
+    
+    .main.pages h1 {
+        font-size: 42px !important;
+    }
+    
+    .main.pages p {
+        font-size: 18px !important;
+    }
+    
+    .main.pages i.fi-rs-shopping-cart {
+        font-size: 140px !important;
+    }
+    
+    .main.pages a[href*="categories:shop"] {
+        padding: 18px 48px !important;
+        font-size: 17px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 100px !important;
+        padding-bottom: 80px !important;
+    }
+    
+    .main.pages h1 {
+        font-size: 28px !important;
+    }
+    
+    .main.pages p {
+        font-size: 14px !important;
+    }
+    
+    .main.pages i.fi-rs-shopping-cart {
+        font-size: 80px !important;
+    }
+    
+    .main.pages a[href*="categories:shop"] {
+        padding: 14px 28px !important;
+        font-size: 14px !important;
+    }
+}
+</style>
+{%endblock body%}

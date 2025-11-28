@@ -1,77 +1,119 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+</style>
+{%endblock head%}
+
 {%block body%}
 <!-- ===== Shop Page FLAVORIZ Design ===== -->
-<section class="flavoriz-section" style="margin-top: var(--spacing-lg);">
-    <!-- Page Header -->
-    <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg); margin-bottom: var(--spacing-xl);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Produits</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-sm);">Produits</h1>
-                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px;">
-                    <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
-                    <span>/</span>
-                    <span style="color: var(--color-orange);">Produits</span>
-                </div>
+                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Produits</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez notre sélection de produits</p>
             </div>
         </div>
         
-        <!-- Product Count & Sort - Design Moderne -->
-        <div class="flavoriz-filter-section">
-            <div id="product-num" class="flavoriz-filter-count">
-                <p style="margin: 0;">Nous avons trouvé <strong>0</strong> articles pour vous !</p>
+        <!-- Product Count & Sort -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+            <div id="product-num" style="font-size: 14px; color: #6B7280;">
+                <p style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
+                    <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">0</strong> articles pour vous !</span>
+                </p>
             </div>
-            <div class="flavoriz-filter-sort">
-                <span class="flavoriz-filter-sort-label">
-                    <i class="fi-rs-apps-sort"></i> Trier par:
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 13px; color: #6B7280; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                    <i class="fi-rs-apps-sort" style="font-size: 16px; color: var(--color-orange);"></i> Trier par:
                 </span>
-                <div class="flavoriz-filter-select">
-                    <select class="sorting mySelect" id="mySelect">
-                        <option value="-date" selected>Date, nouveau à ancien</option>
-                        <option value="date">Date, ancien à nouveau</option>
-                        <option value="PRDPrice">Prix, bas à haut</option>
-                        <option value="-PRDPrice">Prix, haut à bas</option>
-                    </select>
-                </div>
+                <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); min-width: 200px;">
+                    <option value="-date" selected>Date, nouveau à ancien</option>
+                    <option value="date">Date, ancien à nouveau</option>
+                    <option value="PRDPrice">Prix, bas à haut</option>
+                    <option value="-PRDPrice">Prix, haut à bas</option>
+                </select>
             </div>
         </div>
-    </div>
 
-    <!-- Main Content -->
-    <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg);">
-        <div style="display: grid; grid-template-columns: 280px 1fr; gap: var(--spacing-xl);">
+        <!-- Main Content -->
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;">
             <!-- Sidebar Categories -->
-            <aside style="background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); height: fit-content; position: sticky; top: 100px;">
-                <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-md);">Catégories</h3>
+            <aside style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); height: fit-content; position: sticky; top: 100px; border: 1px solid #F3F4F6;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px; font-family: var(--font-primary); display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+                    <i class="fi-rs-apps" style="color: var(--color-orange); font-size: 20px;"></i>
+                    <span>Catégories</span>
+                </h3>
                 <ul style="list-style: none; padding: 0; margin: 0;">
-                    {% for super in supercategory|slice:":10"%}
-                    <li style="margin-bottom: var(--spacing-sm);">
-                        <a href="{% url 'categories:super-category' super.slug%}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); text-decoration: none; color: var(--text-dark); transition: all 0.2s ease; font-size: 14px;">
-                            {%if super.category_image%}
-                            <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
-                            {%else%}
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-orange-light); display: flex; align-items: center; justify-content: center; color: var(--color-white); font-weight: 600; font-size: 14px;">{{super.name|first|upper}}</div>
-                            {%endif%}
-                            <span>{{super.name}}</span>
+                    <li style="margin-bottom: 10px;">
+                        <a href="#" class="category-filter-link active" data-cat-type="all" data-cat-id="" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.3);">
+                            <i class="fi-rs-apps" style="color: var(--color-orange); font-size: 18px;"></i>
+                            <span style="flex: 1; font-weight: 600; color: var(--color-orange);">Tous les produits</span>
                         </a>
                     </li>
+                    {% for super in supercategory|slice:":10"%}
+                    <li style="margin-bottom: 10px;">
+                        <a href="#" class="category-filter-link" data-cat-type="super" data-cat-id="{{super.id}}" data-cat-slug="{{super.slug}}" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500;">
+                            {%if super.category_image%}
+                            <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
+                            {%else%}
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{super.name|first|upper}}</div>
+                            {%endif%}
+                            <span style="flex: 1; line-height: 1.4;">{{super.name}}</span>
+                        </a>
+                    </li>
+                    {% empty %}
+                    <li style="padding: 14px; color: #9CA3AF; font-size: 13px; text-align: center;">Aucune catégorie disponible</li>
                     {% endfor %}
                 </ul>
                 {%if supercategory.count >= 11  %}
-                <div class="more_categories" style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid #E5E7EB; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 500;">
+                <div class="more_categories" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                    <i class="fi-rs-angle-down"></i>
                     <span>Voir plus...</span>
                 </div>
-                <ul class="ul-category more_slide_open" style="display: none; list-style: none; padding: 0; margin: var(--spacing-sm) 0 0 0;">
+                <ul class="ul-category more_slide_open" style="display: none; list-style: none; padding: 0; margin: 8px 0 0 0;">
                     {%for super in supercategory|slice:"10:" %}
-                    <li style="margin-bottom: var(--spacing-sm);">
-                        <a href="{% url 'categories:super-category' super.slug%}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); text-decoration: none; color: var(--text-dark); transition: all 0.2s ease; font-size: 14px;">
+                    <li style="margin-bottom: 10px;">
+                        <a href="#" class="category-filter-link" data-cat-type="super" data-cat-id="{{super.id}}" data-cat-slug="{{super.slug}}" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500;">
                             {%if super.category_image%}
-                            <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" />
+                            <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
                             {%else%}
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-orange-light); display: flex; align-items: center; justify-content: center; color: var(--color-white); font-weight: 600; font-size: 14px;">{{super.name|first|upper}}</div>
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{super.name|first|upper}}</div>
                             {%endif%}
-                            <span>{{super.name}}</span>
+                            <span style="flex: 1; line-height: 1.4;">{{super.name}}</span>
                         </a>
                     </li>
                     {%endfor%}
@@ -81,112 +123,349 @@
 
             <!-- Products Grid -->
             <div>
-                <div id="products-list" class="flavoriz-product-grid">
+                <div id="products-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
                     <!-- Products will be loaded here via AJAX -->
                 </div>
                 
                 <!-- Loading Spinner -->
-                <div id="spinner-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
-                    <div class="flavoriz-spinner"></div>
+                <div id="spinner-box" class="not-visible" style="text-align: center; padding: 40px;">
+                    <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
+                    <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
                 </div>
                 
                 <!-- Empty Box -->
-                <div id="empty-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl); color: var(--text-gray);">
-                    <p style="font-size: 16px; font-weight: 600;">Aucun autre produit disponible !</p>
+                <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                    <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px;"></i>
+                    <p style="font-size: 16px; font-weight: 600; color: #6B7280; margin: 0;">Aucun produit disponible !</p>
                 </div>
 
                 <!-- Load More Button -->
-                <div id="loading-box" style="text-align: center; padding: var(--spacing-xl);">
-                    <button id="load-btn" type="button" style="padding: 14px 32px; background: var(--color-black); color: var(--color-white); border: none; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease;">
-                        Charger plus
+                <div id="loading-box" style="text-align: center; padding: 24px;">
+                    <button id="load-btn" type="button" style="padding: 14px 32px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fi-rs-arrow-down"></i>
+                        <span>Charger plus</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</main>
 
 <style>
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
 .not-visible {
     display: none !important;
 }
 
 #load-btn:hover {
-    background: var(--color-orange) !important;
+    background: #E65A1F !important;
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
+}
+
+aside a.category-filter-link:hover {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.06) 100%) !important;
+    color: var(--color-orange) !important;
+    transform: translateX(4px);
+    border-color: rgba(255, 123, 44, 0.2) !important;
+}
+
+aside a.category-filter-link.active {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
+    color: var(--color-orange) !important;
+    border: 1px solid rgba(255, 123, 44, 0.4) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.15) !important;
+}
+
+aside a.category-filter-link.active img,
+aside a.category-filter-link.active div[style*="background: linear-gradient"] {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 2px 8px rgba(255, 123, 44, 0.25) !important;
+}
+
+.more_categories:hover {
+    color: #E65A1F !important;
+}
+
+select.mySelect:focus {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background: white !important;
 }
 
 @media (max-width: 1024px) {
-    .flavoriz-section > div:last-child > div {
+    .main.pages > div > div[style*="grid-template-columns: 280px 1fr"] {
         grid-template-columns: 1fr !important;
     }
     
     aside {
         position: static !important;
-        margin-bottom: var(--spacing-lg);
+        margin-bottom: 24px;
     }
 }
 
 @media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
     h1 {
-        font-size: 32px !important;
+        font-size: 24px !important;
+    }
+    
+    #products-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    
+    #products-list > * {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    .flavoriz-product-image {
+        height: 160px !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 12px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 36px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .flavoriz-product-card-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+}
+
+/* Amélioration des cartes produits */
+.flavoriz-product-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #F3F4F6 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flavoriz-product-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+
+.flavoriz-product-card:hover .flavoriz-product-image {
+    transform: scale(1.05) !important;
+}
+
+.flavoriz-product-card-btn:hover {
+    background: var(--color-orange) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
+}
+
+/* Styles de base pour la grille - FORCER 4 colonnes par défaut - PRIORITÉ MAXIMALE */
+#products-list,
+#products-list.flavoriz-product-grid,
+div#products-list,
+div#products-list.flavoriz-product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+#products-list > *,
+#products-list.flavoriz-product-grid > *,
+div#products-list > *,
+div#products-list.flavoriz-product-grid > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Forcer la grille à 4 colonnes sur grand écran */
+@media (min-width: 1200px) {
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+        display: grid !important;
+        padding: 0 !important;
+    }
+}
+
+/* 3 colonnes sur écran moyen */
+@media (max-width: 1199px) and (min-width: 769px) {
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+        display: grid !important;
+        padding: 0 !important;
     }
 }
 </style>
 {%endblock body%}
 
 {%block script%}
+{{ block.super }}
+<script>
+    // Masquer le preloader immédiatement
+    (function() {
+        function hidePreloader() {
+            const preloader = document.getElementById('preloader-active');
+            if (preloader) {
+                preloader.style.display = 'none';
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+            }
+        }
+        hidePreloader();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', hidePreloader);
+        } else {
+            hidePreloader();
+        }
+        window.addEventListener('load', function() {
+            setTimeout(hidePreloader, 100);
+        });
+    })();
+</script>
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script src="{% static 'assets/js/filter.js'%}"></script>
 <script>
     var categoryType = "all";
     var categoryID = null;
     
-    // Update product cards to use FLAVORIZ design
-    function createProductCard(product) {
-        const hasDiscount = product.PRDDiscountPrice > 0;
-        const price = parseFloat(product.PRDPrice).toFixed(0);
-        const discountPrice = product.PRDDiscountPrice ? parseFloat(product.PRDDiscountPrice).toFixed(0) : null;
-        
-        return `
-            <div class="flavoriz-product-card" onclick="window.location.href='/product-details/${product.PRDSlug}'">
-                <img src="/media/${product.product_image}" alt="${product.product_name}" class="flavoriz-product-image" />
-                <div class="flavoriz-product-body">
-                    <div class="flavoriz-product-views">
-                        <i class="fi-rs-eye"></i>
-                        <span>${product.view_count || 0}+ vues</span>
-                    </div>
-                    <h3 class="flavoriz-product-title">${product.product_name}</h3>
-                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm);">
-                        <span style="font-size: 20px; font-weight: 700; color: var(--color-orange);">${price} XOF</span>
-                        ${discountPrice ? `<span style="font-size: 14px; color: var(--text-light); text-decoration: line-through;">${discountPrice} XOF</span>` : ''}
-                    </div>
-                    <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${product.PRDSlug}'">
-                        <i class="fi-rs-eye"></i>
-                        <span>Voir le produit</span>
-                    </button>
-                </div>
-            </div>
-        `;
+    // Forcer la grille à s'afficher correctement
+    function forceGridLayout() {
+        const productsList = document.getElementById('products-list');
+        if (productsList) {
+            const width = window.innerWidth;
+            productsList.style.setProperty('display', 'grid', 'important');
+            productsList.style.setProperty('width', '100%', 'important');
+            productsList.style.setProperty('max-width', '100%', 'important');
+            productsList.style.setProperty('box-sizing', 'border-box', 'important');
+            
+            if (width >= 1200) {
+                productsList.style.setProperty('grid-template-columns', 'repeat(4, 1fr)', 'important');
+                productsList.style.setProperty('gap', '24px', 'important');
+            } else if (width >= 769) {
+                productsList.style.setProperty('grid-template-columns', 'repeat(3, 1fr)', 'important');
+                productsList.style.setProperty('gap', '20px', 'important');
+            } else {
+                productsList.style.setProperty('grid-template-columns', 'repeat(2, 1fr)', 'important');
+                productsList.style.setProperty('gap', '12px', 'important');
+            }
+            
+            // Forcer les enfants
+            const children = productsList.children;
+            for (let i = 0; i < children.length; i++) {
+                children[i].style.setProperty('width', '100%', 'important');
+                children[i].style.setProperty('min-width', '0', 'important');
+                children[i].style.setProperty('max-width', '100%', 'important');
+                children[i].style.setProperty('box-sizing', 'border-box', 'important');
+            }
+        }
     }
     
-    // Override the filter.js product rendering
+    // Toggle "Voir plus" categories
     $(document).ready(function() {
-        // This will be handled by filter.js, but we'll update the product cards styling
-        const originalAppend = $.fn.append;
-        $.fn.append = function() {
-            const result = originalAppend.apply(this, arguments);
-            // Update any product cards that were added
-            $('.product-cart-wrap').each(function() {
-                $(this).addClass('flavoriz-product-card');
+        // Forcer la grille au chargement
+        forceGridLayout();
+        
+        // Forcer la grille au redimensionnement
+        window.addEventListener('resize', forceGridLayout);
+        
+        // Observer les changements dans products-list
+        const observer = new MutationObserver(function(mutations) {
+            forceGridLayout();
+        });
+        const productsList = document.getElementById('products-list');
+        if (productsList) {
+            observer.observe(productsList, { childList: true, subtree: true });
+        }
+        
+        $('.more_categories').on('click', function() {
+            const $ul = $(this).next('.more_slide_open');
+            const $icon = $(this).find('i');
+            if ($ul.is(':visible')) {
+                $ul.slideUp(300);
+                $icon.removeClass('fi-rs-angle-up').addClass('fi-rs-angle-down');
+            } else {
+                $ul.slideDown(300);
+                $icon.removeClass('fi-rs-angle-down').addClass('fi-rs-angle-up');
+            }
+        });
+        
+        // Filtrage AJAX des catégories (SPA-like)
+        $(document).on('click', '.category-filter-link', function(e) {
+            e.preventDefault();
+            
+            // Retirer l'état actif de tous les liens
+            $('.category-filter-link').removeClass('active');
+            $('.category-filter-link').each(function() {
+                const $this = $(this);
+                if (!$this.data('cat-id') || $this.data('cat-id') === '') {
+                    // C'est "Tous les produits"
+                    $this.css({
+                        'background': 'linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%)',
+                        'border': '1px solid rgba(255, 123, 44, 0.3)',
+                        'font-weight': '600',
+                        'color': 'var(--color-orange)'
+                    });
+                } else {
+                    $this.css({
+                        'background': '',
+                        'border': '',
+                        'font-weight': '500',
+                        'color': '#1F2937'
+                    });
+                }
             });
-            return result;
-        };
+            
+            // Ajouter l'état actif au lien cliqué
+            $(this).addClass('active');
+            $(this).css({
+                'background': 'linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%)',
+                'border': '1px solid rgba(255, 123, 44, 0.4)',
+                'font-weight': '600',
+                'color': 'var(--color-orange)'
+            });
+            
+            // Mettre à jour les variables globales (utiliser window.* pour être sûr)
+            window.categoryType = $(this).data('cat-type') || 'all';
+            window.categoryID = $(this).data('cat-id') || null;
+            
+            // Réinitialiser le compteur visible
+            window.visible = 10;
+            
+            // Recharger les produits avec le nouveau filtre
+            // Attendre que filter.js soit chargé
+            setTimeout(function() {
+                if (typeof window.handleGetData !== 'undefined') {
+                    window.handleGetData(true);
+                } else if (typeof handleGetData !== 'undefined') {
+                    handleGetData(true);
+                }
+            }, 100);
+        });
     });
 </script>
 {%endblock script%}

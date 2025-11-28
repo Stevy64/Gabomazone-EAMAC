@@ -1,378 +1,405 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+</style>
+{%endblock head%}
 
 {%block body%}
 {% if order_details%}
-<main class="main">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Accueil</a>
-                <span></span> Boutique
-                <span></span> Panier
+<!-- ===== Modern Cart Page FLAVORIZ Design ===== -->
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Panier</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Votre panier</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Il y a <strong style="color: var(--color-orange);">{{order_details.count}}</strong> article(s) dans votre panier</p>
             </div>
+            <a href="{% url 'categories:shop' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px; background: white; color: var(--color-orange); border: 2px solid var(--color-orange); border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.15);">
+                <i class="fi-rs-arrow-left"></i>
+                <span>Continuer les achats</span>
+            </a>
         </div>
-    </div>
-    <div class="container mb-80 mt-50">
-        <div class="row">
-            <div class="col-lg-8 mb-40">
-                <h1 class="heading-2 mb-10">Votre panier</h1>
-                <div class="d-flex justify-content-between">
-                    <h6 class="text-body">Il y a <span class="text-brand">{{order_details.count}}</span> article(s) dans votre panier</h6>
-                    {% comment %} <h6 class="text-body"><a href="#" class="text-muted"><i class="fi-rs-trash mr-5"></i>Clear Cart</a></h6> {% endcomment %}
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-8">
-                {% if messages %}
-                {% for message in messages %}
-  
-                <div    class="mt-30 alert align-middle alert-{{message.tags}}">
-                   
-                    <span class="align-middle"> {{message}}</span>
-                </div>
-  
-                {% endfor %}
-                {% endif %}
-                <div class="table-responsive shopping-summery">
-                    <table class="table table-wishlist">
-                        <thead>
-                            <tr class="main-heading">
-                                {% comment %} <th class="custome-checkbox start pl-30">
-                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                    <label class="form-check-label" for="exampleCheckbox11"></label>
-                                </th> {% endcomment %}
-                                <th scope="col" class="pl-30" colspan="2">Détails du produit</th>
-                                <th scope="col">Poids</th>
-                                <th scope="col">Prix unitaire</th>
-                                <th scope="col">Quantité</th>
-                                <th scope="col">Sous-total</th>
-                                <th scope="col" class="end">Retirer</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in order_details%}
-                            <tr class="pt-30">
-                                {% if item.product.product_image %}
-                                <td class="pl-30 image product-thumbnail"><img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}"></td>
-                                {%else%}
-                                <td class="pl-30 image product-thumbnail"><img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="{{item.product.product_name}}"></td>
-                                {%endif%}
-                                <td class="product-des product-name">
-                                    <h6 class="mb-5"><a class="product-name mb-10 text-heading" href="{% url 'products:product-details' item.product.PRDSlug %}">{{item.product}}</a></h6>
-                                   {%if item.product.feedbak_average > 0%}
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width:{{item.product.feedbak_average}}%">
-                                            </div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> ({{item.product.feedbak_number}})</span>
+
+        <div style="display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start;">
+            <!-- Cart Items -->
+            <div>
+                <!-- Cart Items Cards -->
+                <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+                    {% for item in order_details %}
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); display: flex; gap: 16px; transition: all 0.3s ease; border: 1px solid #F3F4F6;">
+                        <!-- Product Image -->
+                        <div style="flex-shrink: 0;">
+                            <a href="{% url 'products:product-details' item.product.PRDSlug %}">
+                                <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
+                            </a>
+                        </div>
+                        
+                        <!-- Product Details -->
+                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
+                            <div>
+                                <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.4;">
+                                    <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease;">{{item.product}}</a>
+                                </h3>
+                                {% if item.product.feedbak_average > 0 %}
+                                <div style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #6B7280; margin-bottom: 8px;">
+                                    <span style="color: #FBBF24;">★★★★★</span>
+                                    <span style="margin-left: 4px;">({{item.product.feedbak_number}} avis)</span>
+                                </div>
+                                {% endif %}
+                                <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px; flex-wrap: wrap;">
+                                    <span style="display: flex; align-items: center; gap: 4px;"><i class="fi-rs-weight" style="font-size: 13px;"></i>{{item.weight}} KG</span>
+                                    <span style="display: flex; align-items: center; gap: 4px;"><i class="fi-rs-shopping-cart" style="font-size: 13px;"></i>Qté: {{item.quantity}}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Price & Actions -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6;">
+                                <div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--color-orange);">
+                                        {% widthratio item.price 1 item.quantity|floatformat:0 %} XOF
                                     </div>
-                                    {%endif%}
-                                </td>
-                                <td class="price" data-title="Weight">
-                                    <h4 class="text-brand">{{item.weight }}KG</h4>
-                                </td>
-                                <td class="price" data-title="Price">
-                                    <h4 class="text-body currency-xof">{{item.price|floatformat:0}} XOF</h4>
-                                </td>
-                                <td class="text-center detail-info" data-title="Stock">
-                                    {% comment %} <div class="detail-extralink mr-15">
-                                        <div class="detail-qty border radius">
-                                            <input type="hidden" id="qty-input" name="qyt" type="text" >
-                                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">{{item.quantity }}</span>
-                                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                        </div>
-                                    </div> {% endcomment %}
-                                    <h4 class="text-body">{{item.quantity }}</h4>
-                                </td>
-                                <td class="price" data-title="Price">
-                                    <h4 class="text-brand currency-xof">{% widthratio item.price 1 item.quantity|floatformat:0 %} XOF</h4>
-                                </td>
-                                <td class="action text-center" data-title="Remove"><a href="{% url "orders:remove-item" productdeatails_id=item.id %}" class="text-body"><i class="fi-rs-trash"></i></a></td>
-                            </tr>
-                         {%endfor%}   
-                          
-                        </tbody>
-                    </table>
+                                    <div style="font-size: 12px; color: #9CA3AF; margin-top: 2px;">
+                                        {{item.price|floatformat:0}} XOF × {{item.quantity}}
+                                    </div>
+                                </div>
+                                <a href="{% url 'orders:remove-item' productdeatails_id=item.id %}" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #FEE2E2; color: #DC2626; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; cursor: pointer;" title="Retirer du panier">
+                                    <i class="fi-rs-trash" style="font-size: 16px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="divider-2 mb-30"></div>
-                <div class="cart-action d-flex justify-content-between">
-                    {% comment %} <a class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a> {% endcomment %}
-                    {% comment %} <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-refresh mr-10"></i>Update Cart</a> {% endcomment %}
-                    <div class="col-lg-8">
-                        <form method="post" class="apply-coupon">
+
+                <!-- Coupon Code Card -->
+                <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.25);">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <h4 style="font-size: 18px; font-weight: 700; color: white; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-ticket" style="font-size: 20px;"></i> Code promo
+                            </h4>
+                            <p style="font-size: 13px; color: rgba(255,255,255,0.9); margin: 0;">Entrez votre code pour bénéficier d'une réduction</p>
+                        </div>
+                        <form method="post" style="display: flex; gap: 8px; flex: 1; max-width: 350px; min-width: 200px;">
                             {% csrf_token %}
-                            <input name="code" type="text" placeholder="Entrer le code promo...">
-                            <button  type="submit" class="btn-primary btn-md" name="login">Appliquer</button>
+                            <input name="code" type="text" placeholder="Code promo..." required style="flex: 1; padding: 11px 14px; border: none; border-radius: 8px; font-size: 13px; outline: none; background: white; font-family: var(--font-secondary); min-width: 0;" />
+                            <button type="submit" style="padding: 11px 20px; background: #1F2937; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; font-family: var(--font-primary);">
+                                Appliquer
+                            </button>
                         </form>
                     </div>
                 </div>
-                
-                <div class="row mt-30">
-                    <h4 class="mb-30">Détails de livraison</h4>
-                    <form method="post" action="{% url "orders:payment" %}" >
 
+                <!-- Delivery Form Card -->
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #F3F4F6;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-truck" style="font-size: 20px; color: var(--color-orange);"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0;">Détails de livraison</h4>
+                            <p style="font-size: 13px; color: #6B7280; margin: 2px 0 0 0;">Remplissez vos informations pour la livraison</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" action="{% url 'orders:payment' %}">
                         {% csrf_token %}
-
-                        <div class="row">
-                            <!-- Prénom -->
-                            <div class="form-group col-lg-6">
-                                <input type="text" required="" name="first_name" placeholder="Prénom *" class="form-input-modern">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Prénom *</label>
+                                <input type="text" required name="first_name" placeholder="Votre prénom" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                             </div>
-
-                            <!-- Nom -->
-                            <div class="form-group col-lg-6">
-                                <input type="text" required="" name="last_name" placeholder="Nom *" class="form-input-modern">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Nom *</label>
+                                <input type="text" required name="last_name" placeholder="Votre nom" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                             </div>
                         </div>
-                        
-                        <!-- Countries -->
-                        <div class="row shipping_calculator">
-                            <div class="form-group col-lg-6">
-                                <div class="custom_select">
-                                    <select id="country" name="country" class="form-control select-active country">
-                                        
-                                        {% for country in countries%}
-                                            {% if country.code == "GA" or country.code == "NE" %}
-                                                <option data-code="{{ country.code }}" value="{{ country.code }}">{{ country.name }}</option>
-                                            {% endif %}
-                                        {% endfor%}
-
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Cities -->
-                            <div class="form-group col-lg-6">
-                                <input required="" type="text" name="city" placeholder="Quartier *" class="form-input-modern">
-                            </div>
-                            
-                        </div>
-
-                        <!-- Provinces & Ville -->
-                        <div class="form-group col-lg-6">
-                            
-                            <div class="custom_select">
-
-                                <!-- Provinces -->
-                                <select id="province" name="province" class="form-control select-active province">
-                                    {% for province in provinces %}
-                                        <small></small><option value="{{ province.name_province }}">{{ province.name_province }}</option></small>
-                                    {% empty %}
-                                        <option disabled>Aucune province disponible </option>
-                                    {% endfor%}
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Pays *</label>
+                                <select id="country" name="country" class="form-control select-active country flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; background: #FAFAFA; transition: all 0.2s ease; font-family: var(--font-secondary); cursor: pointer;">
+                                    {% for country in countries %}
+                                    {% if country.code == "GA" or country.code == "NE" %}
+                                    <option data-code="{{ country.code }}" value="{{ country.code }}">{{ country.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
                                 </select>
-
-                                <!-- Capitales_Provinces -->
-                                <select id="state" name="state" class="form-control select-active" onchange="toggleOtherInput(this)">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Quartier *</label>
+                                <input required type="text" name="city" placeholder="Votre quartier" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Province *</label>
+                                <select id="province" name="province" class="form-control select-active province flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; background: #FAFAFA; transition: all 0.2s ease; font-family: var(--font-secondary); cursor: pointer;">
                                     {% for province in provinces %}
-                                        <option value="{{ province.name_province }} | {{ province.capitale_province }}">{{ province.capitale_province }}</option>
+                                    <option value="{{ province.name_province }}">{{ province.name_province }}</option>
+                                    {% empty %}
+                                    <option disabled>Aucune province disponible</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Ville *</label>
+                                <select id="state" name="state" class="form-control select-active flavoriz-input" onchange="toggleOtherInput(this)" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; background: #FAFAFA; transition: all 0.2s ease; font-family: var(--font-secondary); cursor: pointer;">
+                                    {% for province in provinces %}
+                                    <option value="{{ province.name_province }} | {{ province.capitale_province }}">{{ province.capitale_province }}</option>
                                     {% endfor %}
                                     <option value="autre_ville">Autre</option>
                                 </select>
-                                </div>
-
-                                <!-- Champ caché qui s’affiche si "Autre" est choisi -->
-                                <input type="text" id="other_state" name="other_state"
-                                        class="form-control mt-2"
-                                        placeholder="Entrez votre ville"
-                                        style="display:none;">
                             </div>
                         </div>
-
-                        <div class="row">
-                            <!-- Adresse -->
-                            <div class="form-group col-lg-4">
-                                <input type="text" name="street" required="" placeholder="Adresse complète *" class="form-input-modern">
+                        <input type="text" id="other_state" name="other_state" placeholder="Entrez votre ville" class="flavoriz-input" style="display:none; width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; margin-bottom: 16px; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Adresse *</label>
+                                <input type="text" name="street" required placeholder="Adresse complète" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                             </div>
-
-                            <!-- Téléphone -->
-                            <div class="form-group col-lg-4">
-                                <input required="" type="text" name="phone" placeholder="Téléphone *" class="form-input-modern">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Téléphone *</label>
+                                <input required type="text" name="phone" placeholder="Votre téléphone" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                             </div>
-
-                            <!-- eMail -->
-                            <div class="form-group col-lg-4">
-                                <input type="text" name="email_address" placeholder="Adresse email" class="form-input-modern">
+                            <div>
+                                <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Email</label>
+                                <input type="text" name="email_address" placeholder="Votre email" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                             </div>
-
                         </div>
-
-                        <!-- Others -->
-                        <!-- <div class="form-group mb-30">
-                            <textarea rows="5" placeholder="Additional information"></textarea>
-                        </div> -->
-
-                        <button type="submit" class="btn-primary mb-20 w-100">Procéder au paiement<i class="fi-rs-sign-out ml-15"></i></button>
-                    
+                        <button type="submit" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-primary);">
+                            <span>Procéder au paiement</span>
+                            <i class="fi-rs-arrow-right"></i>
+                        </button>
                     </form>
                 </div>
-                
             </div>
-            <div class="col-lg-4">
-                <div class="border p-md-4 cart-totals ml-30">
-                    <div class="table-responsive">
-                        <table class="table no-border">
-                            <tbody>
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Sous-total</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end currency-xof">{{f_total|floatformat:0}} XOF</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Articles</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">{{order_details.count}}</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td scope="col" colspan="2">
-                                        <div class="divider-2 mt-10 mb-10"></div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Livraison</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">Calculé à l'étape suivante</h5></td>
-                                </tr>
-                                {% if coupon_id%}
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Code promo</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">{{code}} <span class="text-success"> -{{value|floatformat:0}} XOF</span></h5>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td scope="col" colspan="2">
-                                        <div class="divider-2 mt-10 mb-10"></div>
-                                    </td>
-                                </tr>
-                                {%endif%}
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Total</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end currency-xof">{{total|floatformat:0}} XOF</h4>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+            <!-- Cart Summary -->
+            <div style="position: sticky; top: 100px; height: fit-content;">
+                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); border: 1px solid #F3F4F6;">
+                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fi-rs-receipt" style="color: var(--color-orange); font-size: 22px;"></i>
+                        <span>Résumé de la commande</span>
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
+                            <strong style="font-size: 16px; color: var(--color-orange); font-weight: 700;">{{f_total|floatformat:0}} XOF</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Articles</span>
+                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order_details.count}}</strong>
+                        </div>
+                        <div style="height: 1px; background: #E5E7EB; margin: 4px 0;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Livraison</span>
+                            <span style="font-size: 13px; color: #9CA3AF;">Calculé à l'étape suivante</span>
+                        </div>
+                        {% if coupon_id %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Code promo</span>
+                            <span style="font-size: 14px; color: #1F2937; font-weight: 600;">{{code}} <span style="color: #10b981; font-weight: 700;">-{{value|floatformat:0}} XOF</span></span>
+                        </div>
+                        <div style="height: 1px; background: #E5E7EB; margin: 4px 0;"></div>
+                        {% endif %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 4px; border-top: 2px solid #F3F4F6;">
+                            <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
+                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{total|floatformat:0}} XOF</strong>
+                        </div>
                     </div>
-                    {% comment %} <a href="#" class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></a> {% endcomment %}
+                    <div style="padding: 16px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 10px; border: 1px solid rgba(255, 123, 44, 0.2);">
+                        <div style="display: flex; align-items: start; gap: 10px;">
+                            <i class="fi-rs-shield-check" style="font-size: 18px; color: var(--color-orange); margin-top: 2px;"></i>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Paiement sécurisé</div>
+                                <div style="font-size: 12px; color: #6B7280; line-height: 1.4;">Vos informations sont protégées par un chiffrement SSL</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
-{% else%}
+{% else %}
 {% include "orders/cart-empty.html" %}
 {% endif %}
 {%endblock body%}
 
 {%block script%}
-    <!-- Vendor JS-->
-    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
-    <!-- Template  JS -->
-    <script src="{% static 'assets/js/main.js'%}"></script>
-    <script src="{% static 'assets/js/shop.js'%}"></script>
-
-    <!-- Script pour la ville "Autre"-->
-    <script>
-        function toggleOtherInput(selectElement) {
-            var otherInput = document.getElementById("other_state");
-            if (selectElement.value === "autre_ville") {
-                otherInput.style.display = "block";
-                otherInput.required = true;
-            } else {
-                otherInput.style.display = "none";
-                otherInput.required = false;
-                otherInput.value = "";
+{{ block.super }}
+<script>
+    // Masquer le preloader immédiatement - doit être exécuté avant tout autre script
+    (function() {
+        function hidePreloader() {
+            const preloader = document.getElementById('preloader-active');
+            if (preloader) {
+                preloader.style.display = 'none';
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+                preloader.style.transition = 'opacity 0.3s ease';
             }
         }
-
-    </script>
-
-    <script>
         
-          const country = document.getElementById("country");
-          const state = document.getElementById("state");   
-          const stateDiv = document.getElementById("stateDiv");   
-          const handleGetStates = ()=>{
-  
-            $.ajax({
-           type:"GET",
-           
-           url : `${country.value}/`,
-           success : function(response){
-              const data = response.data 
-              
-              if(data){
-                console.log("true")
-                state.innerHTML =""
-     
-                data.map(country_states =>{
-              
-             
-                state.innerHTML += `<option  value="${country_states}">${country_states}</option>`
-              
-              
-            }); 
-              }
-              else{
-                console.log("data false")
-                stateDiv.innerHTML=`<input required="" type="text" name="state" placeholder="state *">`
-              }
-              
-             
-           },
-           error : function(error){
-              
-           }
-         })
-  
-       }
-         handleGetStates(country.value);
-  
-          $('.country').on('change', function () {
-            
+        // Supprimer les doublons de header
+        function removeDuplicateHeaders() {
+            const headers = document.querySelectorAll('header.flavoriz-header');
+            if (headers.length > 1) {
+                // Garder seulement le premier header, supprimer les autres
+                for (let i = 1; i < headers.length; i++) {
+                    headers[i].remove();
+                }
+            }
+        }
+        
+        // Essayer immédiatement
+        hidePreloader();
+        removeDuplicateHeaders();
+        
+        // Essayer après DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                hidePreloader();
+                removeDuplicateHeaders();
+            });
+        } else {
+            hidePreloader();
+            removeDuplicateHeaders();
+        }
+        
+        // Fallback avec window.onload
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                hidePreloader();
+                removeDuplicateHeaders();
+            }, 100);
+        });
+    })();
+</script>
+<script>
+<script>
+    function toggleOtherInput(selectElement) {
+        var otherInput = document.getElementById("other_state");
+        if (selectElement.value === "autre_ville") {
+            otherInput.style.display = "block";
+            otherInput.required = true;
+        } else {
+            otherInput.style.display = "none";
+            otherInput.required = false;
+            otherInput.value = "";
+        }
+    }
+
+    const country = document.getElementById("country");
+    const state = document.getElementById("state");
+    const handleGetStates = () => {
+        $.ajax({
+            type: "GET",
+            url: `${country.value}/`,
+            success: function(response) {
+                const data = response.data;
+                if (data) {
+                    state.innerHTML = "";
+                    data.map(country_states => {
+                        state.innerHTML += `<option value="${country_states}">${country_states}</option>`;
+                    });
+                }
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        });
+    };
+    if (country) {
+        handleGetStates(country.value);
+        $('.country').on('change', function() {
             const countryId = $(this).val();
-         
             handleGetStates();
-         })
-        
-      </script>
+        });
+    }
 
+    // Styles pour les inputs au focus
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('.flavoriz-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = 'var(--color-orange)';
+                this.style.boxShadow = '0 0 0 3px rgba(255, 123, 44, 0.1)';
+                this.style.background = 'white';
+            });
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#E5E7EB';
+                this.style.boxShadow = 'none';
+                this.style.background = '#FAFAFA';
+            });
+        });
+    });
+</script>
+<style>
+@media (max-width: 1023px) {
+    .main.pages > div > div[style*="grid-template-columns: 1fr 400px"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="position: sticky"] {
+        position: static !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+    }
+    
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 {%endblock script%}

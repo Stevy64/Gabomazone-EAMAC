@@ -1,198 +1,102 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {%block body%}
-<main class="main pages mb-80">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{%url 'home:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Products List
-            </div>
-        </div>
-    </div>
-    <div class="page-content pt-50">
-        <div class="container">
-            <div class="archive-header-2 text-center">
-                <h1 class="display-2 mb-50">Products List</h1>
-                <div class="row">
-                    <div class="col-lg-5 mx-auto">
-                        <div class="sidebar-widget-2 widget_search mb-50">
-                            <div class="search-form">
-                                <form  action="{% url 'products:product-search'%}" method="post">
-                                    {% csrf_token %}
-                                    <input name="search-product" type="text" placeholder="Search Items (by name)..." autocomplete="off" required />
-                                    <button type="submit"><i class="fi-rs-search"></i></button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+<!-- ===== Product Search Page FLAVORIZ Design ===== -->
+<section class="flavoriz-section" style="margin-top: var(--spacing-lg);">
+    <!-- Page Header -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+            <div>
+                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-sm);">Recherche</h1>
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px;">
+                    <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
+                    <span>/</span>
+                    <span style="color: var(--color-orange);">Recherche</span>
                 </div>
             </div>
-            <div class="row mb-50">
-                <div class="col-12 col-lg-8 mx-auto">
-                    <div class="shop-product-fillter">
-                        <div class="totall-product">
-                            {% if request.session.search_product%}
-                            <p>We have <strong id="vendors-number" class="text-brand">{{ request.session.products_count }}</strong> items now for <strong id="vendors-number" class="text-brand">"{{ request.session.search_product }}"</strong></p>
-                            {%else%}
-                            <p>Search Items (by name)... </p>
-                            {%endif%}
-                        </div>
-                        {%comment%}
-                        <div class="sort-by-product-area">
-                            <div class="sort-by-cover mr-10">
-                                <div class="sort-by-product-wrap">
-                                    <div class="sort-by">
-                                        <span><i class="fi-rs-apps"></i>Show:</span>
-                                    </div>
-                                    <div class="sort-by-dropdown-wrap">
-                                        <span> 50 <i class="fi-rs-angle-small-down"></i></span>
-                                    </div>
-                                </div>
-                                <div class="sort-by-dropdown">
-                                    <ul>
-                                        <li><a class="active" href="#">50</a></li>
-                                        <li><a href="#">100</a></li>
-                                        <li><a href="#">150</a></li>
-                                        <li><a href="#">200</a></li>
-                                        <li><a href="#">All</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="sort-by-cover">
-                                <div class="sort-by-product-wrap">
-                                    <div class="sort-by">
-                                        <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
-                                    </div>
-                                    <div class="sort-by-dropdown-wrap">
-                                        <span> Featured <i class="fi-rs-angle-small-down"></i></span>
-                                    </div>
-                                </div>
-                                <div class="sort-by-dropdown">
-                                    <ul>
-                                        <li><a class="active" href="#">Mall</a></li>
-                                        <li><a href="#">Featured</a></li>
-                                        <li><a href="#">Preferred</a></li>
-                                        <li><a href="#">Total items</a></li>
-                                        <li><a href="#">Avg. Rating</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        {%endcomment%}
-                    </div>
-                </div>
-            </div>
-
-            <div id="vendors-list" class="row vendor-grid">
-                {%for product in qs%}
-                 <!--start vendor card-->
-                 <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-4 col-12 col-sm-6">
-                    <div class="product-cart-wrap mb-30">
-                       <div class="product-img-action-wrap">
-                          <div class="product-img product-img-zoom"><a href="{% url 'products:product-details' product.PRDSlug %}"><img src="{{product.product_image.url}}" alt="{{product.product_name}}" class="default-img"> <img src="{{product.product_image.url}}" alt="{{product.product_name}}" class="hover-img"></a></div>
-                          <!-- <div class="product-action-1">
-                              <a aria-label="Quick View" href="{% url 'products:product-details' product.PRDSlug %}" data-url="{% url 'products:product-details' product.PRDSlug %}" class="action-btn hover-up js-quick-view-button">
-                              <i class="fi-rs-eye"></i></a> 
-                              <a aria-label="Add To Wishlist" href="#" data-url="{% url 'products:product-details' product.PRDSlug %}" class="action-btn hover-up js-add-to-wishlist-button"><i class="fi-rs-heart"></i></a>
-                               <a aria-label="Add To Compare" href="#" data-url="{% url 'products:product-details' product.PRDSlug %}" class="action-btn hover-up js-add-to-compare-button"><i class="fi-rs-shuffle"></i></a>
-                          </div> -->
-                          {% if product.promotional == 'Hot'%}
-                            <div class="product-badges product-badges-position product-badges-mrg">
-                                <span class="hot">Hot</span>
-                            </div>
-                          {% elif product.promotional == 'New' %}  
-                            <div class="product-badges product-badges-position product-badges-mrg">
-                                <span class="new">New</span>
-                            </div>
-                          {% endif %}
-                       </div>
-                       <div class="product-content-wrap">
-                          <div class="product-category"><a href="{% url 'categories:super-category' product.product_supercategory.slug %}">{{product.product_supercategory }}</a></div>
-                          <h2><a href="{%url 'products:product-details' product.PRDSlug %}">{{product.product_name}}</a></h2>
-                          <div class="product-rate-cover">
-                             <div class="product-rate d-inline-block">
-                                <div class="product-rating" style="width: {{product.feedbak_average}}%;"></div>
-                             </div>
-                             <span class="font-small ml-5 text-muted">({{product.feedbak_number}})</span>
-                          </div>
-                          <div><span class="font-small text-muted">Sold By <a href="{%url 'suppliers:vendor-details' product.product_vendor.slug %}">{{product.product_vendor}}</a></span></div>
-                          <div class="product-card-bottom">
-                             <div class="product-price"><span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span> 
-                                {% if product.PRDDiscountPrice%}
-                                <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
-                                {%endif%}
-                            </div>
-                             <div class="add-cart">
-                                <a class="add" href="{% url 'products:product-details' product.PRDSlug %}"><i class="fi-rs-eye mr-5"></i>View </a>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-                <!--end vendor card--> 
-                {% endfor %}
-
-            </div>
-            {%if qs.has_other_pages %}
-            <div class="pagination-area mt-20 mb-20">
-                
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        {%if qs.has_previous%}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{qs.previous_page_number}}"><i class="fi-rs-arrow-small-left"></i></a>
-                        </li>
-                        {%endif%}
-                        <li class="page-item active"><a class="page-link" href="#">{{qs.number}}</a></li>
-                        {%if qs.paginator.num_pages > qs.number  %}
-                        
-                        <li class="page-item"><a class="page-link" href="?page={{qs.number|add:1}}">{{qs.number|add:1}}</a></li>
-                        {%endif%}
-                         <!-- <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        
-                        <li class="page-item"><a class="page-link" href="?page={{qs.paginator.num_pages}}">{{qs.paginator.num_pages}}</a></li>
-                        {%if qs.has_next%}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{qs.next_page_number}}"><i class="fi-rs-arrow-small-right"></i></a>
-                        </li>
-                        {%endif%}
-                    </ul>
-                </nav>
-            </div>
-            {%endif%}
+        </div>
+        
+        <!-- Search Form -->
+        <div style="max-width: 600px; margin: 0 auto var(--spacing-xl);">
+            <form action="{% url 'products:product-search'%}" method="post" style="display: flex; gap: var(--spacing-sm); background: var(--color-white); border-radius: var(--radius-lg); padding: 12px; box-shadow: var(--shadow-sm);">
+                {% csrf_token %}
+                <input name="search-product" type="text" placeholder="Rechercher un produit..." autocomplete="off" required style="flex: 1; border: none; outline: none; font-size: 14px; padding: 8px;" />
+                <button type="submit" style="background: var(--color-orange); color: white; border: none; border-radius: var(--radius-md); padding: 8px 20px; cursor: pointer; font-size: 16px;">
+                    <i class="fi-rs-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Results Count -->
+        <div style="text-align: center; margin-bottom: var(--spacing-lg);">
+            {% if request.session.search_product %}
+            <p style="font-size: 16px; color: var(--text-gray);">
+                Nous avons trouvé <strong style="color: var(--color-orange);">{{ request.session.products_count }}</strong> article(s) pour <strong style="color: var(--color-orange);">"{{ request.session.search_product }}"</strong>
+            </p>
+            {% else %}
+            <p style="font-size: 16px; color: var(--text-gray);">Recherchez un produit par nom...</p>
+            {% endif %}
         </div>
     </div>
-</main>
+
+    <!-- Products Grid -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg);">
+        {% if qs %}
+        <div id="products-list" class="flavoriz-product-grid">
+            {% for product in qs %}
+            <div class="flavoriz-product-card" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'">
+                <div style="position: relative;">
+                    <img src="{{product.product_image.url}}" alt="{{product.product_name}}" class="flavoriz-product-image" />
+                    {% if product.promotional == 'Hot' %}
+                    <span style="position: absolute; top: 8px; left: 8px; background: var(--color-orange); color: white; padding: 4px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600;">Hot</span>
+                    {% elif product.promotional == 'New' %}
+                    <span style="position: absolute; top: 8px; left: 8px; background: #10b981; color: white; padding: 4px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600;">New</span>
+                    {% endif %}
+                </div>
+                <div class="flavoriz-product-body">
+                    <div class="flavoriz-product-views">
+                        <i class="fi-rs-eye"></i>
+                        <span>{{product.view_count|default:0}}+ vues</span>
+                    </div>
+                    <h3 class="flavoriz-product-title">{{product.product_name}}</h3>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{product.PRDPrice|floatformat:0}} XOF</span>
+                        {% if product.PRDDiscountPrice %}
+                        <span style="font-size: 13px; color: var(--text-light); text-decoration: line-through;">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                        {% endif %}
+                    </div>
+                    <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'">
+                        <i class="fi-rs-eye"></i>
+                        <span>Voir le produit</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if qs.has_other_pages %}
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: var(--spacing-2xl); margin-bottom: var(--spacing-xl);">
+            {% if qs.has_previous %}
+            <a href="?page={{qs.previous_page_number}}" style="padding: 10px 16px; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--text-dark); text-decoration: none; transition: all 0.2s ease;">
+                <i class="fi-rs-arrow-small-left"></i>
+            </a>
+            {% endif %}
+            <span style="padding: 10px 16px; background: var(--color-orange); color: white; border-radius: var(--radius-md); font-weight: 600;">{{qs.number}}</span>
+            {% if qs.has_next %}
+            <a href="?page={{qs.next_page_number}}" style="padding: 10px 16px; background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--text-dark); text-decoration: none; transition: all 0.2s ease;">
+                <i class="fi-rs-arrow-small-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div style="text-align: center; padding: var(--spacing-2xl);">
+            <i class="fi-rs-search" style="font-size: 64px; color: var(--text-light); margin-bottom: var(--spacing-md);"></i>
+            <p style="font-size: 18px; color: var(--text-gray);">Aucun produit trouvé. Essayez une autre recherche.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
 {%endblock body%}
-
-{%block script%}
-    <!-- Vendor JS-->
-    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
-    <!-- Template  JS -->
-    <script src="{% static 'assets/js/main.js'%}"></script>
-    <script src="{% static 'assets/js/shop.js'%}"></script>
-
-{%endblock script%}
