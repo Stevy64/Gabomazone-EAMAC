@@ -1,61 +1,309 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+</style>
+{%endblock head%}
+
 {%block body%}
 <!-- ===== Suppliers List Page FLAVORIZ Design ===== -->
-<section class="flavoriz-section" style="margin-top: var(--spacing-lg); padding: 0 var(--spacing-lg);">
-    <!-- Page Header -->
-    <div style="max-width: 1400px; margin: 0 auto; margin-bottom: var(--spacing-xl);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Magasins</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-sm);">Magasins</h1>
-                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px;">
-                    <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
-                    <span>/</span>
-                    <span style="color: var(--color-orange);">Magasins</span>
-                </div>
+                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Magasins Partenaires</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos magasins partenaires</p>
             </div>
         </div>
         
         <!-- Results Count -->
-        <div style="text-align: center; margin-bottom: var(--spacing-lg);">
-            <p style="font-size: 16px; color: var(--text-gray);">
-                Nous avons trouvé <strong id="vendors-number" style="color: var(--color-orange);">0</strong> magasin(s)
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+            <p style="font-size: 14px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px;">
+                <i class="fi-rs-store" style="color: var(--color-orange); font-size: 16px;"></i>
+                <span>Nous avons trouvé <strong id="vendors-number" style="color: var(--color-orange); font-weight: 700;">0</strong> magasin(s)</span>
             </p>
         </div>
-    </div>
 
-    <!-- Vendors Grid -->
-    <div style="max-width: 1400px; margin: 0 auto;">
-        <div id="vendors-list" class="flavoriz-product-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+        <!-- Vendors Grid -->
+        <div id="vendors-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; gap: 24px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
             <!-- Vendors will be loaded here via AJAX -->
         </div>
         
         <!-- Loading Spinner -->
-        <div id="spinner-box" class="not-visible" style="text-align: center; padding: var(--spacing-2xl);">
-            <div class="flavoriz-spinner"></div>
+        <div id="spinner-box" class="not-visible" style="text-align: center; padding: 60px 20px;">
+            <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 20px; color: #6B7280; font-size: 14px;">Chargement des magasins...</p>
         </div>
         
         <!-- Empty Box -->
-        <div id="empty-box" class="not-visible" style="text-align: center; padding: var(--spacing-2xl);">
-            <i class="fi-rs-store" style="font-size: 64px; color: var(--text-light); margin-bottom: var(--spacing-md);"></i>
-            <p style="font-size: 18px; color: var(--text-gray);">Aucun magasin trouvé.</p>
+        <div id="empty-box" class="not-visible" style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+            <i class="fi-rs-store" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
+            <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucun magasin trouvé</h2>
+            <p style="font-size: 16px; color: #6B7280; margin: 0;">Les magasins partenaires seront bientôt disponibles.</p>
         </div>
         
         <!-- Load More Button -->
-        <div id="loading-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
-            <button id="load-btn" type="button" class="flavoriz-btn flavoriz-btn-primary" style="padding: 12px 32px;">
-                Charger plus
+        <div id="loading-box" class="not-visible" style="text-align: center; padding: 40px 20px;">
+            <button id="load-btn" type="button" 
+                    style="padding: 14px 32px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: inline-flex; align-items: center; gap: 8px;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                <i class="fi-rs-arrow-down"></i>
+                <span>Charger plus</span>
             </button>
         </div>
     </div>
-</section>
+</main>
+
+<style>
+.not-visible {
+    display: none !important;
+}
+
+#load-btn:hover {
+    background: #E65A1F !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+    }
+    
+    #vendors-list {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    #vendors-list {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    #vendors-list {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    #vendors-list {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+</style>
 {%endblock body%}
 
 {%block script%}
+{{ block.super }}
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script>
-    // Vendor loading logic will be handled by existing AJAX scripts
-    // This template is ready for the AJAX integration
+(function() {
+    'use strict';
+    
+    let visible = 12;
+    const vendorsList = document.getElementById('vendors-list');
+    const spinnerBox = document.getElementById('spinner-box');
+    const emptyBox = document.getElementById('empty-box');
+    const loadingBox = document.getElementById('loading-box');
+    const loadBtn = document.getElementById('load-btn');
+    const vendorsNumber = document.getElementById('vendors-number');
+    
+    function handleGetVendors(sorted) {
+        if (window.isLoadingVendors) {
+            return;
+        }
+        window.isLoadingVendors = true;
+        
+        if (sorted) {
+            vendorsList.innerHTML = "";
+            visible = 12;
+        }
+        
+        spinnerBox.classList.remove('not-visible');
+        emptyBox.classList.add('not-visible');
+        loadingBox.classList.add('not-visible');
+        
+        // Utiliser l'URL Django correcte
+        const url = '{% url "suppliers:vendors-ajax" %}?num_vendors=' + visible;
+        
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            spinnerBox.classList.add('not-visible');
+            window.isLoadingVendors = false;
+            
+            if (data.vendors_size !== undefined) {
+                vendorsNumber.textContent = data.vendors_size;
+            }
+            
+            if (data.data && data.data.length > 0) {
+                data.data.forEach(function(vendor) {
+                    const vendorCard = createVendorCard(vendor);
+                    vendorsList.appendChild(vendorCard);
+                });
+                
+                if (data.max) {
+                    loadingBox.classList.add('not-visible');
+                } else {
+                    loadingBox.classList.remove('not-visible');
+                }
+            } else {
+                if (vendorsList.children.length === 0) {
+                    emptyBox.classList.remove('not-visible');
+                }
+                loadingBox.classList.add('not-visible');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des magasins:', error);
+            spinnerBox.classList.add('not-visible');
+            window.isLoadingVendors = false;
+            if (vendorsList.children.length === 0) {
+                emptyBox.classList.remove('not-visible');
+            }
+            loadingBox.classList.add('not-visible');
+        });
+    }
+    
+    function createVendorCard(vendor) {
+        const card = document.createElement('div');
+        card.className = 'flavoriz-product-card';
+        card.style.cssText = 'cursor: pointer; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; height: 100%;';
+        
+        const imageUrl = vendor.image ? '/media/' + vendor.image : '{% static "assets/imgs/theme/icons/icon-store.svg" %}';
+        const displayName = vendor.display_name || (vendor.user ? vendor.user.username : 'Magasin');
+        const bio = vendor.bio || 'Aucune description disponible';
+        const city = vendor.city || '';
+        const slug = vendor.slug || '';
+        
+        card.innerHTML = `
+            <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%); width: 100%; padding-top: 60%;">
+                <img src="${imageUrl}" 
+                     alt="${displayName}" 
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
+                     onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%)'; this.parentElement.innerHTML='<div style=\\'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 48px;\\'><i class=\\'fi-rs-store\\'></i></div>';" />
+            </div>
+            <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.3;">
+                    ${displayName}
+                </h3>
+                ${city ? `<p style="font-size: 13px; color: #6B7280; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-marker" style="font-size: 12px; color: var(--color-orange);"></i>${city}</p>` : ''}
+                <p style="font-size: 13px; color: #6B7280; margin: 0 0 16px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
+                    ${bio}
+                </p>
+                <a href="/suppliers/vendor-details/${slug}" 
+                   style="padding: 12px 20px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; text-decoration: none; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);"
+                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 123, 44, 0.3)'">
+                    <i class="fi-rs-eye"></i>
+                    <span>Voir le magasin</span>
+                </a>
+            </div>
+        `;
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.12)';
+            this.style.borderColor = 'rgba(255, 123, 44, 0.3)';
+            const img = this.querySelector('img');
+            if (img && img.style.display !== 'none') {
+                img.style.transform = 'scale(1.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.08)';
+            this.style.borderColor = 'rgba(0, 0, 0, 0.05)';
+            const img = this.querySelector('img');
+            if (img && img.style.display !== 'none') {
+                img.style.transform = 'scale(1)';
+            }
+        });
+        
+        return card;
+    }
+    
+    // Initial load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            handleGetVendors(true);
+        });
+    } else {
+        handleGetVendors(true);
+    }
+    
+    // Load more button
+    if (loadBtn) {
+        loadBtn.addEventListener('click', function() {
+            visible += 12;
+            handleGetVendors(false);
+        });
+    }
+})();
 </script>
 {%endblock script%}

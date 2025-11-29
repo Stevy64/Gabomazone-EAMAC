@@ -15,6 +15,10 @@ urlpatterns = [
 
     path('shop-ajax/', views.CategoryJsonListView.as_view(),
          name='shop-ajax'),
+    
+    # Vue HTMX pour scroll infini
+    path('shop-htmx/', views.ProductListHTMXView.as_view(),
+         name='shop-htmx'),
 
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

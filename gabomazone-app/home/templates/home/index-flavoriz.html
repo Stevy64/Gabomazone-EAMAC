@@ -65,66 +65,142 @@
         </a>
         {% endfor %}
     </div>
-    
-    <!-- Product Count & Sort - Design Moderne -->
-    <div class="flavoriz-filter-section">
-        <div id="product-num" class="flavoriz-filter-count">
-            <p style="margin: 0;">Chargement...</p>
-        </div>
-        <div class="flavoriz-filter-sort">
-            <span class="flavoriz-filter-sort-label">
-                <i class="fi-rs-apps-sort"></i> Trier par:
-            </span>
-            <div class="flavoriz-filter-select">
-                <select id="mySelect" class="sorting">
-                    <option value="-date" selected>Date, nouveau à ancien</option>
-                    <option value="date">Date, ancien à nouveau</option>
-                    <option value="PRDPrice">Prix, bas à haut</option>
-                    <option value="-PRDPrice">Prix, haut à bas</option>
-                </select>
+</section>
+
+<!-- ===== Carrousel Produits Populaires ===== -->
+<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin-bottom: var(--spacing-2xl); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <!-- Section Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
+                    <i class="fi-rs-star" style="color: var(--color-orange); margin-right: 8px;"></i>
+                    Articles les plus populaires
+                </h2>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos produits les plus appréciés</p>
             </div>
+            <a href="{% url 'categories:shop' %}?order_by=-like_count" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                <span>Voir plus</span>
+                <i class="fi-rs-arrow-right"></i>
+            </a>
+        </div>
+        
+        <!-- Carrousel Container -->
+        <div class="carousel-container" style="position: relative;">
+            <div class="carousel-wrapper" style="position: relative;">
+                <div id="popular-carousel" class="carousel-track" style="display: flex; gap: 20px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                    {% for item in popular_products_data %}
+                    {% with product=item.product product_images=item.product_images like_count=item.like_count %}
+                    {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
+                    <div class="flavoriz-product-card carousel-item" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
+                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
+                            <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
+                            <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
+                                <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
+                                <span class="favorite-count">{{ like_count }}</span>
+                            </button>
+                        </div>
+                        <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
+                            <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
+                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
+                                <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{ price|floatformat:0 }} FCFA</span>
+                                {% if discount_price and discount_price > 0 %}
+                                    <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|floatformat:0 }} FCFA</span>
+                                {% endif %}
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: auto;">
+                                <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+                                    <i class="fi-rs-eye" style="font-size: 13px;"></i>
+                                    <span>Voir</span>
+                                </button>
+                                <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
+                                    <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Navigation Buttons -->
+            <button class="carousel-btn carousel-prev" id="popular-prev" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-left" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
+            <button class="carousel-btn carousel-next" id="popular-next" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-right" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
         </div>
     </div>
-    
-    <!-- Product Grid avec Infinite Scroll -->
-    <div id="products-list" class="flavoriz-product-grid">
-        <!-- Les produits seront chargés ici via infinite scroll -->
+</section>
+
+<!-- ===== Carrousel Nouveaux Produits ===== -->
+<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin-bottom: var(--spacing-2xl); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <!-- Section Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
+                    <i class="fi-rs-sparkles" style="color: var(--color-orange); margin-right: 8px;"></i>
+                    Nouveaux articles
+                </h2>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos dernières nouveautés</p>
+            </div>
+            <a href="{% url 'categories:shop' %}?order_by=-date" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                <span>Voir plus</span>
+                <i class="fi-rs-arrow-right"></i>
+            </a>
+        </div>
+        
+        <!-- Carrousel Container -->
+        <div class="carousel-container" style="position: relative;">
+            <div class="carousel-wrapper" style="position: relative;">
+                <div id="new-carousel" class="carousel-track" style="display: flex; gap: 20px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                    {% for item in new_products_data %}
+                    {% with product=item.product product_images=item.product_images like_count=item.like_count %}
+                    {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
+                    <div class="flavoriz-product-card carousel-item" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
+                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
+                            <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
+                            <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
+                                <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
+                                <span class="favorite-count">{{ like_count }}</span>
+                            </button>
+                        </div>
+                        <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
+                            <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
+                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
+                                <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{ price|floatformat:0 }} FCFA</span>
+                                {% if discount_price and discount_price > 0 %}
+                                    <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|floatformat:0 }} FCFA</span>
+                                {% endif %}
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: auto;">
+                                <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+                                    <i class="fi-rs-eye" style="font-size: 13px;"></i>
+                                    <span>Voir</span>
+                                </button>
+                                <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
+                                    <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Navigation Buttons -->
+            <button class="carousel-btn carousel-prev" id="new-prev" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-left" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
+            <button class="carousel-btn carousel-next" id="new-next" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-right" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
+        </div>
     </div>
-    
-    <!-- Loading Spinner -->
-    <div id="spinner-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
-        <div class="flavoriz-spinner"></div>
-    </div>
-    
-    <!-- Empty Box -->
-    <div id="empty-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl); color: var(--text-gray);">
-        <p style="font-size: 14px; font-weight: 600;">Tous les produits ont été chargés !</p>
-    </div>
-    
-    <!-- Load More Button (caché, remplacé par infinite scroll) -->
-    <div id="loading-box" class="not-visible" style="text-align: center; padding: var(--spacing-xl);">
-        <div style="height: 20px;"></div>
-    </div>
-    
-    <style>
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    .not-visible {
-        display: none !important;
-    }
-    
-    .lazy-load {
-        opacity: 0.7;
-        transition: opacity 0.3s ease;
-        background: #F3F4F6;
-    }
-    
-    .lazy-load.loaded {
-        opacity: 1;
-    }
-    </style>
 </section>
 
 <!-- ===== Newsletter Section ===== -->
@@ -140,47 +216,377 @@
     </form>
 </section>
 
-<!-- ===== Footer ===== -->
-<footer class="flavoriz-footer" style="padding: var(--spacing-xl) var(--spacing-lg);">
-    <div class="flavoriz-footer-content">
-        <div class="flavoriz-footer-column">
-            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Entreprise</h4>
-            <ul>
-                {% for page_obj in pages_list|slice:"0:3"%}
-                <li><a href="{%url 'pages:pages-name' page_obj.slug %}" style="font-size: 13px;">{{page_obj.name}}</a></li>
-                {%endfor%}
-            </ul>
-        </div>
-        <div class="flavoriz-footer-column">
-            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Support</h4>
-            <ul>
-                <li><a href="#" style="font-size: 13px;">FAQ</a></li>
-                <li><a href="#" style="font-size: 13px;">Membres</a></li>
-                <li><a href="#" style="font-size: 13px;">Politique d'utilisation</a></li>
-            </ul>
-        </div>
-        <div class="flavoriz-footer-column">
-            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Contact</h4>
-            <ul>
-                {% for number_obj in support_number|slice:"0:1"%}
-                <li><a href="tel:{{number_obj.number}}" style="font-size: 13px;">Téléphone: {{number_obj.number}}</a></li>
-                {%endfor%}
-                <li><a href="mailto:{{site_info.email|default:'contact@gabomazone.com'}}" style="font-size: 13px;">Email: {{site_info.email|default:'contact@gabomazone.com'}}</a></li>
-                <li><a href="#" style="font-size: 13px;">Réseaux sociaux</a></li>
-            </ul>
-        </div>
-        <div class="flavoriz-footer-column">
-            <h4 style="font-size: 14px; margin-bottom: var(--spacing-sm);">Suivez-nous</h4>
-            <ul>
-                <li><a href="#" style="font-size: 13px;">Facebook</a></li>
-                <li><a href="#" style="font-size: 13px;">Instagram</a></li>
-                <li><a href="#" style="font-size: 13px;">Twitter</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="flavoriz-footer-bottom" style="font-size: 12px; padding-top: var(--spacing-md);">
-        <p>Copyright 2024 {{site_info.site_name}} © Tous droits réservés.</p>
-    </div>
-</footer>
+<!-- Footer est maintenant dans base.html pour toutes les pages -->
+
+<style>
+/* Styles pour les carrousels */
+.carousel-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 60px;
+}
+
+    .carousel-wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    @media (max-width: 768px) {
+        .carousel-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .carousel-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+.carousel-track {
+    display: flex !important;
+    gap: 20px !important;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.carousel-item {
+    flex: 0 0 calc(25% - 15px) !important;
+    min-width: 0 !important;
+    max-width: calc(25% - 15px) !important;
+}
+
+/* Masquer les boutons de navigation sur mobile */
+@media (max-width: 768px) {
+    /* Section principale */
+    .flavoriz-section {
+        padding: var(--spacing-md) 16px !important;
+        margin-bottom: var(--spacing-lg) !important;
+    }
+    
+    /* Titre de section */
+    .flavoriz-section-title {
+        font-size: 24px !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+    
+    /* En-tête des carrousels */
+    .flavoriz-section > div > div:first-child {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .flavoriz-section > div > div:first-child h2 {
+        font-size: 22px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .flavoriz-section > div > div:first-child p {
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-section > div > div:first-child a {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 10px 20px !important;
+        font-size: 13px !important;
+    }
+    
+    /* Container carrousel */
+    .carousel-container {
+        padding: 0 8px !important;
+    }
+    
+    .carousel-btn {
+        display: none !important;
+    }
+    
+    .carousel-track {
+        gap: 12px !important;
+        overflow-x: auto !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+    
+    .carousel-track::-webkit-scrollbar {
+        display: none !important;
+    }
+    
+    .carousel-item {
+        flex: 0 0 calc(50% - 6px) !important;
+        max-width: calc(50% - 6px) !important;
+        width: calc(50% - 6px) !important;
+        scroll-snap-align: start !important;
+    }
+    
+    /* Cartes produits sur mobile */
+    .carousel-item.flavoriz-product-card {
+        border-radius: 10px !important;
+    }
+    
+    .carousel-item .flavoriz-product-body {
+        padding: 10px !important;
+    }
+    
+    .carousel-item .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 36px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .carousel-item .flavoriz-product-card-btn,
+    .carousel-item .flavoriz-add-cart-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        border-radius: 6px !important;
+    }
+    
+    .carousel-item .flavoriz-favorite-btn {
+        padding: 4px 8px !important;
+        font-size: 9px !important;
+        border-radius: 12px !important;
+    }
+    
+    .carousel-item .flavoriz-favorite-btn i {
+        font-size: 11px !important;
+    }
+    
+    /* Prix sur mobile */
+    .carousel-item .flavoriz-product-body > div:first-of-type span:first-child {
+        font-size: 16px !important;
+    }
+    
+    /* Tags de catégories */
+    .flavoriz-category-tags {
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .flavoriz-tag {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+    }
+    
+    .flavoriz-tag i {
+        font-size: 14px !important;
+    }
+    
+    /* Hero section sur mobile */
+    .flavoriz-hero {
+        padding: var(--spacing-md) 16px !important;
+        margin-bottom: var(--spacing-lg) !important;
+    }
+    
+    .flavoriz-hero-title {
+        font-size: 28px !important;
+    }
+    
+    /* Section "Que recherchez-vous?" */
+    section.flavoriz-section:first-of-type {
+        padding: var(--spacing-md) 16px !important;
+        margin-bottom: var(--spacing-lg) !important;
+    }
+    
+    /* Newsletter section */
+    .flavoriz-newsletter {
+        padding: var(--spacing-lg) 16px !important;
+        margin: var(--spacing-lg) auto !important;
+    }
+    
+    .flavoriz-newsletter-logo {
+        font-size: 24px !important;
+    }
+    
+    .flavoriz-newsletter-form {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    
+    .flavoriz-newsletter-input,
+    .flavoriz-newsletter-btn {
+        width: 100% !important;
+    }
+    
+    /* Footer sur mobile */
+    .flavoriz-footer {
+        padding: var(--spacing-lg) 16px !important;
+    }
+    
+    .flavoriz-footer-content {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: var(--spacing-md) !important;
+    }
+}
+
+/* Responsive pour tablette */
+@media (min-width: 769px) and (max-width: 1199px) {
+    .carousel-item {
+        flex: 0 0 calc(33.333% - 12px) !important;
+        max-width: calc(33.333% - 12px) !important;
+        width: calc(33.333% - 12px) !important;
+    }
+}
+
+/* Styles pour les cartes produits dans les carrousels - Identique à la page shop */
+.carousel-item.flavoriz-product-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #F3F4F6 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+.carousel-item.flavoriz-product-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+
+.carousel-item.flavoriz-product-card:hover .flavoriz-product-image {
+    transform: scale(1.05) !important;
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Initialiser les event listeners pour les produits
+    if (typeof window.attachProductEventListeners === 'function') {
+        window.attachProductEventListeners();
+    }
+    
+    // Fonction pour gérer le carrousel
+    function initCarousel(carouselId, prevBtnId, nextBtnId) {
+        const carousel = document.getElementById(carouselId);
+        const prevBtn = document.getElementById(prevBtnId);
+        const nextBtn = document.getElementById(nextBtnId);
+        
+        if (!carousel || !prevBtn || !nextBtn) return;
+        
+        const items = carousel.querySelectorAll('.carousel-item');
+        if (items.length === 0) return;
+        
+        let currentIndex = 0;
+        
+        function getItemsPerView() {
+            if (window.innerWidth >= 1200) return 4;
+            if (window.innerWidth >= 769) return 3;
+            return 2; // 2 items sur mobile
+        }
+        
+        // Sur mobile, permettre le scroll horizontal natif
+        if (window.innerWidth <= 768) {
+            carousel.style.overflowX = 'auto';
+            carousel.style.scrollSnapType = 'x mandatory';
+            carousel.style.webkitOverflowScrolling = 'touch';
+            // Désactiver les boutons de navigation sur mobile
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        }
+        
+        function updateCarousel() {
+            const itemsPerView = getItemsPerView();
+            const maxIndex = Math.max(0, items.length - itemsPerView);
+            
+            if (currentIndex > maxIndex) {
+                currentIndex = maxIndex;
+            }
+            
+            // Calculer la largeur d'un item (en incluant le gap)
+            const firstItem = items[0];
+            if (!firstItem) return;
+            
+            // Obtenir la largeur réelle de l'item
+            const itemWidth = firstItem.getBoundingClientRect().width;
+            const gap = 20; // gap entre les items
+            const translateX = -currentIndex * (itemWidth + gap);
+            
+            carousel.style.transform = `translateX(${translateX}px)`;
+            
+            // Gérer la visibilité des boutons
+            prevBtn.style.opacity = currentIndex > 0 ? '1' : '0.5';
+            prevBtn.style.pointerEvents = currentIndex > 0 ? 'auto' : 'none';
+            prevBtn.style.cursor = currentIndex > 0 ? 'pointer' : 'not-allowed';
+            nextBtn.style.opacity = currentIndex < maxIndex ? '1' : '0.5';
+            nextBtn.style.pointerEvents = currentIndex < maxIndex ? 'auto' : 'none';
+            nextBtn.style.cursor = currentIndex < maxIndex ? 'pointer' : 'not-allowed';
+        }
+        
+        prevBtn.addEventListener('click', function() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            const itemsPerView = getItemsPerView();
+            const maxIndex = Math.max(0, items.length - itemsPerView);
+            if (currentIndex < maxIndex) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+        
+        // Gérer le redimensionnement
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                currentIndex = 0;
+                // Sur mobile, désactiver les boutons et activer le scroll natif
+                if (window.innerWidth <= 768) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                    carousel.style.overflowX = 'auto';
+                    carousel.style.scrollSnapType = 'x mandatory';
+                    carousel.style.webkitOverflowScrolling = 'touch';
+                } else {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                    carousel.style.overflowX = 'hidden';
+                    carousel.style.scrollSnapType = 'none';
+                }
+                updateCarousel();
+            }, 250);
+        });
+        
+        // Sur mobile, désactiver les boutons et activer le scroll natif dès le début
+        if (window.innerWidth <= 768) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            carousel.style.overflowX = 'auto';
+            carousel.style.scrollSnapType = 'x mandatory';
+            carousel.style.webkitOverflowScrolling = 'touch';
+        }
+        
+        // Initialiser après un court délai pour s'assurer que les éléments sont rendus
+        setTimeout(updateCarousel, 100);
+    }
+    
+    // Initialiser les deux carrousels
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            initCarousel('popular-carousel', 'popular-prev', 'popular-next');
+            initCarousel('new-carousel', 'new-prev', 'new-next');
+        });
+    } else {
+        initCarousel('popular-carousel', 'popular-prev', 'popular-next');
+        initCarousel('new-carousel', 'new-prev', 'new-next');
+    }
+})();
+</script>
 
 {% endblock %}

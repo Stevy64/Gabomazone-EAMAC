@@ -69,7 +69,7 @@ html, body {
 }
 
 body {
-    padding-top: 80px !important;
+    padding-top: 75px !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -112,17 +112,25 @@ footer.main:not(.flavoriz-footer),
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    z-index: 1000 !important;
-    padding: var(--spacing-md) 0 !important;
+    z-index: 9999 !important;
+    padding: 14px 0 !important;
     width: 100% !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transform: translateY(0) !important;
+    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform: translateY(0) translateZ(0) !important;
+    will-change: padding, box-shadow !important;
+    backface-visibility: hidden !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .flavoriz-header.scrolled {
-    padding: var(--spacing-xs) 0 !important;
+    padding: 12px 0 !important;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
-    transform: translateY(0) !important;
+    transform: translateY(0) translateZ(0) !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .flavoriz-header.scrolled .flavoriz-header-top {
@@ -146,7 +154,7 @@ footer.main:not(.flavoriz-footer),
     max-width: 1400px !important;
     margin: 0 auto !important;
     flex-wrap: nowrap !important;
-    gap: var(--spacing-md) !important;
+    gap: var(--spacing-sm) !important;
     width: 100% !important;
 }
 
@@ -255,27 +263,38 @@ footer.main:not(.flavoriz-footer),
 
 .flavoriz-search {
     position: relative !important;
-    width: 280px !important;
-    min-width: 200px !important;
-    max-width: 400px !important;
+    width: 200px !important;
+    min-width: 160px !important;
+    max-width: 280px !important;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .flavoriz-search input {
     width: 100% !important;
-    padding: 10px 40px 10px 14px !important;
+    padding: 7px 32px 7px 12px !important;
     border: 2px solid #E5E7EB !important;
     border-radius: var(--radius-full) !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     transition: all 0.3s ease !important;
     background: var(--color-white) !important;
     font-family: var(--font-secondary) !important;
+    height: 36px !important;
+    line-height: 1.4 !important;
 }
 
 .flavoriz-search input:focus {
     outline: none !important;
     border-color: var(--color-orange) !important;
-    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+
+/* Optimisation performance - Styles globaux pour la grille */
+#products-list.flavoriz-grid-initialized > *,
+.flavoriz-product-grid.flavoriz-grid-initialized > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .flavoriz-search button {
@@ -290,6 +309,12 @@ footer.main:not(.flavoriz-footer),
     padding: 8px !important;
     border-radius: 50% !important;
     transition: all 0.2s ease !important;
+    font-size: 16px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .flavoriz-search button:hover {
@@ -298,8 +323,8 @@ footer.main:not(.flavoriz-footer),
 }
 
 .flavoriz-icon-btn {
-    width: 36px !important;
-    height: 36px !important;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 50% !important;
     background: transparent !important;
     border: none !important;
@@ -890,9 +915,31 @@ footer.main:not(.flavoriz-footer),
 }
 
 @media (max-width: 768px) {
-    .flavoriz-product-grid {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
+        gap: 14px !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 16px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 15px !important;
+        min-height: 44px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .flavoriz-product-card-btn,
+    .flavoriz-add-cart-btn {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+    }
+    
+    .flavoriz-add-cart-btn {
+        min-width: 50px !important;
     }
 }
 
@@ -926,24 +973,30 @@ footer.main:not(.flavoriz-footer),
     border-radius: 12px !important;
     overflow: hidden !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out !important;
     border: none !important;
     cursor: pointer !important;
     display: flex !important;
     flex-direction: column !important;
     height: 100% !important;
+    transform: translateZ(0) !important;
+    will-change: transform, box-shadow !important;
+    backface-visibility: hidden !important;
 }
 
 .flavoriz-product-card:hover {
-    transform: translateY(-6px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-4px) translateZ(0) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .flavoriz-product-image {
     width: 100% !important;
     height: auto !important;
     object-fit: cover !important;
-    transition: transform 0.5s ease !important;
+    transition: transform 0.3s ease-out !important;
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
 }
 
 .flavoriz-product-card > div:first-child {
@@ -964,11 +1017,11 @@ footer.main:not(.flavoriz-footer),
 }
 
 .flavoriz-product-card:hover .flavoriz-product-image {
-    transform: scale(1.05) !important;
+    transform: scale(1.03) translateZ(0) !important;
 }
 
 .flavoriz-product-body {
-    padding: 12px !important;
+    padding: 14px !important;
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -984,12 +1037,12 @@ footer.main:not(.flavoriz-footer),
 }
 
 .flavoriz-product-title {
-    font-size: 13px !important;
+    font-size: 14px !important;
     font-weight: 600 !important;
     color: #1F2937 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 10px !important;
     line-height: 1.4 !important;
-    min-height: 36px !important;
+    min-height: 40px !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: -webkit-box !important;
@@ -1021,8 +1074,176 @@ footer.main:not(.flavoriz-footer),
 
 .flavoriz-product-card-btn:hover {
     background: var(--color-orange) !important;
+    transform: translateY(-1px) translateZ(0) !important;
+    box-shadow: 0 3px 10px rgba(255, 87, 34, 0.25) !important;
+}
+
+/* Styles pour le bouton favoris */
+.flavoriz-favorite-btn {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    padding: 6px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 10px !important;
+    color: #6B7280 !important;
+    font-weight: 600 !important;
+    backdrop-filter: blur(4px) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    z-index: 10 !important;
+}
+
+.flavoriz-favorite-btn:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: scale(1.05) !important;
+}
+
+.flavoriz-favorite-btn i {
+    font-size: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.flavoriz-favorite-btn.liked i,
+.flavoriz-favorite-btn i.liked {
+    color: #EF4444 !important;
+    transform: scale(1.2) !important;
+}
+
+/* Styles pour le bouton panier */
+.flavoriz-add-cart-btn {
+    padding: 8px 12px !important;
+    background: white !important;
+    color: #1F2937 !important;
+    border: 1px solid #1F2937 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    min-width: 44px !important;
+}
+
+.flavoriz-add-cart-btn:hover {
+    background: #1F2937 !important;
+    color: white !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.flavoriz-add-cart-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Styles pour la popup d'aperçu d'image */
+#flavoriz-image-preview {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.95) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: zoom-out !important;
+    animation: fadeIn 0.3s ease !important;
+}
+
+#flavoriz-image-preview img {
+    max-width: 90% !important;
+    max-height: 90% !important;
+    object-fit: contain !important;
+    border-radius: 8px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    animation: zoomIn 0.3s ease !important;
+    cursor: zoom-out !important;
+}
+
+#flavoriz-image-preview button {
+    position: absolute !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 48px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px) !important;
+    z-index: 10001 !important;
+}
+
+/* Styles pour les boutons de navigation (flèches) */
+#flavoriz-image-preview .preview-nav-btn {
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10001 !important;
+}
+
+#flavoriz-image-preview .preview-prev-btn {
+    left: 20px !important;
+    right: auto !important;
+}
+
+#flavoriz-image-preview .preview-next-btn {
+    right: 20px !important;
+    left: auto !important;
+}
+
+#flavoriz-image-preview .preview-nav-btn:hover {
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+#flavoriz-image-preview button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 
 /* ===== Pagination ===== */
@@ -1204,6 +1425,8 @@ footer.main:not(.flavoriz-footer),
     width: 100% !important;
     min-height: 60px !important;
     max-height: 70px !important;
+    border-radius: 20px 20px 0 0 !important;
+    overflow: hidden !important;
 }
 
 .flavoriz-bottom-nav-item {
@@ -1379,17 +1602,59 @@ footer.main:not(.flavoriz-footer),
 }
 
 @media (max-width: 768px) {
+    body {
+        padding-top: 85px !important;
+    }
+    
+    .flavoriz-header {
+        padding: 20px 0 !important;
+        transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) translateZ(0) !important;
+    }
+    
+    .flavoriz-header.scrolled {
+        padding: 12px 0 !important;
+        transform: translateY(0) translateZ(0) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-header-top {
+        padding: 0 16px !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-logo {
+        font-size: 20px !important;
+        transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-icon-btn-mobile,
+    .flavoriz-header.scrolled .flavoriz-search-trigger-mobile {
+        font-size: 18px !important;
+        width: 36px !important;
+        height: 36px !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
     .flavoriz-header-top {
         flex-direction: row !important;
         align-items: center !important;
-        padding: 10px 16px !important;
-        gap: 8px !important;
+        padding: 0 16px !important;
+        gap: 10px !important;
+        min-height: 50px !important;
+        transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
     .flavoriz-logo {
-        font-size: 18px !important;
+        font-size: 26px !important;
         flex-shrink: 0 !important;
         margin-right: auto !important;
+        font-weight: 700 !important;
+        transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
     /* Cacher navigation desktop sur mobile */
@@ -1420,7 +1685,7 @@ footer.main:not(.flavoriz-footer),
     .flavoriz-nav-mobile {
         display: block !important;
         border-top: 1px solid #E5E7EB !important;
-        padding: 8px 16px !important;
+        padding: 6px 12px !important;
         background: var(--color-white) !important;
     }
     
@@ -1429,7 +1694,7 @@ footer.main:not(.flavoriz-footer),
         list-style: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        gap: 12px !important;
+        gap: 8px !important;
         overflow-x: auto !important;
         -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none !important;
@@ -1447,8 +1712,8 @@ footer.main:not(.flavoriz-footer),
         color: var(--text-gray) !important;
         text-decoration: none !important;
         font-weight: 500 !important;
-        font-size: 12px !important;
-        padding: 6px 12px !important;
+        font-size: 11px !important;
+        padding: 5px 10px !important;
         border-radius: 20px !important;
         transition: all 0.2s ease !important;
         white-space: nowrap !important;
@@ -1470,7 +1735,7 @@ footer.main:not(.flavoriz-footer),
     .flavoriz-header-actions-mobile {
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 10px !important;
         margin-left: auto !important;
         flex-shrink: 0 !important;
     }
@@ -1488,8 +1753,8 @@ footer.main:not(.flavoriz-footer),
     
     /* Icône de recherche (visible par défaut) */
     .flavoriz-search-trigger-mobile {
-        width: 40px !important;
-        height: 40px !important;
+        width: 44px !important;
+        height: 44px !important;
         border-radius: 50% !important;
         background: transparent !important;
         border: none !important;
@@ -1498,7 +1763,7 @@ footer.main:not(.flavoriz-footer),
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         padding: 0 !important;
     }
     
@@ -1508,7 +1773,7 @@ footer.main:not(.flavoriz-footer),
     }
     
     .flavoriz-search-trigger-mobile i {
-        font-size: 18px !important;
+        font-size: 20px !important;
     }
     
     /* Cacher l'icône quand le formulaire est ouvert */
@@ -1531,20 +1796,21 @@ footer.main:not(.flavoriz-footer),
     
     .flavoriz-search-mobile input {
         flex: 1 !important;
-        padding: 10px 40px 10px 14px !important;
+        padding: 12px 44px 12px 16px !important;
         border: 2px solid #E5E7EB !important;
         border-radius: var(--radius-full) !important;
-        font-size: 13px !important;
+        font-size: 14px !important;
         transition: all 0.3s ease !important;
         background: var(--color-white) !important;
         font-family: var(--font-secondary) !important;
         width: 100% !important;
+        height: 42px !important;
     }
     
     .flavoriz-search-mobile input:focus {
         outline: none !important;
         border-color: var(--color-orange) !important;
-        box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.1) !important;
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
     }
     
     .flavoriz-search-submit-mobile {
@@ -1562,6 +1828,9 @@ footer.main:not(.flavoriz-footer),
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
     }
     
     .flavoriz-search-submit-mobile:hover {
@@ -1571,7 +1840,7 @@ footer.main:not(.flavoriz-footer),
     
     .flavoriz-search-close-mobile {
         position: absolute !important;
-        right: 45px !important;
+        right: 46px !important;
         top: 50% !important;
         transform: translateY(-50%) !important;
         background: transparent !important;
@@ -1585,6 +1854,9 @@ footer.main:not(.flavoriz-footer),
         align-items: center !important;
         justify-content: center !important;
         z-index: 1 !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
     }
     
     .flavoriz-search-close-mobile:hover {
@@ -1594,8 +1866,8 @@ footer.main:not(.flavoriz-footer),
     
     /* Icônes mobile */
     .flavoriz-icon-btn-mobile {
-        width: 40px !important;
-        height: 40px !important;
+        width: 44px !important;
+        height: 44px !important;
         border-radius: 50% !important;
         background: transparent !important;
         border: none !important;
@@ -1603,7 +1875,7 @@ footer.main:not(.flavoriz-footer),
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
         color: var(--text-gray) !important;
         text-decoration: none !important;
         position: relative !important;
@@ -1664,17 +1936,27 @@ footer.main:not(.flavoriz-footer),
         right: 0 !important;
         z-index: 10000 !important;
         background: var(--color-white) !important;
-        padding: 12px 16px !important;
+        padding: 10px 14px !important;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
     }
     
     .flavoriz-search-mobile.expanded input {
-        font-size: 16px !important;
-        padding: 14px 50px 14px 16px !important;
+        font-size: 14px !important;
+        padding: 10px 44px 10px 14px !important;
+        height: 36px !important;
+    }
+    
+    .flavoriz-search-mobile.expanded .flavoriz-search-submit-mobile {
+        right: 8px !important;
+        width: 32px !important;
+        height: 32px !important;
     }
     
     .flavoriz-search-mobile.expanded .flavoriz-search-close-mobile {
         display: flex !important;
+        right: 46px !important;
+        width: 32px !important;
+        height: 32px !important;
     }
     
     .flavoriz-search-mobile.expanded .flavoriz-icon-btn-mobile {
@@ -1715,8 +1997,8 @@ footer.main:not(.flavoriz-footer),
     }
     
     .flavoriz-product-card:hover {
-        transform: translateY(-4px) !important;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+        transform: translateY(-3px) translateZ(0) !important;
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1) !important;
     }
     
     .flavoriz-product-card > div:first-child {
@@ -1897,12 +2179,16 @@ footer.main:not(.flavoriz-footer),
     
     .flavoriz-bottom-nav {
         display: flex !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
     }
     
     /* Assurer que la bottom nav est toujours visible */
     .flavoriz-bottom-nav {
         display: flex !important;
         visibility: visible !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
     }
     
     .flavoriz-bottom-nav {
@@ -1910,6 +2196,8 @@ footer.main:not(.flavoriz-footer),
         padding: 6px 2px calc(6px + env(safe-area-inset-bottom)) !important;
         min-height: 56px !important;
         max-height: 64px !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
     }
     
     .flavoriz-bottom-nav-item {

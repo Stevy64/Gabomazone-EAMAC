@@ -16,14 +16,14 @@ def supplier_list(request):
 class VendorsJsonListView(View):
     def get(self, *args, **kwargs):
 
-        upper = int(self.request.GET.get("num_vendors"))
+        upper = int(self.request.GET.get("num_vendors", 12))
         lower = upper - 12
-        vendors = list(Profile.objects.all(
-        ).filter(status="vendor").values().order_by("-date")[lower:upper])
-        vendors_size = len(
-            Profile.objects.all().filter(status="vendor"))
+        # Filtrer uniquement les vendors approuvés (admission=True)
+        vendors_queryset = Profile.objects.filter(status="vendor", admission=True).order_by("-date")
+        vendors = list(vendors_queryset.values()[lower:upper])
+        vendors_size = vendors_queryset.count()
         max_size = True if upper >= vendors_size else False
-        return JsonResponse({"data": vendors,  "max": max_size, "vendors_size": vendors_size, }, safe=False)
+        return JsonResponse({"data": vendors, "max": max_size, "vendors_size": vendors_size}, safe=False)
 
 
 def vendor_details(request, slug):

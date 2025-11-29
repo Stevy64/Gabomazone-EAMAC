@@ -1,6 +1,37 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+</style>
+{%endblock head%}
 
 {%block body%}
 <main class="main">

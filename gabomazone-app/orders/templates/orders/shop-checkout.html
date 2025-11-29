@@ -7,676 +7,613 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
-
+    <style>
+        /* Masquer le preloader immédiatement pour cette page */
+        #preloader-active {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        /* S'assurer qu'il n'y a qu'un seul header */
+        body > header.flavoriz-header:not(:first-of-type),
+        body > .flavoriz-header:not(:first-of-type),
+        .flavoriz-header ~ .flavoriz-header,
+        header.flavoriz-header + header.flavoriz-header {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            opacity: 0 !important;
+        }
+        
+        /* Forcer le header à rester visible et fixe */
+        .flavoriz-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 9999 !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+    </style>
 {% endblock headextra%}
 
 {%block body%}
-<main class="main">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{%url 'home:index'%}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Shop
-                <span></span> Checkout
+<!-- ===== Payment Page FLAVORIZ Design ===== -->
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <a href="{% url 'orders:cart' %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">Panier</a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Paiement</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Paiement</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Finalisez votre commande en toute sécurité</p>
             </div>
         </div>
-    </div>
-    <div class="container mb-80 mt-50">
-        <div class="row">
-            <div class="col-lg-8 mb-40">
-                {% if messages %}
-                {% for message in messages %}
-  
-                <div    class="mt-30 alert align-middle alert-{{message.tags}}">
-                   
-                    <span class="align-middle"> {{message}}</span>
-                </div>
-  
-                {% endfor %}
-                {% endif %}
-                <h1 class="heading-2 mb-10">Checkout</h1>
-                <div class="d-flex justify-content-between">
-                    <h6 class="text-body">There are <span class="text-brand">{{order_details.count}}</span> Items in your cart</h6>
-                    
-                </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div style="margin-bottom: 24px;">
+            {% for message in messages %}
+            <div class="flavoriz-alert-toast" style="padding: 14px 18px; background: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% else %}#3B82F6{% endif %}; color: white; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}alert-circle{% else %}info{% endif %}" style="font-size: 18px;"></i>
+                <span style="font-size: 14px; font-weight: 500;">{{message}}</span>
             </div>
+            {% endfor %}
         </div>
-        <div class="row">
-            <div class="col-lg-7">
-                {% comment %} <div class="row mb-50">
-                    <div class="col-lg-6 mb-sm-15 mb-lg-0 mb-md-3">
-                        <div class="toggle_info">
-                            <span><i class="fi-rs-user mr-10"></i><span class="text-muted font-lg">Already have an account?</span> <a href="#loginform" data-bs-toggle="collapse" class="collapsed font-lg" aria-expanded="false">Click here to login</a></span>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div style="display: grid; grid-template-columns: 1fr 480px; gap: 24px; align-items: start;">
+            <!-- Left Column: Billing Details -->
+            <div>
+                <!-- Billing Details Card -->
+                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                            <i class="fi-rs-user"></i>
                         </div>
-                        <div class="panel-collapse collapse login_form" id="loginform">
-                            <div class="panel-body">
-                                <p class="mb-30 font-sm">If you have shopped with us before, please enter your details below. If you are a new customer, please proceed to the Billing &amp; Shipping section.</p>
-                                <form method="post">
-                                    <div class="form-group">
-                                        <input type="text" name="email" placeholder="Username Or Email">
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="password" name="password" placeholder="Password">
-                                    </div>
-                                    <div class="login_footer form-group">
-                                        <div class="chek-form">
-                                            <div class="custome-checkbox">
-                                                <input class="form-check-input" type="checkbox" name="checkbox" id="remember" value="">
-                                                <label class="form-check-label" for="remember"><span>Remember me</span></label>
-                                            </div>
-                                        </div>
-                                        <a href="#">Forgot password?</a>
-                                    </div>
-                                    <div class="form-group">
-                                        <button class="btn btn-md" name="login">Log in</button>
-                                    </div>
-                                </form>
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Détails de facturation</h3>
+                            <p style="font-size: 13px; color: #6B7280; margin: 0;">Informations de livraison</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <!-- Full Name -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Nom complet</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 600;">
+                                {{payment_info.last_name}} {{payment_info.first_name}}
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Email</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.Email_Address}}
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Téléphone</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.phone}}
+                            </div>
+                        </div>
+
+                        <!-- Country -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Pays</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.country}}
+                            </div>
+                        </div>
+
+                        <!-- Province -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Province</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.province}}
+                            </div>
+                        </div>
+
+                        <!-- City -->
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Ville</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.state}}
+                            </div>
+                        </div>
+
+                        <!-- Address (Full Width) -->
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Adresse complète</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.street_address}}
+                            </div>
+                        </div>
+
+                        <!-- Neighborhood (Full Width) -->
+                        <div style="grid-column: 1 / -1;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Quartier</label>
+                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                                {{payment_info.City}}
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <form method="post" class="apply-coupon">
-                            <input type="text" placeholder="Enter Coupon Code...">
-                            <button class="btn  btn-md" name="login">Apply Coupon</button>
-                        </form>
-                    </div>
-                </div> {% endcomment %}
-                <div class="row">
-                    {% comment %} <h4 class="mb-30">Billing Details</h4> {% endcomment %}
-                    <div class="border p-md-4 cart-totals ml-30">
-                        <h4 class="mb-30">Billing Details</h4>
-                        <div class="table-responsive">
-                            <table class="table no-border">
-
-                                <tbody>
-
-                                    <!-- Nom et Prenom -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Full Name</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.last_name}} {{payment_info.first_name}}</h4>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Adresse -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Complete address</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.street_address}}</h4>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td scope="col" colspan="2">
-                                            <div class="divider-2 mt-10 mb-10"></div>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Pays -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Country</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.country}}</h4>
-                                        </td>
-                                    </tr>
-                                    
-                                    <!-- Province -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Province</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h5 class="text-brand text-end"> {{payment_info.province}}</h5>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Ville -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">City</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h5 class="text-brand text-end"> {{payment_info.state}}</h5>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Quartier -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Neighborhood</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h5 class="text-brand text-end">{{payment_info.City}}</h5></td> <tr> </tr>
-                                    </tr>
-                                    <tr>
-                                        <td scope="col" colspan="2">
-                                            <div class="divider-2 mt-10 mb-10"></div>
-                                        </td>
-                                    </tr>
-                                   
-                                    <!-- Email -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Email Address</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.Email_Address}}</h4>
-                                        </td>
-                                    </tr>
-
-                                    <!-- Telephone -->
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Phone</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end">{{payment_info.phone}}</h4>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                       
-                    </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="border p-40 cart-totals ml-30 mb-50">
-                    <div class="d-flex align-items-end justify-content-between mb-30">
-                        <h4>Your Order</h4>
-                        <h6 class="text-muted">Subtotal</h6>
+
+            <!-- Right Column: Order Summary & Payment -->
+            <div style="position: sticky; top: 100px;">
+                <!-- Order Summary Card -->
+                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                            <i class="fi-rs-shopping-bag"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Votre commande</h3>
+                            <p style="font-size: 13px; color: #6B7280; margin: 0;">{{order_details.count}} article(s)</p>
+                        </div>
                     </div>
-                    <div class="divider-2 mb-30"></div>
-                    <div class="table-responsive order_table checkout">
-                        <table class="table no-border">
-                            <tbody>
-                                {% for item in order_details%}
-                                <tr>
-                                    <td class="image product-thumbnail"><img src="{{item.product.product_image.url}}" alt="#"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a href="{% url 'products:product-details' item.product.PRDSlug %}" class="text-heading">{{item.product|truncatechars:'30'}}</a></h6></span>
-                                        {%if item.product.feedbak_average > 0%}
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width:{{item.product.feedbak_average}}%">
-                                                </div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> ({{item.product.feedbak_number}})</span>
-                                        </div>
-                                        {%endif%}
-                                    </td>
-                                    <td>
-                                        <h6 class="text-muted pl-20 pr-20">x {{item.quantity }}</h6>
-                                    </td>
-                                    <td>
-                                        <h4 class="text-brand currency-xof">{% widthratio item.price 1 item.quantity|floatformat:0 %} XOF</h4>
-                                    </td>
-                                </tr>
-                                {%endfor%}
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a class="text-heading">Subtotal</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h4 class="text-brand currency-xof">{{order.sub_total|floatformat:0}} XOF</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a  class="text-heading">Items</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h4 class="text-brand">{{order_details.count}}</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a  class="text-heading">Total Weight</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h4 class="text-brand">{{order.weight|floatformat:"2"}}KG</h4>
-                                    </td>
-                                </tr>
 
+                    <!-- Order Items -->
+                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding-right: 8px;">
+                        {% for item in order_details %}
+                        <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
+                            <div style="flex-shrink: 0;">
+                                <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.product.product_name|truncatechars:40}}</a>
+                                </h4>
+                                <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px;">
+                                    <span>Qté: <strong style="color: #1F2937;">{{item.quantity}}</strong></span>
+                                    <span style="margin-left: auto; font-size: 15px; font-weight: 700; color: var(--color-orange);">{% widthratio item.price 1 item.quantity|floatformat:0 %} FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
 
-                                {% if order.coupon%}
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a  class="text-heading">Coupon({{order.coupon}})</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h5 class="text-brand currency-xof">{{order.discount|floatformat:0}} XOF</h5>
-                                    </td>
-                                </tr>
-                                {%endif%}
-                                {%if order.shipping%}
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a  class="text-heading">Shipping</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h4 class="text-brand currency-xof">{{order.shipping|floatformat:0}} XOF</h4>
-                                    </td>
-                                </tr>
-                                {%endif%}
-                                <tr>
-                                    <td class="image product-thumbnail"></td>
-                                    <td>
-                                        <h6 class="w-160 mb-5"><a  class="text-heading">Total</a></h6></span>
-                                       
-                                    </td>
-                                   
-                                    <td>
-                                        <h4 class="text-brand currency-xof">{{order.amount|floatformat:0}} XOF</h4>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Order Totals -->
+                    <div style="border-top: 2px solid #F3F4F6; padding-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
+                            <strong style="font-size: 16px; color: #1F2937; font-weight: 600;">{{order.sub_total|floatformat:0}} FCFA</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Articles</span>
+                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order_details.count}}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Poids total</span>
+                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.weight|floatformat:"2"}} KG</strong>
+                        </div>
+                        {% if order.coupon %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Code promo ({{order.coupon}})</span>
+                            <strong style="font-size: 15px; color: #10B981; font-weight: 700;">-{{order.discount|floatformat:0}} FCFA</strong>
+                        </div>
+                        {% endif %}
+                        {% if order.shipping %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                            <span style="font-size: 14px; color: #6B7280;">Livraison</span>
+                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.shipping|floatformat:0}} FCFA</strong>
+                        </div>
+                        {% endif %}
+                        <div style="height: 1px; background: #E5E7EB; margin: 12px 0;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 8px;">
+                            <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
+                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{order.amount|floatformat:0}} FCFA</strong>
+                        </div>
                     </div>
                 </div>
-                <div class="payment ml-50">
-                    <h4 class="mb-30">Payment</h4>
-                    <div class="payment_option">
 
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked>
-                            <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#checkPayment" aria-controls="checkPayment">Cash on delivery</label>
+                <!-- Payment Methods Card -->
+                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                            <i class="fi-rs-credit-card"></i>
                         </div>
-
-                        <!--
-                        {% if RAZORPAY_KEY_ID %}   
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" >
-                            <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer"><img width="90" height="15" src="{% static 'assets/imgs/theme/icons/razorpay-logo.5cdb58df.svg'%}" alt="razorpay"></label>
-                            
-                        </div> 
-                        {% endif %} -->
-                        
-                        <!-- {% if api_key_paymob %}   
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="paymob" >
-                            <label class="form-check-label" for="paymob" data-bs-toggle="collapse" data-target="#paymob" aria-controls="paymob"><img width="90" height="15" src="{% static 'assets/imgs/theme/icons/paymobLogo.png' %}" alt="paymob"></label>
-                            
-                        </div> 
-                        {% endif %}
-
-                        {% if fatoorah_api_key %}   
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="myfatoorah" >
-                            <label class="form-check-label" for="myfatoorah" data-bs-toggle="collapse" data-target="#myfatoorah" aria-controls="myfatoorah"><img width="90" height="40" src="{% static 'assets/imgs/theme/icons/Logo-My-Fatoorah.svg' %}" alt="myfatoorah"></label>
-                            
-                        </div> 
-                        {% endif %}
-                        -->
-
-
-                        {% if paypal_client_id %}
-                        
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="paypal-input" >
-                            <label class="form-check-label" for="paypal-input" data-bs-toggle="collapse" data-target="#paypal-input" aria-controls="paypal-input">
-                            <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-paypal.svg'%}" alt="">
-                            
+                        <div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Méthode de paiement</h3>
+                            <p style="font-size: 13px; color: #6B7280; margin: 0;">Choisissez votre mode de paiement</p>
                         </div>
-                       
-                        {% endif %}
-
-                        {%if PUBLIC_KEY %}
-                        <div class="custome-radio">
-                            <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" >
-                            <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="" aria-controls="">Credit Card(Stripe)</label>
-                        </div>
-                        {%endif%}
                     </div>
+
                     <form action="#">
-                    {%if PUBLIC_KEY %}
-                    <div class="payment-logo d-flex">
-                        {% comment %} <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-paypal.svg'%}" alt=""> {% endcomment %}
-                        <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-visa.svg'%}" alt="">
-                        <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-master.svg'%}" alt="">
-                        {% comment %} <img src="{% static 'assets/imgs/theme/icons/payment-zapper.svg'%}" alt=""> {% endcomment %}
-                    </div>
-                    {%endif%}
-                    {% csrf_token %}
-                     <!-- Set up a container element for the button -->
-    
-                    <a id="checkout-button" type="click" href="{% url "orders:payment-cash"  %}" class="btn btn-fill-out btn-block mt-30 ">Place an Order<i class="fi-rs-sign-out ml-15"></i></a>
-                    <div id="paypal-button-container" class="pt-20 not-visible"></div>
-                </div>
+                        {% csrf_token %}
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                            <!-- Cash on Delivery -->
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('exampleRadios4').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Paiement à la livraison</div>
+                                    <div style="font-size: 13px; color: #6B7280;">Payez en espèces à la réception</div>
+                                </div>
+                                <i class="fi-rs-money" style="font-size: 24px; color: var(--color-orange);"></i>
+                            </label>
 
-            </form>
+                            <!-- PayPal -->
+                            {% if paypal_client_id %}
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="paypal-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('paypal-input').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="paypal-input" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">PayPal</div>
+                                    <div style="font-size: 13px; color: #6B7280;">Paiement sécurisé via PayPal</div>
+                                </div>
+                                <img src="{% static 'assets/imgs/theme/icons/payment-paypal.svg'%}" alt="PayPal" style="width: 60px; height: auto;" />
+                            </label>
+                            {% endif %}
+
+                            <!-- Stripe (Credit Card) -->
+                            {% if PUBLIC_KEY %}
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="stripe-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('exampleRadios5').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Carte bancaire</div>
+                                    <div style="font-size: 13px; color: #6B7280;">Visa, Mastercard, etc.</div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <img src="{% static 'assets/imgs/theme/icons/payment-visa.svg'%}" alt="Visa" style="width: 40px; height: auto;" />
+                                    <img src="{% static 'assets/imgs/theme/icons/payment-master.svg'%}" alt="Mastercard" style="width: 40px; height: auto;" />
+                                </div>
+                            </label>
+                            {% endif %}
+                        </div>
+
+                        <!-- PayPal Button Container -->
+                        <div id="paypal-button-container" class="not-visible" style="margin-bottom: 20px;"></div>
+
+                        <!-- Place Order Button -->
+                        <a id="checkout-button" type="click" href="{% url 'orders:payment-cash' %}" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            <span>Passer la commande</span>
+                            <i class="fi-rs-arrow-right" style="font-size: 18px;"></i>
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
+<style>
+.not-visible {
+    display: none !important;
+}
+
+/* Styles pour les radio buttons sélectionnés */
+input[type="radio"]:checked + div + label,
+input[type="radio"]:checked ~ label {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%) !important;
+    border-color: var(--color-orange) !important;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .main.pages > div > div[style*="grid-template-columns: 1fr 480px"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="position: sticky"] {
+        position: static !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+    }
+    
+    /* Billing Details Grid */
+    div[style*="grid-template-columns: repeat(2, 1fr)"] {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    /* Order Items Scroll */
+    div[style*="max-height: 300px"] {
+        max-height: 200px !important;
+    }
+}
+</style>
 {%endblock body%}
 
 {%block script%}
-      <!-- Vendor JS-->
-      <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
-      <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
-      <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
-      <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
-      <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
-      <!-- Template  JS -->
-      <script src="{% static 'assets/js/main.js'%}"></script>
-      <script src="{% static 'assets/js/shop.js'%}"></script>
+{{ block.super }}
+<!-- Include the PayPal JavaScript SDK -->
+{% if paypal_client_id %}
+<script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency={{paypal_currency}}"></script>
+{% endif %}
 
-      <!-- Include the PayPal JavaScript SDK -->
-      <script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency={{paypal_currency}}"></script>
-
-      <script>
-        
-          
-            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            var stripeSelected = false;
-            var razorPayeSelected = false;
-           
-            // A reference to Stripe.js initialized with your real test publishable API key.
-            var stripe = Stripe("{{ PUBLIC_KEY }}");
-
-            var checkoutButton = document.getElementById("checkout-button");
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var stripeSelected = false;
+    var razorPayeSelected = false;
     
+    // A reference to Stripe.js initialized with your real test publishable API key.
+    {% if PUBLIC_KEY %}
+    var stripe = Stripe("{{ PUBLIC_KEY }}");
+    {% endif %}
 
-     
-            const cash = document.getElementById('exampleRadios4')
-            const blance = document.getElementById('flexRadioDefault2')
-            const stripeBtn = document.getElementById('exampleRadios5')
-            const razorPayeBtn = document.getElementById('exampleRadios3')
-            const payMob = document.getElementById('paymob')
-            const myfatoorah = document.getElementById('myfatoorah')
-            const paypalInput = document.getElementById("paypal-input")
-            const paypalButtonContainer = document.getElementById("paypal-button-container")
+    var checkoutButton = document.getElementById("checkout-button");
+    const cash = document.getElementById('exampleRadios4');
+    const blance = document.getElementById('flexRadioDefault2');
+    const stripeBtn = document.getElementById('exampleRadios5');
+    const razorPayeBtn = document.getElementById('exampleRadios3');
+    const payMob = document.getElementById('paymob');
+    const myfatoorah = document.getElementById('myfatoorah');
+    const paypalInput = document.getElementById("paypal-input");
+    const paypalButtonContainer = document.getElementById("paypal-button-container");
+    const checkout = document.getElementById('checkout-button');
 
-            const checkout = document.getElementById('checkout-button')
-            
+    // Razorpay options
+    {% if RAZORPAY_KEY_ID %}
+    var options = {
+        "key": '{{RAZORPAY_KEY_ID}}',
+        "image": "{{image}}",
+        "order_id": "{{RAZORPAY_order_id}}",
+        "handler": function (response){
+            swal({
+                title: "Félicitations!",
+                text: "Votre commande a été passée avec succès. Elle sera livrée bientôt.",
+                icon: "success",
+                button: "Fermer",
+            }).then(() => {
+                location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
+            });
 
-            var options = {
-                "key": '{{RAZORPAY_KEY_ID}}', // Enter the Key ID generated from the Dashboard
+            $.ajax({
+                type: "POST",
+                url: `{% url 'orders:verify-payment'%}`,
+                data: {
+                    'csrfmiddlewaretoken': csrftoken,
+                    "razorpay_payment_id": response.razorpay_payment_id,
+                    "razorpay_order_id": response.razorpay_order_id,
+                    "razorpay_signature": response.razorpay_signature,
+                    "order_id": "{{order.id}}"
+                },
+                success: function (success_response) {
+                    console.log(success_response.data)
+                },
+                error: function (error) {
+                    console.log(error.statusText)
+                }
+            })
+        },
+        "prefill": {
+            "name": "{{payment_info.first_name}} {{payment_info.last_name}}",
+            "email": "{{payment_info.Email_Address}}",
+            "contact": "{{payment_info.phone}}"
+        },
+        "notes": {
+            "order_id": "{{order.id}}"
+        },
+        "theme": {
+            "color": "#FF7B2C"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    {% endif %}
 
-                "image": "{{image}}",
-                "order_id": "{{RAZORPAY_order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-                "handler": function (response){
-                    // alert(response.razorpay_payment_id);
-                    // alert(response.razorpay_order_id);
-                    // alert(response.razorpay_signature);
-                    swal({
-                    title: "Congratulations!",
-                    text: "You have made your order, This order will be delivered to you soon",
-                    icon: "success",
-                    button: "Close",
-                    }).then(() => {
-                        location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-                        });
+    // Cash payment
+    if (cash) {
+        cash.addEventListener('change', () => {
+            console.log("cash");
+            stripeSelected = false;
+            razorPayeSelected = false;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.setAttribute("href", "{% url 'orders:payment-cash' %}");
+            updatePaymentLabelStyles();
+        });
+    }
 
+    // Balance payment
+    if(blance){
+        blance.addEventListener('change', () => {
+            console.log("blance");
+            stripeSelected = false;
+            razorPayeSelected = false;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.setAttribute("href", "{% url 'orders:payment-blance' %}");
+            updatePaymentLabelStyles();
+        });
+    }
+
+    // PayMob payment
+    if(payMob){
+        payMob.addEventListener('change', () => {
+            console.log("payMob");
+            stripeSelected = false;
+            razorPayeSelected = false;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
+            updatePaymentLabelStyles();
+        });
+    }
+
+    // MyFatoorah payment
+    if(myfatoorah){
+        myfatoorah.addEventListener('change', () => {
+            console.log("myfatoorah");
+            stripeSelected = false;
+            razorPayeSelected = false;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.setAttribute("href", "{% url 'orders:checkout-fatoorah' order.id %}");
+            updatePaymentLabelStyles();
+        });
+    }
+
+    // Stripe payment
+    if (stripeBtn){
+        stripeBtn.addEventListener('change', () => {
+            console.log("stripeBtn");
+            stripeSelected = true;
+            razorPayeSelected = false;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.removeAttribute("href");
+            updatePaymentLabelStyles();
+        });
+
+        checkoutButton.addEventListener("click", function (e) {
+            if(stripeSelected){
+                e.preventDefault();
+                fetch("{% url 'orders:create_checkout_session' %}", {
+                    method: "POST",
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (session) {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .then(function (result) {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                })
+                .catch(function (error) {
+                    console.error("Error:", error);
+                });
+            }
+        });
+    }
+
+    // Razorpay payment
+    if (razorPayeBtn){
+        razorPayeBtn.addEventListener('change', () => {
+            console.log("razorPayeBtn");
+            stripeSelected = false;
+            razorPayeSelected = true;
+            checkout.classList.remove("not-visible");
+            paypalButtonContainer.classList.add("not-visible");
+            checkout.removeAttribute("href");
+            updatePaymentLabelStyles();
+        });
+        
+        checkoutButton.addEventListener("click", function (e) {
+            if(razorPayeSelected){
+                e.preventDefault();
+                rzp1.on('payment.failed', function (response){
+                    console.error('Payment failed:', response);
+                });
+                rzp1.open();
+            }
+        });
+    }
+
+    // PayPal payment
+    if(paypalInput){
+        paypalInput.addEventListener('change', () => {
+            console.log("paypalInput");
+            stripeSelected = false;
+            razorPayeSelected = false;
+            checkout.classList.add("not-visible");
+            paypalButtonContainer.classList.remove("not-visible");
+            updatePaymentLabelStyles();
+        });
+    }
+
+    // Function to update payment label styles
+    function updatePaymentLabelStyles() {
+        const labels = document.querySelectorAll('label[id$="-label"]');
+        labels.forEach(label => {
+            const radio = label.querySelector('input[type="radio"]');
+            if (radio && radio.checked) {
+                label.style.background = 'linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%)';
+                label.style.borderColor = 'var(--color-orange)';
+            } else {
+                label.style.background = '#FAFAFA';
+                label.style.borderColor = '#E5E7EB';
+            }
+        });
+    }
+
+    // Initialize label styles
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePaymentLabelStyles();
+        
+        // Add change listeners to all radio buttons
+        const radios = document.querySelectorAll('input[name="payment_option"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', updatePaymentLabelStyles);
+        });
+    });
+
+    // PayPal Buttons
+    {% if paypal_client_id %}
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{order.amount}}'
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(orderData) {
+                console.log('Capture result', orderData.id, JSON.stringify(orderData, null, 2));
+                var transaction = orderData.purchase_units[0].payments.captures[0];
+                if( transaction.status == "COMPLETED"){
                     $.ajax({
                         type: "POST",
-                        url: `{% url 'orders:verify-payment'%}`,
+                        url: `{% url 'orders:verify-payment-paypal'%}`,
                         data: {
-                            'csrfmiddlewaretoken': csrf[0].value ,
-                            "razorpay_payment_id": response.razorpay_payment_id,
-                            "razorpay_order_id": response.razorpay_order_id,
-                            "razorpay_signature": response.razorpay_signature,
+                            'csrfmiddlewaretoken': csrftoken,
+                            "paypal_order_id":orderData.id,
+                            "transaction_paypal_id": transaction.id,
+                            "transaction_paypap_status": transaction.status,
                             "order_id": "{{order.id}}"
-
-                            
                         },
                         success: function (success_response) {
                             console.log(success_response.data)
+                            location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
                         },
                         error: function (error) {
                             console.log(error.statusText)
                         }
                     })
-                },
-                "prefill": {
-                    "name": "{{payment_info.first_name}} {{payment_info.last_name}}",
-                    "email": "{{payment_info.Email_Address}}",
-                    "contact": "{{payment_info.phone}}"
-                },
-                "notes": {
-                    "order_id": "{{order.id}}"
-                },
-                "theme": {
-                    "color": "#3399cc"
                 }
-            };
-            var rzp1 = new Razorpay(options);
-
-            cash.addEventListener('click', () => {
-
-            console.log("cash")
-            stripeSelected = false;
-            checkout.setAttribute("href", "{% url 'orders:payment-cash'  %}");
-            })
-
-            if(blance){
-                    blance.addEventListener('click', () => {
-    
-                    console.log("blance")
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-                    checkout.setAttribute("href", "{% url 'orders:payment-blance'  %}");
-                })
-            }
-            if(payMob){
-                payMob.addEventListener('click', () => {
-
-                    console.log("payMob")
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-                    checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
-                })
-            }
-            if(myfatoorah){
-                myfatoorah.addEventListener('click', () => {
-
-                    console.log("myfatoorah")
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-                    checkout.setAttribute("href", "{% url 'orders:checkout-fatoorah' order.id %}");
-                })
-            }
-            if (stripeBtn){
-
-                stripeBtn.addEventListener('click', () => {
-
-                console.log("stripeBtn")
-                stripeSelected = true;
-                razorPayeSelected = false;
-                checkout.classList.remove("not-visible");
-                paypalButtonContainer.classList.add("not-visible");
-                checkout.removeAttribute("href");
-                })
-
-
-                checkoutButton.addEventListener("click", function () {
-                    if(stripeSelected){  
-                        fetch("{% url 'orders:create_checkout_session' %}", {
-                            method: "POST",
-                            headers: {
-                                'X-CSRFToken': csrftoken
-                            }
-                        })
-                        .then(function (response) {
-                        return response.json();
-                        })
-                        .then(function (session) {
-                        return stripe.redirectToCheckout({ sessionId: session.id });
-                        })
-                        .then(function (result) {
-                        // If redirectToCheckout fails due to a browser or network
-                        // error, you should display the localized error message to your
-                        // customer using error.message.
-                        if (result.error) {
-                            alert(result.error.message);
-                        }
-                        })
-                        .catch(function (error) {
-                        console.error("Error:", error);
-                        });
-
-                    }
-                }); 
-
-
-            }
-
-            if (razorPayeBtn){
-
-                razorPayeBtn.addEventListener('click', () => {
-    
-                console.log("razorPayeBtn")
-                stripeSelected = false;
-                razorPayeSelected = true;
-                checkout.classList.remove("not-visible");
-                paypalButtonContainer.classList.add("not-visible");
-                checkout.removeAttribute("href");
-                })
-                checkoutButton.addEventListener("click", function () {
-                    if(razorPayeSelected){ 
-                        rzp1.on('payment.failed', function (response){
-                            // alert(response.error.code);
-                            
-                            // swal({
-                            //     title: response.error.reason,
-                            //     text: response.error.description,
-                            //     icon: "error",
-                            //     button: "Close",
-                            //     });
-                            // alert(response.error.source);
-                            // alert(response.error.step);
-                            // alert(response.error.reason);
-                            // alert(response.error.metadata.order_id);
-                            // alert(response.error.metadata.payment_id)
-
-                        });
-                
-                        rzp1.open();
-                        e.preventDefault();
-                    }    
-          
-                });
-            }
-
-
-            if(paypalInput){
-                paypalInput.addEventListener('click', () => {
-
-                    console.log("paypalInput")
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.add("not-visible");
-                    paypalButtonContainer.classList.remove("not-visible");
-                    //checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
-
-                })
-            }
-
-
-            // Render the PayPal button into #paypal-button-container
-            paypal.Buttons({
-
-                // Set up the transaction
-                createOrder: function(data, actions) {
-                    return actions.order.create({
-                        purchase_units: [{
-                            amount: {
-                                value: '{{order.amount}}'
-                            }
-                        }]
-                    });
-                },
-
-                // Finalize the transaction
-                onApprove: function(data, actions) {
-                    return actions.order.capture().then(function(orderData) {
-                        // Successful capture! For demo purposes:
-                        console.log('Capture result', orderData.id, JSON.stringify(orderData, null, 2));
-                        var transaction = orderData.purchase_units[0].payments.captures[0];
-                        if( transaction.status == "COMPLETED"){
-                            
-                            $.ajax({
-                                type: "POST",
-                                url: `{% url 'orders:verify-payment-paypal'%}`,
-                                data: {
-                                    'csrfmiddlewaretoken': csrf[0].value ,
-                                    "paypal_order_id":orderData.id,
-                                    "transaction_paypal_id": transaction.id,
-                                    "transaction_paypap_status": transaction.status,
-                                    "order_id": "{{order.id}}"
-        
-                                    
-                                },
-                                success: function (success_response) {
-                                    console.log(success_response.data)
-                                    location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-                                },
-                                error: function (error) {
-                                    console.log(error.statusText)
-                                }
-                            })
-
-                            //alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
-                            
-                        }    
-                        // Replace the above to show a success message within this page, e.g.
-                        // const element = document.getElementById('paypal-button-container');
-                        // element.innerHTML = '';
-                        // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                        // Or go to another URL:  actions.redirect('thank_you.html');
-                    });
-                }
-
-
-            }).render('#paypal-button-container');
-      
-        </script>
-
-
-
-
- 
+            });
+        }
+    }).render('#paypal-button-container');
+    {% endif %}
+</script>
 {% endblock script %}

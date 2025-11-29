@@ -373,3 +373,24 @@ class ProductSize(models.Model):
 
     def __str__(self):
         return str(self.PRDIProduct)
+
+
+class ProductFavorite(models.Model):
+    """Modèle pour gérer les favoris/likes des produits"""
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, verbose_name=_("Product"), related_name='favorites')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name=_("User"), blank=True, null=True, related_name='product_favorites')
+    session_key = models.CharField(
+        max_length=40, blank=True, null=True, verbose_name=_("Session Key"), help_text=_("Pour les utilisateurs non authentifiés"))
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    class Meta:
+        unique_together = [['product', 'user'], ['product', 'session_key']]
+        verbose_name = _("Product Favorite")
+        verbose_name_plural = _("Product Favorites")
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} - {self.product.product_name}"
+        return f"Session {self.session_key} - {self.product.product_name}"

@@ -23,13 +23,15 @@
         <!-- Favicon -->
         <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
 
+        <!-- HTMX -->
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <!-- Template CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
         <!-- Gabomazone FLAVORIZ Design - DOIT être chargé APRÈS main.css pour écraser NEST -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=12.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=24.0" />
         <!-- Force FLAVORIZ - Override absolu -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=12.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=24.0" />
 		{%endblock head%}
 
 		{%block headextra%}
@@ -71,12 +73,16 @@
 					</form>
 				</div>
 				
+				<!-- Wishlist Icon -->
+				<a href="{% url 'products:wishlist'%}" class="flavoriz-icon-btn" title="Liste à souhaits" style="position: relative; margin-right: 8px;">
+					<i class="fi-rs-heart"></i>
+					<span class="flavoriz-wishlist-badge" style="position: absolute; top: -6px; right: -6px; background: #EF4444; color: white; border-radius: 50%; min-width: 20px; height: 20px; display: {% if wishlist_count and wishlist_count > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white; line-height: 1;">{{wishlist_count|default:0}}</span>
+				</a>
+				
 				<!-- Cart Icon -->
 				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn" title="Panier" style="position: relative;">
 					<i class="fi-rs-shopping-bag"></i>
-					{% if cart_count and cart_count > 0 %}
-					<span class="flavoriz-cart-badge" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count}}</span>
-					{% endif %}
+					<span class="flavoriz-cart-badge" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 20px; height: 20px; display: {% if cart_count and cart_count > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count|default:0}}</span>
 				</a>
 				
 				<!-- Account Icon with Dropdown -->
@@ -127,12 +133,16 @@
 					</form>
 				</div>
 				
+				<!-- Wishlist Icon Mobile -->
+				<a href="{% url 'products:wishlist'%}" class="flavoriz-icon-btn-mobile" title="Liste à souhaits" style="position: relative; margin-right: 8px;">
+					<i class="fi-rs-heart"></i>
+					<span class="flavoriz-wishlist-badge-mobile" style="position: absolute; top: -6px; right: -6px; background: #EF4444; color: white; border-radius: 50%; min-width: 18px; height: 18px; display: {% if wishlist_count and wishlist_count > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 0 5px; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); border: 2px solid white; line-height: 1;">{{wishlist_count|default:0}}</span>
+				</a>
+				
 				<!-- Cart Icon Mobile -->
 				<a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn-mobile" title="Panier" style="position: relative;">
 					<i class="fi-rs-shopping-bag"></i>
-					{% if cart_count and cart_count > 0 %}
-					<span class="flavoriz-cart-badge-mobile" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 0 5px; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count}}</span>
-					{% endif %}
+					<span class="flavoriz-cart-badge-mobile" style="position: absolute; top: -6px; right: -6px; background: var(--color-orange); color: white; border-radius: 50%; min-width: 18px; height: 18px; display: {% if cart_count and cart_count > 0 %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 0 5px; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.4); border: 2px solid white; line-height: 1;">{{cart_count|default:0}}</span>
 				</a>
 				
 				<!-- Account Icon Mobile with Dropdown -->
@@ -684,198 +694,329 @@
 		<!-- Bottom Navigation for Mobile -->
 		{% include 'components/bottom_navigation.html' %}
 
-		<!-- Footer-->
-        <footer class="main">
-            <section class="newsletter mb-15 wow animate__animated animate__fadeIn">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="position-relative newsletter-inner">
-
-								<!-- Banderole de News letter -->
-                                <div class="newsletter-content">
-                                    <h2 class="mb-20">
-                                        GabomaZone <br />
-                                        Par les gabomas, pour les gabomas
-                                    </h2>
-                                    <p class="mb-45">Tous les bons produits sont sur <span class="text-brand">{{site_info.site_name}}</span></p>
-                                    <form method="POST" class="form-subcriber d-flex selector-2">
-										{% csrf_token %}
-                                        <input id="subscribe-input-2" type="email" placeholder="Votre adresse email" required/>
-                                        <button class="btn" type="submit">S'abonner</button>
-                                    </form>
-                                </div>
-                                <img {% if site_info.footer_image %} src="{{site_info.footer_image.url}}" {%endif%} alt="newsletter" />
-                            </div>
-                        </div>
-                    </div>
+		<!-- ===== Footer FLAVORIZ ===== -->
+        <footer class="flavoriz-footer" style="padding: var(--spacing-xl) var(--spacing-lg); background: linear-gradient(135deg, #1F2937 0%, #111827 100%); color: white !important; margin-top: var(--spacing-2xl);">
+            <div class="flavoriz-footer-content" style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <div class="flavoriz-footer-column" style="color: white !important;">
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Entreprise</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for page_obj in pages_list|slice:"0:5"%}
+                        <li style="margin-bottom: 10px;">
+                            <a href="{%url 'pages:pages-name' page_obj.slug %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{{page_obj.name}}</a>
+                        </li>
+                        {%endfor%}
+                    </ul>
                 </div>
-            </section>
-            <section class="featured section-padding">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 mb-md-4 mb-xl-0">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay="0">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-1.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Meilleurs prix et offres</h3>
-                                    <p>Commandes de 30 000 XOF ou plus</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-2.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Livraison gratuite</h3>
-                                    <p>Service disponible 24/7</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-3.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Offres quotidiennes</h3>
-                                    <p>Lors de votre inscription</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-4.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Large sélection</h3>
-                                    <p>Mégas réductions</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-5.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Retours faciles</h3>
-                                    <p>Sous 30 jours</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 d-xl-none">
-                            <div class="banner-left-icon d-flex align-items-center wow animate__animated animate__fadeInUp" data-wow-delay=".5s">
-                                <div class="banner-icon">
-                                    <img src="{% static 'assets/imgs/theme/icons/icon-6.svg'%}" alt="" />
-                                </div>
-                                <div class="banner-text">
-                                    <h3 class="icon-box-title">Livraison sécurisée</h3>
-                                    <p>Sous 30 jours</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flavoriz-footer-column" style="color: white !important;">
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Support</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="margin-bottom: 10px;">
+                            <a href="{% url 'orders:cart'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Voir le panier</a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="{% url 'supplier_dashboard:supplier-register'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Devenir vendeur</a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="{%url 'contact:contact'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Nous contacter</a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="#" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">FAQ</a>
+                        </li>
+                    </ul>
                 </div>
-            </section>
-            <section class="section-padding footer-mid">
-                <div class="container pt-15 pb-20">
-                    <div class="row">
-                        <div class="col">
-                            <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0 wow animate__animated animate__fadeInUp" data-wow-delay="0">
-                                <div class="logo mb-30">
-                                    <a href="{% url 'home:index' %}" class="mb-15"><img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" /></a>
-                                    <p class="font-lg text-heading"></p>
-                                </div>
-                                <ul class="contact-infor">
-									{%for info in contact_info|slice:":1"%}
-                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-location.svg'%}" alt="" /><strong>Address: </strong> <span>{{info.full_address}}</span></li>
-                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-contact.svg'%}" alt="" /><strong>Call Us:</strong><span>{{info.phone}}</span></li>
-                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-email-2.svg'%}" alt="" /><strong>Email:</strong><span>{{info.email}}</span></li>
-                                    <li><img src="{% static 'assets/imgs/theme/icons/icon-clock.svg'%}" alt="" /><strong>Hours:</strong><span>{{info.Work_time}}</span></li>
-									{%endfor%}
-								</ul>
-                            </div>
-                        </div>
-                        <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
-							<h4 class="widget-title">Entreprise</h4>
-							<ul class="footer-list mb-sm-5 mb-md-0">
-								{% for page_obj in pages_list|slice:"0:7"%}
-
-								<li><a href="{% url 'pages:pages-name' page_obj.slug %}">{{page_obj.name}}</a></li>
-							
-								{%endfor%}
-							</ul>
-                    	</div>
-                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
-                        <h4 class="widget-title">Pages</h4>
-                        <ul class="footer-list mb-sm-5 mb-md-0">                       
-                            <li><a href="{% url 'orders:cart'%}">Voir le panier</a></li>                           
-                            <!-- <li><a href="{% url 'accounts:order_tracking'%}">Suivre ma commande</a></li> -->
-							<li><a href="{% url 'supplier_dashboard:supplier-register'%}">Devenir vendeur</a></li>
-							<li><a href="{% url 'supplier_dashboard:supplier-login'%}">Connexion vendeur</a></li>                          
-                            <li><a href="{%url 'contact:contact'%}">Nous contacter</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
-                        <h4 class="widget-title">Catégories</h4>
-                        <ul class="footer-list mb-sm-5 mb-md-0">
-							{% for super_obj in supercategory|slice:"0:7"%}
-                            <li><a href="{% url 'categories:super-category' super_obj.slug%}">{{super_obj.name}}</a></li>
-							{%endfor%}
-                        </ul>
-                    </div>
-             
-                    <div class="footer-link-widget widget-install-app col wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
-                        <h4 class="widget-title">Installer l'application</h4>
-                        <p class="">Depuis l'App Store ou Google Play</p>
-                        <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="{% static 'assets/imgs/theme/app-store.jpg'%}" alt="" /></a>
-                            <a href="#" class="hover-up mb-sm-2"><img src="{% static 'assets/imgs/theme/google-play.jpg'%}" alt="" /></a>
-                        </div>
-                        <p class="mb-20">Paiement sécurisé</p>
-                        <img class="" src="{% static 'assets/imgs/theme/payment-method.png'%}" alt="" />
-                    </div>
+                <div class="flavoriz-footer-column" style="color: white !important;">
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Contact</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for number_obj in support_number|slice:"0:1"%}
+                        <li style="margin-bottom: 10px;">
+                            <a href="tel:{{number_obj.number}}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
+                                <i class="fi-rs-phone" style="margin-right: 6px; color: #D1D5DB !important;"></i>Téléphone: {{number_obj.number}}
+                            </a>
+                        </li>
+                        {%endfor%}
+                        <li style="margin-bottom: 10px;">
+                            <a href="mailto:{{site_info.email|default:'contact@gabomazone.com'}}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
+                                <i class="fi-rs-envelope" style="margin-right: 6px; color: #D1D5DB !important;"></i>Email: {{site_info.email|default:'contact@gabomazone.com'}}
+                            </a>
+                        </li>
+                        {%for info in contact_info|slice:":1"%}
+                        <li style="margin-bottom: 10px;">
+                            <span style="font-size: 14px; color: #D1D5DB !important; display: inline-block;">
+                                <i class="fi-rs-marker" style="margin-right: 6px; color: #D1D5DB !important;"></i>{{info.full_address}}
+                            </span>
+                        </li>
+                        {%endfor%}
+                    </ul>
                 </div>
-            </section>
-            <div class="container pb-30 wow animate__animated animate__fadeInUp" data-wow-delay="0">
-                <div class="row align-items-center">
-                    <div class="col-12 mb-30">
-                        <div class="footer-bottom"></div>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 col-md-6">
-                        <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">{{site_info.site_name}}</strong> -  All rights reserved</p>
-                    </div>
-                    <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
-						{% for number_obj in support_number|slice:"0:2"%}
-                        <div class="hotline d-lg-inline-flex mr-30">
-                            <img src="{% static 'assets/imgs/theme/icons/phone-call.svg'%}" alt="hotline" />
-                            <p>{{number_obj.number}}<span>{{number_obj.Work_time}}</span></p>
-                        </div>
-                       {%endfor%}
-                    </div>
-                    <div class="col-xl-4 col-lg-6 col-md-6 text-end d-none d-md-block">
-                        <div class="mobile-social-icon">
-                            <h6>Follow Us</h6>
-							{% for link in Socail_links|slice:":1"%}
-                            <a href="{{link.facebook}}"><img src="{% static 'assets/imgs/theme/icons/icon-facebook-white.svg'%}" alt="" /></a>
-                            <a href="{{link.instagram}}"><img src="{% static 'assets/imgs/theme/icons/icon-instagram-white.svg'%}" alt="" /></a>
-                            <a href="{{link.youtube}}"><img src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg'%}" alt="" /></a>
-							{%endfor%}
-                        </div>
-                        <p class="font-sm">Jusqu'à 15% de réduction lors de votre premier abonnement</p>
-                    </div>
+                <div class="flavoriz-footer-column" style="color: white !important;">
+                    <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Suivez-nous</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for link in Socail_links|slice:":1"%}
+                        <li style="margin-bottom: 10px;">
+                            <a href="{{link.facebook|default:'#'}}" target="_blank" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
+                                <i class="fi-rs-facebook" style="margin-right: 6px; color: #D1D5DB !important;"></i>Facebook
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="{{link.instagram|default:'#'}}" target="_blank" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
+                                <i class="fi-rs-instagram" style="margin-right: 6px; color: #D1D5DB !important;"></i>Instagram
+                            </a>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <a href="{{link.youtube|default:'#'}}" target="_blank" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
+                                <i class="fi-rs-youtube" style="margin-right: 6px; color: #D1D5DB !important;"></i>YouTube
+                            </a>
+                        </li>
+                        {%endfor%}
+                    </ul>
                 </div>
             </div>
+            <div class="flavoriz-footer-bottom" style="max-width: 1400px; margin: 0 auto; font-size: 13px; padding-top: var(--spacing-md); border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: #9CA3AF !important;">
+                <p style="margin: 0; color: #9CA3AF !important;">Copyright 2024 {{site_info.site_name|default:'GabomaZone'}} © Tous droits réservés.</p>
+            </div>
+            
+            <style>
+                /* Styles responsive pour le footer */
+                @media (max-width: 1199px) {
+                    .flavoriz-footer-content {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                        gap: var(--spacing-lg) !important;
+                    }
+                }
+                
+                @media (max-width: 768px) {
+                    .flavoriz-footer {
+                        padding: var(--spacing-lg) 16px !important;
+                    }
+                    
+                    .flavoriz-footer-content {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                        gap: var(--spacing-md) !important;
+                    }
+                    
+                    .flavoriz-footer-column {
+                        margin-bottom: var(--spacing-md);
+                    }
+                    
+                    .flavoriz-footer-column h4 {
+                        font-size: 15px !important;
+                        margin-bottom: 12px !important;
+                        color: white !important;
+                    }
+                    
+                    .flavoriz-footer-column ul li {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    .flavoriz-footer-column a,
+                    .flavoriz-footer-column span {
+                        font-size: 13px !important;
+                        color: #D1D5DB !important;
+                    }
+                    
+                    .flavoriz-footer-column a:hover {
+                        color: var(--color-orange) !important;
+                    }
+                    
+                    .flavoriz-footer-bottom {
+                        font-size: 12px !important;
+                        padding-top: var(--spacing-sm) !important;
+                    }
+                }
+            </style>
         </footer>
         
+        <!-- Styles pour corriger le bug vert de la bottom nav -->
+        <style>
+            /* SUPPRIMER TOUTE COULEUR VERTE - RÈGLES ULTRA AGRESSIVES */
+            * {
+                --accent-green: transparent !important;
+            }
+            
+            /* Supprimer toute couleur verte de la bottom nav et ses éléments */
+            .flavoriz-bottom-nav,
+            .flavoriz-bottom-nav *,
+            .flavoriz-bottom-nav-item,
+            .flavoriz-bottom-nav-item *,
+            .flavoriz-bottom-nav-item i,
+            .flavoriz-bottom-nav-item span,
+            .badge-success,
+            [class*="green"],
+            [style*="green"],
+            [style*="#4CAF50"],
+            [style*="#4caf50"] {
+                color: inherit !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                border-color: transparent !important;
+            }
+            
+            /* Forcer la couleur correcte pour la bottom nav - SUPPRIMER TOUTE COULEUR VERTE */
+            .flavoriz-bottom-nav {
+                background: rgba(255, 255, 255, 0.95) !important;
+                background-color: rgba(255, 255, 255, 0.95) !important;
+                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+                border-top: 1px solid rgba(229, 231, 235, 0.5) !important;
+                color: #1F2937 !important;
+            }
+            
+            /* Supprimer toute ombre ou couleur verte avant le footer */
+            body::before,
+            body::after,
+            .flavoriz-footer::before,
+            .flavoriz-footer::after,
+            .flavoriz-footer-content::before,
+            .flavoriz-footer-content::after,
+            main::before,
+            main::after,
+            .main::before,
+            .main::after,
+            footer::before,
+            footer::after,
+            nav::before,
+            nav::after {
+                display: none !important;
+                content: none !important;
+                background: none !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            
+            /* Supprimer toute couleur verte de tous les éléments entre footer et bottom nav */
+            .flavoriz-footer + *,
+            .flavoriz-footer ~ *,
+            .flavoriz-footer + nav,
+            .flavoriz-footer ~ nav,
+            nav.flavoriz-bottom-nav::before,
+            nav.flavoriz-bottom-nav::after,
+            .flavoriz-footer + nav::before,
+            .flavoriz-footer + nav::after {
+                background: transparent !important;
+                background-color: transparent !important;
+                color: inherit !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            
+            /* S'assurer qu'il n'y a pas d'espace vert entre footer et bottom nav */
+            .flavoriz-footer {
+                margin-bottom: 0 !important;
+                padding-bottom: calc(var(--spacing-xl) + 80px) !important;
+                position: relative !important;
+                z-index: 1 !important;
+                border-bottom: none !important;
+            }
+            
+            /* Forcer la bottom nav à être au-dessus du footer */
+            .flavoriz-bottom-nav {
+                position: fixed !important;
+                z-index: 9999 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            /* Supprimer toute couleur verte de tous les éléments possibles */
+            @media (max-width: 768px) {
+                .flavoriz-footer {
+                    padding-bottom: calc(var(--spacing-lg) + 80px) !important;
+                }
+                
+                /* Supprimer toute trace de vert sur mobile - RÈGLES ULTRA AGRESSIVES */
+                *,
+                *::before,
+                *::after {
+                    --accent-green: transparent !important;
+                }
+                
+                .flavoriz-bottom-nav,
+                .flavoriz-bottom-nav *,
+                .flavoriz-footer + *,
+                .flavoriz-footer ~ * {
+                    color: #1F2937 !important;
+                    background: rgba(255, 255, 255, 0.95) !important;
+                    background-color: rgba(255, 255, 255, 0.95) !important;
+                }
+                
+                /* Forcer le blanc sur tous les éléments entre footer et bottom nav */
+                .flavoriz-footer ~ nav,
+                .flavoriz-footer + nav {
+                    background: rgba(255, 255, 255, 0.95) !important;
+                    background-color: rgba(255, 255, 255, 0.95) !important;
+                }
+            }
+        </style>
+        
+        <!-- Script pour supprimer dynamiquement toute couleur verte -->
+        <script>
+            (function() {
+                function removeGreenColors() {
+                    // Supprimer toute couleur verte de tous les éléments
+                    const allElements = document.querySelectorAll('*');
+                    allElements.forEach(function(el) {
+                        const style = window.getComputedStyle(el);
+                        const bgColor = style.backgroundColor;
+                        const color = style.color;
+                        const borderColor = style.borderColor;
+                        
+                        // Vérifier si c'est une couleur verte
+                        if (bgColor.includes('rgb(76, 175, 80)') || 
+                            bgColor.includes('rgb(72, 175, 80)') ||
+                            bgColor.includes('#4CAF50') ||
+                            bgColor.includes('#4caf50') ||
+                            bgColor.includes('green')) {
+                            el.style.setProperty('background-color', 'transparent', 'important');
+                            el.style.setProperty('background', 'transparent', 'important');
+                        }
+                        
+                        if (color.includes('rgb(76, 175, 80)') || 
+                            color.includes('#4CAF50') ||
+                            color.includes('green')) {
+                            el.style.setProperty('color', 'inherit', 'important');
+                        }
+                    });
+                    
+                    // Supprimer toute couleur verte des éléments entre footer et bottom nav
+                    const footer = document.querySelector('.flavoriz-footer');
+                    const bottomNav = document.querySelector('.flavoriz-bottom-nav');
+                    if (footer && bottomNav) {
+                        let current = footer.nextSibling;
+                        while (current && current !== bottomNav) {
+                            if (current.nodeType === 1) { // Element node
+                                current.style.setProperty('background-color', 'transparent', 'important');
+                                current.style.setProperty('background', 'transparent', 'important');
+                            }
+                            current = current.nextSibling;
+                        }
+                    }
+                }
+                
+                // Exécuter immédiatement
+                removeGreenColors();
+                
+                // Exécuter après le chargement du DOM
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', removeGreenColors);
+                } else {
+                    removeGreenColors();
+                }
+                
+                // Exécuter après le chargement complet
+                window.addEventListener('load', removeGreenColors);
+                
+                // Observer les changements dans le DOM
+                const observer = new MutationObserver(removeGreenColors);
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+            })();
+        </script>
+        
         <!-- ===== Mobile Bottom Navigation - PERMANENTE SUR TOUTES LES PAGES ===== -->
-        <nav class="flavoriz-bottom-nav">
+        <nav class="flavoriz-bottom-nav" style="background: rgba(255, 255, 255, 0.95) !important; background-color: rgba(255, 255, 255, 0.95) !important; box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important; border-top: 1px solid rgba(229, 231, 235, 0.5) !important; color: #1F2937 !important;">
             <a href="{% url 'home:index' %}" class="flavoriz-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                 <i class="fi-rs-home"></i>
                 <span>Accueil</span>
@@ -910,7 +1051,7 @@
         </div>
 		{% block script%}
 			<!-- Smart Header - Barre de navigation intelligente -->
-			<script src="{% static 'gabomazone-client/js/smart-header.js' %}?v=5.0"></script>
+			<script src="{% static 'gabomazone-client/js/smart-header.js' %}?v=8.0"></script>
 			<!-- Custom Dropdown -->
 			<script src="{% static 'gabomazone-client/js/custom-dropdown.js' %}?v=5.0"></script>
 			<!-- Mobile Search Expansion -->
@@ -943,7 +1084,9 @@
 			<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
 			<!-- Template  JS -->
 			<script src="{% static 'assets/js/main.js'%}"></script>
-			<script src="{% static 'assets/js/shop.js'%}"></script>		
+			<script src="{% static 'assets/js/shop.js'%}"></script>
+			<!-- Filter JS - Fonctions globales pour panier et favoris -->
+			<script src="{% static 'assets/js/filter.js'%}"></script>
 		{% endblock script%} 
 
 		<!-- Language switcher removed - French only -->

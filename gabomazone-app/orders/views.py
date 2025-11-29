@@ -3,7 +3,7 @@ from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier
 from products.models import Product
 from django.contrib import messages
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from decimal import Context, Decimal
 from accounts.models import Profile
 from settings.models import SiteSetting
@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.http import HttpResponseRedirect
 from django.views import View
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 import requests
 from bs4 import BeautifulSoup
 from settings.models import SiteSetting
@@ -36,6 +36,13 @@ def add_to_cart(request):
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
+    # Détecter si c'est une requête AJAX
+    is_ajax = (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+        'application/json' in request.headers.get('Accept', '') or
+        request.headers.get('Content-Type') == 'application/json'
+    )
+
     if "qyt" in request.POST and "product_id" in request.POST and "product_Price" in request.POST:
 
         product_id = request.POST['product_id']
@@ -49,10 +56,14 @@ def add_to_cart(request):
         product = Product.objects.get(id=product_id)
 
         if qyt <= 0 and product.available == 0:
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
             messages.warning(request, 'This product is out of stock !')
             return redirect('orders:cart')
 
         if product.available < qyt and product.available == 0:
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
             messages.warning(request, 'This product is out of stock !')
             return redirect('orders:cart')
 
@@ -69,12 +80,18 @@ def add_to_cart(request):
                 print("order: ", order)
             else:
                 cart_id = request.session.get('cart_id')
-                order = Order.objects.all().filter(id=cart_id, is_finished=False)
+                if cart_id:
+                    order = Order.objects.filter(id=cart_id, is_finished=False).first()
+                else:
+                    order = None
 
-        except:
-            order = False
+        except Exception as e:
+            print(f"Erreur lors de la récupération de la commande: {e}")
+            order = None
 
         if not Product.objects.all().filter(id=product_id).exists():
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
             return HttpResponse(f"this product not found !")
 
         if order:
@@ -82,7 +99,19 @@ def add_to_cart(request):
                 old_orde = Order.objects.filter(
                     user=request.user, is_finished=False).first()
             else:
-                old_orde = Order.objects.get(id=cart_id, is_finished=False)
+                cart_id = request.session.get('cart_id')
+                if cart_id:
+                    try:
+                        old_orde = Order.objects.get(id=cart_id, is_finished=False)
+                    except Order.DoesNotExist:
+                        old_orde = None
+                else:
+                    old_orde = None
+            
+            if not old_orde:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Erreur: Commande non trouvée'}, status=400)
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             # old_orde_supplier = OrderSupplier.objects.get(
             #     user=request.user, is_finished=False, order=old_orde)
             # print("old_orde_supplier:", old_orde_supplier)
@@ -96,6 +125,8 @@ def add_to_cart(request):
                     qyt = item.quantity
                     # i.quantity = int(qyt)
                     # i.save()
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': f"Vous ne pouvez pas ajouter plus de ce produit, disponible seulement : {qyt}"}, status=400)
                     messages.warning(
                         request, f"You can't add more from this product, available only : {qyt}")
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -205,7 +236,7 @@ def add_to_cart(request):
                     price=product.PRDPrice,
                     quantity=qyt,
                     size=size,
-                    weight=product.PRDWeight
+                    weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
                 )
                 # code for total amount main order
 
@@ -237,7 +268,7 @@ def add_to_cart(request):
                         price=product.PRDPrice,
                         quantity=qyt,
                         size=size,
-                        weight=product.PRDWeight
+                        weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
                     )
 
                     # code for total amount supplier order
@@ -274,7 +305,7 @@ def add_to_cart(request):
                         price=product.PRDPrice,
                         quantity=qyt,
                         size=size,
-                        weight=product.PRDWeight
+                        weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
                     )
 
                     order_supplier = OrderDetailsSupplier.objects.all().filter(
@@ -293,6 +324,13 @@ def add_to_cart(request):
 
             messages.success(request, 'product has been added to cart !')
             # return redirect('orders:cart')
+            if is_ajax:
+                # Compter les articles dans le panier
+                try:
+                    cart_count = OrderDetails.objects.filter(order=old_orde).count()
+                except:
+                    cart_count = 0
+                return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
         else:
@@ -324,7 +362,7 @@ def add_to_cart(request):
                 price=product.PRDPrice,
                 quantity=qyt,
                 size=size,
-                weight=product.PRDWeight
+                weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
             )
 
             order_details_supplier = OrderDetailsSupplier.objects.create(
@@ -336,7 +374,7 @@ def add_to_cart(request):
                 price=product.PRDPrice,
                 quantity=qyt,
                 size=size,
-                weight=product.PRDWeight
+                weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
             )
             # code for total amount main order
 
@@ -371,8 +409,17 @@ def add_to_cart(request):
             request.session['cart_id'] = new_order.id
             messages.success(request, 'product has been added to cart !')
             # return redirect('orders:cart')
+            if is_ajax:
+                # Compter les articles dans le panier
+                try:
+                    cart_count = OrderDetails.objects.filter(order=new_order).count()
+                except:
+                    cart_count = 0
+                return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': 'Vous devez d\'abord vous connecter pour ajouter un produit au panier.', 'requires_login': True}, status=403)
         messages.warning(
             request, 'You must first log in to your account to purchase the product')
         return redirect('accounts:login')
@@ -506,6 +553,14 @@ def cart(request):
         # if "coupon_id" in request.session.keys():
         #     del request.session["coupon_id"]
 
+        # Récupérer le profil utilisateur pour pré-remplir le formulaire
+        profile = None
+        if request.user.is_authenticated and not request.user.is_anonymous:
+            try:
+                profile = Profile.objects.get(user=request.user)
+            except Profile.DoesNotExist:
+                profile = None
+
         context = {
             "order": order,
             "order_details": order_details,
@@ -520,14 +575,24 @@ def cart(request):
             "provinces": provinces,
             # "states": states,
             "weight": weight,
+            "profile": profile,
         }
     else:
         # Panier vide - définir un contexte minimal
+        # Récupérer le profil utilisateur pour pré-remplir le formulaire
+        profile = None
+        if request.user.is_authenticated and not request.user.is_anonymous:
+            try:
+                profile = Profile.objects.get(user=request.user)
+            except Profile.DoesNotExist:
+                profile = None
+        
         context = {
             "order_details": None,
             "countries": countries,
             "provinces": provinces,
             "PUBLIC_KEY": PUBLIC_KEY,
+            "profile": profile,
         }
     return render(request, "orders/shop-cart.html", context)
 
@@ -737,25 +802,36 @@ def payment(request):
         
 
         try:
-            province_state = request.POST.get('state')
-            other_state = request.POST.get('other_state')
-            # print("STATE : ", province_state)
-            # print("OTHER_STATE : ", other_state)
-
-            if province_state == 'autre_ville' and other_state:
-                state = other_state  # On récupère ce que l'utilisateur a saisi
-                province = request.POST.get('province')
-                # print("STATE Changed : ", state)
+            # Check if province and state are sent separately (new form format)
+            province = request.POST.get('province')
+            state = request.POST.get('state')
+            
+            # If state contains "|", it's the old format (province|state)
+            if state and "|" in state:
+                province, state = state.split("|")
+                print("STATE (old format) : ", state)
+                print("PROVINCE (old format) : ", province)
+            # If province is separate and state is separate (new form format)
+            elif province and state:
+                # Province and state are already separate, use them as is
+                print("STATE (new format) : ", state)
+                print("PROVINCE (new format) : ", province)
+            # Check for other_state (fallback for old form)
             else:
-                state = request.POST['state']
-                if request.method == "POST":
-                    province, state = state.split("|")
-                    print("STATE : ", state)
-                    print("PROVINCE : ", province)
+                province_state = request.POST.get('state')
+                other_state = request.POST.get('other_state')
+                
+                if province_state == 'autre_ville' and other_state:
+                    state = other_state
+                    province = request.POST.get('province')
+                else:
+                    # If we still don't have valid values, raise an error
+                    raise ValueError("Invalid province or state values")
 
-        except:
+        except Exception as e:
+            print(f"Error processing province/state: {e}")
             messages.warning(
-                request, 'Please contact us because this country is not in our shipping list')
+                request, 'Veuillez nous contacter car ce pays n\'est pas dans notre liste de livraison')
             return redirect(request.META.get('HTTP_REFERER'))
 
         street_address = request.POST['street']
@@ -767,7 +843,15 @@ def payment(request):
         # return HttpResponse(f"your info is request")
         state_obj = state
         province_obj = province
-        country_obj = dict(allcountries)[str(country)]
+        
+        # Validate country code exists in allcountries
+        try:
+            country_obj = dict(allcountries)[str(country)]
+        except KeyError:
+            messages.warning(
+                request, 'Veuillez nous contacter car ce pays n\'est pas dans notre liste de livraison')
+            return redirect(request.META.get('HTTP_REFERER'))
+        
         country_code = country
         if country_code == settings.ARAMEX_ACCOUNTCOUNTRYCODE:
             product_group = "DOM"
@@ -3093,3 +3177,26 @@ def success(request):
 
 class CancelView(TemplateView):
     template_name = "orders/cancel.html"
+
+
+@require_http_methods(["GET"])
+def get_cart_count(request):
+    """Vue AJAX pour obtenir le nombre d'articles dans le panier"""
+    try:
+        if request.user.is_authenticated and not request.user.is_anonymous:
+            order = Order.objects.filter(user=request.user, is_finished=False).first()
+        else:
+            cart_id = request.session.get('cart_id')
+            if cart_id:
+                order = Order.objects.filter(id=cart_id, is_finished=False).first()
+            else:
+                order = None
+        
+        if order:
+            cart_count = OrderDetails.objects.filter(order=order).count()
+        else:
+            cart_count = 0
+        
+        return JsonResponse({'cart_count': cart_count})
+    except Exception as e:
+        return JsonResponse({'cart_count': 0, 'error': str(e)})

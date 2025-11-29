@@ -1,51 +1,172 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{%block head%}
+{{ block.super }}
+<style>
+    /* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+</style>
+{%endblock head%}
+
 {%block body%}
 <!-- ===== Category List Page FLAVORIZ Design ===== -->
-<section class="flavoriz-section" style="margin-top: var(--spacing-lg); padding: 0 var(--spacing-lg);">
-    <!-- Page Header -->
-    <div style="max-width: 1400px; margin: 0 auto; margin-bottom: var(--spacing-xl);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Catégories</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-sm);">Catégories</h1>
-                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px;">
-                    <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
-                    <span>/</span>
-                    <span style="color: var(--color-orange);">Catégories</span>
-                </div>
+                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Catégories</h1>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Explorez toutes nos catégories de produits</p>
             </div>
         </div>
-                                    </div>
 
-    <!-- Main Content -->
-    <div style="max-width: 1400px; margin: 0 auto;">
-        <div class="flavoriz-product-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-lg);">
-            {% for super in supercategory %}
-            <div class="flavoriz-product-card" style="cursor: pointer; background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); transition: all 0.3s ease;" onclick="window.location.href='{% url 'categories:super-category' super.slug %}'">
-                <div style="margin-bottom: var(--spacing-md);">
-                    <h3 style="font-size: 24px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-md);">
-                        <a href="{% url 'categories:super-category' super.slug %}" style="color: var(--color-black); text-decoration: none;">{{super}}</a>
-                    </h3>
+        <!-- Categories Grid -->
+        {% if super_categories_data %}
+        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+            {% for data in super_categories_data %}
+            {% with super=data.super main_cats=data.main_categories %}
+            <!-- Super Category Card -->
+            <div class="category-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; transition: all 0.3s ease; height: fit-content;">
+                <!-- Super Category Header -->
+                <div class="category-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+                    {% if super.category_image %}
+                    <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
+                    {% else %}
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{super.name|first|upper}}</div>
+                    {% endif %}
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; line-height: 1.3; font-family: var(--font-primary);">
+                            <a href="{% url 'categories:super-category' super.slug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
+                                {{super.name}}
+                            </a>
+                        </h3>
+                        <p style="font-size: 12px; color: #6B7280; margin: 4px 0 0 0;">
+                            {{ main_cats.count }} sous-catégorie{% if main_cats.count > 1 %}s{% endif %}
+                        </p>
+                    </div>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
-                    {% for main in maincategory %}
-                    {% if main.super_category == super %}
-                    <a href="{% url 'categories:main-category' main.slug %}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-md); text-decoration: none; color: var(--text-dark); transition: all 0.2s ease; background: var(--color-off-white);">
-                        <figure style="width: 60px; height: 60px; margin: 0; border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0;">
-                            <img src="{% if main.category_image %}{{main.category_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{main.name}}" style="width: 100%; height: 100%; object-fit: cover;" />
-                        </figure>
-                        <div style="flex: 1; min-width: 0;">
-                            <h6 style="font-size: 14px; font-weight: 600; color: var(--color-black); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{main.name}}</h6>
-                        </div>
-                    </a>
-                    {% endif %}
-                    {% endfor %}
+                <!-- Main Categories List (Collapsible) -->
+                {% if main_cats %}
+                <div class="subcategories-toggle" style="margin-bottom: 12px; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; padding: 8px 12px; border-radius: 8px; background: rgba(255, 123, 44, 0.05);" onclick="toggleSubcategories(this)">
+                    <i class="fi-rs-angle-down toggle-icon" style="font-size: 16px; transition: transform 0.3s ease;"></i>
+                    <span>Voir les sous-catégories</span>
                 </div>
+                <ul class="subcategories-list" style="display: none; list-style: none; padding: 0; margin: 0;">
+                    {% for main in main_cats %}
+                    <li style="margin-bottom: 8px;">
+                        <a href="{% url 'categories:main-category' main.slug %}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500; background: #FAFAFA; border: 1px solid #F3F4F6;" 
+                           onmouseover="this.style.background='linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%)'; this.style.borderColor='rgba(255, 123, 44, 0.3)'; this.style.transform='translateX(4px)'"
+                           onmouseout="this.style.background='#FAFAFA'; this.style.borderColor='#F3F4F6'; this.style.transform='translateX(0)'">
+                            {% if main.category_image %}
+                            <img src="{{main.category_image.url}}" alt="{{main.name}}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
+                            {% else %}
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.3);">{{main.name|first|upper}}</div>
+                            {% endif %}
+                            <span style="flex: 1; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{main.name}}</span>
+                            {% if main.sub_count %}
+                            <span style="font-size: 11px; color: #6B7280; background: #E5E7EB; padding: 2px 8px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">{{ main.sub_count }}</span>
+                            {% endif %}
+                            <i class="fi-rs-arrow-right" style="font-size: 12px; color: var(--color-orange); flex-shrink: 0; transition: transform 0.2s ease;"></i>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div style="text-align: center; padding: 20px; background: #FAFAFA; border-radius: 8px; border: 1px dashed #E5E7EB;">
+                    <p style="font-size: 13px; color: #9CA3AF; margin: 0;">Aucune sous-catégorie disponible</p>
+                </div>
+                {% endif %}
             </div>
+            {% endwith %}
             {% endfor %}
         </div>
+        {% else %}
+        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+            <i class="fi-rs-apps" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
+            <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucune catégorie disponible</h2>
+            <p style="font-size: 16px; color: #6B7280;">Les catégories seront bientôt disponibles.</p>
+        </div>
+        {% endif %}
     </div>
-</section>
+</main>
 {%endblock body%}
+
+{%block script%}
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+<script>
+    function toggleSubcategories(element) {
+        const $toggle = $(element);
+        const $list = $toggle.next('.subcategories-list');
+        const $icon = $toggle.find('.toggle-icon');
+        
+        if ($list.is(':visible')) {
+            $list.slideUp(300);
+            $icon.css('transform', 'rotate(0deg)');
+        } else {
+            $list.slideDown(300);
+            $icon.css('transform', 'rotate(180deg)');
+        }
+    }
+    
+    // Responsive grid adjustment
+    $(document).ready(function() {
+        function adjustGrid() {
+            const width = $(window).width();
+            const $grid = $('.categories-grid');
+            
+            if (width <= 768) {
+                $grid.css('grid-template-columns', '1fr');
+            } else if (width <= 1024) {
+                $grid.css('grid-template-columns', 'repeat(2, 1fr)');
+            } else {
+                $grid.css('grid-template-columns', 'repeat(auto-fill, minmax(320px, 1fr))');
+            }
+        }
+        
+        adjustGrid();
+        $(window).on('resize', adjustGrid);
+    });
+</script>
+{%endblock script%}

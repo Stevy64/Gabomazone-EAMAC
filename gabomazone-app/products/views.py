@@ -1,14 +1,18 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Product, ProductImage, ProductRating, ProductSize
+from .models import Product, ProductImage, ProductRating, ProductSize, ProductFavorite
 from django.core.paginator import Paginator
 import random
 from django.http import JsonResponse
 from django.views.generic import View, TemplateView
 from project import settings
 from django.http import HttpResponse, HttpResponseRedirect
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from accounts.models import Profile
+from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from categories.models import SuperCategory
+import json
 # Create your views here.
 
 
@@ -69,13 +73,48 @@ def product_details(request, slug):
         start_4 = 0
         start_5 = 0
 
+    # Collecter toutes les images du produit pour la popup
+    product_images = []
+    if product_detail.product_image:
+        product_images.append(product_detail.product_image)
+    if product_detail.additional_image_1:
+        product_images.append(product_detail.additional_image_1)
+    if product_detail.additional_image_2:
+        product_images.append(product_detail.additional_image_2)
+    if product_detail.additional_image_3:
+        product_images.append(product_detail.additional_image_3)
+    if product_detail.additional_image_4:
+        product_images.append(product_detail.additional_image_4)
+    
+    # Vérifier si le produit est dans les favoris de l'utilisateur
+    is_favorited = False
+    like_count = 0
+    try:
+        from .models import ProductFavorite
+        from django.db import connection
+        table_name = ProductFavorite._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+            table_exists = cursor.fetchone() is not None
+        
+        if table_exists:
+            if request.user.is_authenticated:
+                is_favorited = ProductFavorite.objects.filter(product=product_detail, user=request.user).exists()
+            else:
+                session_key = request.session.session_key
+                if session_key:
+                    is_favorited = ProductFavorite.objects.filter(product=product_detail, session_key=session_key).exists()
+            like_count = ProductFavorite.objects.filter(product=product_detail).count()
+    except:
+        pass
+
     context = {
         'product_detail': product_detail,
         'product_variations': product_variations,
         'product_image': product_image,
+        'product_images': product_images,  # Toutes les images pour la popup
         'related_products': related_products,
         'supplier_Products': supplier_Products,
-        # 'related_products': related_products,
         'product_feedback': product_feedback,
         'average_rating': average_rating,
         'feedbak_number': feedbak_number,
@@ -84,21 +123,31 @@ def product_details(request, slug):
         "start_3": start_3,
         "start_4": start_4,
         "start_5": start_5,
-
+        'is_favorited': is_favorited,
+        'like_count': like_count,
     }
     return render(request, 'products/shop-product-vendor.html', context)
 
 
 def product_search(request):
-    context = None
+    context = {}
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
+    # Récupérer les catégories pour le filtre
+    supercategory = SuperCategory.objects.all().order_by('name')
+    
+    # Préparer les données des produits avec like_count et images
+    import json
+    products_data = []
+    qs = None
+    page_obj = None
+    
     if request.method == 'POST':
         try:
             word = request.POST['search-product']
         except:
-            word = "a"
+            word = ""
         request.session["search_product"] = word
 
         try:
@@ -108,69 +157,143 @@ def product_search(request):
         request.session["search_category_select"] = category_select
 
         if category_select == "All Categories":
-            qs = Product.objects.all().filter(
-                product_name__icontains=word, PRDISDeleted=False, PRDISactive=True)
-            request.session["products_count"] = qs.count()
-            paginator = Paginator(qs, 12)
-            page = request.GET.get('page')
             try:
-                qs = paginator.page(page)
-            except PageNotAnInteger:
-                qs = paginator.page(1)
-            except EmptyPage:
-                qs = paginator.page(paginator.num_page)
-            print("page:", page)
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).annotate(
+                    like_count=Count('favorites')
+                ).order_by('-date').distinct()
+            except:
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).order_by('-date').distinct()
         else:
-            qs = Product.objects.all().filter(
-                product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, product_supercategory__name=category_select)
-            request.session["products_count"] = qs.count()
-            paginator = Paginator(qs, 12)
-            page = request.GET.get('page')
             try:
-                qs = paginator.page(page)
-            except PageNotAnInteger:
-                qs = paginator.page(1)
-            except EmptyPage:
-                qs = paginator.page(paginator.num_page)
-            print("page:", page)
-
-        context = {
-            'qs': qs,
-            'page': page,
-        }
-    # if request.GET.get('page') != "1" :
-    if "search_product" in request.session.keys() and "search_product" in request.session.keys():
-        if request.session["search_category_select"] == "All Categories":
-            qs = Product.objects.all().filter(
-                product_name__icontains=request.session["search_product"], PRDISDeleted=False, PRDISactive=True)
-
-            paginator = Paginator(qs, 12)
-            page = request.GET.get('page')
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
+                    product_supercategory__name=category_select).annotate(
+                    like_count=Count('favorites')
+                ).order_by('-date').distinct()
+            except:
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
+                    product_supercategory__name=category_select).order_by('-date').distinct()
+        
+        request.session["products_count"] = queryset.count()
+        paginator = Paginator(queryset, 12)
+        page = request.GET.get('page', 1)
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+            
+    elif "search_product" in request.session.keys():
+        word = request.session.get("search_product", "")
+        category_select = request.session.get("search_category_select", "All Categories")
+        
+        if category_select == "All Categories":
             try:
-                qs = paginator.page(page)
-            except PageNotAnInteger:
-                qs = paginator.page(1)
-            except EmptyPage:
-                qs = paginator.page(paginator.num_page)
-            print("page:", page)
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).annotate(
+                    like_count=Count('favorites')
+                ).order_by('-date').distinct()
+            except:
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).order_by('-date').distinct()
         else:
-            qs = Product.objects.all().filter(
-                product_name__icontains=request.session["search_product"], PRDISDeleted=False, PRDISactive=True, product_supercategory__name=request.session["search_category_select"])
-            # print(qs)
-            paginator = Paginator(qs, 12)
-            page = request.GET.get('page')
             try:
-                qs = paginator.page(page)
-            except PageNotAnInteger:
-                qs = paginator.page(1)
-            except EmptyPage:
-                qs = paginator.page(paginator.num_page)
-            print("page:", page)
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
+                    product_supercategory__name=category_select).annotate(
+                    like_count=Count('favorites')
+                ).order_by('-date').distinct()
+            except:
+                queryset = Product.objects.filter(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
+                    product_supercategory__name=category_select).order_by('-date').distinct()
+        
+        paginator = Paginator(queryset, 12)
+        page = request.GET.get('page', 1)
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+    
+    # Préparer les données des produits avec images multiples
+    if page_obj:
+        for product in page_obj:
+            # Collecter toutes les images
+            product_images = []
+            if product.product_image:
+                img_path = str(product.product_image)
+                if not img_path.startswith('/media/'):
+                    img_path = '/media/' + img_path
+                product_images.append(img_path)
+            if product.additional_image_1:
+                img_path = str(product.additional_image_1)
+                if not img_path.startswith('/media/'):
+                    img_path = '/media/' + img_path
+                product_images.append(img_path)
+            if product.additional_image_2:
+                img_path = str(product.additional_image_2)
+                if not img_path.startswith('/media/'):
+                    img_path = '/media/' + img_path
+                product_images.append(img_path)
+            if product.additional_image_3:
+                img_path = str(product.additional_image_3)
+                if not img_path.startswith('/media/'):
+                    img_path = '/media/' + img_path
+                product_images.append(img_path)
+            if product.additional_image_4:
+                img_path = str(product.additional_image_4)
+                if not img_path.startswith('/media/'):
+                    img_path = '/media/' + img_path
+                product_images.append(img_path)
+            
+            # Récupérer le like_count de manière sécurisée
+            like_count = 0
+            try:
+                like_count = getattr(product, 'like_count', 0)
+                if like_count is None:
+                    like_count = 0
+            except:
+                try:
+                    from .models import ProductFavorite
+                    like_count = ProductFavorite.objects.filter(product=product).count()
+                except:
+                    like_count = 0
+            
+            products_data.append({
+                'product': product,
+                'product_images': json.dumps(product_images),
+                'like_count': like_count,
+            })
 
-        context = {
-            'qs': qs,
-            'page': page,
-        }
+    # Calculer le total de produits pour l'affichage
+    total_products = 0
+    if page_obj:
+        total_products = page_obj.paginator.count
+    
+    # Récupérer la requête de recherche pour l'affichage
+    search_query = ""
+    if request.method == 'POST':
+        try:
+            search_query = request.POST.get('search-product', '').strip()
+        except:
+            search_query = ""
+    elif "search_product" in request.session.keys():
+        search_query = request.session.get("search_product", "")
+    
+    context = {
+        'supercategory': supercategory,
+        'products_data': products_data,
+        'page_obj': page_obj,
+        'total_products': total_products,
+        'search_query': search_query,
+        'qs': page_obj,  # Pour compatibilité avec l'ancien template
+    }
 
     return render(request, 'products/product-search.html', context)
 
@@ -253,3 +376,150 @@ def product_rating(request):
                 # )
             return JsonResponse({"succes": True, "product_id": product_id, "product_rate": product_rate, }, safe=False)
         return JsonResponse({"succes": False, }, safe=False)
+
+
+@require_POST
+def toggle_favorite(request):
+    """Toggle favorite/like pour un produit"""
+    if request.method == 'POST':
+        try:
+            # Vérifier si la table existe
+            from django.db import connection
+            table_name = ProductFavorite._meta.db_table
+            with connection.cursor() as cursor:
+                cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                table_exists = cursor.fetchone() is not None
+            
+            if not table_exists:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'La fonctionnalité de favoris n\'est pas encore disponible. Veuillez exécuter les migrations.',
+                    'like_count': 0
+                }, status=503)
+            
+            product_id = request.POST.get('product_id')
+            product = get_object_or_404(Product, id=product_id)
+            
+            if request.user.is_authenticated:
+                favorite, created = ProductFavorite.objects.get_or_create(
+                    product=product,
+                    user=request.user
+                )
+                if not created:
+                    favorite.delete()
+                    is_favorited = False
+                else:
+                    is_favorited = True
+            else:
+                # Pour les utilisateurs non authentifiés, utiliser la session
+                session_key = request.session.session_key
+                if not session_key:
+                    request.session.create()
+                    session_key = request.session.session_key
+                
+                favorite, created = ProductFavorite.objects.get_or_create(
+                    product=product,
+                    session_key=session_key
+                )
+                if not created:
+                    favorite.delete()
+                    is_favorited = False
+                else:
+                    is_favorited = True
+            
+            # Compter le nombre total de likes
+            like_count = ProductFavorite.objects.filter(product=product).count()
+            
+            # Compter le nombre total de favoris de l'utilisateur/session
+            if request.user.is_authenticated:
+                wishlist_count = ProductFavorite.objects.filter(user=request.user).count()
+            else:
+                session_key = request.session.session_key
+                if session_key:
+                    wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count()
+                else:
+                    wishlist_count = 0
+            
+            return JsonResponse({
+                'success': True,
+                'is_favorited': is_favorited,
+                'like_count': like_count,
+                'wishlist_count': wishlist_count
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+                'like_count': 0
+            }, status=400)
+    
+    return JsonResponse({'success': False}, status=405)
+
+
+@require_http_methods(["GET"])
+def get_wishlist_count(request):
+    """Vue AJAX pour obtenir le nombre d'articles dans la liste à souhaits"""
+    try:
+        from django.db import connection
+        table_name = ProductFavorite._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+            table_exists = cursor.fetchone() is not None
+        
+        if not table_exists:
+            return JsonResponse({'wishlist_count': 0})
+        
+        if request.user.is_authenticated:
+            wishlist_count = ProductFavorite.objects.filter(user=request.user).count()
+        else:
+            session_key = request.session.session_key
+            if session_key:
+                wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count()
+            else:
+                wishlist_count = 0
+        
+        return JsonResponse({'wishlist_count': wishlist_count})
+    except Exception as e:
+        return JsonResponse({'wishlist_count': 0, 'error': str(e)}, status=500)
+
+
+def wishlist(request):
+    """Afficher la liste à souhaits de l'utilisateur"""
+    try:
+        from django.db import connection
+        table_name = ProductFavorite._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+            table_exists = cursor.fetchone() is not None
+        
+        if not table_exists:
+            context = {
+                'favorites': [],
+                'favorites_count': 0,
+                'error': 'La fonctionnalité de favoris n\'est pas encore disponible. Veuillez exécuter les migrations.'
+            }
+            return render(request, 'products/wishlist.html', context)
+        
+        if request.user.is_authenticated:
+            favorites = ProductFavorite.objects.filter(user=request.user).select_related('product')
+        else:
+            session_key = request.session.session_key
+            if session_key:
+                favorites = ProductFavorite.objects.filter(session_key=session_key).select_related('product')
+            else:
+                favorites = ProductFavorite.objects.none()
+        
+        favorites_count = favorites.count()
+        
+        context = {
+            'favorites': favorites,
+            'favorites_count': favorites_count,
+        }
+        return render(request, 'products/wishlist.html', context)
+    except Exception as e:
+        context = {
+            'favorites': [],
+            'favorites_count': 0,
+            'error': str(e)
+        }
+        return render(request, 'products/wishlist.html', context)

@@ -43,7 +43,7 @@ body {
     margin: 0 !important;
 }
 
-/* Forcer le header FLAVORIZ visible - UN SEUL HEADER */
+/* Forcer le header FLAVORIZ visible - UN SEUL HEADER - JAMAIS CACHÉ */
 .flavoriz-header {
     display: block !important;
     visibility: visible !important;
@@ -57,6 +57,16 @@ body {
     padding: 12px 0 !important;
     width: 100% !important;
     margin: 0 !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Empêcher le header d'être caché même avec la classe scrolled */
+.flavoriz-header.scrolled {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 /* S'assurer qu'il n'y a qu'un seul header - Masquer tous les doublons */
@@ -220,11 +230,49 @@ main.main.pages .col-12 {
     }
 }
 
+/* SUPPRIMER TOUTE COULEUR VERTE - RÈGLES ULTRA AGRESSIVES */
+*,
+*::before,
+*::after {
+    --accent-green: transparent !important;
+}
+
+.badge-success,
+[class*="green"],
+[style*="green"],
+[style*="#4CAF50"],
+[style*="#4caf50"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: inherit !important;
+    border-color: transparent !important;
+}
+
+/* Supprimer toute couleur verte entre footer et bottom nav */
+.flavoriz-footer + *,
+.flavoriz-footer ~ *,
+.flavoriz-footer + nav,
+.flavoriz-footer ~ nav {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
 /* Forcer la bottom nav visible sur mobile */
 @media (max-width: 768px) {
     .flavoriz-bottom-nav {
         display: flex !important;
         visibility: visible !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    /* Supprimer toute couleur verte sur mobile */
+    .flavoriz-footer + nav,
+    .flavoriz-footer ~ nav,
+    .flavoriz-footer + *,
+    .flavoriz-footer ~ * {
+        background: transparent !important;
+        background-color: transparent !important;
     }
     
     /* FORCER le menu compte mobile en bas de l'écran - RÈGLE ULTRA AGRESSIVE */

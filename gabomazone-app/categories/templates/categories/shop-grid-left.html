@@ -24,6 +24,19 @@
         padding: 0 !important;
         opacity: 0 !important;
     }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
 </style>
 {%endblock head%}
 
@@ -60,12 +73,21 @@
                 <span style="font-size: 13px; color: #6B7280; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fi-rs-apps-sort" style="font-size: 16px; color: var(--color-orange);"></i> Trier par:
                 </span>
-                <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); min-width: 200px;">
-                    <option value="-date" selected>Date, nouveau à ancien</option>
-                    <option value="date">Date, ancien à nouveau</option>
-                    <option value="PRDPrice">Prix, bas à haut</option>
-                    <option value="-PRDPrice">Prix, haut à bas</option>
+                <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); min-width: 200px;"
+                        hx-get="{% url 'categories:shop-htmx' %}"
+                        hx-target="#products-list"
+                        hx-swap="innerHTML"
+                        hx-trigger="change"
+                        hx-include="[name='cat_type'], [name='cat_id']"
+                        name="order_by">
+                    <option value="-date" {% if request.GET.order_by == '-date' or not request.GET.order_by %}selected{% endif %}>Date, nouveau à ancien</option>
+                    <option value="date" {% if request.GET.order_by == 'date' %}selected{% endif %}>Date, ancien à nouveau</option>
+                    <option value="-like_count" {% if request.GET.order_by == '-like_count' %}selected{% endif %}>Plus populaires</option>
+                    <option value="PRDPrice" {% if request.GET.order_by == 'PRDPrice' %}selected{% endif %}>Prix, bas à haut</option>
+                    <option value="-PRDPrice" {% if request.GET.order_by == '-PRDPrice' %}selected{% endif %}>Prix, haut à bas</option>
                 </select>
+                <input type="hidden" name="cat_type" id="cat_type_input" value="all" />
+                <input type="hidden" name="cat_id" id="cat_id_input" value="" />
             </div>
         </div>
 
@@ -123,8 +145,12 @@
 
             <!-- Products Grid -->
             <div>
-                <div id="products-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
-                    <!-- Products will be loaded here via AJAX -->
+                <div id="products-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;"
+                     hx-get="{% url 'categories:shop-htmx' %}?page=1&order_by={{ request.GET.order_by|default:'-date' }}&cat_type=all&cat_id="
+                     hx-trigger="load"
+                     hx-swap="innerHTML"
+                     hx-target="this">
+                    <!-- Products will be loaded here via HTMX -->
                 </div>
                 
                 <!-- Loading Spinner -->
@@ -139,12 +165,10 @@
                     <p style="font-size: 16px; font-weight: 600; color: #6B7280; margin: 0;">Aucun produit disponible !</p>
                 </div>
 
-                <!-- Load More Button -->
-                <div id="loading-box" style="text-align: center; padding: 24px;">
-                    <button id="load-btn" type="button" style="padding: 14px 32px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: inline-flex; align-items: center; gap: 8px;">
-                        <i class="fi-rs-arrow-down"></i>
-                        <span>Charger plus</span>
-                    </button>
+                <!-- Loading Indicator pour HTMX -->
+                <div id="loading-indicator" class="htmx-indicator" style="text-align: center; padding: 24px; display: none;">
+                    <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
+                    <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
                 </div>
             </div>
         </div>
@@ -414,7 +438,7 @@ div#products-list.flavoriz-product-grid > * {
             }
         });
         
-        // Filtrage AJAX des catégories (SPA-like)
+        // Filtrage HTMX des catégories (SPA-like)
         $(document).on('click', '.category-filter-link', function(e) {
             e.preventDefault();
             
@@ -449,22 +473,23 @@ div#products-list.flavoriz-product-grid > * {
                 'color': 'var(--color-orange)'
             });
             
-            // Mettre à jour les variables globales (utiliser window.* pour être sûr)
-            window.categoryType = $(this).data('cat-type') || 'all';
-            window.categoryID = $(this).data('cat-id') || null;
+            // Mettre à jour les champs cachés pour HTMX
+            const catType = $(this).data('cat-type') || 'all';
+            const catId = $(this).data('cat-id') || '';
+            $('#cat_type_input').val(catType);
+            $('#cat_id_input').val(catId);
             
-            // Réinitialiser le compteur visible
-            window.visible = 10;
+            // Mettre à jour les variables globales (pour compatibilité)
+            window.categoryType = catType;
+            window.categoryID = catId;
             
-            // Recharger les produits avec le nouveau filtre
-            // Attendre que filter.js soit chargé
-            setTimeout(function() {
-                if (typeof window.handleGetData !== 'undefined') {
-                    window.handleGetData(true);
-                } else if (typeof handleGetData !== 'undefined') {
-                    handleGetData(true);
-                }
-            }, 100);
+            // Recharger les produits avec HTMX
+            const orderBy = $('#mySelect').val();
+            const url = '{% url "categories:shop-htmx" %}?page=1&order_by=' + orderBy + '&cat_type=' + catType + '&cat_id=' + catId;
+            htmx.ajax('GET', url, {
+                target: '#products-list',
+                swap: 'innerHTML'
+            });
         });
     });
 </script>
