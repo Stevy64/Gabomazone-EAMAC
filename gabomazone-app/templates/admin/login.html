@@ -3,56 +3,91 @@
 
 {% block content %}
     {% if form.errors and not form.non_field_errors %}
-        <p class="alert alert-danger">
-            {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}
-                {% trans "Please correct the errors below." %}{% endif %}
-        </p>
+        <div class="flavoriz-alert" style="background: #fee2e2; color: #dc2626; padding: 12px 14px; border-radius: 12px; margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid #dc2626;">
+            {% if form.errors.items|length == 1 %}{% trans "Veuillez corriger l'erreur ci-dessous." %}{% else %}
+                {% trans "Veuillez corriger les erreurs ci-dessous." %}{% endif %}
+        </div>
     {% endif %}
 
     {% if form.non_field_errors %}
         {% for error in form.non_field_errors %}
-            <p class="alert alert-danger">
+            <div class="flavoriz-alert" style="background: #fee2e2; color: #dc2626; padding: 12px 14px; border-radius: 12px; margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid #dc2626;">
                 {{ error }}
-            </p>
+            </div>
         {% endfor %}
     {% endif %}
 
-
-    <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
-        <div class="form-group has-feedback">
-            <input type="text" id="id_username" name="username" class="form-control" placeholder="Username">
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-            {{ form.username.errors }}
-        </div>
-        <div class="form-group has-feedback">
-            <input type="password" id="id_password" name="password" class="form-control"
-                   placeholder="Password">
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-            {{ form.password.errors }}
-            <input type="hidden" name="next" value="{{ next }}"/>
-        </div>
-        {% url 'admin_password_reset' as password_reset_url %}
-        {% if password_reset_url %}
-            <div class="password-reset-link">
-                <a href="{{ password_reset_url }}">{% trans 'Forgotten your password or username?' %}</a>
-            </div>
-        {% endif %}
-        <div class="row">
-            <!-- /.col -->
-            <div class="col-xs-4">
-                <button type="submit"
-                        class="btn btn-primary btn-block btn-flat">{% trans 'Log In' %}</button>
-            </div>
-            <!-- /.col -->
-        </div>
-    </form>
-
-
     {% if user.is_authenticated %}
-        <p class="alert alert-danger">
-                Vous êtes authentifié en tant que {{ username }}, mais vous n'êtes pas autorisé à
-                accéder à cette page. Souhaitez-vous vous connecter avec un autre compte ?
-        </p>
+        <div class="flavoriz-alert" style="background: #fee2e2; color: #dc2626; padding: 12px 14px; border-radius: 12px; margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid #dc2626;">
+            Vous êtes authentifié en tant que {{ username }}, mais vous n'êtes pas autorisé à
+            accéder à cette page. Souhaitez-vous vous connecter avec un autre compte ?
+        </div>
     {% endif %}
+
+    <!-- Login Form -->
+    <div id="login-form-container" class="form-container active" style="display: flex; flex-direction: column;">
+        <form action="{{ app_path }}" method="post" id="login-form" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}"/>
+            
+            <!-- Username Field -->
+            <div style="position: relative;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #0F172A; margin-bottom: 6px;">Nom d'utilisateur</label>
+                <div style="position: relative;">
+                    <input type="text" id="id_username" name="username" placeholder="Entrez votre nom d'utilisateur" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                    <i class="fi-rs-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                </div>
+                {% if form.username.errors %}
+                    <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div style="position: relative;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #0F172A; margin-bottom: 6px;">Mot de passe</label>
+                <div style="position: relative;">
+                    <input type="password" id="id_password" name="password" placeholder="Entrez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                    <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                    <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
+                        <i class="fi-rs-eye" id="password-toggle"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ form.password.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Forgot Password Link -->
+            {% url 'admin_password_reset' as password_reset_url %}
+            {% if password_reset_url %}
+                <div style="text-align: right;">
+                    <a href="{{ password_reset_url }}" style="color: #FF7B2C; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">{% trans 'Mot de passe oublié ?' %}</a>
+                </div>
+            {% endif %}
+
+            <!-- Login Button -->
+            <button type="submit" style="width: 100%; padding: 14px; background: #1E3A5F; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3); font-family: inherit; margin-top: var(--spacing-xs);" onmouseover="this.style.background='#0F172A'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 58, 95, 0.4)'" onmouseout="this.style.background='#1E3A5F'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 58, 95, 0.3)'">
+                {% trans 'Se connecter' %}
+            </button>
+        </form>
+    </div>
+    
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('id_password');
+            const passwordToggle = document.getElementById('password-toggle');
+            if (passwordInput && passwordToggle) {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    passwordToggle.classList.remove('fi-rs-eye');
+                    passwordToggle.classList.add('fi-rs-eye-crossed');
+                } else {
+                    passwordInput.type = 'password';
+                    passwordToggle.classList.remove('fi-rs-eye-crossed');
+                    passwordToggle.classList.add('fi-rs-eye');
+                }
+            }
+        }
+    </script>
 
 {% endblock %}

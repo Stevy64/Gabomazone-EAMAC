@@ -90,8 +90,8 @@
                 </select>
                 <input type="hidden" name="cat_type" id="cat_type_input" value="super" />
                 <input type="hidden" name="cat_id" id="cat_id_input" value="{{super_category_obj.id}}" />
-            </div>
-        </div>
+                            </div>
+                        </div>
 
         <!-- Main Content -->
         <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;">
@@ -112,7 +112,7 @@
                             {%endif%}
                             <span style="flex: 1; line-height: 1.4;">{{main.name}}</span>
                         </a>
-                    </li>
+                                </li>
                     {% empty %}
                     <li style="padding: 14px; color: #9CA3AF; font-size: 13px; text-align: center;">Aucune sous-catégorie disponible</li>
                     {% endfor %}
@@ -133,9 +133,9 @@
                             {%endif%}
                             <span style="flex: 1; line-height: 1.4;">{{main.name}}</span>
                         </a>
-                    </li>
+                                </li>
                     {%endfor%}
-                </ul>
+                            </ul>
                 {%endif%}
             </aside>
 
@@ -165,10 +165,10 @@
                 <div id="loading-indicator" class="htmx-indicator" style="text-align: center; padding: 24px; display: none;">
                     <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
                     <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 </main>
 
 <style>
@@ -347,9 +347,9 @@ div#products-list.flavoriz-product-grid > * {
         });
     })();
 </script>
-<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script src="{% static 'assets/js/filter.js'%}"></script>
-<script>
+        <script>
     var categoryType = "super";
     var categoryID = {{super_category_obj.id}};
     

@@ -68,7 +68,7 @@
                     <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
                     <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">0</strong> articles pour vous !</span>
                 </p>
-            </div>
+                                    </div>
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span style="font-size: 13px; color: #6B7280; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                     <i class="fi-rs-apps-sort" style="font-size: 16px; color: var(--color-orange);"></i> Trier par:
@@ -85,11 +85,11 @@
                     <option value="-like_count" {% if request.GET.order_by == '-like_count' %}selected{% endif %}>Plus populaires</option>
                     <option value="PRDPrice" {% if request.GET.order_by == 'PRDPrice' %}selected{% endif %}>Prix, bas à haut</option>
                     <option value="-PRDPrice" {% if request.GET.order_by == '-PRDPrice' %}selected{% endif %}>Prix, haut à bas</option>
-                </select>
+                                        </select> 
                 <input type="hidden" name="cat_type" id="cat_type_input" value="all" />
                 <input type="hidden" name="cat_id" id="cat_id_input" value="" />
-            </div>
-        </div>
+                                    </div>
+                                </div>
 
         <!-- Main Content -->
         <div style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;">
@@ -106,7 +106,7 @@
                             <span style="flex: 1; font-weight: 600; color: var(--color-orange);">Tous les produits</span>
                         </a>
                     </li>
-                    {% for super in supercategory|slice:":10"%}
+                            {% for super in supercategory|slice:":10"%}
                     <li style="margin-bottom: 10px;">
                         <a href="#" class="category-filter-link" data-cat-type="super" data-cat-id="{{super.id}}" data-cat-slug="{{super.slug}}" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500;">
                             {%if super.category_image%}
@@ -116,18 +116,18 @@
                             {%endif%}
                             <span style="flex: 1; line-height: 1.4;">{{super.name}}</span>
                         </a>
-                    </li>
+                            </li>
                     {% empty %}
                     <li style="padding: 14px; color: #9CA3AF; font-size: 13px; text-align: center;">Aucune catégorie disponible</li>
-                    {% endfor %}
-                </ul>
-                {%if supercategory.count >= 11  %}
+                            {% endfor %}
+                        </ul>
+                          {%if supercategory.count >= 11  %}      
                 <div class="more_categories" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
                     <i class="fi-rs-angle-down"></i>
                     <span>Voir plus...</span>
                 </div>
                 <ul class="ul-category more_slide_open" style="display: none; list-style: none; padding: 0; margin: 8px 0 0 0;">
-                    {%for super in supercategory|slice:"10:" %}
+                                    {%for super in supercategory|slice:"10:" %}
                     <li style="margin-bottom: 10px;">
                         <a href="#" class="category-filter-link" data-cat-type="super" data-cat-id="{{super.id}}" data-cat-slug="{{super.slug}}" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500;">
                             {%if super.category_image%}
@@ -137,9 +137,9 @@
                             {%endif%}
                             <span style="flex: 1; line-height: 1.4;">{{super.name}}</span>
                         </a>
-                    </li>
-                    {%endfor%}
-                </ul>
+                                    </li>
+                                    {%endfor%}
+                                </ul>
                 {%endif%}
             </aside>
 
@@ -151,29 +151,29 @@
                      hx-swap="innerHTML"
                      hx-target="this">
                     <!-- Products will be loaded here via HTMX -->
-                </div>
+                    </div>
                 
                 <!-- Loading Spinner -->
                 <div id="spinner-box" class="not-visible" style="text-align: center; padding: 40px;">
                     <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
                     <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
-                </div>
+                                </div>
                 
                 <!-- Empty Box -->
                 <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
                     <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px;"></i>
                     <p style="font-size: 16px; font-weight: 600; color: #6B7280; margin: 0;">Aucun produit disponible !</p>
-                </div>
+                            </div>
 
                 <!-- Loading Indicator pour HTMX -->
                 <div id="loading-indicator" class="htmx-indicator" style="text-align: center; padding: 24px; display: none;">
                     <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
                     <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
+                                </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
 <style>
 .not-visible {
@@ -370,7 +370,7 @@ div#products-list.flavoriz-product-grid > * {
             setTimeout(hidePreloader, 100);
         });
     })();
-</script>
+        </script>
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script src="{% static 'assets/js/filter.js'%}"></script>
 <script>

@@ -802,36 +802,25 @@ def payment(request):
         
 
         try:
-            # Check if province and state are sent separately (new form format)
-            province = request.POST.get('province')
-            state = request.POST.get('state')
-            
-            # If state contains "|", it's the old format (province|state)
-            if state and "|" in state:
-                province, state = state.split("|")
-                print("STATE (old format) : ", state)
-                print("PROVINCE (old format) : ", province)
-            # If province is separate and state is separate (new form format)
-            elif province and state:
-                # Province and state are already separate, use them as is
-                print("STATE (new format) : ", state)
-                print("PROVINCE (new format) : ", province)
-            # Check for other_state (fallback for old form)
-            else:
-                province_state = request.POST.get('state')
-                other_state = request.POST.get('other_state')
-                
-                if province_state == 'autre_ville' and other_state:
-                    state = other_state
-                    province = request.POST.get('province')
-                else:
-                    # If we still don't have valid values, raise an error
-                    raise ValueError("Invalid province or state values")
+            province_state = request.POST.get('state')
+            other_state = request.POST.get('other_state')
+            # print("STATE : ", province_state)
+            # print("OTHER_STATE : ", other_state)
 
-        except Exception as e:
-            print(f"Error processing province/state: {e}")
+            if province_state == 'autre_ville' and other_state:
+                state = other_state  # On récupère ce que l'utilisateur a saisi
+                province = request.POST.get('province')
+                # print("STATE Changed : ", state)
+            else:
+                state = request.POST['state']
+                if request.method == "POST":
+                    province, state = state.split("|")
+                    print("STATE : ", state)
+                    print("PROVINCE : ", province)
+
+        except:
             messages.warning(
-                request, 'Veuillez nous contacter car ce pays n\'est pas dans notre liste de livraison')
+                request, 'Please contact us because this country is not in our shipping list')
             return redirect(request.META.get('HTTP_REFERER'))
 
         street_address = request.POST['street']
@@ -843,15 +832,7 @@ def payment(request):
         # return HttpResponse(f"your info is request")
         state_obj = state
         province_obj = province
-        
-        # Validate country code exists in allcountries
-        try:
-            country_obj = dict(allcountries)[str(country)]
-        except KeyError:
-            messages.warning(
-                request, 'Veuillez nous contacter car ce pays n\'est pas dans notre liste de livraison')
-            return redirect(request.META.get('HTTP_REFERER'))
-        
+        country_obj = dict(allcountries)[str(country)]
         country_code = country
         if country_code == settings.ARAMEX_ACCOUNTCOUNTRYCODE:
             product_group = "DOM"

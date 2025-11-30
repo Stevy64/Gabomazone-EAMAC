@@ -126,13 +126,13 @@ window.onload = function () {
                                         <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
                                         <span class="favorite-count">${likeCount}</span>
                                     </button>
-                                </div>
+                                            </div>
                                 <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
                                     <h3 class="flavoriz-product-title" onclick="window.location.href='/product-details/${productSlug}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">${productName}</h3>
                                     <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
                                         <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">${price} XOF</span>
                                         ${discountPrice ? `<span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} XOF</span>` : ''}
-                                    </div>
+                                            </div>
                                     <div style="display: flex; gap: 8px; margin-top: auto;">
                                         <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${productSlug}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
                                             <i class="fi-rs-eye" style="font-size: 13px;"></i>
@@ -141,9 +141,9 @@ window.onload = function () {
                                         <button class="flavoriz-add-cart-btn" data-product-id="${productId}" data-product-price="${price}" type="button" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
                                             <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
                                         </button>
-                                    </div>
-                                </div>
-                            </div>
+                                                </div>
+                                            </div>
+                                        </div>
                         `;
                     });
                     

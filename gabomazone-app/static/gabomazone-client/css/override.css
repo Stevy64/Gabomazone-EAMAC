@@ -239,47 +239,6 @@ textarea:focus {
     color: #555555 !important;
 }
 
-/* ===== Mobile Bottom Navigation ===== */
-.bottom-nav {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: #FFFFFF !important;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1) !important;
-    display: flex !important;
-    justify-content: space-around !important;
-    align-items: center !important;
-    padding: 12px 0 !important;
-    z-index: 1000 !important;
-    border-top: 1px solid rgba(255, 123, 44, 0.1) !important;
-}
-
-.bottom-nav-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-decoration: none !important;
-    color: #888888 !important;
-    transition: all 0.2s ease !important;
-    padding: 8px 16px !important;
-    border-radius: 12px !important;
-}
-
-.bottom-nav-item.active {
-    color: #FF7B2C !important;
-}
-
-.bottom-nav-item i {
-    font-size: 24px !important;
-    margin-bottom: 4px !important;
-}
-
-.bottom-nav-item span {
-    font-size: 12px !important;
-    font-weight: 500 !important;
-}
-
 /* ===== Hero Sections ===== */
 .hero-slider-1,
 .home-slide-cover {

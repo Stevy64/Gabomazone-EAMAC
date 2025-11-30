@@ -42,7 +42,8 @@ urlpatterns = [
     path('order-details/<int:id>/',
          views.supplier_orders_detail, name='order-details'),
     path('payments/', views.payments, name="payments"), 
-    path('request_payment/', views.request_payment, name="request-payment"),    
+    path('request_payment/', views.request_payment, name="request-payment"),
+    path('notifications/', views.get_notifications, name="notifications"),
 
 
 ]

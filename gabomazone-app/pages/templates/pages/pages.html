@@ -2,59 +2,598 @@
 {% load static %}
 
 {%block body%}
-<!-- ===== Page Content FLAVORIZ Design ===== -->
-<section class="flavoriz-section" style="margin-top: var(--spacing-lg); padding: 0 var(--spacing-lg);">
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <!-- Breadcrumb -->
-        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px; margin-bottom: var(--spacing-lg);">
-            <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none;">Accueil</a>
-            <span>/</span>
-            <span style="color: var(--color-orange);">{{page.name}}</span>
+{% if page.slug == 'about-us' or 'about' in page.slug|lower or 'a-propos' in page.slug|lower %}
+<!-- ===== Page À Propos - Design Professionnel FLAVORIZ ===== -->
+<section class="flavoriz-section" style="padding: 0; margin-top: 0;">
+    
+    <!-- ===== SECTION HERO ===== -->
+    <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <!-- Breadcrumb -->
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px; margin-bottom: var(--spacing-xl);">
+                <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
+                <span>/</span>
+                <span style="color: var(--color-orange); font-weight: 600;">À Propos</span>
+            </div>
+            
+            <!-- Hero Content -->
+            <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+                <h1 style="font-size: 64px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-md); line-height: 1.1; letter-spacing: -0.02em;">
+                    À Propos de Nous
+                </h1>
+                <p style="font-size: 22px; color: var(--text-gray); line-height: 1.7; margin: 0; font-weight: 400;">
+                    Votre partenaire de confiance pour tous vos besoins en ligne au Gabon
+                </p>
+            </div>
         </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 300px; gap: var(--spacing-2xl);">
-            <!-- Main Content -->
-            <div style="background: var(--color-white); border-radius: var(--radius-xl); padding: var(--spacing-2xl); box-shadow: var(--shadow-sm);">
-                <h1 style="font-size: 48px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-xl);">{{page.name}}</h1>
-                <div style="font-size: 16px; line-height: 1.8; color: var(--text-dark);">
-                    {{page.content|safe}}
+    </div>
+    
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: var(--spacing-2xl) var(--spacing-lg);" class="about-main-content">
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-2xl);" class="about-content-grid">
+            
+            <!-- Colonne Principale -->
+            <div>
+                
+                <!-- Section: Notre Histoire -->
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-book" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0;">Notre Histoire</h2>
+                    </div>
+                    <div style="font-size: 17px; line-height: 1.9; color: var(--text-dark);">
+                        <p style="margin-bottom: var(--spacing-md);">
+                            <strong>GabomaZone</strong> est née de la vision de rendre le commerce en ligne accessible à tous les Gabonais. 
+                            Fondée avec la conviction que chaque personne mérite d'accéder facilement à une large gamme de produits de qualité, 
+                            notre plateforme a été conçue pour répondre aux besoins spécifiques du marché gabonais.
+                        </p>
+                        <p style="margin-bottom: var(--spacing-md);">
+                            Depuis nos débuts, nous avons construit une communauté de confiance en privilégiant la qualité, 
+                            la transparence et l'excellence du service client. Notre équipe travaille sans relâche pour sélectionner 
+                            les meilleurs produits et partenaires, garantissant ainsi une expérience d'achat exceptionnelle à nos clients.
+                        </p>
+                        <p style="margin-bottom: var(--spacing-md);">
+                            Aujourd'hui, <strong>GabomaZone</strong> est devenue une référence dans l'e-commerce au Gabon, 
+                            offrant une variété impressionnante de produits allant de l'électronique à la mode, en passant par 
+                            les produits du quotidien. Nous continuons d'innover et d'améliorer nos services pour mieux vous servir.
+                        </p>
+                        {% if page.content and page.content|striptags|length > 50 %}
+                        <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 2px solid #E5E7EB;">
+                            {{page.content|safe}}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
+                
+                <!-- Section: Nos Valeurs -->
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-xl);">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-heart" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0;">Nos Valeurs</h2>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-lg);" class="valeurs-grid">
+                        <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 32px; padding: var(--spacing-xl); text-align: center; transition: all 0.3s ease; border: 2px solid transparent;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.12)'; this.style.borderColor='rgba(255, 123, 44, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='transparent'">
+                            <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
+                                <i class="fi-rs-shield-check" style="font-size: 36px; color: white;"></i>
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-xs);">Qualité Garantie</h3>
+                            <p style="font-size: 15px; color: var(--text-gray); line-height: 1.6; margin: 0;">Nous sélectionnons rigoureusement chaque produit pour garantir votre satisfaction totale.</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 32px; padding: var(--spacing-xl); text-align: center; transition: all 0.3s ease; border: 2px solid transparent;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.12)'; this.style.borderColor='rgba(255, 123, 44, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='transparent'">
+                            <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
+                                <i class="fi-rs-truck" style="font-size: 36px; color: white;"></i>
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-xs);">Livraison Rapide</h3>
+                            <p style="font-size: 15px; color: var(--text-gray); line-height: 1.6; margin: 0;">Expédition rapide et sécurisée dans toutes les provinces du Gabon.</p>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 32px; padding: var(--spacing-xl); text-align: center; transition: all 0.3s ease; border: 2px solid transparent;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.12)'; this.style.borderColor='rgba(255, 123, 44, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='transparent'">
+                            <div style="width: 72px; height: 72px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md); box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
+                                <i class="fi-rs-headphones" style="font-size: 36px; color: white;"></i>
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-xs);">Support Client</h3>
+                            <p style="font-size: 15px; color: var(--text-gray); line-height: 1.6; margin: 0;">Notre équipe dévouée est disponible pour répondre à toutes vos questions.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section: Notre Mission -->
+                <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 32px; padding: var(--spacing-2xl); color: white; box-shadow: 0 8px 32px rgba(255, 123, 44, 0.3);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
+                        <div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-target" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <h2 style="font-size: 32px; font-weight: 700; color: white; margin: 0;">Notre Mission</h2>
+                    </div>
+                    <p style="font-size: 18px; line-height: 1.8; color: rgba(255, 255, 255, 0.95); margin: 0;">
+                        Notre mission est de rendre le shopping en ligne accessible, pratique et agréable pour tous les Gabonais. 
+                        Nous nous engageons à offrir une expérience d'achat exceptionnelle avec des produits de qualité, 
+                        un service client irréprochable et une livraison fiable dans tout le pays.
+                    </p>
+                </div>
+                
             </div>
             
             <!-- Sidebar -->
-            <div style="position: sticky; top: 100px; height: fit-content;">
-                <!-- New Products Widget -->
-                <div style="background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--spacing-lg);">
-                    <h3 style="font-size: 20px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-lg);">Nouveaux produits</h3>
+            <div style="position: sticky; top: 120px; height: fit-content;">
+                
+                <!-- Carte Contact -->
+                <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 32px; padding: var(--spacing-xl); color: white; margin-bottom: var(--spacing-lg); box-shadow: 0 8px 32px rgba(255, 123, 44, 0.3);">
+                    <h3 style="font-size: 26px; font-weight: 700; color: white; margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 10px;">
+                        <i class="fi-rs-phone-call" style="font-size: 24px;"></i>
+                        Contactez-nous
+                    </h3>
+                    <p style="font-size: 16px; color: rgba(255, 255, 255, 0.95); line-height: 1.6; margin-bottom: var(--spacing-lg);">
+                        Une question ? Notre équipe est à votre écoute pour vous accompagner.
+                    </p>
+                    
+                    <!-- Informations de contact -->
+                    {% for number_obj in support_number|slice:"0:1" %}
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-phone" style="font-size: 18px; color: white;"></i>
+                            <a href="tel:{{number_obj.number}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{number_obj.number}}</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if site_info.email %}
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-envelope" style="font-size: 18px; color: white;"></i>
+                            <a href="mailto:{{site_info.email}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{site_info.email}}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'contact:contact' %}" style="display: block; background: white; color: var(--color-orange); padding: 16px 24px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 16px; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 0, 0, 0.1)'">
+                        Envoyer un message
+                    </a>
+                </div>
+                
+                <!-- Widget Nouveaux Produits -->
+                {% if new_products %}
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-lg);">
+                    <h3 style="font-size: 24px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: 10px;">
+                        <i class="fi-rs-star" style="color: var(--color-orange); font-size: 22px;"></i>
+                        Nouveautés
+                    </h3>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
-                        {% for new_product in new_products %}
-                        <a href="{% url 'products:product-details' new_product.PRDSlug%}" style="display: flex; gap: var(--spacing-sm); text-decoration: none; transition: all 0.2s ease; padding: var(--spacing-sm); border-radius: var(--radius-md);" onmouseover="this.style.background='var(--color-off-white)'" onmouseout="this.style.background='transparent'">
-                            <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); flex-shrink: 0;" />
-                            <div style="flex: 1; min-width: 0;">
-                                <h6 style="font-size: 14px; font-weight: 600; color: var(--color-black); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{new_product.product_name|truncatechars:20}}</h6>
-                                <p style="font-size: 16px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|floatformat:0}} XOF</p>
+                        {% for new_product in new_products|slice:":4" %}
+                        <a href="{% url 'products:product-details' new_product.PRDSlug%}" style="display: flex; gap: var(--spacing-md); text-decoration: none; transition: all 0.3s ease; padding: var(--spacing-md); border-radius: 16px; border: 2px solid transparent;" onmouseover="this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'; this.style.transform='translateX(4px)'" onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.transform='translateX(0)'">
+                            <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 14px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);" />
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                                <h6 style="font-size: 15px; font-weight: 600; color: var(--color-black); margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{new_product.product_name}}</h6>
+                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|floatformat:0}} XOF</p>
                             </div>
                         </a>
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
                 
-                <!-- Ad Banner -->
+                <!-- Bannière Publicitaire -->
                 {% for shop_ad in shop_page_ad|slice:"0:1" %}
-                <div style="background: var(--color-white); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
-                    <a href="{{shop_ad.ad_URL}}">
-                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: var(--radius-md); margin-bottom: var(--spacing-md);" />
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
+                    <a href="{{shop_ad.ad_URL}}" style="text-decoration: none; display: block;">
+                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
                         <div>
-                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase;">{{shop_ad.supplier}}</span>
-                            <h4 style="font-size: 18px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0;">
-                                <a href="{{shop_ad.ad_URL}}" style="color: var(--color-black); text-decoration: none;">{{shop_ad.ad_title}}</a>
+                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{shop_ad.supplier}}</span>
+                            <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">
+                                {{shop_ad.ad_title}}
                             </h4>
                         </div>
                     </a>
                 </div>
                 {% endfor %}
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Styles Responsive - CORRECTION MOBILE COMPLÈTE -->
+    <style>
+        /* ===== MOBILE - CORRECTION COMPLÈTE ===== */
+        @media (max-width: 768px) {
+            /* Hero Section Mobile */
+            .flavoriz-section > div:first-child {
+                padding: 40px 16px 30px !important;
+                border-radius: 0 0 28px 28px !important;
+            }
+            
+            .flavoriz-section > div:first-child h1 {
+                font-size: 32px !important;
+                line-height: 1.2 !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .flavoriz-section > div:first-child p {
+                font-size: 15px !important;
+                line-height: 1.5 !important;
+            }
+            
+            /* Contenu Principal Mobile */
+            .about-main-content {
+                padding: 24px 16px !important;
+            }
+            
+            .about-content-grid {
+                display: block !important;
+                grid-template-columns: none !important;
+            }
+            
+            /* Toutes les sections - border-radius 32px */
+            .about-content-grid > div:first-child > div,
+            .about-content-grid > div:last-child > div {
+                border-radius: 32px !important;
+                padding: 24px !important;
+                margin-bottom: 20px !important;
+            }
+            
+            /* Titres de sections Mobile */
+            .about-content-grid > div:first-child > div > div:first-child h2,
+            .about-content-grid > div:first-child > div h2 {
+                font-size: 22px !important;
+            }
+            
+            .about-content-grid > div:first-child > div > div:first-child > div:first-child {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 14px !important;
+            }
+            
+            .about-content-grid > div:first-child > div > div:first-child > div:first-child i {
+                font-size: 20px !important;
+            }
+            
+            /* Grille Valeurs - 1 colonne sur mobile */
+            .valeurs-grid {
+                display: block !important;
+                grid-template-columns: none !important;
+            }
+            
+            .valeurs-grid > div {
+                width: 100% !important;
+                margin-bottom: 16px !important;
+                border-radius: 32px !important;
+                padding: 24px !important;
+            }
+            
+            .valeurs-grid > div > div:first-child {
+                width: 64px !important;
+                height: 64px !important;
+                border-radius: 20px !important;
+            }
+            
+            /* Sidebar devient normale sur mobile */
+            .about-content-grid > div:last-child {
+                position: static !important;
+                margin-top: 0 !important;
+            }
+        }
+        
+        /* Tablette */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .about-content-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .valeurs-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+    </style>
+</section>
+
+{% else %}
+<!-- ===== Pages Standard FLAVORIZ - Design Moderne et Élégant ===== -->
+<section class="flavoriz-section" style="padding: 0; margin-top: 0;">
+    
+    <!-- ===== SECTION HERO ===== -->
+    <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <!-- Breadcrumb -->
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px; margin-bottom: var(--spacing-xl);">
+                <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
+                <span>/</span>
+                <span style="color: var(--color-orange); font-weight: 600;">{{page.name}}</span>
+            </div>
+            
+            <!-- Hero Content -->
+            <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+                <h1 style="font-size: 64px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-md); line-height: 1.1; letter-spacing: -0.02em;">
+                    {{page.name}}
+                </h1>
+                <p style="font-size: 22px; color: var(--text-gray); line-height: 1.7; margin: 0; font-weight: 400;">
+                    Informations importantes et conditions d'utilisation de notre plateforme
+                </p>
             </div>
         </div>
     </div>
+    
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: var(--spacing-2xl) var(--spacing-lg);" class="page-main-content">
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-2xl);" class="page-content-grid">
+            
+            <!-- Colonne Principale -->
+            <div>
+                <!-- Section: Contenu Principal -->
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-file-text" style="font-size: 24px; color: white;"></i>
+                        </div>
+                        <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0;">{{page.name}}</h2>
+                    </div>
+                    <div style="font-size: 17px; line-height: 1.9; color: var(--text-dark);">
+                        {% if page.content %}
+                            {{page.content|safe}}
+                        {% else %}
+                            <p style="margin-bottom: var(--spacing-md);">
+                                Cette page contient des informations importantes concernant nos conditions d'utilisation, 
+                                nos politiques et nos engagements envers nos clients.
+                            </p>
+                            <p style="margin-bottom: 0;">
+                                Pour toute question supplémentaire, n'hésitez pas à <a href="{% url 'contact:contact' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">nous contacter</a>.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Section: Informations Complémentaires -->
+                <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-md);">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fi-rs-info" style="font-size: 20px; color: white;"></i>
+                        </div>
+                        <h3 style="font-size: 22px; font-weight: 700; color: var(--color-black); margin: 0;">Besoin d'aide ?</h3>
+                    </div>
+                    <p style="font-size: 16px; line-height: 1.7; color: var(--text-dark); margin-bottom: var(--spacing-md);">
+                        Si vous avez des questions concernant cette page ou besoin d'assistance, 
+                        notre équipe de support est disponible pour vous aider.
+                    </p>
+                    <a href="{% url 'contact:contact' %}" style="display: inline-flex; align-items: center; gap: 8px; background: var(--color-orange); color: white; padding: 14px 28px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(255, 123, 44, 0.3)'">
+                        <i class="fi-rs-headphones" style="font-size: 18px;"></i>
+                        Contacter le support
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div style="position: sticky; top: 120px; height: fit-content;">
+                
+                <!-- Carte Contact -->
+                <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 32px; padding: var(--spacing-xl); color: white; margin-bottom: var(--spacing-lg); box-shadow: 0 8px 32px rgba(255, 123, 44, 0.3);">
+                    <h3 style="font-size: 26px; font-weight: 700; color: white; margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 10px;">
+                        <i class="fi-rs-phone-call" style="font-size: 24px;"></i>
+                        Contactez-nous
+                    </h3>
+                    <p style="font-size: 16px; color: rgba(255, 255, 255, 0.95); line-height: 1.6; margin-bottom: var(--spacing-lg);">
+                        Une question ? Notre équipe est à votre écoute pour vous accompagner.
+                    </p>
+                    
+                    <!-- Informations de contact -->
+                    {% for number_obj in support_number|slice:"0:1" %}
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-phone" style="font-size: 18px; color: white;"></i>
+                            <a href="tel:{{number_obj.number}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{number_obj.number}}</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if site_info.email %}
+                    <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-envelope" style="font-size: 18px; color: white;"></i>
+                            <a href="mailto:{{site_info.email}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{site_info.email}}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'contact:contact' %}" style="display: block; background: white; color: var(--color-orange); padding: 16px 24px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 16px; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 0, 0, 0.1)'">
+                        Envoyer un message
+                    </a>
+                </div>
+                
+                <!-- Widget Nouveaux Produits -->
+                {% if new_products %}
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-lg);">
+                    <h3 style="font-size: 24px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: 10px;">
+                        <i class="fi-rs-star" style="color: var(--color-orange); font-size: 22px;"></i>
+                        Nouveautés
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                        {% for new_product in new_products|slice:":4" %}
+                        <a href="{% url 'products:product-details' new_product.PRDSlug%}" style="display: flex; gap: var(--spacing-md); text-decoration: none; transition: all 0.3s ease; padding: var(--spacing-md); border-radius: 16px; border: 2px solid transparent;" onmouseover="this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'; this.style.transform='translateX(4px)'" onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.transform='translateX(0)'">
+                            <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 14px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);" />
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                                <h6 style="font-size: 15px; font-weight: 600; color: var(--color-black); margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{new_product.product_name}}</h6>
+                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|floatformat:0}} XOF</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Bannière Publicitaire -->
+                {% for shop_ad in shop_page_ad|slice:"0:1" %}
+                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
+                    <a href="{{shop_ad.ad_URL}}" style="text-decoration: none; display: block;">
+                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{shop_ad.supplier}}</span>
+                            <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">
+                                {{shop_ad.ad_title}}
+                            </h4>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Styles Responsive -->
+    <style>
+        /* Desktop */
+        @media (max-width: 1200px) {
+            .page-main-content {
+                padding: var(--spacing-xl) var(--spacing-lg) !important;
+            }
+        }
+        
+        /* Tablette */
+        @media (max-width: 1024px) {
+            .page-content-grid {
+                grid-template-columns: 1fr !important;
+                gap: var(--spacing-xl) !important;
+            }
+            
+            .page-content-grid > div:last-child {
+                position: static !important;
+                margin-top: 0 !important;
+            }
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            /* Hero Section Mobile */
+            .flavoriz-section > div:first-child {
+                padding: 50px 16px 40px !important;
+                border-radius: 0 0 28px 28px !important;
+            }
+            
+            .flavoriz-section > div:first-child > div {
+                padding: 0 !important;
+            }
+            
+            .flavoriz-section > div:first-child h1 {
+                font-size: 36px !important;
+                line-height: 1.2 !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .flavoriz-section > div:first-child p {
+                font-size: 16px !important;
+                line-height: 1.6 !important;
+            }
+            
+            /* Breadcrumb Mobile */
+            .flavoriz-section > div:first-child > div > div:first-child {
+                margin-bottom: 24px !important;
+                font-size: 13px !important;
+            }
+            
+            /* Contenu Principal Mobile */
+            .page-main-content {
+                padding: var(--spacing-xl) 16px !important;
+            }
+            
+            .page-content-grid {
+                grid-template-columns: 1fr !important;
+                gap: var(--spacing-lg) !important;
+            }
+            
+            /* Sections Mobile */
+            .page-content-grid > div:first-child > div {
+                padding: var(--spacing-lg) !important;
+                border-radius: 28px !important;
+                margin-bottom: var(--spacing-lg) !important;
+            }
+            
+            /* Titres de sections Mobile */
+            .page-content-grid > div:first-child > div > div:first-child {
+                flex-direction: row !important;
+                gap: 10px !important;
+                margin-bottom: var(--spacing-md) !important;
+            }
+            
+            .page-content-grid > div:first-child > div > div:first-child > div:first-child {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 12px !important;
+            }
+            
+            .page-content-grid > div:first-child > div > div:first-child > div:first-child i {
+                font-size: 20px !important;
+            }
+            
+            .page-content-grid > div:first-child > div h2 {
+                font-size: 24px !important;
+            }
+            
+            .page-content-grid > div:first-child > div > div:last-child {
+                padding: var(--spacing-lg) !important;
+                border-radius: 28px !important;
+            }
+            
+            .page-content-grid > div:first-child > div > div:last-child > div:first-child {
+                width: 36px !important;
+                height: 36px !important;
+                border-radius: 10px !important;
+            }
+            
+            .page-content-grid > div:first-child > div > div:last-child h3 {
+                font-size: 20px !important;
+            }
+            
+            /* Sidebar Mobile */
+            .page-content-grid > div:last-child {
+                position: static !important;
+                margin-top: 0 !important;
+            }
+            
+            .page-content-grid > div:last-child > div {
+                border-radius: 28px !important;
+                padding: var(--spacing-lg) !important;
+                margin-bottom: var(--spacing-lg) !important;
+            }
+            
+            /* Carte Contact Mobile */
+            .page-content-grid > div:last-child > div:first-child h3 {
+                font-size: 22px !important;
+            }
+            
+            .page-content-grid > div:last-child > div:first-child p {
+                font-size: 15px !important;
+            }
+            
+            /* Widget Produits Mobile */
+            .page-content-grid > div:last-child > div:nth-child(2) h3 {
+                font-size: 20px !important;
+            }
+            
+            .page-content-grid > div:last-child > div:nth-child(2) a {
+                padding: 12px !important;
+                gap: 12px !important;
+            }
+            
+            .page-content-grid > div:last-child > div:nth-child(2) a img {
+                width: 80px !important;
+                height: 80px !important;
+                border-radius: 12px !important;
+            }
+            
+            .page-content-grid > div:last-child > div:nth-child(2) a h6 {
+                font-size: 14px !important;
+            }
+            
+            .page-content-grid > div:last-child > div:nth-child(2) a p {
+                font-size: 16px !important;
+            }
+        }
+    </style>
 </section>
+{% endif %}
 {%endblock body%}

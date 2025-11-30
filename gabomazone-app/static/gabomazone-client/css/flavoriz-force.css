@@ -36,11 +36,63 @@ header:not(.flavoriz-header) {
     opacity: 0 !important;
 }
 
-/* Forcer le body blanc */
+/* Forcer le body blanc avec padding-top pour compenser le header fixe */
 body {
     background: #FFFFFF !important;
     padding: 0 !important;
+    padding-top: 100px !important;
     margin: 0 !important;
+}
+
+/* ===== PADDING TOP POUR TOUTES LES PAGES - FORCER ===== */
+/* Assure que le contenu ne se chevauche JAMAIS avec le header fixe */
+main.main,
+main.main .container,
+main.main .row,
+.flavoriz-hero,
+.flavoriz-section,
+section.flavoriz-section,
+.page-content,
+.content-wrapper,
+.container:not(.flavoriz-hero):not(.flavoriz-section),
+section:first-of-type {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Hero section - première section visible */
+.flavoriz-hero {
+    padding-top: 20px !important;
+    margin-top: 0 !important;
+}
+
+/* Pages de compte */
+main.main.pages {
+    padding-top: 20px !important;
+}
+
+main.main.pages .container {
+    padding-top: 0 !important;
+}
+
+/* Mobile : ajuster le padding-top - header plus haut sur mobile */
+@media (max-width: 768px) {
+    body {
+        padding-top: 110px !important;
+    }
+    
+    .flavoriz-hero {
+        padding-top: 15px !important;
+    }
+    
+    main.main.pages {
+        padding-top: 15px !important;
+    }
+    
+    main.main,
+    main.main .container {
+        padding-top: 0 !important;
+    }
 }
 
 /* Forcer le header FLAVORIZ visible - UN SEUL HEADER - JAMAIS CACHÉ */

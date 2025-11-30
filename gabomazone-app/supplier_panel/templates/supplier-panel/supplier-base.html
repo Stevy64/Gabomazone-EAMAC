@@ -22,6 +22,13 @@
 		<meta name="twitter:site" content="@{{site_info.site_name}}" />
         <!-- Favicon -->
         <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
+        <!-- Material Icons -->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <!-- Font Awesome Fallback -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <!-- HTMX pour navigation SPA -->
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <!-- Template CSS -->
         <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
         <!-- Gabomazone Dashboard Theme -->
@@ -29,111 +36,1557 @@
         {%endblock head%}
     </head>
 
-    <body>
+    <body class="supplier-dashboard-body">
         <div class="screen-overlay"></div>
         <aside class="dashboard-sidebar" id="offcanvas_aside">
             <div class="sidebar-logo">
-                <a href="{% url 'supplier_dashboard:supplier-panel' %}" style="color: white; text-decoration: none;">
-                    <img src="{{site_info.site_logo.url}}" style="height: 40px; margin-right: 12px;" alt="{{site_info.site_name}}" />
-                    <span>{{site_info.site_name}}</span>
+                <a href="{% url 'supplier_dashboard:supplier-panel' %}" class="sidebar-logo-link">
+                    <div class="sidebar-logo-icon">
+                        <span>G</span>
+                    </div>
+                    <div class="sidebar-logo-text">
+                        <div class="sidebar-logo-title">{{site_info.site_name|default:"GabomaZone"}}</div>
+                    </div>
                 </a>
             </div>
-            <nav>
+            <nav class="sidebar-nav">
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()" type="button">
+                    <i class="material-icons sidebar-toggle-icon">chevron_left</i>
+                </button>
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if request.resolver_match.url_name == 'supplier-panel' %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-panel' %}">
-                            <i class="material-icons md-home"></i>
-                            <span>Tableau de bord</span>
+                        <a class="sidebar-menu-link {% if request.resolver_match.url_name == 'supplier-panel' %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-panel' %}" data-tooltip="Tableau de bord" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">home</i>
+                            <span class="sidebar-menu-text">Tableau de bord</span>
                         </a>
                     </li>
                     
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'orders' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-orders-list' %}">
-                            <i class="material-icons md-shopping_cart"></i>
-                            <span>Commandes</span>
+                        <a class="sidebar-menu-link {% if 'orders' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-orders-list' %}" data-tooltip="Commandes" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">shopping_cart</i>
+                            <span class="sidebar-menu-text">Commandes</span>
                         </a>
                     </li>
                    
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-add-product' %}">
-                            <i class="material-icons md-shopping_bag"></i>
-                            <span>Produits</span>
+                        <a class="sidebar-menu-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-add-product' %}" data-tooltip="Produits" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">shopping_bag</i>
+                            <span class="sidebar-menu-text">Produits</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:payments' %}">
-                            <i class="material-icons md-monetization_on"></i>
-                            <span>Paiements</span>
+                        <a class="sidebar-menu-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:payments' %}" data-tooltip="Paiements" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">monetization_on</i>
+                            <span class="sidebar-menu-text">Paiements</span>
                         </a>
                     </li>
                     
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-reviews' %}">
-                            <i class="material-icons md-comment"></i>
-                            <span>Avis</span>
+                        <a class="sidebar-menu-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:supplier-reviews' %}" data-tooltip="Avis" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">comment</i>
+                            <span class="sidebar-menu-text">Avis</span>
                         </a>
                     </li>
                 </ul>
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 0;" />
+                <hr class="sidebar-divider" />
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'bank' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:bank-info' %}">
-                            <i class="material-icons md-settings"></i>
-                            <span>Paramètres</span>
+                        <a class="sidebar-menu-link {% if 'bank' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:bank-info' %}" data-tooltip="Paramètres" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">settings</i>
+                            <span class="sidebar-menu-text">Paramètres</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link" href="{% url 'accounts:dashboard_customer' %}">
-                            <i class="material-icons md-person"></i>
-                            <span>Tableau client</span>
+                        <a class="sidebar-menu-link" href="{% url 'accounts:dashboard_customer' %}" data-tooltip="Tableau client">
+                            <i class="material-icons sidebar-menu-icon">person</i>
+                            <span class="sidebar-menu-text">Tableau client</span>
                         </a>
                     </li>
                 </ul>
+                <div class="sidebar-copyright">
+                    © <script>document.write(new Date().getFullYear());</script> {{site_info.site_name|default:"GabomaZone"}}
+                </div>
             </nav>
         </aside>
         <main class="dashboard-main">
-            <header class="dashboard-header">
-                <div>
-                    <h1>{% block page_title %}Tableau de bord{% endblock %}</h1>
-                    <p class="text-muted mb-0">{% block page_subtitle %}Bienvenue, {{ vendor }}{% endblock %}</p>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn-glass d-lg-none" data-trigger="#offcanvas_aside" style="padding: 8px 16px;">
-                        <i class="material-icons md-menu"></i>
-                    </button>
-                    <div class="dropdown">
-                        <a class="btn-glass dropdown-toggle" href="#" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 8px 16px; text-decoration: none; color: white;">
-                            <img class="rounded-circle" src="{% static 'assets-supplier/imgs/people/avatar-2.png'%}" alt="User" style="width: 32px; height: 32px; margin-right: 8px;" />
-                            <span>{{ vendor }}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
-                            <li><a class="dropdown-item" href="{% url 'accounts:account_details'%}"><i class="material-icons md-perm_identity"></i> Modifier le profil</a></li>
-                            <li><a class="dropdown-item" href="{% url 'supplier_dashboard:bank-info' %}"><i class="material-icons md-settings"></i> Paramètres du compte</a></li>
-                            <li><a class="dropdown-item" href="{% url 'supplier_dashboard:payments' %}"><i class="material-icons md-receipt"></i> Facturation</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout'%}"><i class="material-icons md-exit_to_app"></i> Déconnexion</a></li>
-                        </ul>
+            <!-- Loading Animation pour la partie centrale uniquement -->
+            <div class="content-loader" id="contentLoader">
+                <div class="loader-content">
+                    <div class="loader-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
+                    <p class="loader-text">Chargement...</p>
                 </div>
-            </header>
-            {%block section %}
-            
-            {%endblock section%}
-            <!-- content-main end// -->
-            <footer class="main-footer font-xs">
-                <div class="row pb-30 pt-15">
-                    <div class="col-sm-6">
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>
-                        &copy; {{site_info.site_name}} - All rights reserved.
+            </div>
+            <div class="dashboard-content-wrapper" id="dashboardContentWrapper">
+                <header class="dashboard-header">
+                    <div class="header-left">
+                        <h1 id="pageTitle">{% block page_title %}Tableau de bord{% endblock %}</h1>
+                        <p id="pageSubtitle">{% block page_subtitle %}Bienvenue, {{ vendor }}{% endblock %}</p>
                     </div>
-                    {% comment %} <div class="col-sm-6">
-                        <div class="text-sm-end">Inc.</div>
-                    </div> {% endcomment %}
+                    <div class="header-right">
+                        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button">
+                            <i class="material-icons">menu</i>
+                        </button>
+                        <!-- Notification Dropdown -->
+                        <div class="notification-dropdown">
+                            <button class="notification-btn" type="button" id="notificationBtn" onclick="toggleNotificationDropdown()">
+                                <i class="material-icons">notifications</i>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </button>
+                            <div class="notification-dropdown-menu" id="notificationDropdown">
+                                <div class="notification-header">
+                                    <h3>Notifications</h3>
+                                    <button class="notification-mark-all" onclick="markAllAsRead()">Tout marquer comme lu</button>
+                                </div>
+                                <div class="notification-list" id="notificationList">
+                                    <div class="notification-empty">
+                                        <i class="material-icons">notifications_none</i>
+                                        <p>Chargement des notifications...</p>
+                                    </div>
+                                </div>
+                                <div class="notification-footer">
+                                    <a href="{% url 'supplier_dashboard:supplier-orders-list' %}" class="notification-view-all">Voir toutes les commandes</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- User Dropdown -->
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" href="#" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img class="user-avatar" src="{% static 'assets-supplier/imgs/people/avatar-2.png'%}" alt="User" />
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                                <li><a class="dropdown-item" href="{% url 'accounts:account_details'%}"><i class="material-icons">person</i> Modifier le profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'supplier_dashboard:bank-info' %}"><i class="material-icons">settings</i> Paramètres du compte</a></li>
+                                <li><a class="dropdown-item" href="{% url 'supplier_dashboard:payments' %}"><i class="material-icons">receipt</i> Facturation</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout'%}"><i class="material-icons">logout</i> Déconnexion</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+                <div class="dashboard-content" id="dashboardContent">
+                    {%block section %}
+                    
+                    {%endblock section%}
                 </div>
-            </footer>
+            </div>
         </main>
+        
+        <style>
+            /* Reset et base */
+            * {
+                box-sizing: border-box;
+            }
+            
+            .supplier-dashboard-body {
+                margin: 0;
+                padding: 0;
+                background: #F5F7FA;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                overflow-x: hidden;
+            }
+            
+            /* Content Loader - uniquement pour la partie centrale */
+            .content-loader {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(4px);
+                z-index: 100;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border-radius: 24px;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            
+            .content-loader.active {
+                display: flex;
+            }
+            
+            .content-loader.hidden {
+                opacity: 0;
+                visibility: hidden;
+            }
+            
+            .loader-content {
+                text-align: center;
+            }
+            
+            .loader-dots {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+            
+            .loader-dots span {
+                width: 12px;
+                height: 12px;
+                background: #6B46C1;
+                border-radius: 50%;
+                display: inline-block;
+                animation: bounce 1.4s ease-in-out infinite both;
+            }
+            
+            .loader-dots span:nth-child(1) {
+                animation-delay: -0.32s;
+            }
+            
+            .loader-dots span:nth-child(2) {
+                animation-delay: -0.16s;
+            }
+            
+            @keyframes bounce {
+                0%, 80%, 100% {
+                    transform: scale(0);
+                    opacity: 0.5;
+                }
+                40% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+            
+            .loader-text {
+                color: #6B7280;
+                font-size: 14px;
+                font-weight: 500;
+                margin: 0;
+            }
+            
+            /* Styles pour les icônes Material Icons */
+            .material-icons {
+                font-family: 'Material Icons';
+                font-weight: normal;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                -webkit-font-feature-settings: 'liga';
+                -webkit-font-smoothing: antialiased;
+                speak: none;
+            }
+            
+            /* Fallback avec Font Awesome si Material Icons ne charge pas */
+            .material-icons.fallback {
+                font-family: 'Font Awesome 6 Free' !important;
+                font-weight: 900 !important;
+                font-style: normal !important;
+            }
+            
+            .material-icons.fallback[data-icon="home"]:before { content: "\f015"; }
+            .material-icons.fallback[data-icon="shopping_cart"]:before { content: "\f07a"; }
+            .material-icons.fallback[data-icon="shopping_bag"]:before { content: "\f290"; }
+            .material-icons.fallback[data-icon="monetization_on"]:before { content: "\f3d1"; }
+            .material-icons.fallback[data-icon="comment"]:before { content: "\f075"; }
+            .material-icons.fallback[data-icon="settings"]:before { content: "\f013"; }
+            .material-icons.fallback[data-icon="person"]:before { content: "\f007"; }
+            .material-icons.fallback[data-icon="menu"]:before { content: "\f0c9"; }
+            .material-icons.fallback[data-icon="chevron_left"]:before { content: "\f053"; }
+            .material-icons.fallback[data-icon="search"]:before { content: "\f002"; }
+            .material-icons.fallback[data-icon="notifications"]:before { content: "\f0f3"; }
+            .material-icons.fallback[data-icon="receipt"]:before { content: "\f543"; }
+            .material-icons.fallback[data-icon="logout"]:before { content: "\f2f5"; }
+            
+            /* S'assurer que les icônes sont visibles */
+            .sidebar-menu-icon {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 24px !important;
+                height: 24px !important;
+                min-width: 24px !important;
+                min-height: 24px !important;
+                line-height: 24px !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .sidebar-toggle-icon,
+            .header-right .material-icons {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                line-height: 24px;
+                text-align: center;
+                vertical-align: middle;
+            }
+            
+            /* Screen Overlay */
+            .screen-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .screen-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            /* Sidebar */
+            .dashboard-sidebar {
+                background: #6B46C1;
+                width: 280px;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .sidebar-logo {
+                padding: 24px 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                position: relative;
+                flex-shrink: 0;
+            }
+            
+            .sidebar-logo-link {
+                color: white;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-logo-icon {
+                width: 48px;
+                height: 48px;
+                background: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-logo-icon span {
+                color: #6B46C1;
+                font-size: 24px;
+                font-weight: 800;
+            }
+            
+            .sidebar-logo-text {
+                transition: all 0.3s ease;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            
+            .sidebar-logo-title {
+                font-size: 20px;
+                font-weight: 700;
+                color: white;
+                line-height: 1.2;
+            }
+            
+            .sidebar-toggle-btn {
+                width: 100%;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                padding: 12px;
+                border-radius: 12px;
+                color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                margin-bottom: 16px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            .sidebar-toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-toggle-btn {
+                padding: 12px;
+                justify-content: center;
+            }
+            
+            .sidebar-toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.25);
+                opacity: 1;
+            }
+            
+            .sidebar-toggle-icon {
+                font-size: 20px;
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar-nav {
+                padding: 20px 16px;
+                flex: 1;
+                overflow-y: auto;
+                overflow-x: hidden;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
+            
+            .sidebar-menu {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .sidebar-menu-item {
+                margin-bottom: 8px;
+            }
+            
+            .sidebar-menu-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 16px;
+                background: transparent;
+                color: white;
+                text-decoration: none;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 12px;
+                font-size: 14px;
+                font-weight: 500;
+                position: relative;
+            }
+            
+            .sidebar-menu-link.active {
+                background: #E0E7FF;
+                color: #6B46C1;
+                font-weight: 600;
+            }
+            
+            .sidebar-menu-link:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            
+            .sidebar-menu-link.active:hover {
+                background: #E0E7FF;
+                color: #6B46C1;
+            }
+            
+            .sidebar-menu-icon {
+                font-size: 24px;
+                width: 24px;
+                flex-shrink: 0;
+                text-align: center;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-menu-text {
+                transition: all 0.3s ease;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            
+            .sidebar-divider {
+                border-color: rgba(255, 255, 255, 0.2);
+                margin: 24px 0;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-copyright {
+                margin-top: auto;
+                padding-top: 20px;
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 12px;
+                transition: all 0.3s ease;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            
+            /* Sidebar rétractée */
+            .dashboard-sidebar.collapsed {
+                width: 80px;
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-logo-text {
+                opacity: 0;
+                width: 0;
+                margin: 0;
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-menu-text {
+                opacity: 0;
+                width: 0;
+                margin: 0;
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-menu-link {
+                justify-content: center;
+                padding: 12px;
+                min-width: 56px;
+            }
+            
+            /* Corriger les icônes écrasées quand la sidebar est rétractée */
+            .dashboard-sidebar.collapsed .sidebar-menu-icon {
+                width: 24px !important;
+                height: 24px !important;
+                min-width: 24px !important;
+                min-height: 24px !important;
+                flex-shrink: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 24px !important;
+                line-height: 1 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* S'assurer que les liens gardent leur taille minimale */
+            .dashboard-sidebar.collapsed .sidebar-menu-item {
+                display: flex;
+                justify-content: center;
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-divider {
+                margin: 20px 12px;
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-toggle-icon {
+                transform: rotate(180deg);
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-copyright {
+                opacity: 0;
+                font-size: 0;
+            }
+            
+            /* Bouton toggle toujours visible quand sidebar rétractée */
+            .dashboard-sidebar.collapsed .sidebar-toggle-btn {
+                opacity: 1;
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .dashboard-sidebar.collapsed .sidebar-toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+            
+            /* Tooltip pour sidebar rétractée */
+            .dashboard-sidebar.collapsed .sidebar-menu-link:hover::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                left: 100%;
+                top: 50%;
+                transform: translateY(-50%);
+                margin-left: 12px;
+                background: #1F2937;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 8px;
+                font-size: 13px;
+                white-space: nowrap;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                pointer-events: none;
+                animation: tooltipFadeIn 0.2s ease;
+            }
+            
+            @keyframes tooltipFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-50%) translateX(-8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(-50%) translateX(0);
+                }
+            }
+            
+            /* Scrollbar personnalisée */
+            .sidebar-nav::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .sidebar-nav::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .sidebar-nav::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 3px;
+            }
+            
+            .sidebar-nav::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+            
+            /* Main Content */
+            .dashboard-main {
+                margin-left: 280px;
+                min-height: 100vh;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding: 32px;
+                background: #F5F7FA;
+                position: relative;
+            }
+            
+            .dashboard-main.sidebar-collapsed {
+                margin-left: 80px;
+            }
+            
+            .dashboard-content-wrapper {
+                background: white;
+                border-radius: 24px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                overflow: visible;
+                min-height: calc(100vh - 64px);
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .dashboard-content {
+                padding: 32px;
+                flex: 1;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .dashboard-header {
+                background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+                padding: 20px 32px;
+                border-bottom: 1px solid #E5E7EB;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 20px;
+                flex-shrink: 0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                position: relative;
+                z-index: 100;
+            }
+            
+            .header-left h1 {
+                font-size: 26px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin: 0 0 4px 0;
+            }
+            
+            .header-left p {
+                color: #6B7280;
+                margin: 0;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                position: relative;
+                z-index: 101;
+            }
+            
+            .mobile-menu-btn {
+                padding: 10px;
+                background: #F3F4F6;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+            
+            .mobile-menu-btn:hover {
+                background: #E5E7EB;
+            }
+            
+            .mobile-menu-btn i {
+                font-size: 20px;
+                color: #1F2937;
+            }
+            
+            /* Notification System */
+            .notification-dropdown {
+                position: relative;
+                z-index: 1100;
+            }
+            
+            .notification-btn {
+                background: #F3F4F6;
+                border: none;
+                padding: 10px;
+                border-radius: 12px;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+            }
+            
+            .notification-btn:hover {
+                background: #E5E7EB;
+                transform: translateY(-1px);
+            }
+            
+            .notification-btn i {
+                font-size: 22px;
+                color: #6B7280;
+            }
+            
+            .notification-badge {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                color: white;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 2px 6px;
+                border-radius: 10px;
+                min-width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.1);
+                }
+            }
+            
+            .notification-dropdown-menu {
+                position: fixed;
+                top: auto;
+                right: auto;
+                width: 380px;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+                z-index: 1100 !important;
+                display: none;
+                flex-direction: column;
+                max-height: 500px;
+                overflow: hidden;
+                border: 1px solid #E5E7EB;
+            }
+            
+            .notification-dropdown-menu.show {
+                display: flex;
+                position: fixed !important;
+            }
+            
+            .notification-header {
+                padding: 20px;
+                border-bottom: 1px solid #E5E7EB;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+            }
+            
+            .notification-header h3 {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 700;
+                color: #1F2937;
+            }
+            
+            .notification-mark-all {
+                background: none;
+                border: none;
+                color: #6B46C1;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+            }
+            
+            .notification-mark-all:hover {
+                background: #F3F4F6;
+            }
+            
+            .notification-list {
+                max-height: 400px;
+                overflow-y: auto;
+                padding: 8px;
+            }
+            
+            .notification-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px;
+                border-radius: 12px;
+                margin-bottom: 8px;
+                transition: all 0.2s ease;
+                position: relative;
+                background: #F9FAFB;
+            }
+            
+            .notification-item:hover {
+                background: #F3F4F6;
+            }
+            
+            .notification-item.unread {
+                background: #EFF6FF;
+                border-left: 3px solid #6B46C1;
+            }
+            
+            .notification-item.unread:hover {
+                background: #DBEAFE;
+            }
+            
+            .notification-icon {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            
+            .notification-icon i {
+                color: white;
+                font-size: 20px;
+            }
+            
+            .notification-content {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .notification-title {
+                font-size: 14px;
+                font-weight: 600;
+                color: #1F2937;
+                margin-bottom: 4px;
+            }
+            
+            .notification-time {
+                font-size: 12px;
+                color: #6B7280;
+            }
+            
+            .notification-close {
+                background: none;
+                border: none;
+                color: #9CA3AF;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                opacity: 0;
+            }
+            
+            .notification-item:hover .notification-close {
+                opacity: 1;
+            }
+            
+            .notification-close:hover {
+                background: #FEE2E2;
+                color: #DC2626;
+            }
+            
+            .notification-close i {
+                font-size: 18px;
+            }
+            
+            .notification-empty {
+                padding: 40px 20px;
+                text-align: center;
+                color: #9CA3AF;
+            }
+            
+            .notification-empty i {
+                font-size: 48px;
+                margin-bottom: 12px;
+                opacity: 0.5;
+            }
+            
+            .notification-empty p {
+                margin: 0;
+                font-size: 14px;
+            }
+            
+            .notification-footer {
+                padding: 16px;
+                border-top: 1px solid #E5E7EB;
+                text-align: center;
+                background: #F9FAFB;
+            }
+            
+            .notification-view-all {
+                color: #6B46C1;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+            }
+            
+            .notification-view-all:hover {
+                color: #8B5CF6;
+            }
+            
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                object-fit: cover;
+                border: 2px solid #E5E7EB;
+                border-radius: 50%;
+            }
+            
+            .dropdown-menu {
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+                border: none;
+                padding: 8px;
+                margin-top: 8px;
+                min-width: 220px;
+                z-index: 1100 !important;
+            }
+            
+            .dropdown {
+                position: relative;
+                z-index: 1100;
+            }
+            
+            .dropdown-item {
+                padding: 10px 14px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #1F2937;
+                text-decoration: none;
+                transition: all 0.2s ease;
+            }
+            
+            .dropdown-item:hover {
+                background: #F3F4F6;
+            }
+            
+            .dropdown-item i {
+                font-size: 18px;
+            }
+            
+            .dropdown-item.text-danger {
+                color: #DC2626;
+            }
+            
+            .dropdown-item.text-danger:hover {
+                background: #FEE2E2;
+            }
+            
+            
+            /* Responsive Mobile */
+            @media (max-width: 991px) {
+                .dashboard-sidebar {
+                    transform: translateX(-100%);
+                    width: 280px;
+                }
+                
+                .dashboard-sidebar.show {
+                    transform: translateX(0);
+                }
+                
+                .dashboard-sidebar.collapsed {
+                    width: 280px;
+                }
+                
+                .dashboard-main {
+                    margin-left: 0;
+                    padding: 12px;
+                }
+                
+                .dashboard-main.sidebar-collapsed {
+                    margin-left: 0;
+                }
+                
+                .sidebar-toggle-btn {
+                    display: none;
+                }
+                
+                .dashboard-content-wrapper {
+                    border-radius: 16px;
+                    min-height: calc(100vh - 24px);
+                }
+                
+                .dashboard-header {
+                    padding: 16px 20px;
+                }
+                
+                .header-left h1 {
+                    font-size: 22px;
+                }
+                
+                .header-left p {
+                    font-size: 13px;
+                }
+                
+                .dashboard-content {
+                    padding: 16px;
+                }
+                
+                .notification-dropdown-menu {
+                    width: calc(100vw - 40px);
+                    max-width: 380px;
+                    right: 20px !important;
+                    left: auto !important;
+                }
+                
+                .notification-dropdown-menu.show {
+                    position: fixed !important;
+                }
+                
+                .dropdown-menu {
+                    width: calc(100vw - 40px);
+                    max-width: 220px;
+                }
+                
+                .dropdown-menu.show {
+                    position: fixed !important;
+                }
+            }
+            
+            @media (max-width: 576px) {
+                .dashboard-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .header-right {
+                    width: 100%;
+                    justify-content: space-between;
+                }
+                
+                .header-left h1 {
+                    font-size: 20px;
+                }
+            }
+            
+            /* Desktop: Masquer le bouton mobile */
+            @media (min-width: 992px) {
+                .mobile-menu-btn {
+                    display: none;
+                }
+            }
+            
+            @media (max-width: 991px) {
+                .mobile-menu-btn {
+                    display: flex;
+                }
+            }
+        </style>
+        
+        <script>
+            // Fonction pour toggle la sidebar (desktop)
+            function toggleSidebar() {
+                if (window.innerWidth <= 991) {
+                    toggleMobileSidebar();
+                    return;
+                }
+                
+                const sidebar = document.querySelector('.dashboard-sidebar');
+                const main = document.querySelector('.dashboard-main');
+                
+                if (!sidebar || !main) return;
+                
+                sidebar.classList.toggle('collapsed');
+                main.classList.toggle('sidebar-collapsed');
+                
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+            
+            // Fonction pour toggle la sidebar mobile
+            function toggleMobileSidebar() {
+                const sidebar = document.querySelector('.dashboard-sidebar');
+                const overlay = document.querySelector('.screen-overlay');
+                
+                if (!sidebar) return;
+                
+                sidebar.classList.toggle('show');
+                if (overlay) {
+                    overlay.classList.toggle('active');
+                }
+            }
+            
+            // Vérifier si Material Icons est chargé
+            function checkMaterialIcons() {
+                setTimeout(function() {
+                    const testIcon = document.createElement('i');
+                    testIcon.className = 'material-icons';
+                    testIcon.textContent = 'home';
+                    testIcon.style.position = 'absolute';
+                    testIcon.style.left = '-9999px';
+                    testIcon.style.visibility = 'hidden';
+                    document.body.appendChild(testIcon);
+                    
+                    const computedStyle = window.getComputedStyle(testIcon);
+                    const fontFamily = computedStyle.fontFamily || '';
+                    const isLoaded = fontFamily.includes('Material Icons') || fontFamily.includes('MaterialIcons');
+                    
+                    document.body.removeChild(testIcon);
+                    
+                    if (!isLoaded) {
+                        // Utiliser Font Awesome comme fallback
+                        document.querySelectorAll('.material-icons').forEach(function(icon) {
+                            const iconName = icon.textContent.trim();
+                            if (iconName) {
+                                icon.classList.add('fallback');
+                                icon.setAttribute('data-icon', iconName);
+                                icon.textContent = '';
+                            }
+                        });
+                    }
+                }, 100);
+            }
+            
+            // Afficher le loader de contenu
+            function showContentLoader() {
+                const loader = document.getElementById('contentLoader');
+                if (loader) {
+                    loader.classList.add('active');
+                }
+            }
+            
+            // Masquer le loader de contenu
+            function hideContentLoader() {
+                const loader = document.getElementById('contentLoader');
+                if (loader) {
+                    loader.classList.add('hidden');
+                    setTimeout(function() {
+                        loader.classList.remove('active', 'hidden');
+                    }, 300);
+                }
+            }
+            
+            // Navigation SPA - Intercepter les clics sur les liens de la sidebar
+            function initSPANavigation() {
+                document.querySelectorAll('[data-spa-link]').forEach(function(link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('href');
+                        
+                        if (!url) return;
+                        
+                        // Mettre à jour l'état actif dans la sidebar
+                        document.querySelectorAll('.sidebar-menu-link').forEach(function(l) {
+                            l.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Afficher le loader
+                        showContentLoader();
+                        
+                        // Charger le contenu via fetch
+                        fetch(url, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-SPA-Request': 'true'
+                            }
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Parser le HTML
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            
+                            // Extraire le contenu de la section
+                            const newContent = doc.querySelector('.dashboard-content');
+                            const newTitle = doc.querySelector('#pageTitle, .dashboard-header h1');
+                            const newSubtitle = doc.querySelector('#pageSubtitle, .dashboard-header p');
+                            
+                            // Mettre à jour le contenu
+                            const contentWrapper = document.getElementById('dashboardContent');
+                            if (newContent && contentWrapper) {
+                                contentWrapper.innerHTML = newContent.innerHTML;
+                            }
+                            
+                            // Mettre à jour le titre et sous-titre
+                            const titleEl = document.getElementById('pageTitle');
+                            const subtitleEl = document.getElementById('pageSubtitle');
+                            if (newTitle && titleEl) {
+                                titleEl.textContent = newTitle.textContent;
+                            }
+                            if (newSubtitle && subtitleEl) {
+                                subtitleEl.textContent = newSubtitle.textContent;
+                            }
+                            
+                            // Mettre à jour l'URL sans recharger la page
+                            window.history.pushState({}, '', url);
+                            
+                            // Réinitialiser les scripts si nécessaire
+                            if (typeof reinitializeScripts === 'function') {
+                                reinitializeScripts();
+                            }
+                            
+                            // Masquer le loader
+                            hideContentLoader();
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors du chargement:', error);
+                            hideContentLoader();
+                            // Fallback: recharger la page normalement
+                            window.location.href = url;
+                        });
+                    });
+                });
+            }
+            
+            // Gérer le bouton retour du navigateur
+            window.addEventListener('popstate', function(e) {
+                // Recharger la page actuelle
+                window.location.reload();
+            });
+            
+            // Toggle Notification Dropdown
+            function toggleNotificationDropdown() {
+                const dropdown = document.getElementById('notificationDropdown');
+                const btn = document.getElementById('notificationBtn');
+                if (dropdown && btn) {
+                    const isShowing = dropdown.classList.contains('show');
+                    if (!isShowing) {
+                        // Calculer la position du dropdown
+                        const rect = btn.getBoundingClientRect();
+                        const dropdownWidth = dropdown.offsetWidth || 380;
+                        const dropdownHeight = dropdown.offsetHeight || 500;
+                        
+                        dropdown.style.position = 'fixed';
+                        
+                        // Calculer la position verticale
+                        let topPosition = rect.bottom + 12;
+                        // Si le dropdown dépasse en bas, le positionner au-dessus
+                        if (topPosition + dropdownHeight > window.innerHeight) {
+                            topPosition = rect.top - dropdownHeight - 12;
+                            // S'assurer qu'il ne dépasse pas en haut non plus
+                            if (topPosition < 0) {
+                                topPosition = 12;
+                            }
+                        }
+                        dropdown.style.top = topPosition + 'px';
+                        
+                        // Calculer la position horizontale
+                        if (window.innerWidth <= 991) {
+                            // Mode mobile : aligner à droite avec marge
+                            dropdown.style.right = '20px';
+                            dropdown.style.left = 'auto';
+                        } else {
+                            // Mode desktop : aligner à droite du bouton
+                            let rightPosition = window.innerWidth - rect.right;
+                            // Si le dropdown dépasse à gauche, ajuster
+                            if (rect.left < dropdownWidth) {
+                                rightPosition = 20;
+                            }
+                            // S'assurer qu'il ne dépasse pas à droite
+                            if (rightPosition < 0) {
+                                rightPosition = 20;
+                            }
+                            dropdown.style.right = rightPosition + 'px';
+                            dropdown.style.left = 'auto';
+                        }
+                    }
+                    dropdown.classList.toggle('show');
+                }
+            }
+            
+            // Marquer une notification comme lue
+            function markAsRead(orderId) {
+                const notificationItem = document.querySelector(`[data-order-id="${orderId}"]`);
+                if (notificationItem) {
+                    notificationItem.classList.remove('unread');
+                    updateNotificationBadge();
+                }
+            }
+            
+            // Marquer toutes les notifications comme lues
+            function markAllAsRead() {
+                document.querySelectorAll('.notification-item.unread').forEach(function(item) {
+                    item.classList.remove('unread');
+                });
+                updateNotificationBadge();
+            }
+            
+            // Charger les notifications
+            function loadNotifications() {
+                fetch('{% url "supplier_dashboard:notifications" %}', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const notificationList = document.getElementById('notificationList');
+                    const badge = document.getElementById('notificationBadge');
+                    
+                    if (data.count > 0) {
+                        // Afficher le badge
+                        if (badge) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'flex';
+                        }
+                        
+                        // Afficher les notifications
+                        if (notificationList) {
+                            notificationList.innerHTML = '';
+                            data.notifications.forEach(function(notification) {
+                                const notificationItem = document.createElement('div');
+                                notificationItem.className = 'notification-item unread';
+                                notificationItem.setAttribute('data-order-id', notification.id);
+                                notificationItem.innerHTML = `
+                                    <div class="notification-icon">
+                                        <i class="material-icons">shopping_cart</i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <div class="notification-title">${notification.title}</div>
+                                        <div class="notification-time">${notification.time_ago}</div>
+                                    </div>
+                                    <button class="notification-close" onclick="markAsRead(${notification.id})">
+                                        <i class="material-icons">close</i>
+                                    </button>
+                                `;
+                                notificationItem.addEventListener('click', function(e) {
+                                    if (!e.target.closest('.notification-close')) {
+                                        window.location.href = '{% url "supplier_dashboard:supplier-orders-list" %}';
+                                    }
+                                });
+                                notificationList.appendChild(notificationItem);
+                            });
+                        }
+                    } else {
+                        // Aucune notification
+                        if (badge) {
+                            badge.style.display = 'none';
+                        }
+                        if (notificationList) {
+                            notificationList.innerHTML = `
+                                <div class="notification-empty">
+                                    <i class="material-icons">notifications_none</i>
+                                    <p>Aucune nouvelle notification</p>
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des notifications:', error);
+                });
+            }
+            
+            // Mettre à jour le badge de notification
+            function updateNotificationBadge() {
+                const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.textContent = unreadCount;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Fermer le dropdown quand on clique en dehors
+            document.addEventListener('click', function(event) {
+                const notificationDropdown = document.getElementById('notificationDropdown');
+                const notificationBtn = document.getElementById('notificationBtn');
+                const userDropdown = document.querySelector('.dropdown-menu');
+                const userDropdownToggle = document.getElementById('dropdownAccount');
+                
+                // Fermer le dropdown de notification
+                if (notificationDropdown && notificationBtn && 
+                    !notificationDropdown.contains(event.target) && 
+                    !notificationBtn.contains(event.target)) {
+                    notificationDropdown.classList.remove('show');
+                }
+                
+                // Fermer le dropdown utilisateur si Bootstrap ne le fait pas
+                if (userDropdown && userDropdownToggle && 
+                    !userDropdown.contains(event.target) && 
+                    !userDropdownToggle.contains(event.target)) {
+                    // Bootstrap gère normalement cela, mais on peut forcer si nécessaire
+                }
+            });
+            
+            // Initialisation
+            document.addEventListener('DOMContentLoaded', function() {
+                // Vérifier les icônes
+                checkMaterialIcons();
+                
+                // Initialiser la navigation SPA
+                initSPANavigation();
+                
+                // Charger les notifications
+                loadNotifications();
+                
+                // Recharger les notifications toutes les 30 secondes
+                setInterval(loadNotifications, 30000);
+                
+                // Positionner dynamiquement les dropdowns Bootstrap
+                const userDropdownToggle = document.getElementById('dropdownAccount');
+                if (userDropdownToggle) {
+                    // Utiliser l'événement Bootstrap pour positionner le dropdown après qu'il soit affiché
+                    userDropdownToggle.addEventListener('shown.bs.dropdown', function() {
+                        setTimeout(function() {
+                            const dropdownMenu = document.querySelector('.dropdown-menu.show');
+                            if (dropdownMenu) {
+                                const rect = userDropdownToggle.getBoundingClientRect();
+                                const dropdownWidth = dropdownMenu.offsetWidth || 220;
+                                const dropdownHeight = dropdownMenu.offsetHeight || 200;
+                                
+                                // Forcer le positionnement fixed
+                                dropdownMenu.style.position = 'fixed';
+                                dropdownMenu.style.transform = 'none';
+                                dropdownMenu.style.marginTop = '0';
+                                dropdownMenu.style.zIndex = '1100';
+                                
+                                // Calculer la position verticale
+                                let topPosition = rect.bottom + 8;
+                                if (topPosition + dropdownHeight > window.innerHeight) {
+                                    topPosition = rect.top - dropdownHeight - 8;
+                                    if (topPosition < 0) {
+                                        topPosition = 8;
+                                    }
+                                }
+                                dropdownMenu.style.top = topPosition + 'px';
+                                
+                                // Calculer la position horizontale
+                                if (window.innerWidth > 991) {
+                                    // Desktop : aligner à gauche du bouton (vers l'intérieur) - NE PAS MODIFIER
+                                    let leftPosition = rect.left;
+                                    if (leftPosition + dropdownWidth > window.innerWidth - 20) {
+                                        leftPosition = window.innerWidth - dropdownWidth - 20;
+                                    }
+                                    if (leftPosition < 20) {
+                                        leftPosition = 20;
+                                    }
+                                    dropdownMenu.style.left = leftPosition + 'px';
+                                    dropdownMenu.style.right = 'auto';
+                                } else {
+                                    // Mobile : aligner à gauche du bouton (vers l'intérieur)
+                                    let leftPosition = rect.left;
+                                    if (leftPosition + dropdownWidth > window.innerWidth - 20) {
+                                        leftPosition = window.innerWidth - dropdownWidth - 20;
+                                    }
+                                    if (leftPosition < 20) {
+                                        leftPosition = 20;
+                                    }
+                                    dropdownMenu.style.left = leftPosition + 'px';
+                                    dropdownMenu.style.right = 'auto';
+                                }
+                            }
+                        }, 10);
+                    });
+                }
+                
+                const overlay = document.querySelector('.screen-overlay');
+                if (overlay) {
+                    overlay.addEventListener('click', function() {
+                        const sidebar = document.querySelector('.dashboard-sidebar');
+                        if (sidebar) {
+                            sidebar.classList.remove('show');
+                            overlay.classList.remove('active');
+                        }
+                    });
+                }
+                
+                if (window.innerWidth > 991) {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                    const sidebar = document.querySelector('.dashboard-sidebar');
+                    const main = document.querySelector('.dashboard-main');
+                    
+                    if (isCollapsed && sidebar && main) {
+                        sidebar.classList.add('collapsed');
+                        main.classList.add('sidebar-collapsed');
+                    }
+                } else {
+                    const sidebar = document.querySelector('.dashboard-sidebar');
+                    const main = document.querySelector('.dashboard-main');
+                    if (sidebar) {
+                        sidebar.classList.remove('show', 'collapsed');
+                    }
+                    if (main) {
+                        main.classList.remove('sidebar-collapsed');
+                        main.style.marginLeft = '0';
+                    }
+                }
+            });
+            
+            
+            // Gérer le resize
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    const sidebar = document.querySelector('.dashboard-sidebar');
+                    const main = document.querySelector('.dashboard-main');
+                    const overlay = document.querySelector('.screen-overlay');
+                    
+                    if (window.innerWidth <= 991) {
+                        if (sidebar) sidebar.classList.remove('collapsed', 'show');
+                        if (main) {
+                            main.classList.remove('sidebar-collapsed');
+                            main.style.marginLeft = '0';
+                        }
+                        if (overlay) overlay.classList.remove('active');
+                    } else {
+                        if (overlay) overlay.classList.remove('active');
+                        if (sidebar) sidebar.classList.remove('show');
+                        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                        if (isCollapsed && sidebar && main) {
+                            sidebar.classList.add('collapsed');
+                            main.classList.add('sidebar-collapsed');
+                        } else if (sidebar && main) {
+                            sidebar.classList.remove('collapsed');
+                            main.classList.remove('sidebar-collapsed');
+                        }
+                    }
+                }, 100);
+            });
+        </script>
         
         <script src="{% static 'assets-supplier/js/vendors/jquery-3.6.0.min.js'%}"></script>
         <script src="{% static 'assets-supplier/js/vendors/bootstrap.bundle.min.js'%}"></script>

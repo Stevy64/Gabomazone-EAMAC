@@ -29,9 +29,9 @@
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
         <!-- Gabomazone FLAVORIZ Design - DOIT être chargé APRÈS main.css pour écraser NEST -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=24.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=26.0" />
         <!-- Force FLAVORIZ - Override absolu -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=24.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=26.0" />
 		{%endblock head%}
 
 		{%block headextra%}
@@ -689,12 +689,59 @@
 
 		{%block body%}
 			<!-- Contenu : Banniere de Promos + Articles -->
-		{%endblock body%}
+			<!-- Style global pour éviter le chevauchement avec le header fixe -->
+			<style>
+				/* ===== PADDING TOP GLOBAL POUR TOUTES LES PAGES ===== */
+				/* Assure que le contenu ne se chevauche JAMAIS avec le header fixe */
+				body {
+					padding-top: 100px !important;
+				}
+				
+				/* Sections principales - pas de padding-top supplémentaire, le body gère déjà */
+				main.main,
+				main.main .container,
+				.flavoriz-section,
+				section.flavoriz-section,
+				.page-content,
+				.content-wrapper {
+					padding-top: 0 !important;
+					margin-top: 0 !important;
+				}
+				
+				/* Hero section - première section visible avec un peu d'espace */
+				.flavoriz-hero {
+					padding-top: 20px !important;
+					margin-top: 0 !important;
+				}
+				
+				/* Pages de compte */
+				main.main.pages {
+					padding-top: 20px !important;
+				}
+				
+				/* Mobile : ajuster le padding-top - header plus haut sur mobile */
+				@media (max-width: 768px) {
+					body {
+						padding-top: 110px !important;
+					}
+					
+					.flavoriz-hero {
+						padding-top: 15px !important;
+					}
+					
+					main.main.pages {
+						padding-top: 15px !important;
+					}
+					
+					main.main,
+					main.main .container {
+						padding-top: 0 !important;
+					}
+				}
+			</style>
+	{%endblock body%}
 
-		<!-- Bottom Navigation for Mobile -->
-		{% include 'components/bottom_navigation.html' %}
-
-		<!-- ===== Footer FLAVORIZ ===== -->
+	<!-- ===== Footer FLAVORIZ ===== -->
         <footer class="flavoriz-footer" style="padding: var(--spacing-xl) var(--spacing-lg); background: linear-gradient(135deg, #1F2937 0%, #111827 100%); color: white !important; margin-top: var(--spacing-2xl);">
             <div class="flavoriz-footer-content" style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
                 <div class="flavoriz-footer-column" style="color: white !important;">
@@ -704,9 +751,9 @@
                         <li style="margin-bottom: 10px;">
                             <a href="{%url 'pages:pages-name' page_obj.slug %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{{page_obj.name}}</a>
                         </li>
-                        {%endfor%}
-                    </ul>
-                </div>
+								{%endfor%}
+							</ul>
+                    	</div>
                 <div class="flavoriz-footer-column" style="color: white !important;">
                     <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Support</h4>
                     <ul style="list-style: none; padding: 0; margin: 0;">
@@ -722,8 +769,8 @@
                         <li style="margin-bottom: 10px;">
                             <a href="#" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">FAQ</a>
                         </li>
-                    </ul>
-                </div>
+                        </ul>
+                    </div>
                 <div class="flavoriz-footer-column" style="color: white !important;">
                     <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Contact</h4>
                     <ul style="list-style: none; padding: 0; margin: 0;">
@@ -745,13 +792,13 @@
                                 <i class="fi-rs-marker" style="margin-right: 6px; color: #D1D5DB !important;"></i>{{info.full_address}}
                             </span>
                         </li>
-                        {%endfor%}
-                    </ul>
-                </div>
+							{%endfor%}
+                        </ul>
+                    </div>
                 <div class="flavoriz-footer-column" style="color: white !important;">
                     <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Suivez-nous</h4>
                     <ul style="list-style: none; padding: 0; margin: 0;">
-                        {% for link in Socail_links|slice:":1"%}
+							{% for link in Socail_links|slice:":1"%}
                         <li style="margin-bottom: 10px;">
                             <a href="{{link.facebook|default:'#'}}" target="_blank" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">
                                 <i class="fi-rs-facebook" style="margin-right: 6px; color: #D1D5DB !important;"></i>Facebook
@@ -767,13 +814,13 @@
                                 <i class="fi-rs-youtube" style="margin-right: 6px; color: #D1D5DB !important;"></i>YouTube
                             </a>
                         </li>
-                        {%endfor%}
+							{%endfor%}
                     </ul>
-                </div>
-            </div>
+                        </div>
+                    </div>
             <div class="flavoriz-footer-bottom" style="max-width: 1400px; margin: 0 auto; font-size: 13px; padding-top: var(--spacing-md); border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: #9CA3AF !important;">
                 <p style="margin: 0; color: #9CA3AF !important;">Copyright 2024 {{site_info.site_name|default:'GabomaZone'}} © Tous droits réservés.</p>
-            </div>
+                </div>
             
             <style>
                 /* Styles responsive pour le footer */
@@ -1084,7 +1131,7 @@
 			<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
 			<!-- Template  JS -->
 			<script src="{% static 'assets/js/main.js'%}"></script>
-			<script src="{% static 'assets/js/shop.js'%}"></script>
+			<script src="{% static 'assets/js/shop.js'%}"></script>		
 			<!-- Filter JS - Fonctions globales pour panier et favoris -->
 			<script src="{% static 'assets/js/filter.js'%}"></script>
 		{% endblock script%} 

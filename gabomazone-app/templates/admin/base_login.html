@@ -7,6 +7,8 @@
     <title>{% block title %}{{site_info.site_title}}{% endblock %}</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Flaticon Icons -->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="{% static 'admin-lte/plugins/fontawesome-free/css/fontawesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'admin-lte/dist/css/adminlte.min.css' %}">
 
@@ -17,26 +19,213 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <div class="login-logo">
-        <!-- <a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a> -->
-        <a href="{% url 'admin:index' %}">{{site_info.site_name}} administration</a>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <p class="login-box-msg">Sign in to start your session</p>
+<body class="hold-transition login-page" style="margin: 0; padding: 0; overflow: hidden; min-height: 100vh; max-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1E3A5F 0%, #2C5282 100%); position: fixed; width: 100%; height: 100%;">
+    <!-- Éléments décoratifs arrondis en arrière-plan (style screenshot) - Bleu -->
+    <!-- Grand cercle en haut à gauche -->
+    <div class="decorative-circle decorative-circle-1" style="position: absolute; top: -150px; left: -150px; width: 400px; height: 400px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.12) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    <!-- Cercle moyen en haut à droite -->
+    <div class="decorative-circle decorative-circle-2" style="position: absolute; top: -120px; right: -120px; width: 350px; height: 350px; background: linear-gradient(135deg, rgba(96, 165, 250, 0.22) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    <!-- Cercle en bas à gauche -->
+    <div class="decorative-circle decorative-circle-3" style="position: absolute; bottom: -180px; left: 5%; width: 380px; height: 380px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.08) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    <!-- Petit cercle en bas à droite -->
+    <div class="decorative-circle decorative-circle-4" style="position: absolute; bottom: -140px; right: 10%; width: 280px; height: 280px; background: linear-gradient(135deg, rgba(96, 165, 250, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    <!-- Cercle supplémentaire au centre gauche -->
+    <div class="decorative-circle decorative-circle-5" style="position: absolute; top: 50%; left: -100px; transform: translateY(-50%); width: 250px; height: 250px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.06) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    <!-- Cercle supplémentaire au centre droit -->
+    <div class="decorative-circle decorative-circle-6" style="position: absolute; top: 50%; right: -80px; transform: translateY(-50%); width: 220px; height: 220px; background: linear-gradient(135deg, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.05) 100%); border-radius: 50%; z-index: 0; filter: blur(2px);"></div>
+    
+    <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg); position: relative; z-index: 10;">
+        <div class="login-card" style="background: rgba(255, 255, 255, 0.98); border-radius: 32px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5); overflow: hidden; position: relative; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+            
+            <!-- Login Form Panel -->
+            <div class="login-form-panel" id="login-panel" style="padding: var(--spacing-2xl); display: flex; flex-direction: column; background: transparent; position: relative; transition: opacity 0.3s ease, transform 0.3s ease;">
+                <!-- Logo & Welcome -->
+                <div style="margin-bottom: var(--spacing-lg); text-align: center;">
+                    <a href="{% url 'admin:index' %}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: var(--spacing-md); justify-content: center;">
+                        <div style="width: 40px; height: 40px; background: #0F172A; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: white; font-size: 20px; font-weight: 800;">G</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 24px; font-weight: 800; color: #0F172A;">Gaboma</span>
+                            <span style="font-size: 24px; font-weight: 800; color: #FF7B2C;">Zone</span>
+                        </div>
+                    </a>
+                    <h1 style="font-size: 32px; font-weight: 800; color: #0F172A; margin: var(--spacing-sm) 0 var(--spacing-xs) 0; line-height: 1.2;">Administration</h1>
+                    <p style="font-size: 15px; color: #6B7280; margin: 0;">Connectez-vous à votre espace d'administration</p>
+                </div>
 
-        {% block content %}
-            {% block object-tools %}{% endblock %}
-            {{ content }}
-        {% endblock %}
-        <!-- /.login-box-body -->
+                {% block content %}
+                    {% block object-tools %}{% endblock %}
+                    {{ content }}
+                {% endblock %}
+            </div>
+        </div>
     </div>
-    <!-- /.login-box -->
 
     <script src="{% static 'admin-lte/plugins/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'admin-lte/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <style>
+        /* Variables CSS pour cohérence */
+        :root {
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --color-white: #FFFFFF;
+            --color-deep-blue: #0F172A;
+        }
+        
+        /* Empêcher le scroll et stabiliser la page */
+        html, body {
+            overflow: hidden !important;
+            height: 100% !important;
+            width: 100% !important;
+            position: fixed !important;
+        }
+        
+        /* Masquer les anciens styles AdminLTE */
+        .login-box,
+        .login-logo,
+        .login-box-body,
+        .login-box-msg {
+            display: none !important;
+        }
+        
+        /* Animation pour les cercles décoratifs - réduite pour éviter le mouvement de page */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-10px) translateX(5px);
+            }
+        }
+        
+        .decorative-circle {
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        .decorative-circle:nth-child(2) {
+            animation-delay: -5s;
+        }
+        
+        .decorative-circle:nth-child(3) {
+            animation-delay: -10s;
+        }
+        
+        .decorative-circle:nth-child(4) {
+            animation-delay: -15s;
+        }
+        
+        .decorative-circle:nth-child(5) {
+            animation-delay: -7s;
+        }
+        
+        .decorative-circle:nth-child(6) {
+            animation-delay: -12s;
+        }
+        
+        /* Responsive Mobile */
+        @media (max-width: 767px) {
+            /* Ajuster les cercles décoratifs pour mobile - les rendre plus petits et mieux positionnés */
+            .decorative-circle-1 {
+                top: -80px !important;
+                left: -80px !important;
+                width: 200px !important;
+                height: 200px !important;
+                filter: blur(2px) !important;
+            }
+            
+            .decorative-circle-2 {
+                top: -60px !important;
+                right: -60px !important;
+                width: 180px !important;
+                height: 180px !important;
+                filter: blur(2px) !important;
+            }
+            
+            .decorative-circle-3 {
+                bottom: -90px !important;
+                left: -50px !important;
+                width: 190px !important;
+                height: 190px !important;
+                filter: blur(2px) !important;
+            }
+            
+            .decorative-circle-4 {
+                bottom: -70px !important;
+                right: -40px !important;
+                width: 140px !important;
+                height: 140px !important;
+                filter: blur(2px) !important;
+            }
+            
+            .decorative-circle-5 {
+                top: 30% !important;
+                left: -50px !important;
+                width: 125px !important;
+                height: 125px !important;
+                filter: blur(2px) !important;
+                transform: translateY(-50%) !important;
+            }
+            
+            .decorative-circle-6 {
+                top: 70% !important;
+                right: -40px !important;
+                width: 110px !important;
+                height: 110px !important;
+                filter: blur(2px) !important;
+                transform: translateY(-50%) !important;
+            }
+            
+            .login-container {
+                max-width: 100% !important;
+                padding: var(--spacing-lg) var(--spacing-md) !important;
+            }
+            
+            .login-card {
+                border-radius: 24px !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+            }
+            
+            .login-form-panel {
+                padding: var(--spacing-lg) var(--spacing-md) !important;
+            }
+            
+            .login-form-panel > div:first-child {
+                margin-bottom: var(--spacing-md) !important;
+            }
+            
+            .login-form-panel > div:first-child a {
+                margin-bottom: var(--spacing-sm) !important;
+            }
+            
+            .login-form-panel > div:first-child a > div:first-child {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            
+            .login-form-panel > div:first-child a > div:first-child span {
+                font-size: 18px !important;
+            }
+            
+            .login-form-panel > div:first-child a > div:last-child span {
+                font-size: 20px !important;
+            }
+            
+            .login-form-panel h1 {
+                font-size: 28px !important;
+                margin: var(--spacing-xs) 0 !important;
+            }
+            
+            .login-form-panel > div:first-child p {
+                font-size: 14px !important;
+            }
+        }
+    </style>
 
 </body>
 </html>

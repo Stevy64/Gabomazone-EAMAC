@@ -24,6 +24,20 @@
         padding: 0 !important;
         opacity: 0 !important;
     }
+    
+    /* S'assurer qu'il n'y a qu'un seul footer */
+    body > footer.flavoriz-footer:not(:first-of-type),
+    body > .flavoriz-footer:not(:first-of-type),
+    .flavoriz-footer ~ .flavoriz-footer,
+    footer.flavoriz-footer + footer.flavoriz-footer {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
 </style>
 {%endblock head%}
 
@@ -150,7 +164,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Pays *</label>
-                                <input type="text" id="country" value="Gabon" readonly class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; background: #F9FAFB; transition: all 0.2s ease; font-family: var(--font-secondary); cursor: not-allowed; color: #6B7280;" />
+                                <input type="text" id="country" name="country" value="Gabon" readonly class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; background: #F9FAFB; transition: all 0.2s ease; font-family: var(--font-secondary); cursor: not-allowed; color: #6B7280;" />
                                 <input type="hidden" name="country" value="GA" />
                             </div>
                             <div>
@@ -166,9 +180,9 @@
                                     <option value="Ogooué-Lolo" {% if profile and profile.state == "Ogooué-Lolo" %}selected{% endif %}>Ogooué-Lolo</option>
                                     <option value="Ogooué-Maritime" {% if profile and profile.state == "Ogooué-Maritime" %}selected{% endif %}>Ogooué-Maritime</option>
                                     <option value="Woleu-Ntem" {% if profile and profile.state == "Woleu-Ntem" %}selected{% endif %}>Woleu-Ntem</option>
-                                </select>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Ville *</label>
@@ -191,8 +205,8 @@
                             <div>
                                 <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Email</label>
                                 <input type="email" name="email_address" value="{% if profile %}{{ profile.user.email }}{% endif %}" placeholder="Votre email" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
-                            </div>
                         </div>
+                                </div>
                         <button type="submit" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-primary);">
                             <span>Procéder au paiement</span>
                             <i class="fi-rs-arrow-right"></i>
@@ -279,19 +293,33 @@
             }
         }
         
+        // Supprimer les doublons de footer
+        function removeDuplicateFooters() {
+            const footers = document.querySelectorAll('footer.flavoriz-footer');
+            if (footers.length > 1) {
+                // Garder seulement le premier footer, supprimer les autres
+                for (let i = 1; i < footers.length; i++) {
+                    footers[i].remove();
+                }
+            }
+        }
+        
         // Essayer immédiatement
         hidePreloader();
         removeDuplicateHeaders();
+        removeDuplicateFooters();
         
         // Essayer après DOMContentLoaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
                 hidePreloader();
                 removeDuplicateHeaders();
+                removeDuplicateFooters();
             });
         } else {
             hidePreloader();
             removeDuplicateHeaders();
+            removeDuplicateFooters();
         }
         
         // Fallback avec window.onload
@@ -299,12 +327,36 @@
             setTimeout(function() {
                 hidePreloader();
                 removeDuplicateHeaders();
+                removeDuplicateFooters();
             }, 100);
         });
     })();
-</script>
+    </script>
 <script>
-    // Province to City mapping (Gabon) - Same as account-details.html
+    /**
+     * ============================================================================
+     * GESTION PROVINCE/VILLE - MAPPING ET MISE À JOUR AUTOMATIQUE
+     * ============================================================================
+     * 
+     * Ce script gère la relation entre les provinces du Gabon et leurs villes
+     * principales. Lorsqu'une province est sélectionnée, la ville correspondante
+     * est automatiquement remplie dans le champ "Ville".
+     * 
+     * Fonctionnalités :
+     * - Mapping des 9 provinces du Gabon vers leurs villes principales
+     * - Mise à jour automatique du champ ville lors du changement de province
+     * - Support de Select2 (si disponible) et du select natif (fallback)
+     * - Initialisation de la ville au chargement si une province est déjà sélectionnée
+     */
+    
+    /**
+     * Mapping des provinces du Gabon vers leurs villes principales
+     * 
+     * Structure : { 'Nom de la province': 'Ville principale' }
+     * 
+     * Note: Ce mapping doit être synchronisé avec celui dans account-details.html
+     * pour maintenir la cohérence dans toute l'application.
+     */
     const provinceCities = {
         'Estuaire': 'Libreville',
         'Haut-Ogooué': 'Franceville',
@@ -317,141 +369,234 @@
         'Woleu-Ntem': 'Oyem'
     };
     
-    // Auto-fill city based on province (always update when province changes)
+    // Récupération des éléments DOM pour la province et la ville
     const provinceSelect = document.getElementById('province');
     const cityInput = document.getElementById('city');
     
+    /**
+     * Met à jour le champ ville en fonction de la province sélectionnée
+     * 
+     * @param {string} selectedProvince - Le nom de la province sélectionnée (trimé)
+     * 
+     * Comportement :
+     * - Si une province valide est sélectionnée : remplit automatiquement la ville
+     *   avec une animation de transition (opacité)
+     * - Si aucune province n'est sélectionnée : vide le champ ville
+     * 
+     * Note: L'utilisateur peut toujours modifier manuellement la ville après
+     * l'auto-remplissage.
+     */
     function updateCityFromProvince(selectedProvince) {
+        // Cas 1 : Province valide sélectionnée -> remplir la ville avec animation
         if (cityInput && selectedProvince && provinceCities[selectedProvince]) {
-            // Always update city when province changes
+            // Animation de transition pour un feedback visuel
             cityInput.style.transition = 'all 0.3s ease';
             cityInput.style.opacity = '0.7';
+            
+            // Mise à jour de la valeur après un court délai pour l'effet visuel
             setTimeout(() => {
                 cityInput.value = provinceCities[selectedProvince];
                 cityInput.style.opacity = '1';
             }, 150);
-        } else if (cityInput && !selectedProvince) {
-            // Clear city if no province selected
+        } 
+        // Cas 2 : Aucune province sélectionnée -> vider le champ ville
+        else if (cityInput && !selectedProvince) {
             cityInput.value = '';
         }
     }
     
+    /**
+     * Initialisation des event listeners pour le select natif (fallback)
+     * 
+     * Cette partie s'exécute même si Select2 n'est pas disponible, garantissant
+     * que la fonctionnalité fonctionne dans tous les cas.
+     */
     if (provinceSelect && cityInput) {
-        // Update city when province select changes (native event for fallback)
+        // Écouteur d'événement pour le changement de province (select natif)
         provinceSelect.addEventListener('change', function() {
             updateCityFromProvince(this.value.trim());
         });
         
-        // Initialize city on page load if province is selected
+        // Initialisation au chargement : remplir la ville si une province est déjà sélectionnée
+        // (utile lors du rechargement de la page avec des données pré-remplies)
         if (provinceSelect.value && provinceCities[provinceSelect.value.trim()]) {
             cityInput.value = provinceCities[provinceSelect.value.trim()];
         }
     }
 
-    // Styles pour les inputs et selects au focus
+    /**
+     * ============================================================================
+     * INITIALISATION AU CHARGEMENT DU DOM
+     * ============================================================================
+     * 
+     * Cette section s'exécute lorsque le DOM est complètement chargé.
+     * Elle gère :
+     * - Les styles de focus pour tous les champs du formulaire
+     * - L'initialisation de Select2 pour améliorer l'apparence du select Province
+     * - La synchronisation Province/Ville avec Select2
+     */
     document.addEventListener('DOMContentLoaded', function() {
+        /**
+         * Gestion des styles de focus pour tous les champs du formulaire
+         * 
+         * Applique un style cohérent (bordure orange, ombre, fond blanc) lors
+         * du focus sur les champs de formulaire avec la classe 'flavoriz-input'.
+         */
         const inputs = document.querySelectorAll('.flavoriz-input');
         inputs.forEach(input => {
-            // Skip readonly inputs
+            // Ignorer les champs en lecture seule (comme le champ Pays)
             if (input.readOnly) {
                 return;
             }
             
+            // Style au focus : bordure orange, ombre, fond blanc
             input.addEventListener('focus', function() {
                 this.style.borderColor = 'var(--color-orange)';
                 this.style.boxShadow = '0 0 0 3px rgba(255, 123, 44, 0.1)';
                 this.style.background = 'white';
             });
+            
+            // Style au blur : retour aux styles par défaut
             input.addEventListener('blur', function() {
                 this.style.borderColor = '#E5E7EB';
                 this.style.boxShadow = 'none';
+                // Conserver le fond gris pour les champs éditables
                 if (!this.readOnly) {
                     this.style.background = '#FAFAFA';
                 }
             });
         });
         
-        // Initialize Select2 for Province select for better dropdown appearance
+        /**
+         * Initialisation de Select2 pour le select Province
+         * 
+         * Select2 améliore l'apparence et l'expérience utilisateur de la liste
+         * déroulante avec :
+         * - Un design moderne et cohérent avec le reste de l'application
+         * - Des options stylisées avec hover et sélection visibles
+         * - Une meilleure compatibilité cross-browser
+         * 
+         * Configuration :
+         * - dropdownParent : assure que le dropdown s'affiche correctement dans le conteneur
+         * - minimumResultsForSearch: Infinity : désactive la recherche (pas nécessaire pour 9 options)
+         * - allowClear: false : empêche la suppression de la sélection (champ requis)
+         */
         if (typeof jQuery !== 'undefined' && jQuery.fn.select2 && provinceSelect) {
             jQuery(provinceSelect).select2({
-                dropdownParent: jQuery(provinceSelect).parent(),
-                minimumResultsForSearch: Infinity, // Disable search
+                dropdownParent: jQuery(provinceSelect).parent(), // Conteneur parent pour le dropdown
+                minimumResultsForSearch: Infinity, // Désactiver la recherche (9 options seulement)
                 placeholder: 'Sélectionnez une province',
-                allowClear: false,
-                width: '100%'
+                allowClear: false, // Champ requis, pas de suppression possible
+                width: '100%' // Largeur complète du conteneur
             });
             
-            // Force height after Select2 initialization
-            setTimeout(function() {
-                const select2Container = jQuery(provinceSelect).next('.select2-container');
-                if (select2Container.length) {
-                    select2Container.find('.select2-selection--single').css({
-                        'height': '44px',
-                        'min-height': '44px',
-                        'max-height': '44px'
-                    });
-                    select2Container.find('.select2-selection__rendered').css({
-                        'line-height': '44px',
-                        'height': '44px'
-                    });
-                }
-            }, 100);
-            
-            // Update city when Select2 province changes
+            /**
+             * Écouteur d'événement Select2 pour la mise à jour de la ville
+             * 
+             * Select2 utilise ses propres événements, donc on doit écouter
+             * 'select2:select' au lieu de 'change' natif.
+             */
             jQuery(provinceSelect).on('select2:select', function(e) {
-                const selectedProvince = e.params.data.id;
+                const selectedProvince = e.params.data.id; // Récupérer la valeur sélectionnée
                 updateCityFromProvince(selectedProvince);
             });
         }
         
-        // Initialize city on page load if province is already selected
+        /**
+         * Initialisation de la ville au chargement (double vérification)
+         * 
+         * Cette vérification supplémentaire s'assure que la ville est correctement
+         * initialisée même si Select2 modifie le comportement du select.
+         */
         if (provinceSelect && cityInput && provinceSelect.value && provinceCities[provinceSelect.value]) {
             cityInput.value = provinceCities[provinceSelect.value];
         }
     });
 </script>
 <style>
-/* Styles pour le select Province - uniformisation parfaite avec les autres champs */
-#province,
+/**
+ * ============================================================================
+ * STYLES POUR LE SELECT PROVINCE - UNIFORMISATION AVEC LES AUTRES CHAMPS
+ * ============================================================================
+ * 
+ * Ces styles garantissent que le select Province a exactement la même apparence
+ * que les autres champs du formulaire (inputs text, etc.).
+ * 
+ * Objectifs :
+ * - Hauteur identique : 44px (identique aux autres inputs)
+ * - Padding identique : 12px 14px (avec padding-right: 40px pour la flèche)
+ * - Bordures, border-radius et couleurs cohérentes
+ * - Flèche SVG personnalisée pour remplacer la flèche native du navigateur
+ * - États hover et focus cohérents avec le reste du formulaire
+ */
+
+/* ============================================================================
+   STYLES DE BASE DU SELECT PROVINCE
+   ============================================================================ */
+
 select.flavoriz-input,
 select.flavoriz-select {
+    /* Suppression de l'apparence native du navigateur pour un contrôle total */
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     appearance: none !important;
+    
+    /* Dimensions : identiques aux autres champs du formulaire */
     width: 100% !important;
     height: 44px !important;
     min-height: 44px !important;
     max-height: 44px !important;
+    
+    /* Padding : identique aux autres inputs (12px 14px) + espace pour la flèche */
     padding: 12px 14px !important;
-    padding-right: 40px !important;
+    padding-right: 40px !important; /* Espace pour la flèche SVG */
+    
+    /* Bordures et coins arrondis : cohérents avec le design Flavoriz */
     border: 2px solid #E5E7EB !important;
     border-radius: 10px !important;
+    
+    /* Typographie : identique aux autres champs */
     font-size: 13px !important;
-    outline: none !important;
+    font-family: var(--font-secondary) !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    color: #1F2937 !important;
+    
+    /* Fond et flèche SVG personnalisée */
     background: #FAFAFA !important;
+    /* Flèche SVG en gris (#6B7280) positionnée à droite */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236B7280"><path d="M7 10l5 5 5-5z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 12px center !important;
     background-size: 20px !important;
-    transition: all 0.2s ease !important;
-    font-family: var(--font-secondary) !important;
+    
+    /* Comportement et transitions */
+    outline: none !important;
     cursor: pointer !important;
+    transition: all 0.2s ease !important;
     box-sizing: border-box !important;
-    line-height: 1.5 !important;
-    color: #1F2937 !important;
     display: block !important;
     margin: 0 !important;
     vertical-align: middle !important;
-    font-weight: 400 !important;
 }
+
+/* ============================================================================
+   ÉTAT FOCUS DU SELECT
+   ============================================================================ */
 
 select.flavoriz-input:focus,
 select.flavoriz-select:focus {
+    /* Bordure orange et ombre lors du focus (cohérent avec les autres champs) */
     border-color: var(--color-orange) !important;
     box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
     background-color: white !important;
+    /* Flèche SVG en orange lors du focus */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF7B2C"><path d="M7 10l5 5 5-5z"/></svg>') !important;
 }
+
+/* ============================================================================
+   ÉTAT HOVER DU SELECT (uniquement si pas en focus)
+   ============================================================================ */
 
 select.flavoriz-input:hover:not(:focus),
 select.flavoriz-select:hover:not(:focus) {
@@ -459,7 +604,14 @@ select.flavoriz-select:hover:not(:focus) {
     background-color: #F9FAFB !important;
 }
 
-/* Styles améliorés pour les options de la liste déroulante */
+/* ============================================================================
+   STYLES POUR LES OPTIONS DE LA LISTE DÉROULANTE (SELECT NATIF)
+   ============================================================================
+   
+   Note: Ces styles s'appliquent uniquement au select natif du navigateur.
+   Si Select2 est utilisé, les styles Select2 ci-dessous prennent le relais.
+   */
+
 select.flavoriz-input option,
 select.flavoriz-select option {
     padding: 14px 16px !important;
@@ -473,6 +625,7 @@ select.flavoriz-select option {
     cursor: pointer !important;
 }
 
+/* Option placeholder (première option) : style gris et italique */
 select.flavoriz-input option:first-child,
 select.flavoriz-select option:first-child {
     color: #9CA3AF !important;
@@ -480,6 +633,7 @@ select.flavoriz-select option:first-child {
     font-weight: 400 !important;
 }
 
+/* Option sélectionnée ou survolée : fond dégradé orange */
 select.flavoriz-input option:checked,
 select.flavoriz-select option:checked,
 select.flavoriz-input option:hover,
@@ -489,65 +643,60 @@ select.flavoriz-select option:hover {
     font-weight: 600 !important;
 }
 
-/* Amélioration de la liste déroulante avec Select2 pour une meilleure expérience */
+/* ============================================================================
+   STYLES POUR SELECT2 (si Select2 est initialisé)
+   ============================================================================
+   
+   Ces styles s'appliquent uniquement si Select2 est utilisé pour améliorer
+   l'apparence du select. Ils garantissent que Select2 respecte le design
+   Flavoriz et a la même apparence que le select natif stylé.
+   */
+
+/* Position relative pour le conteneur du select Province */
 #province.flavoriz-select {
     position: relative !important;
 }
 
-/* Style pour le wrapper du select si Select2 est utilisé - FORCER LA TAILLE */
-.select2-container--default {
-    width: 100% !important;
-}
+/* ============================================================================
+   SELECT2 : STYLES DU CHAMP DE SÉLECTION
+   ============================================================================ */
 
-/* Force height for Select2 container */
-.select2-container--default.select2-container {
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-}
-
+/* Conteneur principal du select Select2 */
 .select2-container--default .select2-selection--single {
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+    height: 44px !important; /* Identique aux autres champs */
     border: 2px solid #E5E7EB !important;
     border-radius: 10px !important;
     background: #FAFAFA !important;
     padding: 0 !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
 }
 
+/* Texte affiché dans le select Select2 */
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 44px !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    padding-left: 14px !important;
-    padding-right: 40px !important;
+    line-height: 44px !important; /* Centrage vertical */
+    padding-left: 14px !important; /* Identique aux autres champs */
+    padding-right: 40px !important; /* Espace pour la flèche */
     font-size: 13px !important;
     color: #1F2937 !important;
     font-family: var(--font-secondary) !important;
-    display: flex !important;
-    align-items: center !important;
-    width: 100% !important;
 }
 
+/* Flèche du select Select2 */
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 44px !important;
-    min-height: 44px !important;
+    height: 42px !important;
     right: 12px !important;
-    top: 0 !important;
-    width: 20px !important;
-    display: flex !important;
-    align-items: center !important;
+    top: 1px !important;
 }
 
+/* Style de la flèche Select2 (triangle) */
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
     border-color: #6B7280 transparent transparent transparent !important;
     border-width: 6px 5px 0 5px !important;
     margin-top: -3px !important;
 }
+
+/* ============================================================================
+   SELECT2 : ÉTATS FOCUS ET OUVERT
+   ============================================================================ */
 
 .select2-container--default.select2-container--focus .select2-selection--single,
 .select2-container--default.select2-container--open .select2-selection--single {
@@ -556,25 +705,32 @@ select.flavoriz-select option:hover {
     background-color: white !important;
 }
 
+/* Flèche orange lors du focus/ouverture */
 .select2-container--default.select2-container--focus .select2-selection--single .select2-selection__arrow b,
 .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
     border-color: var(--color-orange) transparent transparent transparent !important;
 }
 
-/* Style amélioré pour le dropdown Select2 */
+/* ============================================================================
+   SELECT2 : STYLES DU DROPDOWN (LISTE DÉROULANTE)
+   ============================================================================ */
+
+/* Conteneur du dropdown Select2 */
 .select2-dropdown {
     border: 2px solid #E5E7EB !important;
     border-radius: 10px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important; /* Ombre moderne */
     margin-top: 4px !important;
     overflow: hidden !important;
 }
 
+/* Conteneur des options avec scroll si nécessaire */
 .select2-container--default .select2-results > .select2-results__options {
     max-height: 300px !important;
     padding: 4px 0 !important;
 }
 
+/* Style de chaque option dans le dropdown */
 .select2-container--default .select2-results__option {
     padding: 14px 16px !important;
     font-size: 13px !important;
@@ -587,11 +743,13 @@ select.flavoriz-select option:hover {
     transition: all 0.2s ease !important;
 }
 
+/* Option désactivée (placeholder) : gris et italique */
 .select2-container--default .select2-results__option[aria-disabled="true"] {
     color: #9CA3AF !important;
     font-style: italic !important;
 }
 
+/* Option survolée ou sélectionnée : fond dégradé orange */
 .select2-container--default .select2-results__option--highlighted[aria-selected],
 .select2-container--default .select2-results__option[aria-selected="true"] {
     background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%) !important;
@@ -599,6 +757,7 @@ select.flavoriz-select option:hover {
     font-weight: 600 !important;
 }
 
+/* Option actuellement sélectionnée : fond plus foncé */
 .select2-container--default .select2-results__option[aria-selected="true"] {
     background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
 }

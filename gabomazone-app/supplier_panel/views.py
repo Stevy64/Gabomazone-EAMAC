@@ -1118,6 +1118,34 @@ def request_payment(request):
 
 
 @vendor_only
+def get_notifications(request):
+    """Retourne les notifications (nouvelles commandes) en JSON"""
+    vendor = Profile.objects.get(user=request.user)
+    pending_orders = OrderSupplier.objects.filter(
+        vendor=vendor, 
+        status='PENDING'
+    ).order_by('-order_date')[:10]
+    
+    total_count = OrderSupplier.objects.filter(
+        vendor=vendor, 
+        status='PENDING'
+    ).count()
+    
+    notifications = []
+    for order in pending_orders:
+        notifications.append({
+            'id': order.id,
+            'title': f'Nouvelle commande #{order.id}',
+            'time': order.order_date.strftime('%d/%m/%Y %H:%M'),
+            'time_ago': order.order_date.strftime('%d/%m/%Y à %H:%M'),
+            'amount': order.amount,
+        })
+    
+    return JsonResponse({
+        'notifications': notifications,
+        'count': total_count
+    })
+
 def supplier_reviews(request):
     if request.user.is_authenticated and not request.user.is_anonymous:
         profile = Profile.objects.get(user=request.user)
