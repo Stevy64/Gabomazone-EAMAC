@@ -25,6 +25,8 @@
         <!-- Material Icons -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <!-- Flaticon -->
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <!-- Font Awesome Fallback -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <!-- HTMX pour navigation SPA -->
@@ -155,7 +157,7 @@
                         <!-- User Dropdown -->
                         <div class="dropdown">
                             <a class="dropdown-toggle" href="#" id="dropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img class="user-avatar" src="{% static 'assets-supplier/imgs/people/avatar-2.png'%}" alt="User" />
+                                <img class="user-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format" alt="Vendeur" onerror="this.src='https://ui-avatars.com/api/?name=Vendeur&background=6B46C1&color=fff&size=150&bold=true'" />
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                                 <li><a class="dropdown-item" href="{% url 'accounts:account_details'%}"><i class="material-icons">person</i> Modifier le profil</a></li>

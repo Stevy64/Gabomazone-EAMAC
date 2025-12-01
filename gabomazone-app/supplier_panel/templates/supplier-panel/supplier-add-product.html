@@ -1,320 +1,2730 @@
  {% extends 'supplier-panel/supplier-base.html' %}
  {%load static%}
+
 {%block section %}
-            <section class="content-main">
 
-                <!-- Formulaire d'ajout de produts -->
-                <form method="post" enctype="multipart/form-data" onsubmit="return Validate(this);">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-9">
-                            <div class="content-header">
-                                <h2 class="content-title">Ajouter un nouveau produit</h2>
-                                <div>
-                                    {% comment %} <button type="submit" class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> {% endcomment %}
-                                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Publier</button>
-                                </div>
-                                
-                            </div>
+<!-- Messages Django -->
                             {% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
                     {% for message in messages %}
-      
-                    <div class="alert align-middle alert-{{message.tags}}">
-                        <span class="align-middle"> {{message}}</span>
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
+        {% endif %}
                     </div>
-      
                     {% endfor %}
-                    {% endif %}
                         </div>
-                            <div class="col-lg-6">
-                                <div class="card mb-4">
+{% endif %}
 
-                                    <!-- Infos de base -->
-                                    <div class="card-header">
-                                        <h4>Basic Infos</h4>
+<!-- Welcome Card -->
+<div class="products-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">shopping_bag</i>
                                     </div>
-
-                                    <!-- Formulaire Infos de base -->
-                                    <div class="card-body">
-                                        
-                                            <!-- Nom du produit -->
-                                            <div class="mb-4">
-                                                <label for="product_name" class="form-label">Product name</label>
-                                                <input type="text" name="product_name" maxlength="99"  placeholder="Type here" class="form-control" id="product_name" required/>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">inventory_2</i>
+                Gestion des produits
+            </h2>
+            <p>Bienvenue, <strong>{{ vendor.user.username }}</strong> !</p>
+            <p id="products-count" class="products-count">Vous avez <strong>{{ products.count }}</strong> produit(s) dans votre boutique</p>
+        </div>
+    </div>
                                             </div>
 
-                                            <!-- Description du produit -->
-                                            <div class="mb-4">
-                                                <label class="form-label">Description</label>
-                                                <textarea name="introduction" placeholder="Type here" class="ckeditor form-control" rows="4" required></textarea>
+<!-- Search Bar with Filters -->
+<div class="products-search-card">
+    <div class="search-filters-container">
+        <div class="search-wrapper">
+            <i class="material-icons search-icon">search</i>
+            <input type="text" id="product-search" class="search-input" placeholder="Rechercher un produit par nom, catégorie, prix..." />
+            <button type="button" class="search-clear-btn" id="clear-search" style="display: none;">
+                <i class="material-icons">close</i>
+            </button>
                                             </div>
 
-                                            <!-- Remise sur le produit -->
-                                            <div class="row">
-
-                                                <!-- Remise -->
-                                                <label class="form-check mb-4">
-                                                    <input id="discounted" name="checkbox" class="form-check-input" type="checkbox" value="1" />
-                                                    <span class="form-check-label">Le produit bénéficie d'une remise</span>
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="material-icons">sort</i>
+                    Trier par
                                                 </label>
-
-                                                <!-- Prix du produit -->
-                                                <div class="col-lg-4">
-                                                    <div class="mb-4">
-                                                        <label class="form-label">Prix</label>
-                                                        <div class="row gx-2">
-                                                            <input placeholder="FCFA" name="price" type="number" step="0.01" min="0"  class="form-control" required/>
+                <div class="custom-dropdown-wrapper">
+                    <select class="modern-select" id="sort-select" style="display: none;">
+                        <option value="name" selected>Nom, A-Z</option>
+                        <option value="-name">Nom, Z-A</option>
+                        <option value="-date">Plus récent au plus ancien</option>
+                        <option value="date">Plus ancien au plus récent</option>
+                        <option value="PRDPrice">Prix, bas-haut</option>
+                        <option value="-PRDPrice">Prix, haut-bas</option>
+                    </select>
+                    <div class="custom-dropdown" id="customDropdownSort">
+                        <button class="custom-dropdown-trigger" type="button">
+                            <span class="dropdown-selected-text">Nom, A-Z</span>
+                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                        </button>
+                        <div class="custom-dropdown-menu">
+                            <div class="dropdown-option" data-value="name" data-selected="true">Nom, A-Z</div>
+                            <div class="dropdown-option" data-value="-name">Nom, Z-A</div>
+                            <div class="dropdown-option" data-value="-date">Plus récent au plus ancien</div>
+                            <div class="dropdown-option" data-value="date">Plus ancien au plus récent</div>
+                            <div class="dropdown-option" data-value="PRDPrice">Prix, bas-haut</div>
+                            <div class="dropdown-option" data-value="-PRDPrice">Prix, haut-bas</div>
+                        </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Prix avant remise -->
-                                                <div id="discount_box" class="col-lg-4 not-visible">
-                                                    <div class="mb-4">
-                                                        <label class="form-label"> Prix avant remise</label>
-                                                        <input placeholder="FCFA" name="discount" type="number"  step="0.01" min="0" class="form-control" />
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="material-icons">filter_list</i>
+                    Statut
+                </label>
+                <div class="custom-dropdown-wrapper">
+                    <select class="modern-select" id="status-select" style="display: none;">
+                        <option value="All" selected>Tous</option>
+                        <option value="Active">Actif</option>
+                        <option value="Inactive">Inactif</option>
+                    </select>
+                    <div class="custom-dropdown" id="customDropdownStatus">
+                        <button class="custom-dropdown-trigger" type="button">
+                            <span class="dropdown-selected-text">Tous</span>
+                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                        </button>
+                        <div class="custom-dropdown-menu">
+                            <div class="dropdown-option" data-value="All" data-selected="true">Tous</div>
+                            <div class="dropdown-option" data-value="Active">Actif</div>
+                            <div class="dropdown-option" data-value="Inactive">Inactif</div>
+                        </div>
+                    </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Devise -->
-                                                <div class="col-lg-4">
-                                                    <label class="form-label">Currency</label>
-                                                    <select class="form-select">
-                                                        <option>FCFA</option>
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="material-icons">category</i>
+                    Catégorie
+                </label>
+                <div class="custom-dropdown-wrapper">
+                    <select class="modern-select" id="category-select" style="display: none;">
+                        <option value="All" selected>Toutes</option>
+                        {% for super in super_category %}
+                        <option value="{{ super.name|lower }}">{{ super.name }}</option>
+                        {% endfor %}
                                                     </select>
+                    <div class="custom-dropdown" id="customDropdownCategory">
+                        <button class="custom-dropdown-trigger" type="button">
+                            <span class="dropdown-selected-text">Toutes</span>
+                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                        </button>
+                        <div class="custom-dropdown-menu">
+                            <div class="dropdown-option" data-value="All" data-selected="true">Toutes</div>
+                            {% for super in super_category %}
+                            <div class="dropdown-option" data-value="{{ super.name|lower }}">{{ super.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
                                                 </div>
                                             </div>
 
-                                            <div class="row">
-                                                <!-- Quantité disponible -->
-                                                <div class="col-lg-4">
-                                                    <div class="mb-4">
-                                                        <label class="form-label">Quantité disponible</label>
-                                                        <div class="row gx-2">
-                                                            <input placeholder="quantité en stock" name="available" type="number" class="form-control" min="0" required />
+<!-- Products List -->
+<div class="products-list-container">
+    <div id="products-list" class="products-list">
+        {% for product in products %}
+        <div class="product-list-item" 
+             data-product-id="{{ product.id }}"
+             data-product-name="{{ product.product_name|lower }}" 
+             data-product-category="{{ product.product_supercategory.name|lower|default:'' }}" 
+             data-product-price="{{ product.PRDPrice }}" 
+             data-product-status="{% if product.PRDISactive %}Active{% else %}Inactive{% endif %}"
+             data-product-image="{% if product.product_image %}{{ product.product_image.url }}{% endif %}"
+             data-product-description="{{ product.product_description }}"
+             data-product-category-name="{% if product.product_supercategory %}{{ product.product_supercategory.name }}{% else %}Sans catégorie{% endif %}"
+             data-product-available="{{ product.available|default:0 }}"
+             data-product-date="{{ product.date|date:'d/m/Y' }}"
+             data-product-discount="{{ product.PRDDiscountPrice|default:0 }}"
+             onclick="handleProductItemClick(event, {{ product.id }})">
+            <div class="product-list-image">
+                {% if product.product_image %}
+                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" />
+                {% else %}
+                    <div class="product-placeholder">
+                        <i class="material-icons">image</i>
                                                         </div>
+                {% endif %}
                                                     </div>
+            <div class="product-list-info">
+                <div class="product-list-main">
+                    <h3 class="product-list-name">{{ product.product_name }}</h3>
+                    <p class="product-list-category">
+                        {% if product.product_supercategory %}
+                            <i class="material-icons">local_offer</i> {{ product.product_supercategory.name }}
+                        {% else %}
+                            <i class="material-icons">local_offer</i> Sans catégorie
+                        {% endif %}
+                    </p>
                                                 </div>
-                                                <!-- Quantité disponible -->
-                                                <div id="discount_box" class="col-lg-4">
-                                                    <div class="mb-4">
-                                                        <label class="form-label">Nombre d'unités dans un article</label>
-                                                        <input placeholder="Combien d'unités" name="pieces" type="number"  min="0"  class="form-control" required />
+                <div class="product-list-details">
+                    <div class="product-list-price">
+                        <span class="price-value">{{ product.PRDPrice|floatformat:0 }} XOF</span>
+                        {% if product.PRDDiscountPrice and product.PRDDiscountPrice > 0 %}
+                            <span class="price-discount">{{ product.PRDDiscountPrice|floatformat:0 }} XOF</span>
+                        {% endif %}
                                                     </div>
+                    <div class="product-list-meta">
+                        <span class="meta-item">
+                            <i class="material-icons">inventory</i> {{ product.available|default:0 }}
+                        </span>
+                        <span class="meta-item mobile-hide">
+                            <i class="material-icons">calendar_today</i> {{ product.date|date:"d/m/Y" }}
+                        </span>
                                                 </div>
-                                                <div class="col-lg-4">
-                                                    <label class="form-label">Promotion</label>
-                                                    <select name="promotional" class="form-select">
-                                                        <option value="New">Nouveauté</option>
-                                                        <option value="Hot">Poh poh</option>
-                                                    </select>
                                                 </div>
+            </div>
+            <div class="product-list-status">
+                <div class="status-badge-list {% if product.PRDISactive %}status-active{% else %}status-inactive{% endif %}">
+                    {% if product.PRDISactive %}
+                        <i class="material-icons">check_circle</i> <span class="mobile-hide">Actif</span>
+                    {% else %}
+                        <i class="material-icons">cancel</i> <span class="mobile-hide">Inactif</span>
+                    {% endif %}
+                </div>
+                <i class="material-icons chevron-icon desktop-only">chevron_right</i>
+            </div>
+            <!-- Mobile Action Buttons -->
+            <div class="product-list-actions mobile-only">
+                <a href="{% url 'supplier_dashboard:supplier-edit-product' product.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();" title="Modifier">
+                    <i class="material-icons">edit</i>
+                </a>
+                <button type="button" class="action-btn delete-btn" onclick="event.stopPropagation(); openDeleteConfirmModal({{ product.id }}, '{{ product.product_name|escapejs }}');" title="Supprimer">
+                    <i class="material-icons">delete</i>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-products">
+            <i class="material-icons">shopping_bag</i>
+            <h3>Aucun produit</h3>
+            <p>Vous n'avez pas encore de produits dans votre boutique.</p>
+            <button type="button" class="add-first-product-btn" onclick="openAddProductModal()">
+                <i class="material-icons">add</i> Ajouter votre premier produit
+            </button>
+        </div>
+        {% endfor %}
                                             </div>
 
-                                            <!-- <div class="mb-4">
-                                                <label class="form-label">Content</label>
-                                                <textarea name="content" placeholder="Type here" class="ckeditor form-control" rows="4" required></textarea>
-                                            </div> -->
-                                    
+    <!-- Empty Search State -->
+    <div id="empty-search" class="empty-search" style="display: none;">
+        <i class="material-icons">search_off</i>
+        <h3>Aucun résultat</h3>
+        <p>Aucun produit ne correspond à votre recherche.</p>
                                     </div>
                                 </div>
 
-                                <!-- Formulaire Photos -->
-                                <div class="card mb-4">
+<!-- Floating Add Button -->
+<button type="button" class="floating-add-btn" onclick="openAddProductModal()" title="Ajouter un produit">
+    <span class="floating-add-icon">+</span>
+</button>
 
-                                    <!-- Dimensions -->
-                                    <div class="card-header">
-                                        <h4>Photos</h4>
+<!-- Add Product Modal -->
+<div id="addProductModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">add_circle</i>
+                Ajouter un nouveau produit
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeAddProductModal()">
+                <i class="material-icons">close</i>
+            </button>
                                     </div>
-
-                                    <div class="card-body">
-                                            <!-- <div class="row">
-                                                <div class="col-lg-6">
-                                                    <div class="mb-4">
-                                                        <label for="product_name" class="form-label">Width</label>
-                                                        <input type="text" placeholder="inch" name="width" class="form-control" id="product_name" />
+        <div class="modal-body">
+            <form method="post" action="{% url 'supplier_dashboard:supplier-add-product' %}" enctype="multipart/form-data" id="addProductForm" onsubmit="return Validate(this);">
+                {% csrf_token %}
+                
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{message.tags}}">
+                    <span>{{message}}</span>
                                                     </div>
+                {% endfor %}
+                {% endif %}
+                
+                <!-- Basic Infos -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="material-icons">info</i>
+                        Informations de base
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label for="product_name" class="form-label">Nom du produit *</label>
+                        <input type="text" name="product_name" maxlength="99" placeholder="Ex: T-shirt en coton" class="form-input" id="product_name" required/>
                                                 </div>
-                                                <div class="col-lg-6">
-                                                    <div class="mb-4">
-                                                        <label for="product_name" class="form-label">Height</label>
-                                                        <input type="text" placeholder="inch" name="height" class="form-control" id="product_name" />
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea name="introduction" placeholder="Décrivez votre produit..." class="form-textarea" rows="3" required></textarea>
                                                     </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Prix *</label>
+                            <input placeholder="FCFA" name="price" type="number" step="0.01" min="0" class="form-input" required/>
                                                 </div>
-                                            </div> -->
-                                        
-                                        <!-- Poids -->
-                                        <div class="row">
-                                            <!-- Etat du produit -->
-                                             <div class="col-lg-4">
-                                                <label class="form-label">Condition du Produit </label>
-                                                <select name="product_condition" class="form-select" required>
-                                                    <option value="1">Neuf</option>
-                                                    <option value="0">Comme Neuf</option>
-                                                    <option value="0">Pas Neuf</option>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Promotion</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select name="promotional" class="form-select" id="promotional-select" style="display: none;">
+                                    <option value="New" selected>Nouveauté</option>
+                                    <option value="Hot">Populaire</option>
                                                 </select>
+                                <div class="custom-dropdown" id="customDropdownPromotional">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Nouveauté</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        <div class="dropdown-option" data-value="New" data-selected="true">Nouveauté</div>
+                                        <div class="dropdown-option" data-value="Hot">Populaire</div>
                                             </div>
-                                            <!-- Statut du produit -->
-                                            <div class="col-lg-4">
-                                                <label class="form-label">Activer le produit </label>
-                                                <select name="product_status" class="form-select">
-                                                    <option value="1">Active</option>
-                                                    <option value="0">Inactive</option>
-                                                </select>
                                             </div>
-                                            <!-- Reference du produit -->
-                                            <div class="col-lg-4">
-                                                <div class="mb-4">
-                                                    <label class="form-label">SKU</label>
-                                                    <input placeholder="Product SKU" name="SKU" type="text" class="form-control" />
                                                 </div>
                                             </div> 
                                         </div>
                                             
-
-                                            <!-- Images additionnelles -->
-                                            <div class="card mb-4">
-                                                <div class="card-header">
-                                                    <h4>Additional Images</h4>
+                    <div class="form-group">
+                        <label class="form-check-label">
+                            <input id="discounted" name="checkbox" class="form-checkbox" type="checkbox" value="1" />
+                            <span>Le produit bénéficie d'une remise</span>
+                        </label>
+                    </div>
+                    
+                    <div id="discount_box" class="form-group not-visible">
+                        <label class="form-label">Prix avant remise</label>
+                        <input placeholder="FCFA" name="discount" type="number" step="0.01" min="0" class="form-input" />
                                                 </div>
-                                                <div class="card-body">
-                                                    <div class="input-upload">
-                                                        <img id="url-img-1"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                        <input id="id_image_1"  name="name_image_1" class="form-control" type="file" accept="image/*" />
-                                                        <img id="url-img-2"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                        <input id="id_image_2"  name="name_image_2" class="form-control" type="file" accept="image/*" />
-                                                        <img id="url-img-3"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                        <input id="id_image_3"  name="name_image_3" class="form-control" type="file" accept="image/*"  />
-                                                        <!-- <img id="url-img-4"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                        <input id="id_image_4"  name="name_image_4" class="form-control" type="file" accept="image/*"  /> -->
-                                                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Quantité disponible *</label>
+                            <div class="number-input-wrapper">
+                                <button type="button" class="number-btn minus-btn" onclick="decrementValue('available')">
+                                    <i class="material-icons">remove</i>
+                                </button>
+                                <input type="number" name="available" id="available" class="number-input" min="0" value="0" required />
+                                <button type="button" class="number-btn plus-btn" onclick="incrementValue('available')">
+                                    <i class="material-icons">add</i>
+                                </button>
                                                 </div>
                                             </div>
                                     
+                        <div class="form-group">
+                            <label class="form-label">Nombre d'unités *</label>
+                            <div class="number-input-wrapper">
+                                <button type="button" class="number-btn minus-btn" onclick="decrementValue('pieces')">
+                                    <i class="material-icons">remove</i>
+                                </button>
+                                <input type="number" name="pieces" id="pieces" class="number-input" min="0" value="0" required />
+                                <button type="button" class="number-btn plus-btn" onclick="incrementValue('pieces')">
+                                    <i class="material-icons">add</i>
+                                </button>
                                     </div>
                                 </div>
-                                <!-- card end// -->
+                    </div>
                             </div>
 
-                            <!-- Image Principale -->
-                            <div class="col-lg-3">
-                                <div class="card mb-4">
-
-                                    <div class="card-header">
-                                        <h4>Image principale du produit</h4>
+                <!-- Photos -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="material-icons">photo_library</i>
+                        Photos du produit
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Image principale *</label>
+                        <div class="image-upload-box">
+                            <img id="url-img" width="100" height="100" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="Upload" />
+                            <input id="id_image" name="main_image" class="form-file-input" type="file" accept="image/*" required/>
+                            <label for="id_image" class="upload-label">
+                                <i class="material-icons">cloud_upload</i> Cliquer pour uploader
+                            </label>
+                        </div>
                                     </div>
 
-                                    <!-- Image -->
-                                    <div class="card-body">
-                                        <div class="input-upload">
-                                            <img id="url-img"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                            <input id="id_image"  name="main_image" class="form-control" type="file" accept="image/*" required/>
+                    <div class="form-group">
+                        <label class="form-label">Images additionnelles</label>
+                        <div class="additional-images-grid">
+                            <div class="image-upload-box small">
+                                <img id="url-img-1" width="80" height="80" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="Upload" />
+                                <input id="id_image_1" name="name_image_1" class="form-file-input" type="file" accept="image/*" />
                                         </div>
+                            <div class="image-upload-box small">
+                                <img id="url-img-2" width="80" height="80" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="Upload" />
+                                <input id="id_image_2" name="name_image_2" class="form-file-input" type="file" accept="image/*" />
+                            </div>
+                            <div class="image-upload-box small">
+                                <img id="url-img-3" width="80" height="80" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="Upload" />
+                                <input id="id_image_3" name="name_image_3" class="form-file-input" type="file" accept="image/*" />
+                            </div>
+                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Categories -->
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h4>Categories</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row gx-2">
-                                            <div class="col-sm-12 mb-3">
-                                                
-                                                <div class="mb-4">
-                                                    <label class="form-label">Super Category</label>
-                                                    <select id="super_category" name="super_category_value" class="form-select super_category">
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="material-icons">category</i>
+                        Catégories
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Super Catégorie</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select id="super_category" name="super_category_value" class="form-select super_category" style="display: none;">
                                                         {% for super in super_category%}
-                                                        <option value="{{super.id}}"> {{super.name}} </option>
+                                    <option value="{{super.id}}" {% if forloop.first %}selected{% endif %}>{{super.name}}</option>
                                                         {%endfor%}
-                                                        
-                                                    </select>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                    <label class="form-label">Main Category</label>
-                                                    <select id="main_category" name="main_category_value"  class="form-select main_category">
-                                                        <!-- {% for main in main_category%}
-                                                        <option value="{{main.id}}"> {{main.name}} </option>
-                                                        {%endfor%} -->
-                                                    </select>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                    <label class="form-label">Sub Category</label>
-                                                    <select id="sub_category" name="sub_category_value" class="form-select sub_category">
-                                                        <!-- {% for sub in sub_category%}
-                                                            <option value="{{sub.id}}"> {{sub.name}} </option>
-                                                        {%endfor%} -->
-                                                    </select>
-                                                </div>
-
-
-                                                <div class="mb-4">
-                                                    <label class="form-label">Mini Category</label>
-                                                    <select id="mini_category" name="mini_category_value" class="form-select mini_category">
-                                                        <!-- {% for mini in mini_category%}
-                                                            <option value="{{mini.id}}"> {{mini.name}} </option>
-                                                        {%endfor%} -->
-                                                    </select>
-                                                </div>
-                                            
-                                            </div>
-                                            
-                                            <div class="mb-4">
-                                                <label for="product_name" class="form-label">Tags</label>
-                                                <input type="text" name="tags" maxlength="90" class="form-control" />
-                                            </div>
-                                            <h5 class="mb-3">Product Variations</h5>
-                                        <hr>
-                                        <h5 class="mb-3">Product Size</h5>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="XXS" value="XXS" id="product-cat">
-                                            <label class="form-check-label" for="product-cat"> XXS </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="XS" value="XS"id="product-cat1">
-                                            <label class="form-check-label" for="product-cat"> XS </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="S" value="S" id="product-cat2">
-                                            <label class="form-check-label" for="product-cat"> S </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="M" value="M" id="product-cat3">
-                                            <label class="form-check-label" for="product-cat"> M </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="L" value="L" id="product-cat4">
-                                            <label class="form-check-label" for="product-cat"> L </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="XL" value="XL" id="product-cat5">
-                                            <label class="form-check-label" for="product-cat"> XL </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="XXL" value="XXL" id="product-cat6">
-                                            <label class="form-check-label" for="product-cat"> XXL </label>
-                                        </div>
-
-                                        </div>
-                                    
-                                        <!-- row.// -->
+                                </select>
+                                <div class="custom-dropdown" id="customDropdownSuperCategory">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">{% if super_category %}{{ super_category.0.name }}{% else %}Sélectionner{% endif %}</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        {% for super in super_category%}
+                                        <div class="dropdown-option" data-value="{{super.id}}" {% if forloop.first %}data-selected="true"{% endif %}>{{super.name}}</div>
+                                        {%endfor%}
                                     </div>
                                 </div>
-                                <!-- card end// -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Catégorie principale</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select id="main_category" name="main_category_value" class="form-select main_category" style="display: none;">
+                                                    </select>
+                                <div class="custom-dropdown" id="customDropdownMainCategory">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Sélectionner</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu" id="mainCategoryMenu">
+                                        <div class="dropdown-option" data-value="">Sélectionner</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                                </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Sous-catégorie</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select id="sub_category" name="sub_category_value" class="form-select sub_category" style="display: none;">
+                                    <option value="">Sélectionner</option>
+                                                    </select>
+                                <div class="custom-dropdown" id="customDropdownSubCategory">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Sélectionner</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu" id="subCategoryMenu">
+                                        <div class="dropdown-option" data-value="">Sélectionner</div>
+                                    </div>
+                                </div>
+                            </div>
+                                                </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Mini catégorie</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select id="mini_category" name="mini_category_value" class="form-select mini_category" style="display: none;">
+                                    <option value="">Sélectionner</option>
+                                                    </select>
+                                <div class="custom-dropdown" id="customDropdownMiniCategory">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Sélectionner</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu" id="miniCategoryMenu">
+                                        <div class="dropdown-option" data-value="">Sélectionner</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                                </div>
+
+                    <div class="form-group">
+                        <label for="tags" class="form-label">Mots-clés (Tags)</label>
+                        <input type="text" name="tags" maxlength="90" class="form-input" placeholder="Ex: mode, homme, été, casual" />
+                    </div>
+                </div>
+                
+                <!-- Product Details -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="material-icons">settings</i>
+                        Détails du produit
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Condition *</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select name="product_condition" class="form-select" id="condition-select" required style="display: none;">
+                                    <option value="1" selected>Nouveau</option>
+                                    <option value="0">Occasion</option>
+                                                    </select>
+                                <div class="custom-dropdown" id="customDropdownCondition">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Nouveau</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        <div class="dropdown-option" data-value="1" data-selected="true">Nouveau</div>
+                                        <div class="dropdown-option" data-value="0">Occasion</div>
+                                                </div>
+                                </div>
+                            </div>
+                                            </div>
+                                            
+                        <div class="form-group">
+                            <label class="form-label">Statut</label>
+                            <div class="custom-dropdown-wrapper">
+                                <select name="product_status" class="form-select" id="status-select" style="display: none;">
+                                    <option value="1" selected>Actif</option>
+                                    <option value="0">Inactif</option>
+                                </select>
+                                <div class="custom-dropdown" id="customDropdownStatus">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">Actif</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        <div class="dropdown-option" data-value="1" data-selected="true">Actif</div>
+                                        <div class="dropdown-option" data-value="0">Inactif</div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        </div>
+                                        </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Code SKU</label>
+                        <input placeholder="Ex: PROD-001" name="SKU" type="text" class="form-input" />
+                                        </div>
+                                        </div>
+                
+                <!-- Product Sizes -->
+                <div class="form-section">
+                    <h3 class="form-section-title">
+                        <i class="material-icons">straighten</i>
+                        Tailles disponibles
+                    </h3>
+                    
+                    <div class="sizes-grid">
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="XXS" value="XXS" />
+                            <span>XXS</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="XS" value="XS" />
+                            <span>XS</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="S" value="S" />
+                            <span>S</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="M" value="M" />
+                            <span>M</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="L" value="L" />
+                            <span>L</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="XL" value="XL" />
+                            <span>XL</span>
+                        </label>
+                        <label class="size-checkbox">
+                            <input class="form-checkbox" type="checkbox" name="XXL" value="XXL" />
+                            <span>XXL</span>
+                        </label>
+                    </div>
+                                        </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeAddProductModal()">Annuler</button>
+                    <button type="submit" class="btn-submit">
+                        <i class="material-icons">check</i>
+                        Publier le produit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+                                        </div>
+                                    
+<!-- Product Details Modal -->
+<div id="productDetailsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container product-details-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">info</i>
+                Détails du produit
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeProductDetailsModal()">
+                <i class="material-icons">close</i>
+            </button>
+                                    </div>
+        <div class="modal-body" id="productDetailsContent">
+            <!-- Le contenu sera chargé dynamiquement via JavaScript -->
+            <div style="text-align: center; padding: 40px;">
+                <div class="modern-spinner">
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                    <div class="spinner-dot"></div>
+                                </div>
+                <p style="margin-top: 16px; color: #6B7280;">Chargement des détails...</p>
                             </div>
                         </div>
                     </div>
-                </form>
-            </section>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons" style="color: #DC2626;">warning</i>
+                Confirmer la suppression
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeDeleteConfirmModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="material-icons" style="font-size: 48px; color: #DC2626;">delete_outline</i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Êtes-vous sûr ?</h3>
+                <p style="font-size: 15px; color: #6B7280; margin: 0 0 8px 0;">Vous êtes sur le point de supprimer le produit :</p>
+                <p id="deleteProductName" style="font-size: 16px; font-weight: 600; color: #6B46C1; margin: 0 0 24px 0;"></p>
+                <p style="font-size: 14px; color: #9CA3AF; margin: 0;">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeDeleteConfirmModal()">Annuler</button>
+            <form id="deleteProductForm" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                    <i class="material-icons">delete</i>
+                    Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Welcome Card */
+    .products-welcome-card {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        color: white;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0 0 6px 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .welcome-text strong {
+        color: #FCD34D;
+        font-weight: 700;
+    }
+    
+    /* Search Card */
+    .products-search-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .search-filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 20px;
+        font-size: 24px;
+        color: #6B7280;
+        z-index: 1;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 16px 20px 16px 56px;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #1F2937;
+        transition: all 0.3s ease;
+        background: #FAFAFA;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: #6B46C1;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .search-clear-btn {
+        position: absolute;
+        right: 16px;
+        background: #F3F4F6;
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #6B7280;
+    }
+    
+    .search-clear-btn:hover {
+        background: #E5E7EB;
+    }
+    
+    .filters-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 0;
+    }
+    
+    .filters-row.active {
+        max-height: 200px;
+        opacity: 1;
+        visibility: visible;
+        margin-top: 20px;
+    }
+    
+    /* Custom Dropdown - Style comme page commandes */
+    .filter-group {
+        position: relative;
+    }
+    
+    .filter-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6B7280;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-label .material-icons {
+        font-size: 18px;
+        color: #6B46C1;
+    }
+    
+    .custom-dropdown-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown-trigger {
+        width: 100%;
+        padding: 12px 20px;
+        background: white;
+        border: 2.5px solid #6B46C1;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        box-shadow: 0 2px 8px rgba(107, 70, 193, 0.1);
+    }
+    
+    .custom-dropdown-trigger:hover {
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .custom-dropdown-trigger:active {
+        transform: translateY(0);
+    }
+    
+    .dropdown-selected-text {
+        flex: 1;
+        text-align: left;
+    }
+    
+    .dropdown-arrow {
+        font-size: 20px;
+        color: #6B46C1;
+        transition: transform 0.3s ease;
+    }
+    
+    .custom-dropdown.active .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .custom-dropdown-menu {
+        position: fixed;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 10000;
+        overflow: hidden;
+        padding: 8px 0;
+        max-height: 400px;
+        overflow-y: auto;
+        min-width: 200px;
+    }
+    
+    /* Dropdowns dans le modal doivent avoir un z-index encore plus élevé */
+    .modal-overlay .custom-dropdown-menu {
+        z-index: 10001;
+    }
+    
+    .custom-dropdown.active .custom-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .dropdown-option {
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .dropdown-option:hover {
+        background: rgba(107, 70, 193, 0.1);
+        color: #6B46C1;
+    }
+    
+    .dropdown-option[data-selected="true"] {
+        background: #6B46C1;
+        color: white;
+        font-weight: 700;
+    }
+    
+    .dropdown-option[data-selected="true"]:hover {
+        background: #8B5CF6;
+        color: white;
+    }
+    
+    /* Products List */
+    .products-list-container {
+        margin-bottom: 100px;
+    }
+    
+    .products-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .product-list-item {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: 2px solid transparent;
+    }
+    
+    .product-list-item:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        border-color: #6B46C1;
+    }
+    
+    .product-list-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #F9FAFB;
+        flex-shrink: 0;
+    }
+    
+    .product-list-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .product-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F3F4F6;
+        color: #9CA3AF;
+    }
+    
+    .product-placeholder i {
+        font-size: 40px;
+    }
+    
+    .product-list-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 0;
+    }
+    
+    .product-list-main {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .product-list-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .product-list-category {
+        font-size: 13px;
+        color: #6B7280;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .product-list-details {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .product-list-price {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .price-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #6B46C1;
+    }
+    
+    .price-discount {
+        font-size: 14px;
+        color: #9CA3AF;
+        text-decoration: line-through;
+    }
+    
+    .product-list-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #6B7280;
+    }
+    
+    .meta-item i {
+        font-size: 18px;
+    }
+    
+    .product-list-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+    
+    .status-badge-list {
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .status-badge-list.status-active {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    
+    .status-badge-list.status-inactive {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+    
+    .chevron-icon {
+        color: #9CA3AF;
+        font-size: 24px;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-list-item:hover .chevron-icon {
+        transform: translateX(4px);
+        color: #6B46C1;
+    }
+    
+    /* Product Details Modal */
+    .product-details-modal {
+        max-width: 800px;
+    }
+    
+    .product-details-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-details-header {
+        position: relative;
+        height: 300px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+    }
+    
+    .product-details-header img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .product-details-status {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .product-details-status.status-active {
+        background: rgba(209, 250, 229, 0.9);
+        color: #059669;
+    }
+    
+    .product-details-status.status-inactive {
+        background: rgba(254, 226, 226, 0.9);
+        color: #DC2626;
+    }
+    
+    .product-details-body {
+        padding: 32px;
+    }
+    
+    .product-details-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .product-details-category {
+        font-size: 15px;
+        color: #6B7280;
+        margin: 0 0 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .product-details-price-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .product-details-price {
+        font-size: 32px;
+        font-weight: 700;
+        color: #6B46C1;
+    }
+    
+    .product-details-discount {
+        font-size: 20px;
+        color: #9CA3AF;
+        text-decoration: line-through;
+    }
+    
+    .product-details-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+    
+    .product-details-info-item {
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .product-details-info-item i {
+        font-size: 24px;
+        color: #6B46C1;
+    }
+    
+    .product-details-info-item-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .product-details-info-label {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .product-details-info-value {
+        font-size: 16px;
+        color: #1F2937;
+        font-weight: 700;
+    }
+    
+    .product-details-description {
+        margin-bottom: 32px;
+    }
+    
+    .product-details-description h4 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .product-details-description p {
+        font-size: 15px;
+        color: #4B5563;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .product-details-actions {
+        display: flex;
+        gap: 12px;
+        padding-top: 24px;
+        border-top: 2px solid #F3F4F6;
+    }
+    
+    .product-details-actions .action-btn {
+        flex: 1;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .product-details-actions .btn-text {
+        display: inline;
+    }
+    
+    .product-details-actions .btn-text-mobile {
+        display: none;
+    }
+    
+    .product-details-actions .edit-btn {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+    }
+    
+    .product-details-actions .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .product-details-actions .delete-btn {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+    
+    .product-details-actions .delete-btn:hover {
+        background: #FECACA;
+    }
+    
+    /* Spinner de chargement */
+    .modern-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .spinner-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #6B46C1;
+        animation: spinner-bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .spinner-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    
+    .spinner-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    
+    @keyframes spinner-bounce {
+        0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    /* Empty States */
+    .empty-products,
+    .empty-search {
+        text-align: center;
+        padding: 80px 24px;
+        color: #9CA3AF;
+        width: 100%;
+    }
+    
+    .empty-products i,
+    .empty-search i {
+        font-size: 72px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+        color: #D1D5DB;
+    }
+    
+    .empty-products h3,
+    .empty-search h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #6B7280;
+        margin: 0 0 8px 0;
+    }
+    
+    .add-first-product-btn {
+        margin-top: 24px;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .add-first-product-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, 0.35);
+    }
+    
+    /* Floating Add Button */
+    .floating-add-btn {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .floating-add-icon {
+        font-size: 36px;
+        font-weight: 300;
+        line-height: 1;
+        display: block;
+    }
+    
+    .floating-add-btn:hover {
+        transform: scale(1.1) translateY(-4px);
+        box-shadow: 0 12px 32px rgba(107, 70, 193, 0.5);
+    }
+    
+    .floating-add-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 900px;
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h2 i {
+        color: #6B46C1;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .form-section {
+        margin-bottom: 0;
+    }
+    
+    .form-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .form-section-title i {
+        color: #6B46C1;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1F2937;
+        transition: all 0.2s ease;
+        background: white;
+        font-family: inherit;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    /* Number Input with +/- buttons */
+    .number-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 4px;
+        background: white;
+        transition: all 0.2s ease;
+    }
+    
+    .number-input-wrapper:focus-within {
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .number-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        color: #6B7280;
+        flex-shrink: 0;
+    }
+    
+    .number-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .number-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .number-btn .material-icons {
+        font-size: 20px;
+    }
+    
+    .number-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+        padding: 8px;
+        min-width: 0;
+        -moz-appearance: textfield;
+    }
+    
+    .number-input::-webkit-outer-spin-button,
+    .number-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    .number-input:focus {
+        outline: none;
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .form-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #6B46C1;
+        cursor: pointer;
+    }
+    
+    .form-check-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #374151;
+        cursor: pointer;
+    }
+    
+    .image-upload-box {
+        position: relative;
+        width: 100%;
+        height: 160px;
+        border: 2px dashed #E5E7EB;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #FAFAFA;
+        overflow: hidden;
+    }
+    
+    .image-upload-box:hover {
+        border-color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .image-upload-box.small {
+        height: 100px;
+    }
+    
+    .image-upload-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .form-file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .upload-label {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(107, 70, 193, 0.9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+    }
+    
+    .additional-images-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .sizes-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    
+    .size-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 8px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 13px;
+        color: #6B7280;
+    }
+    
+    .size-checkbox:hover {
+        border-color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .size-checkbox input:checked + span,
+    .size-checkbox:has(input:checked) {
+        border-color: #6B46C1;
+        background: #E0E7FF;
+        color: #6B46C1;
+    }
+    
+    .size-checkbox input {
+        display: none;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 2px solid #F3F4F6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #F9FAFB;
+        flex-shrink: 0;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-cancel {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .not-visible {
+        display: none !important;
+    }
+    
+    /* Responsive */
+    /* Mobile/Desktop visibility helpers */
+    .mobile-only {
+        display: none;
+    }
+    
+    .mobile-hide {
+        display: inline;
+    }
+    
+    .desktop-only {
+        display: flex;
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-only {
+            display: flex;
+        }
+        
+        .mobile-hide {
+            display: none;
+        }
+        
+        .desktop-only {
+            display: none;
+        }
+        
+        .products-welcome-card {
+            padding: 20px;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        /* Compact list on mobile */
+        .product-list-item {
+            flex-direction: row;
+            align-items: center;
+            padding: 12px;
+            gap: 12px;
+            cursor: default;
+        }
+        
+        .product-list-item:active {
+            transform: none;
+        }
+        
+        .product-list-image {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            border-radius: 8px;
+        }
+        
+        .product-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .product-list-main {
+            margin-bottom: 4px;
+        }
+        
+        .product-list-name {
+            font-size: 14px;
+            margin: 0 0 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .product-list-category {
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        .product-list-category i {
+            font-size: 14px;
+        }
+        
+        .product-list-details {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        
+        .product-list-price {
+            margin: 0;
+        }
+        
+        .price-value {
+            font-size: 13px;
+            font-weight: 700;
+        }
+        
+        .product-list-meta {
+            display: none;
+        }
+        
+        .product-list-status {
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .status-badge-list {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+        
+        .status-badge-list i {
+            font-size: 14px;
+        }
+        
+        /* Action buttons on mobile */
+        .product-list-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .edit-btn {
+            background: #E0E7FF;
+            color: #6B46C1;
+        }
+        
+        .edit-btn:hover,
+        .edit-btn:active {
+            background: #C7D2FE;
+            transform: scale(1.05);
+        }
+        
+        .delete-btn {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        
+        .delete-btn:hover,
+        .delete-btn:active {
+            background: #FECACA;
+            transform: scale(1.05);
+        }
+        
+        .action-btn i {
+            font-size: 18px;
+        }
+        
+        .product-details-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .product-details-actions {
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 20px;
+        }
+        
+        .product-details-actions .action-btn {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .product-details-actions .edit-btn {
+            background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.25);
+        }
+        
+        .product-details-actions .edit-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
+        }
+        
+        .product-details-actions .delete-btn {
+            background: #FEE2E2;
+            color: #DC2626;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+        }
+        
+        .product-details-actions .delete-btn:active {
+            background: #FECACA;
+            transform: translateY(1px);
+        }
+        
+        .product-details-actions .action-btn i {
+            font-size: 20px;
+        }
+        
+        .product-details-actions form {
+            width: 100%;
+            display: block;
+        }
+        
+        .product-details-actions .btn-text {
+            display: none;
+        }
+        
+        .product-details-actions .btn-text-mobile {
+            display: inline;
+        }
+        
+        .filters-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .filters-row.active {
+            max-height: 400px;
+        }
+        
+        .search-filters-container {
+            gap: 16px;
+        }
+        
+        .floating-add-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+        }
+        
+        .floating-add-icon {
+            font-size: 32px;
+        }
+        
+        .modal-container {
+            max-height: 95vh;
+            border-radius: 16px;
+        }
+        
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            padding: 20px;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .sizes-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+</style>
+
 {%endblock section%}
 
 {%block script%}
 <script>
-
-    var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png" , "zip" , "rar"];    
+    // Filter state
+    let currentFilters = {
+        search: '',
+        sort: 'name',
+        status: 'All',
+        category: 'All'
+    };
+    
+    // Search functionality
+    const searchInput = document.getElementById('product-search');
+    const clearBtn = document.getElementById('clear-search');
+    const productsList = document.getElementById('products-list');
+    const emptySearch = document.getElementById('empty-search');
+    const productItems = document.querySelectorAll('.product-list-item');
+    
+    function filterProducts() {
+        const searchTerm = currentFilters.search.toLowerCase().trim();
+        const statusFilter = currentFilters.status;
+        const categoryFilter = currentFilters.category.toLowerCase();
+        const sortValue = currentFilters.sort;
+        
+        if (searchTerm) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+        
+        let visibleItems = [];
+        
+        productItems.forEach(item => {
+            const productName = item.getAttribute('data-product-name') || '';
+            const productCategory = item.getAttribute('data-product-category') || '';
+            const productPrice = item.getAttribute('data-product-price') || '';
+            const productStatus = item.getAttribute('data-product-status') || '';
+            
+            // Search filter
+            const matchesSearch = !searchTerm || 
+                productName.includes(searchTerm) || 
+                productCategory.includes(searchTerm) ||
+                productPrice.includes(searchTerm);
+            
+            // Status filter
+            const matchesStatus = statusFilter === 'All' || productStatus === statusFilter;
+            
+            // Category filter
+            const matchesCategory = categoryFilter === 'all' || productCategory === categoryFilter;
+            
+            if (matchesSearch && matchesStatus && matchesCategory) {
+                item.style.display = 'flex';
+                visibleItems.push(item);
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Sort products
+        if (sortValue) {
+            const sortedItems = Array.from(visibleItems).sort((a, b) => {
+                if (sortValue === 'name' || sortValue === '-name') {
+                    const nameA = a.getAttribute('data-product-name') || '';
+                    const nameB = b.getAttribute('data-product-name') || '';
+                    return sortValue === 'name' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+                } else if (sortValue === 'PRDPrice' || sortValue === '-PRDPrice') {
+                    const priceA = parseFloat(a.getAttribute('data-product-price') || 0);
+                    const priceB = parseFloat(b.getAttribute('data-product-price') || 0);
+                    return sortValue === 'PRDPrice' ? priceA - priceB : priceB - priceA;
+                }
+                return 0;
+            });
+            
+            // Reorder in DOM
+            sortedItems.forEach(item => {
+                productsList.appendChild(item);
+            });
+        }
+        
+        if (visibleItems.length === 0 && (searchTerm || statusFilter !== 'All' || categoryFilter !== 'all')) {
+            productsList.style.display = 'none';
+            emptySearch.style.display = 'block';
+        } else {
+            productsList.style.display = 'flex';
+            emptySearch.style.display = 'none';
+        }
+    }
+    
+    // Afficher les filtres au focus de la barre de recherche
+    searchInput.addEventListener('focus', function() {
+        const filtersRow = document.querySelector('.filters-row');
+        if (filtersRow) {
+            filtersRow.classList.add('active');
+        }
+    });
+    
+    searchInput.addEventListener('input', function() {
+        currentFilters.search = this.value;
+        filterProducts();
+        
+        // Afficher le bouton clear si du texte est saisi
+        if (this.value.trim().length > 0) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    });
+    
+    // Masquer les filtres au chargement de la page
+    // URLs pour les actions CRUD
+    const urls = {
+        editProduct: '{% url "supplier_dashboard:supplier-edit-product" 0 %}',
+        removeProduct: '{% url "supplier_dashboard:remove-item" 0 %}'
+    };
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtersRow = document.querySelector('.filters-row');
+        if (filtersRow) {
+            filtersRow.classList.remove('active');
+        }
+    });
+    
+    clearBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        currentFilters.search = '';
+        clearBtn.style.display = 'none';
+        filterProducts();
+        
+        // Masquer les filtres quand on efface la recherche
+        const filtersRow = document.querySelector('.filters-row');
+        if (filtersRow) {
+            filtersRow.classList.remove('active');
+        }
+    });
+    
+    // Number input +/- functions
+    function incrementValue(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 0;
+            input.value = currentValue + 1;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    function decrementValue(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 0;
+            if (currentValue > 0) {
+                input.value = currentValue - 1;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    }
+    
+    // Function to sync custom dropdown with native select
+    function syncCustomDropdownFromSelect(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        // Map select IDs to dropdown IDs
+        const dropdownIdMap = {
+            'super_category': 'customDropdownSuperCategory',
+            'main_category': 'customDropdownMainCategory',
+            'sub_category': 'customDropdownSubCategory',
+            'mini_category': 'customDropdownMiniCategory'
+        };
+        
+        const dropdownId = dropdownIdMap[selectId] || 'customDropdown' + selectId.charAt(0).toUpperCase() + selectId.slice(1).replace('_', '');
+        const dropdown = document.getElementById(dropdownId);
+        if (!dropdown) return;
+        
+        const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+        const menu = dropdown.querySelector('.custom-dropdown-menu');
+        if (!trigger || !menu) return;
+        
+        // Clear existing options
+        menu.innerHTML = '';
+        
+        // Add options from native select
+        Array.from(select.options).forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'dropdown-option';
+            optionDiv.setAttribute('data-value', option.value);
+            optionDiv.textContent = option.textContent.trim();
+            
+            if (option.selected) {
+                optionDiv.setAttribute('data-selected', 'true');
+                trigger.querySelector('.dropdown-selected-text').textContent = option.textContent.trim();
+            }
+            
+            // Add click handler
+            optionDiv.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent.trim();
+                
+                // Update selected text
+                trigger.querySelector('.dropdown-selected-text').textContent = text;
+                
+                // Update selected state
+                menu.querySelectorAll('.dropdown-option').forEach(opt => {
+                    opt.removeAttribute('data-selected');
+                });
+                this.setAttribute('data-selected', 'true');
+                
+                // Update native select
+                select.value = value;
+                
+                // Trigger change event for category selects
+                if (selectId === 'super_category' || selectId === 'main_category' || selectId === 'sub_category' || selectId === 'mini_category') {
+                    $(select).trigger('change');
+                }
+                
+                // Close dropdown
+                dropdown.classList.remove('active');
+            });
+            
+            menu.appendChild(optionDiv);
+        });
+    }
+    
+    // Custom Dropdown Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+            const menu = dropdown.querySelector('.custom-dropdown-menu');
+            const options = dropdown.querySelectorAll('.dropdown-option');
+            const select = dropdown.parentElement.querySelector('select');
+            
+            if (!trigger || !menu || !select) return;
+            
+            // Fonction pour positionner le menu dropdown
+            function positionDropdown() {
+                if (!dropdown.classList.contains('active')) return;
+                
+                const triggerRect = trigger.getBoundingClientRect();
+                const menu = dropdown.querySelector('.custom-dropdown-menu');
+                
+                if (!menu) return;
+                
+                // Forcer le rendu temporaire pour obtenir les dimensions réelles
+                const wasVisible = menu.style.visibility !== 'hidden';
+                menu.style.visibility = 'hidden';
+                menu.style.display = 'block';
+                menu.style.opacity = '0';
+                
+                // Obtenir les dimensions réelles du menu
+                const menuRect = menu.getBoundingClientRect();
+                const menuHeight = menuRect.height || 300;
+                const menuWidth = Math.max(triggerRect.width, 200);
+                
+                // Restaurer l'affichage
+                menu.style.display = '';
+                menu.style.visibility = wasVisible ? '' : 'hidden';
+                menu.style.opacity = '';
+                
+                // Calculer la position relative à la fenêtre (viewport)
+                // position: fixed est relatif à la fenêtre, pas au document
+                // Donc on utilise directement getBoundingClientRect() sans ajouter scrollY/scrollX
+                let top = triggerRect.bottom + 8;
+                let left = triggerRect.left;
+                
+                // Vérifier l'espace disponible en bas
+                const spaceBelow = window.innerHeight - triggerRect.bottom;
+                const spaceAbove = triggerRect.top;
+                
+                // Si pas assez d'espace en bas et plus d'espace en haut, afficher au-dessus
+                if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+                    top = triggerRect.top - menuHeight - 8;
+                } else {
+                    // S'assurer qu'on ne dépasse pas en bas
+                    if (top + menuHeight > window.innerHeight) {
+                        top = window.innerHeight - menuHeight - 10;
+                    }
+                }
+                
+                // Ajuster horizontalement
+                if (left + menuWidth > window.innerWidth) {
+                    left = window.innerWidth - menuWidth - 10;
+                }
+                if (left < 10) {
+                    left = 10;
+                }
+                
+                // Appliquer la position (sans scroll car position: fixed)
+                menu.style.top = top + 'px';
+                menu.style.left = left + 'px';
+                menu.style.width = menuWidth + 'px';
+            }
+            
+            // Toggle dropdown
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isActive = dropdown.classList.contains('active');
+                
+                // Close all other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) {
+                        d.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current dropdown
+                dropdown.classList.toggle('active', !isActive);
+                
+                // Positionner le menu après un court délai pour que le DOM soit mis à jour
+                if (!isActive) {
+                    setTimeout(() => {
+                        positionDropdown();
+                    }, 10);
+                }
+            });
+            
+            // Repositionner lors du scroll ou resize
+            window.addEventListener('scroll', function() {
+                if (dropdown.classList.contains('active')) {
+                    positionDropdown();
+                }
+            }, true);
+            
+            window.addEventListener('resize', function() {
+                if (dropdown.classList.contains('active')) {
+                    positionDropdown();
+                }
+            });
+            
+            // Handle option selection
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.textContent.trim();
+                    
+                    // Update selected text
+                    trigger.querySelector('.dropdown-selected-text').textContent = text;
+                    
+                    // Update selected state
+                    menu.querySelectorAll('.dropdown-option').forEach(opt => {
+                        opt.removeAttribute('data-selected');
+                    });
+                    this.setAttribute('data-selected', 'true');
+                    
+                    // Update native select
+                    select.value = value;
+                    
+                    // Trigger change event for category selects (to load sub-categories via get-category.js)
+                    if (select.id === 'super_category' || select.id === 'main_category' || select.id === 'sub_category' || select.id === 'mini_category') {
+                        $(select).trigger('change');
+                    }
+                    
+                    // Update filter state (for search filters only)
+                    if (select.id === 'sort-select') {
+                        currentFilters.sort = value;
+                        filterProducts();
+                    } else if (select.id === 'status-select') {
+                        currentFilters.status = value;
+                        filterProducts();
+                    } else if (select.id === 'category-select') {
+                        currentFilters.category = value;
+                        filterProducts();
+                    }
+                    
+                    // Close dropdown
+                    dropdown.classList.remove('active');
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+            
+            // Initialize selected option from native select
+            if (select && select.value) {
+                const selectedOption = Array.from(select.options).find(opt => opt.value === select.value);
+                if (selectedOption) {
+                    const matchingOption = Array.from(options).find(opt => opt.getAttribute('data-value') === select.value);
+                    if (matchingOption) {
+                        trigger.querySelector('.dropdown-selected-text').textContent = selectedOption.textContent.trim();
+                        options.forEach(opt => opt.removeAttribute('data-selected'));
+                        matchingOption.setAttribute('data-selected', 'true');
+                    }
+                }
+            }
+        });
+        
+        // Watch for changes in category selects and sync custom dropdowns
+        const categorySelects = ['super_category', 'main_category', 'sub_category', 'mini_category'];
+        
+        categorySelects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                // Use MutationObserver to watch for changes in select options
+                const observer = new MutationObserver(function(mutations) {
+                    syncCustomDropdownFromSelect(selectId);
+                });
+                
+                observer.observe(select, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                // Also listen to change events
+                select.addEventListener('change', function() {
+                    setTimeout(() => {
+                        syncCustomDropdownFromSelect(selectId);
+                    }, 100);
+                });
+            }
+        });
+        
+        // Initial sync after get-category.js loads
+        setTimeout(() => {
+            categorySelects.forEach(selectId => {
+                syncCustomDropdownFromSelect(selectId);
+            });
+        }, 2000);
+    });
+    
+    // Modal functions
+    function openAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    // Close modal on overlay click
+    document.getElementById('addProductModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAddProductModal();
+        }
+    });
+    
+    // Product Details Modal functions
+    // Handle product item click - different behavior on mobile vs desktop
+    function handleProductItemClick(event, productId) {
+        // On mobile, only open modal if clicking on the item itself (not on action buttons)
+        // Action buttons have stopPropagation() so they won't trigger this
+        if (window.innerWidth <= 768) {
+            // On mobile, clicking the item opens the modal
+            openProductDetailsModal(productId);
+        } else {
+            // On desktop, clicking the item opens the modal
+            openProductDetailsModal(productId);
+        }
+    }
+    
+    function openProductDetailsModal(productId) {
+        const modal = document.getElementById('productDetailsModal');
+        const content = document.getElementById('productDetailsContent');
+        
+        // Afficher le modal avec le loader
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Trouver le produit dans la liste
+        const productItem = document.querySelector(`[data-product-id="${productId}"]`);
+        if (!productItem) {
+            content.innerHTML = '<div style="text-align: center; padding: 40px; color: #DC2626;"><i class="material-icons" style="font-size: 48px; margin-bottom: 16px;">error</i><p>Produit introuvable</p></div>';
+            return;
+        }
+        
+        // Récupérer les données du produit depuis les attributs data ou le DOM
+        const productName = productItem.querySelector('.product-list-name')?.textContent.trim() || productItem.getAttribute('data-product-name') || '';
+        const productCategory = productItem.getAttribute('data-product-category-name') || productItem.querySelector('.product-list-category')?.textContent.trim() || 'Sans catégorie';
+        const productImageSrc = productItem.getAttribute('data-product-image') || '';
+        const productPrice = productItem.getAttribute('data-product-price') || productItem.querySelector('.price-value')?.textContent.trim() || '0';
+        const productDiscount = productItem.getAttribute('data-product-discount') || '0';
+        const productStock = productItem.getAttribute('data-product-available') || '0';
+        const productDate = productItem.getAttribute('data-product-date') || '';
+        const productStatus = productItem.getAttribute('data-product-status') === 'Active' ? 'Actif' : 'Inactif';
+        const productStatusClass = productItem.getAttribute('data-product-status') === 'Active' ? 'status-active' : 'status-inactive';
+        const productDescription = productItem.getAttribute('data-product-description') || '';
+        
+        // Construire le HTML du modal avec les détails du produit
+        let modalHTML = `
+            <div class="product-details-card">
+                <div class="product-details-header">
+                    ${productImageSrc ? `<img src="${productImageSrc}" alt="${productName}" />` : '<div class="product-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F3F4F6;"><i class="material-icons" style="font-size: 72px; color: #9CA3AF;">image</i></div>'}
+                    <div class="product-details-status ${productStatusClass}">
+                        <i class="material-icons">${productStatusClass === 'status-active' ? 'check_circle' : 'cancel'}</i> ${productStatus}
+                    </div>
+                </div>
+                <div class="product-details-body">
+                    <h2 class="product-details-title">${productName}</h2>
+                    <p class="product-details-category">
+                        <i class="material-icons">local_offer</i> ${productCategory}
+                    </p>
+                    <div class="product-details-price-section">
+                        <span class="product-details-price">${parseFloat(productPrice).toLocaleString('fr-FR')} XOF</span>
+                        ${productDiscount && parseFloat(productDiscount) > 0 ? `<span class="product-details-discount">${parseFloat(productDiscount).toLocaleString('fr-FR')} XOF</span>` : ''}
+                    </div>
+                    <div class="product-details-info-grid">
+                        <div class="product-details-info-item">
+                            <i class="material-icons">inventory</i>
+                            <div class="product-details-info-item-content">
+                                <span class="product-details-info-label">Stock</span>
+                                <span class="product-details-info-value">${productStock}</span>
+                            </div>
+                        </div>
+                        <div class="product-details-info-item">
+                            <i class="material-icons">calendar_today</i>
+                            <div class="product-details-info-item-content">
+                                <span class="product-details-info-label">Date d'ajout</span>
+                                <span class="product-details-info-value">${productDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-details-actions">
+                        <a href="${urls.editProduct.replace('0', productId)}" class="action-btn edit-btn">
+                            <i class="material-icons">edit</i> <span class="btn-text">Modifier</span><span class="btn-text-mobile">Modif</span>
+                        </a>
+                        <button type="button" class="action-btn delete-btn" onclick="closeProductDetailsModal(); openDeleteConfirmModal(${productId}, '${productName.replace(/'/g, "\\'")}');">
+                            <i class="material-icons">delete</i> <span>Supprimer</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Mettre à jour le contenu du modal
+        content.innerHTML = modalHTML;
+    }
+    
+    function closeProductDetailsModal() {
+        document.getElementById('productDetailsModal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+    // Close product details modal on overlay click
+    document.getElementById('productDetailsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeProductDetailsModal();
+        }
+    });
+    
+    // Delete confirmation
+    // Fonction pour ouvrir le modal de confirmation de suppression
+    function openDeleteConfirmModal(productId, productName) {
+        const modal = document.getElementById('deleteConfirmModal');
+        const form = document.getElementById('deleteProductForm');
+        const productNameElement = document.getElementById('deleteProductName');
+        
+        if (modal && form && productNameElement) {
+            productNameElement.textContent = productName;
+            form.action = urls.removeProduct.replace('0', productId);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Ajouter un gestionnaire de soumission pour fermer le modal après suppression
+            form.onsubmit = function() {
+                setTimeout(function() {
+                    closeDeleteConfirmModal();
+                }, 100);
+            };
+        }
+    }
+    
+    // Fonction pour fermer le modal de confirmation de suppression
+    function closeDeleteConfirmModal() {
+        const modal = document.getElementById('deleteConfirmModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('deleteConfirmModal');
+        if (modal && e.target === modal) {
+            closeDeleteConfirmModal();
+        }
+    });
+    
+    // Image preview
+    const image = document.getElementById('id_image');
+    if (image) {
+        image.addEventListener('change', () => {
+            const img_data = image.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img").src = url;
+            }
+        });
+    }
+    
+    const image_1 = document.getElementById('id_image_1');
+    if (image_1) {
+        image_1.addEventListener('change', () => {
+            const img_data = image_1.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-1").src = url;
+            }
+        });
+    }
+    
+    const image_2 = document.getElementById('id_image_2');
+    if (image_2) {
+        image_2.addEventListener('change', () => {
+            const img_data = image_2.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-2").src = url;
+            }
+        });
+    }
+    
+    const image_3 = document.getElementById('id_image_3');
+    if (image_3) {
+        image_3.addEventListener('change', () => {
+            const img_data = image_3.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-3").src = url;
+            }
+        });
+    }
+    
+    // Discount checkbox
+    const discounted = document.getElementById("discounted");
+    const discountBox = document.getElementById("discount_box");
+    if (discounted && discountBox) {
+    discounted.addEventListener('change', function() {
+        if (this.checked) {
+          discountBox.classList.remove("not-visible");
+        } else {
+          discountBox.classList.add("not-visible");
+        }
+      });
+    }
+    
+    // File validation
+    var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
     function Validate(oForm) {
         var arrInputs = oForm.getElementsByTagName("input");
         for (var i = 0; i < arrInputs.length; i++) {
@@ -332,88 +2742,93 @@
                     }
                     
                     if (!blnValid) {
-                        alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                        alert("Désolé, " + sFileName + " est invalide. Extensions autorisées: " + _validFileExtensions.join(", "));
                         return false;
                     }
                 }
             }
         }
-    
         return true;
     }
-
-
-    const image = document.getElementById('id_image')
-   
-    image.addEventListener('change', () => {
-        const img_data = image.files[0]
-        
-        const url = URL.createObjectURL(img_data)
-        document.getElementById("url-img").src = url
-    })
-
-    const image_1 = document.getElementById('id_image_1')
-   
-    image_1.addEventListener('change', () => {
-        const img_data = image_1.files[0]
-        
-        const url = URL.createObjectURL(img_data)
-        document.getElementById("url-img-1").src = url
-    })
-
-    const image_2 = document.getElementById('id_image_2')
-   
-    image_2.addEventListener('change', () => {
-        const img_data = image_2.files[0]
-        
-        const url = URL.createObjectURL(img_data)
-        document.getElementById("url-img-2").src = url
-    })
-
-
-    const image_3 = document.getElementById('id_image_3')
-   
-    image_3.addEventListener('change', () => {
-        const img_data = image_3.files[0]
-        
-        const url = URL.createObjectURL(img_data)
-        document.getElementById("url-img-3").src = url
-    })    
-
-
-    const image_4 = document.getElementById('id_image_4')
-   
-    image_4.addEventListener('change', () => {
-        const img_data = image_4.files[0]
-        
-        const url = URL.createObjectURL(img_data)
-        document.getElementById("url-img-4").src = url
-    }) 
-    const discounted = document.getElementById("discounted")
-    const discountBox = document.getElementById("discount_box")
-    discounted.addEventListener('change', function() {
-        if (this.checked) {
-          
-          discountBox.classList.remove("not-visible");
-        } else {
-          
-          discountBox.classList.add("not-visible");
+    
+    // Synchroniser tous les selects cachés avant la soumission du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const addProductForm = document.getElementById('addProductForm');
+        if (addProductForm) {
+            addProductForm.addEventListener('submit', function(e) {
+                // Synchroniser tous les dropdowns personnalisés avec leurs selects cachés
+                const allDropdowns = document.querySelectorAll('.custom-dropdown');
+                allDropdowns.forEach(dropdown => {
+                    const select = dropdown.parentElement.querySelector('select');
+                    const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+                    
+                    if (select && trigger) {
+                        const selectedText = trigger.querySelector('.dropdown-selected-text').textContent.trim();
+                        const selectedOption = Array.from(dropdown.querySelectorAll('.dropdown-option')).find(opt => {
+                            return opt.textContent.trim() === selectedText && opt.getAttribute('data-selected') === 'true';
+                        });
+                        
+                        if (selectedOption) {
+                            const value = selectedOption.getAttribute('data-value');
+                            if (value !== null && value !== undefined) {
+                                select.value = value;
+                            }
+                        }
+                    }
+                });
+                
+                // Valider le formulaire
+                if (!Validate(this)) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Le formulaire peut être soumis
+                // La page sera rechargée après la soumission, donc la liste sera mise à jour
+                return true;
+            });
         }
-      });
-      
-    const digitalFile = document.getElementById("digital_file")
-    const digitalFileBox = document.getElementById("digital_file_box")
-    digitalFile.addEventListener('change', function() {
-        if (this.checked) {
-           
-            digitalFileBox.classList.remove("not-visible");
-        } else {
-           
-            digitalFileBox.classList.add("not-visible");
+        
+        // Vérifier s'il y a un message de succès après le rechargement de la page
+        // (cela signifie qu'un produit a été ajouté avec succès)
+        const successMessages = document.querySelectorAll('.alert-success, .alert.alert-success');
+        if (successMessages.length > 0) {
+            // Fermer le modal s'il est ouvert
+            const modal = document.getElementById('addProductModal');
+            if (modal && modal.style.display !== 'none') {
+                closeAddProductModal();
+            }
+            
+            // Réinitialiser le formulaire
+            const form = document.getElementById('addProductForm');
+            if (form) {
+                form.reset();
+            }
+            
+            // Mettre à jour le compteur de produits
+            const productsCount = document.getElementById('products-count');
+            const productsList = document.getElementById('products-list');
+            if (productsCount && productsList) {
+                const productItems = productsList.querySelectorAll('.product-list-item');
+                const newCount = productItems.length;
+                productsCount.innerHTML = `Vous avez <strong>${newCount}</strong> produit(s) dans votre boutique`;
+            }
+            
+            // Scroll vers le haut pour voir le message de succès
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Masquer automatiquement le message après 5 secondes
+            successMessages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.transition = 'opacity 0.5s ease';
+                    msg.style.opacity = '0';
+                    setTimeout(() => {
+                        msg.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
         }
     });
 </script>
 <script src="{% static 'assets-supplier/js/get-category.js'%}" type="text/javascript"></script> 
-<script src="//cdn.ckeditor.com/4.18.0/basic/ckeditor.js"></script>
- 
 {%endblock script%}

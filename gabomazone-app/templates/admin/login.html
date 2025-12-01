@@ -51,26 +51,26 @@
                     <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                         <i class="fi-rs-eye" id="password-toggle"></i>
                     </button>
-                </div>
+        </div>
                 {% if form.password.errors %}
                     <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ form.password.errors.0 }}</div>
                 {% endif %}
-            </div>
+        </div>
 
             <!-- Forgot Password Link -->
-            {% url 'admin_password_reset' as password_reset_url %}
-            {% if password_reset_url %}
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
                 <div style="text-align: right;">
                     <a href="{{ password_reset_url }}" style="color: #FF7B2C; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">{% trans 'Mot de passe oublié ?' %}</a>
-                </div>
-            {% endif %}
+            </div>
+        {% endif %}
 
             <!-- Login Button -->
             <button type="submit" style="width: 100%; padding: 14px; background: #1E3A5F; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3); font-family: inherit; margin-top: var(--spacing-xs);" onmouseover="this.style.background='#0F172A'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 58, 95, 0.4)'" onmouseout="this.style.background='#1E3A5F'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 58, 95, 0.3)'">
                 {% trans 'Se connecter' %}
             </button>
         </form>
-    </div>
+        </div>
     
     <script>
         function togglePassword() {

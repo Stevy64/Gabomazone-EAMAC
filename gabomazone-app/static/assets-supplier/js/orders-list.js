@@ -35,53 +35,73 @@ window.onload = function () {
                 }
                 setTimeout(() => {
                     spinnerBox.classList.add("not-visible")
-                    loadsBox.classList.remove("not-visible")
 
                     if (response.orders_size > 0) {
-                        ordersNum.innerHTML = `<p>We found <strong class="text-brand">${response.orders_size}</strong> items for you!</p>`
+                        const orderText = response.orders_size === 1 ? 'commande' : 'commandes';
+                        ordersNum.innerHTML = `Nous avons trouvé <strong>${response.orders_size}</strong> ${orderText} pour vous !`
+                        loadsBox.classList.remove("not-visible")
+                        emptyBox.classList.add("not-visible")
                     }
                     else {
-                        ordersNum.innerHTML = ` <p>Show 0 Of 0 Product</p>`
+                        ordersNum.innerHTML = `Nous avons trouvé <strong>0</strong> commande(s) pour vous !`
+                        loadsBox.classList.add("not-visible")
+                        emptyBox.classList.remove("not-visible")
+                        emptyBox.innerHTML = `
+                            <i class="material-icons">shopping_cart</i>
+                            <h3>Aucune commande trouvée</h3>
+                            <p>Vous n'avez aucune commande correspondant à vos filtres.</p>
+                        `
                     }
 
                     data.map(order => {
-                        let discount = ""
+                        let statusClass = "";
+                        let statusText = "";
 
                         if (order.status == "Underway") {
-
-                            alertStatus = 'alert-warning'
+                            statusClass = 'status-underway'
+                            statusText = 'En cours'
                         }
                         else if (order.status == "COMPLETE") {
-                            alertStatus = 'alert-success'
-
+                            statusClass = 'status-complete'
+                            statusText = 'Terminée'
                         }
-
+                        else if (order.status == "Refunded") {
+                            statusClass = 'status-refunded'
+                            statusText = 'Remboursée'
+                        }
                         else {
-
-                            alertStatus = 'alert-danger'
+                            statusClass = 'status-pending'
+                            statusText = 'En attente'
                         }
 
                         let d = new Date(order.order_date);
+                        let formattedDate = d.toLocaleDateString('fr-FR', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                        });
 
                         ordersList.innerHTML += `<tr>
-                        <td>#${order.id}</td>
-                        <td><b>${order.email_client}</b></td>
-                        <td>${order.weight}KG</td>
-                        <td>$${order.amount}</td>
-                        <td><span class="badge rounded-pill ${alertStatus}">${order.status}</span></td>
-                        <td>${d.toDateString()}</td>
-                        <td class="text-end">
-                            <a href="/order-details/${order.id}/" class="btn btn-md rounded font-sm">Detail</a>
-                           
+                        <td class="order-id-cell">#${order.id}</td>
+                        <td class="order-email-cell">${order.email_client || 'N/A'}</td>
+                        <td class="order-weight-cell">${order.weight || 0} kg</td>
+                        <td class="order-total-cell">${order.amount || 0} XOF</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="order-date-cell">${formattedDate}</td>
+                        <td class="text-right">
+                            <a href="/order-details/${order.id}/" class="view-details-link">Voir détails</a>
                         </td>
                     </tr>`
 
                     })
                     if (maxSize) {
-
                         loadsBox.classList.add("not-visible")
                         emptyBox.classList.remove("not-visible")
-                        emptyBox.innerHTML = `<strong class="current-price text-brand">No More Orders !</strong>`
+                        emptyBox.innerHTML = `
+                            <i class="material-icons">shopping_cart</i>
+                            <h3>Plus de commandes</h3>
+                            <p>Vous avez atteint la fin de la liste.</p>
+                        `
                     }
 
                 }, 500)
@@ -100,14 +120,12 @@ window.onload = function () {
         handleGetData(false);
 
     })
-    $('.mySelect').on('change', function () {
-
+    $('#mySelect').on('change', function () {
         visible = 5;
         handleGetData(true);
     })
 
-    $('.select-status').on('change', function () {
-
+    $('#select-status').on('change', function () {
         visible = 5;
         handleGetData(true);
     })

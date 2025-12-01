@@ -37,16 +37,16 @@ window.onload = function () {
                     loadsBox.classList.remove("not-visible")
 
                     if (response.products_size > 0) {
-                        productNum.innerHTML = `<p>We found <strong class="text-brand">${response.products_size}</strong> items for you!</p>`
+                        productNum.innerHTML = `<p>Nous avons trouvé <strong class="text-brand">${response.products_size}</strong> produit(s) pour vous !</p>`
                     }
                     else {
-                        productNum.innerHTML = ` <p>Show 0 Of 0 Product</p>`
+                        productNum.innerHTML = ` <p>Aucun produit trouvé</p>`
                     }
 
                     data.map(product => {
                         let discount = ""
                         if (product.PRDDiscountPrice > 0) {
-                            discount = `$${product.PRDDiscountPrice}`
+                            discount = `${product.PRDDiscountPrice} XOF`
                         }
                         if (product.PRDISactive) {
                             productStatus = 'Active'
@@ -72,7 +72,7 @@ window.onload = function () {
                                     </div>
                                 </a>
                             </div>
-                            <div class="col-lg-2 col-sm-2 col-4 col-price"><span>$${product.PRDPrice}</span></div>
+                            <div class="col-lg-2 col-sm-2 col-4 col-price"><span>${product.PRDPrice} XOF</span></div>
                             <div class="col-lg-2 col-sm-2 col-4 col-status">
                                 <span class="badge rounded-pill ${alertStatus}">${productStatus}</span>
                             </div>
@@ -81,7 +81,7 @@ window.onload = function () {
                             </div>
                             <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
                                 <a href="/supplier-edit-product/${product.id}/" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i> Edit </a>
-                                <a href="/supplier-products/remeve-product/${product.id}/" class="btn btn-sm font-sm btn-danger rounded"> <i class="material-icons md-delete_forever"></i> Delete </a>
+                                <button type="button" onclick="openDeleteConfirmModal(${product.id}, '${product.product_name.replace(/'/g, "\\'")}')" class="btn btn-sm font-sm btn-danger rounded"> <i class="material-icons md-delete_forever"></i> Delete </button>
                             </div>
                         </div>
                         <!-- row .// -->
@@ -92,7 +92,7 @@ window.onload = function () {
 
                         loadsBox.classList.add("not-visible")
                         emptyBox.classList.remove("not-visible")
-                        emptyBox.innerHTML = `<strong class="current-price text-brand">No More Products !</strong>`
+                        emptyBox.innerHTML = `<strong class="current-price text-brand">Plus de produits ! Vous avez atteint la fin de la liste.</strong>`
                     }
 
                 }, 500)

@@ -1,111 +1,420 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+
 {%block section %}
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Products List</h2>
-            <div id="product-num" class="totall-product">
-                <p>We found <strong class="text-brand">0</strong> items for you!</p>
-            </div>
-           
-        </div>
-        {% if messages %}
-        {% for message in messages %}
 
-        <div    class="alert align-middle alert-{{message.tags}}">
-           
-            <span class="align-middle"> {{message}}</span>
-        </div>
-
-        {% endfor %}
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
-        <div>
-            <!-- <a href="#" class="btn btn-light rounded font-md">Export</a>
-            <a href="#" class="btn btn-light rounded font-md">Import</a> -->
-            <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn btn-primary btn-sm rounded">Add product</a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Welcome Card -->
+<div class="products-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">shopping_bag</i>
+        </div>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">inventory_2</i>
+                Gestion des produits
+            </h2>
+            <p>Bienvenue, <strong>{{ vendor.user.username }}</strong> !</p>
+            <p id="product-num" class="products-count">Nous avons trouvé <strong class="text-brand">0</strong> produit(s) pour vous !</p>
         </div>
     </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row align-items-center">
-              
-               
-                <div class="col-md-2 col-7 me-auto mb-md-0 ">
-                    <select class="form-select mySelect" id="mySelect">
-                        <option value="-date" selected>Date, new to old</option>
-                        <option value="date">Date, old to new</option>
-                        <option value="PRDPrice">Price, low to high</option>
-                        <option value="-PRDPrice">Price, high to low</option>
+</div>
+
+<!-- Search Bar with Filters -->
+<div class="products-search-card">
+    <div class="search-filters-container">
+        <div class="search-wrapper">
+            <i class="material-icons search-icon">search</i>
+            <input type="text" id="product-search" class="search-input" placeholder="Rechercher un produit par nom, catégorie, prix..." />
+            <button type="button" class="search-clear-btn" id="clear-search" style="display: none;">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="material-icons">sort</i>
+                    Trier par
+                </label>
+                <div class="custom-dropdown-wrapper">
+                    <select class="modern-select" id="mySelect" style="display: none;">
+                        <option value="-date" selected>Plus récent au plus ancien</option>
+                        <option value="date">Plus ancien au plus récent</option>
+                        <option value="PRDPrice">Prix, bas-haut</option>
+                        <option value="-PRDPrice">Prix, haut-bas</option>
                     </select>
-                </div>
-                <div class="col-md-2 col-5">
-                    <select class="form-select select-status" id="select-status">
-                        <option value="All" selected>Show all</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                       
-                    </select>
-                </div>
-            </div>
-        </header>
-        <!-- card-header end// -->
-        <div id="products-list" class="card-body">
-            {% comment %} <article class="itemlist">
-                <div class="row align-items-center">
-                    <div class="col col-check flex-grow-0">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" />
+                    <div class="custom-dropdown" id="customDropdownSort">
+                        <button class="custom-dropdown-trigger" type="button">
+                            <span class="dropdown-selected-text">Plus récent au plus ancien</span>
+                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                        </button>
+                        <div class="custom-dropdown-menu">
+                            <div class="dropdown-option" data-value="-date" data-selected="true">Plus récent au plus ancien</div>
+                            <div class="dropdown-option" data-value="date">Plus ancien au plus récent</div>
+                            <div class="dropdown-option" data-value="PRDPrice">Prix, bas-haut</div>
+                            <div class="dropdown-option" data-value="-PRDPrice">Prix, haut-bas</div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                        <a class="itemside" href="#">
-                            <div class="left">
-                                <img src="{% static 'assets-supplier/imgs/items/1.jpg'%}"  class="img-sm img-thumbnail" alt="Item" />
-                            </div>
-                            <div class="info">
-                                <h6 class="mb-0">Seeds of Change Organic Quinoa</h6>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-lg-2 col-sm-2 col-4 col-price"><span>$34.50</span></div>
-                    <div class="col-lg-2 col-sm-2 col-4 col-status">
-                        <span class="badge rounded-pill alert-success">Active</span>
-                    </div>
-                    <div class="col-lg-1 col-sm-2 col-4 col-date">
-                        <span>02.11.2021</span>
-                    </div>
-                    <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                        <a href="#" class="btn btn-sm font-sm rounded btn-brand"> <i class="material-icons md-edit"></i> Edit </a>
-                        <a href="#" class="btn btn-sm font-sm btn-light rounded"> <i class="material-icons md-delete_forever"></i> Delete </a>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">
+                    <i class="material-icons">filter_list</i>
+                    Statut
+                </label>
+                <div class="custom-dropdown-wrapper">
+                    <select class="modern-select" id="select-status" style="display: none;">
+                        <option value="All" selected>Tous</option>
+                        <option value="Active">Actif</option>
+                        <option value="Inactive">Inactif</option>
+                    </select>
+                    <div class="custom-dropdown" id="customDropdownStatus">
+                        <button class="custom-dropdown-trigger" type="button">
+                            <span class="dropdown-selected-text">Tous</span>
+                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                        </button>
+                        <div class="custom-dropdown-menu">
+                            <div class="dropdown-option" data-value="All" data-selected="true">Tous</div>
+                            <div class="dropdown-option" data-value="Active">Actif</div>
+                            <div class="dropdown-option" data-value="Inactive">Inactif</div>
+                        </div>
                     </div>
                 </div>
-                <!-- row .// -->
-            </article> {% endcomment %}
-            <!-- itemlist  .// -->
-
+            </div>
         </div>
-        <!-- card-body end// -->
     </div>
-    <!-- card end// -->
-    <div class="pagination-area mt-30 mb-50">
-        <nav aria-label="Page navigation example">
-            <div id="spinner-box" class="not-visible  text-center">
-                <div class="flavoriz-spinner"></div>
-              </div>
-              <div id="empty-box" class="not-visible  text-center">
-                
-              </div>
+</div>
 
-            <div id ="loading-box" class="text-center">
-                <button id="load-btn" type="button" class="btn btn-primary">Load More</button>
-                
-              </div>
-        </nav>
+<!-- Products List -->
+<div class="products-list-container">
+    <div id="products-list" class="products-list">
+        <!-- Les produits seront chargés dynamiquement via AJAX -->
     </div>
-</section>
+
+    <!-- Empty Search State -->
+    <div id="empty-search" class="empty-search" style="display: none;">
+        <i class="material-icons">search_off</i>
+        <h3>Aucun résultat</h3>
+        <p>Aucun produit ne correspond à votre recherche.</p>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination-area mt-30 mb-50">
+    <nav aria-label="Page navigation example">
+        <div id="spinner-box" class="not-visible text-center">
+            <div class="flavoriz-spinner"></div>
+        </div>
+        <div id="empty-box" class="not-visible text-center">
+        </div>
+        <div id="loading-box" class="text-center">
+            <button id="load-btn" type="button" class="btn btn-primary">Charger plus</button>
+        </div>
+    </nav>
+</div>
+
+<!-- Floating Add Button -->
+<button type="button" class="floating-add-btn" onclick="window.location.href='{% url 'supplier_dashboard:supplier-add-product' %}';" title="Ajouter un produit">
+    <span class="floating-add-icon">+</span>
+</button>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons" style="color: #DC2626;">warning</i>
+                Confirmer la suppression
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeDeleteConfirmModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="material-icons" style="font-size: 48px; color: #DC2626;">delete_outline</i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Êtes-vous sûr ?</h3>
+                <p style="font-size: 15px; color: #6B7280; margin: 0 0 8px 0;">Vous êtes sur le point de supprimer le produit :</p>
+                <p id="deleteProductName" style="font-size: 16px; font-weight: 600; color: #6B46C1; margin: 0 0 24px 0;"></p>
+                <p style="font-size: 14px; color: #9CA3AF; margin: 0;">Cette action est irréversible.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeDeleteConfirmModal()">Annuler</button>
+            <form id="deleteProductForm" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                    <i class="material-icons">delete</i>
+                    Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styles copiés depuis supplier-add-product.html pour cohérence du design */
+    .text-brand {
+        color: #FCD34D;
+        font-weight: 700;
+    }
+    
+    .products-count {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Modal Overlay - Styles pour le modal de confirmation */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h2 i {
+        color: #DC2626;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 2px solid #F3F4F6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #F9FAFB;
+        flex-shrink: 0;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-cancel {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        color: white;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+</style>
+
 {%endblock section%}
 
 {%block script%}
-    <script src="{% static 'assets-supplier/js/products-list.js'%}" type="text/javascript"></script>
+<script>
+    // URLs pour les actions CRUD
+    const urls = {
+        editProduct: '{% url "supplier_dashboard:supplier-edit-product" 0 %}',
+        removeProduct: '{% url "supplier_dashboard:remove-item" 0 %}'
+    };
+    
+    // Initialize filters visibility
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtersRow = document.querySelector('.filters-row');
+        if (filtersRow) {
+            filtersRow.classList.remove('active');
+        }
+        
+        // Search input handler
+        const searchInput = document.getElementById('product-search');
+        const clearBtn = document.getElementById('clear-search');
+        
+        if (searchInput) {
+            // Afficher les filtres au focus de la barre de recherche
+            searchInput.addEventListener('focus', function() {
+                if (filtersRow) {
+                    filtersRow.classList.add('active');
+                }
+            });
+            
+            searchInput.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    clearBtn.style.display = 'flex';
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                this.style.display = 'none';
+                if (filtersRow) filtersRow.classList.remove('active');
+            });
+        }
+    });
+    
+    // Fonction pour ouvrir le modal de confirmation de suppression (scope global)
+    window.openDeleteConfirmModal = function(productId, productName) {
+        const modal = document.getElementById('deleteConfirmModal');
+        const form = document.getElementById('deleteProductForm');
+        const productNameElement = document.getElementById('deleteProductName');
+        
+        if (modal && form && productNameElement) {
+            productNameElement.textContent = productName;
+            form.action = urls.removeProduct.replace('0', productId);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Ajouter un gestionnaire de soumission pour fermer le modal après suppression
+            form.onsubmit = function() {
+                setTimeout(function() {
+                    window.closeDeleteConfirmModal();
+                }, 100);
+            };
+        }
+    };
+    
+    // Fonction pour fermer le modal de confirmation de suppression (scope global)
+    window.closeDeleteConfirmModal = function() {
+        const modal = document.getElementById('deleteConfirmModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('deleteConfirmModal');
+        if (modal && e.target === modal) {
+            window.closeDeleteConfirmModal();
+        }
+    });
+</script>
+<script src="{% static 'assets-supplier/js/products-list.js'%}" type="text/javascript"></script>
 {%endblock script%}

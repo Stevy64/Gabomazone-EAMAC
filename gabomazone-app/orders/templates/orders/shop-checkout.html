@@ -68,16 +68,16 @@
         </div>
 
         <!-- Messages -->
-        {% if messages %}
+                {% if messages %}
         <div style="margin-bottom: 24px;">
-            {% for message in messages %}
+                {% for message in messages %}
             <div class="flavoriz-alert-toast" style="padding: 14px 18px; background: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% else %}#3B82F6{% endif %}; color: white; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
                 <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}alert-circle{% else %}info{% endif %}" style="font-size: 18px;"></i>
                 <span style="font-size: 14px; font-weight: 500;">{{message}}</span>
-            </div>
-            {% endfor %}
+                </div>
+                {% endfor %}
         </div>
-        {% endif %}
+                {% endif %}
 
         <!-- Main Content -->
         <div style="display: grid; grid-template-columns: 1fr 480px; gap: 24px; align-items: start;">
@@ -88,12 +88,12 @@
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
                             <i class="fi-rs-user"></i>
-                        </div>
+                </div>
                         <div>
                             <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Détails de facturation</h3>
                             <p style="font-size: 13px; color: #6B7280; margin: 0;">Informations de livraison</p>
-                        </div>
-                    </div>
+            </div>
+        </div>
 
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
                         <!-- Full Name -->
@@ -101,16 +101,16 @@
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Nom complet</label>
                             <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 600;">
                                 {{payment_info.last_name}} {{payment_info.first_name}}
-                            </div>
                         </div>
+                                    </div>
 
                         <!-- Email -->
                         <div>
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Email</label>
                             <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
                                 {{payment_info.Email_Address}}
-                            </div>
-                        </div>
+                                            </div>
+                                        </div>
 
                         <!-- Phone -->
                         <div>
@@ -125,10 +125,10 @@
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Pays</label>
                             <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
                                 {{payment_info.country}}
-                            </div>
-                        </div>
-
-                        <!-- Province -->
+                    </div>
+                    </div>
+                                    
+                                    <!-- Province -->
                         <div>
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Province</label>
                             <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
@@ -151,7 +151,7 @@
                                 {{payment_info.street_address}}
                             </div>
                         </div>
-
+                       
                         <!-- Neighborhood (Full Width) -->
                         <div style="grid-column: 1 / -1;">
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Quartier</label>
@@ -170,12 +170,12 @@
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
                             <i class="fi-rs-shopping-bag"></i>
-                        </div>
+                    </div>
                         <div>
                             <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Votre commande</h3>
                             <p style="font-size: 13px; color: #6B7280; margin: 0;">{{order_details.count}} article(s)</p>
-                        </div>
-                    </div>
+                                                </div>
+                                            </div>
 
                     <!-- Order Items -->
                     <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding-right: 8px;">
@@ -191,11 +191,11 @@
                                 <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px;">
                                     <span>Qté: <strong style="color: #1F2937;">{{item.quantity}}</strong></span>
                                     <span style="margin-left: auto; font-size: 15px; font-weight: 700; color: var(--color-orange);">{% widthratio item.price 1 item.quantity|floatformat:0 %} FCFA</span>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
+                                        </div>
                     </div>
+                </div>
+                        {% endfor %}
+                        </div>
 
                     <!-- Order Totals -->
                     <div style="border-top: 2px solid #F3F4F6; padding-top: 20px;">
@@ -210,18 +210,18 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Poids total</span>
                             <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.weight|floatformat:"2"}} KG</strong>
-                        </div>
+                        </div> 
                         {% if order.coupon %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Code promo ({{order.coupon}})</span>
                             <strong style="font-size: 15px; color: #10B981; font-weight: 700;">-{{order.discount|floatformat:0}} FCFA</strong>
-                        </div>
+                        </div> 
                         {% endif %}
                         {% if order.shipping %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Livraison</span>
                             <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.shipping|floatformat:0}} FCFA</strong>
-                        </div>
+                        </div> 
                         {% endif %}
                         <div style="height: 1px; background: #E5E7EB; margin: 12px 0;"></div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 8px;">
@@ -241,8 +241,8 @@
                             <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Méthode de paiement</h3>
                             <p style="font-size: 13px; color: #6B7280; margin: 0;">Choisissez votre mode de paiement</p>
                         </div>
-                    </div>
-
+                        </div>
+                       
                     <form action="#">
                         {% csrf_token %}
                         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
@@ -266,7 +266,7 @@
                                 </div>
                                 <img src="{% static 'assets/imgs/theme/icons/payment-paypal.svg'%}" alt="PayPal" style="width: 60px; height: auto;" />
                             </label>
-                            {% endif %}
+                        {% endif %}
 
                             <!-- Stripe (Credit Card) -->
                             {% if PUBLIC_KEY %}
@@ -275,14 +275,14 @@
                                 <div style="flex: 1;">
                                     <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Carte bancaire</div>
                                     <div style="font-size: 13px; color: #6B7280;">Visa, Mastercard, etc.</div>
-                                </div>
+                        </div>
                                 <div style="display: flex; gap: 8px;">
                                     <img src="{% static 'assets/imgs/theme/icons/payment-visa.svg'%}" alt="Visa" style="width: 40px; height: auto;" />
                                     <img src="{% static 'assets/imgs/theme/icons/payment-master.svg'%}" alt="Mastercard" style="width: 40px; height: auto;" />
-                                </div>
+                    </div>
                             </label>
                             {% endif %}
-                        </div>
+                </div>
 
                         <!-- PayPal Button Container -->
                         <div id="paypal-button-container" class="not-visible" style="margin-bottom: 20px;"></div>
@@ -292,7 +292,7 @@
                             <span>Passer la commande</span>
                             <i class="fi-rs-arrow-right" style="font-size: 18px;"></i>
                         </a>
-                    </form>
+            </form>
                 </div>
             </div>
         </div>
@@ -348,22 +348,22 @@ input[type="radio"]:checked ~ label {
 
 {%block script%}
 {{ block.super }}
-<!-- Include the PayPal JavaScript SDK -->
+      <!-- Include the PayPal JavaScript SDK -->
 {% if paypal_client_id %}
-<script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency={{paypal_currency}}"></script>
+      <script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency={{paypal_currency}}"></script>
 {% endif %}
 
-<script>
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    var stripeSelected = false;
-    var razorPayeSelected = false;
-    
-    // A reference to Stripe.js initialized with your real test publishable API key.
+      <script>
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            var stripeSelected = false;
+            var razorPayeSelected = false;
+           
+            // A reference to Stripe.js initialized with your real test publishable API key.
     {% if PUBLIC_KEY %}
-    var stripe = Stripe("{{ PUBLIC_KEY }}");
+            var stripe = Stripe("{{ PUBLIC_KEY }}");
     {% endif %}
 
-    var checkoutButton = document.getElementById("checkout-button");
+            var checkoutButton = document.getElementById("checkout-button");
     const cash = document.getElementById('exampleRadios4');
     const blance = document.getElementById('flexRadioDefault2');
     const stripeBtn = document.getElementById('exampleRadios5');
@@ -376,51 +376,51 @@ input[type="radio"]:checked ~ label {
 
     // Razorpay options
     {% if RAZORPAY_KEY_ID %}
-    var options = {
+            var options = {
         "key": '{{RAZORPAY_KEY_ID}}',
-        "image": "{{image}}",
+                "image": "{{image}}",
         "order_id": "{{RAZORPAY_order_id}}",
-        "handler": function (response){
-            swal({
+                "handler": function (response){
+                    swal({
                 title: "Félicitations!",
                 text: "Votre commande a été passée avec succès. Elle sera livrée bientôt.",
-                icon: "success",
+                    icon: "success",
                 button: "Fermer",
-            }).then(() => {
-                location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-            });
+                    }).then(() => {
+                        location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
+                        });
 
-            $.ajax({
-                type: "POST",
-                url: `{% url 'orders:verify-payment'%}`,
-                data: {
+                    $.ajax({
+                        type: "POST",
+                        url: `{% url 'orders:verify-payment'%}`,
+                        data: {
                     'csrfmiddlewaretoken': csrftoken,
-                    "razorpay_payment_id": response.razorpay_payment_id,
-                    "razorpay_order_id": response.razorpay_order_id,
-                    "razorpay_signature": response.razorpay_signature,
+                            "razorpay_payment_id": response.razorpay_payment_id,
+                            "razorpay_order_id": response.razorpay_order_id,
+                            "razorpay_signature": response.razorpay_signature,
+                            "order_id": "{{order.id}}"
+                        },
+                        success: function (success_response) {
+                            console.log(success_response.data)
+                        },
+                        error: function (error) {
+                            console.log(error.statusText)
+                        }
+                    })
+                },
+                "prefill": {
+                    "name": "{{payment_info.first_name}} {{payment_info.last_name}}",
+                    "email": "{{payment_info.Email_Address}}",
+                    "contact": "{{payment_info.phone}}"
+                },
+                "notes": {
                     "order_id": "{{order.id}}"
                 },
-                success: function (success_response) {
-                    console.log(success_response.data)
-                },
-                error: function (error) {
-                    console.log(error.statusText)
-                }
-            })
-        },
-        "prefill": {
-            "name": "{{payment_info.first_name}} {{payment_info.last_name}}",
-            "email": "{{payment_info.Email_Address}}",
-            "contact": "{{payment_info.phone}}"
-        },
-        "notes": {
-            "order_id": "{{order.id}}"
-        },
-        "theme": {
+                "theme": {
             "color": "#FF7B2C"
-        }
-    };
-    var rzp1 = new Razorpay(options);
+                }
+            };
+            var rzp1 = new Razorpay(options);
     {% endif %}
 
     // Cash payment
@@ -437,114 +437,114 @@ input[type="radio"]:checked ~ label {
     }
 
     // Balance payment
-    if(blance){
+            if(blance){
         blance.addEventListener('change', () => {
             console.log("blance");
-            stripeSelected = false;
-            razorPayeSelected = false;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
+                    stripeSelected = false;
+                    razorPayeSelected = false;
+                    checkout.classList.remove("not-visible");
+                    paypalButtonContainer.classList.add("not-visible");
             checkout.setAttribute("href", "{% url 'orders:payment-blance' %}");
             updatePaymentLabelStyles();
         });
-    }
+            }
 
     // PayMob payment
-    if(payMob){
+            if(payMob){
         payMob.addEventListener('change', () => {
             console.log("payMob");
-            stripeSelected = false;
-            razorPayeSelected = false;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
-            checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
+                    stripeSelected = false;
+                    razorPayeSelected = false;
+                    checkout.classList.remove("not-visible");
+                    paypalButtonContainer.classList.add("not-visible");
+                    checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
             updatePaymentLabelStyles();
         });
-    }
+            }
 
     // MyFatoorah payment
-    if(myfatoorah){
+            if(myfatoorah){
         myfatoorah.addEventListener('change', () => {
             console.log("myfatoorah");
-            stripeSelected = false;
-            razorPayeSelected = false;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
-            checkout.setAttribute("href", "{% url 'orders:checkout-fatoorah' order.id %}");
+                    stripeSelected = false;
+                    razorPayeSelected = false;
+                    checkout.classList.remove("not-visible");
+                    paypalButtonContainer.classList.add("not-visible");
+                    checkout.setAttribute("href", "{% url 'orders:checkout-fatoorah' order.id %}");
             updatePaymentLabelStyles();
         });
-    }
+            }
 
     // Stripe payment
-    if (stripeBtn){
+            if (stripeBtn){
         stripeBtn.addEventListener('change', () => {
             console.log("stripeBtn");
-            stripeSelected = true;
-            razorPayeSelected = false;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
-            checkout.removeAttribute("href");
+                stripeSelected = true;
+                razorPayeSelected = false;
+                checkout.classList.remove("not-visible");
+                paypalButtonContainer.classList.add("not-visible");
+                checkout.removeAttribute("href");
             updatePaymentLabelStyles();
         });
 
         checkoutButton.addEventListener("click", function (e) {
-            if(stripeSelected){
+                    if(stripeSelected){  
                 e.preventDefault();
-                fetch("{% url 'orders:create_checkout_session' %}", {
-                    method: "POST",
-                    headers: {
-                        'X-CSRFToken': csrftoken
+                        fetch("{% url 'orders:create_checkout_session' %}", {
+                            method: "POST",
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        })
+                        .then(function (response) {
+                        return response.json();
+                        })
+                        .then(function (session) {
+                        return stripe.redirectToCheckout({ sessionId: session.id });
+                        })
+                        .then(function (result) {
+                        if (result.error) {
+                            alert(result.error.message);
+                        }
+                        })
+                        .catch(function (error) {
+                        console.error("Error:", error);
+                        });
                     }
-                })
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (session) {
-                    return stripe.redirectToCheckout({ sessionId: session.id });
-                })
-                .then(function (result) {
-                    if (result.error) {
-                        alert(result.error.message);
-                    }
-                })
-                .catch(function (error) {
-                    console.error("Error:", error);
-                });
+                }); 
             }
-        });
-    }
 
     // Razorpay payment
-    if (razorPayeBtn){
+            if (razorPayeBtn){
         razorPayeBtn.addEventListener('change', () => {
             console.log("razorPayeBtn");
-            stripeSelected = false;
-            razorPayeSelected = true;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
-            checkout.removeAttribute("href");
+                stripeSelected = false;
+                razorPayeSelected = true;
+                checkout.classList.remove("not-visible");
+                paypalButtonContainer.classList.add("not-visible");
+                checkout.removeAttribute("href");
             updatePaymentLabelStyles();
         });
         
         checkoutButton.addEventListener("click", function (e) {
-            if(razorPayeSelected){
+                    if(razorPayeSelected){ 
                 e.preventDefault();
-                rzp1.on('payment.failed', function (response){
+                        rzp1.on('payment.failed', function (response){
                     console.error('Payment failed:', response);
+                        });
+                        rzp1.open();
+                    }    
                 });
-                rzp1.open();
             }
-        });
-    }
 
     // PayPal payment
-    if(paypalInput){
+            if(paypalInput){
         paypalInput.addEventListener('change', () => {
             console.log("paypalInput");
-            stripeSelected = false;
-            razorPayeSelected = false;
-            checkout.classList.add("not-visible");
-            paypalButtonContainer.classList.remove("not-visible");
+                    stripeSelected = false;
+                    razorPayeSelected = false;
+                    checkout.classList.add("not-visible");
+                    paypalButtonContainer.classList.remove("not-visible");
             updatePaymentLabelStyles();
         });
     }
@@ -577,43 +577,43 @@ input[type="radio"]:checked ~ label {
 
     // PayPal Buttons
     {% if paypal_client_id %}
-    paypal.Buttons({
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '{{order.amount}}'
-                    }
-                }]
-            });
-        },
-        onApprove: function(data, actions) {
-            return actions.order.capture().then(function(orderData) {
-                console.log('Capture result', orderData.id, JSON.stringify(orderData, null, 2));
-                var transaction = orderData.purchase_units[0].payments.captures[0];
-                if( transaction.status == "COMPLETED"){
-                    $.ajax({
-                        type: "POST",
-                        url: `{% url 'orders:verify-payment-paypal'%}`,
-                        data: {
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '{{order.amount}}'
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(orderData) {
+                        console.log('Capture result', orderData.id, JSON.stringify(orderData, null, 2));
+                        var transaction = orderData.purchase_units[0].payments.captures[0];
+                        if( transaction.status == "COMPLETED"){
+                            $.ajax({
+                                type: "POST",
+                                url: `{% url 'orders:verify-payment-paypal'%}`,
+                                data: {
                             'csrfmiddlewaretoken': csrftoken,
-                            "paypal_order_id":orderData.id,
-                            "transaction_paypal_id": transaction.id,
-                            "transaction_paypap_status": transaction.status,
-                            "order_id": "{{order.id}}"
-                        },
-                        success: function (success_response) {
-                            console.log(success_response.data)
-                            location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-                        },
-                        error: function (error) {
-                            console.log(error.statusText)
-                        }
-                    })
+                                    "paypal_order_id":orderData.id,
+                                    "transaction_paypal_id": transaction.id,
+                                    "transaction_paypap_status": transaction.status,
+                                    "order_id": "{{order.id}}"
+                                },
+                                success: function (success_response) {
+                                    console.log(success_response.data)
+                                    location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
+                                },
+                                error: function (error) {
+                                    console.log(error.statusText)
+                                }
+                            })
+                        }    
+                    });
                 }
-            });
-        }
-    }).render('#paypal-button-container');
+            }).render('#paypal-button-container');
     {% endif %}
-</script>
+        </script>
 {% endblock script %}

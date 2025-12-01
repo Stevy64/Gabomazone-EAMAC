@@ -1,515 +1,1213 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+
 {%block section %}
-           <section class="content-main">
-               <form method="post" enctype="multipart/form-data" onsubmit="return Validate(this);">
-                   {% csrf_token %}
-                   <div class="row">
-                       <div class="col-9">
-                           <div class="content-header">
-                               <h2 class="content-title">Add New Product</h2>
-                               <div>
-                 
-                                   
-                                   {% comment %} <button type="submit" class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button> {% endcomment %}
-                                   <button type="submit" class="btn btn-md rounded font-sm hover-up">Publich</button>
-                               </div>
-                               
-                           </div>
-                           {% if messages %}
-                   {% for message in messages %}
-     
-                   <div    class="alert align-middle alert-{{message.tags}}">
-                      
-                       <span class="align-middle"> {{message}}</span>
-                   </div>
-     
-                   {% endfor %}
-                   {% endif %}
-                       </div>
-                       <div class="col-lg-6">
-                           <div class="card mb-4">
-                               <div class="card-header">
-                                   <h4>Basic</h4>
-                               </div>
-                               <div class="card-body">
-                                   
-                                       <div class="mb-4">
-                                           <label for="product_name" class="form-label">Product title</label>
-                                           <input value="{{product.product_name}}" type="text" name="product_name" maxlength="99"  placeholder="Type here" class="form-control" id="product_name" required/>
-                                       </div>
-                                       <div class="mb-4">
-                                           <label class="form-label">Description</label>
-                                           <textarea name="introduction" placeholder="Type here" class="ckeditor form-control" rows="4" required>{{product.product_description}}</textarea>
-                                       </div>
-                                       <div class="row">
-                                           <label class="form-check mb-4">
-                                               <input id="discounted" name="checkbox" class="form-check-input" type="checkbox" {% if product.PRDDiscountPrice%} checked {% endif%}/>
-                                               <span class="form-check-label">Product Has Discounts</span>
-                                           </label>
-                                           <div class="col-lg-4">
-                                               <div class="mb-4">
-                                                   <label class="form-label">Price</label>
-                                                   <div class="row gx-2">
-                                                       <input value="{{product.PRDPrice}}" placeholder="$" name="price" type="number"  step="0.01" min="0" class="form-control" required/>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                           <div id="discount_box" class="col-lg-4 {% if not product.PRDDiscountPrice%} not-visible {% endif%}">
-                                               <div class="mb-4">
-                                                   <label class="form-label"> Price before  discount</label>
-                                                   <input value="{{product.PRDDiscountPrice}}" placeholder="$" name="discount" type="number"  step="0.01" min="0"  class="form-control" />
-                                               </div>
-                                           </div>
-                                           <div class="col-lg-4">
-                                               <label class="form-label">Currency</label>
-                                               <select class="form-select">
-                                                   <option>USD</option>
-                                                 
-                                               </select>
-                                           </div>
-                                           
-                                       </div>
-                                       
-                                     
 
-                                       {% comment %} <div class="mb-4">
-                                           <label class="form-label">Full description</label>
-                                           <textarea name="description" placeholder="Type here" class="form-control" rows="4"></textarea>
-                                       </div> {% endcomment %}
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-                                       <div class="row">
-                                          
-                                           <div class="col-lg-4">
-                                               <div class="mb-4">
-                                                   <label class="form-label">Available</label>
-                                                   <div class="row gx-2">
-                                                       <input value="{{product.available}}" placeholder="quantity in stock" name="available" type="number" class="form-control" min="0" required/>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                           <div id="discount_box" class="col-lg-4">
-                                               <div class="mb-4">
-                                                   <label class="form-label"> Pieces/Set</label>
-                                                   <input value="{{product.pieces}}"  placeholder="quantity for Pieces" name="pieces" type="number"  min="0"  class="form-control"required />
-                                               </div>
-                                           </div>
-                                           <div class="col-lg-4">
-                                               <label class="form-label">Promotional</label>
-                                               <select name="promotional" class="form-select">
-                                                   {% if product.promotional == "Hot" %}
-                                                   <option value="Hot" >Hot</option>
-                                                   <option value="New" >New</option>
-                                                   {%else%}
-                                                   <option value="New">New</option>
-                                                   <option value="Hot" >Hot</option>
-                                                   
-                                                   {%endif%}
-                                                   
-                                               </select>
-                                           </div>
-                                       </div>
+<!-- Welcome Card -->
+<div class="products-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">edit</i>
+        </div>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">inventory_2</i>
+                Modifier le produit
+            </h2>
+            <p>Produit : <strong>{{ product.product_name }}</strong></p>
+            <p class="products-count">Vous avez <strong>{{ products.count }}</strong> produit(s) dans votre boutique</p>
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn-secondary">
+            <i class="material-icons">arrow_back</i>
+            Retour
+        </a>
+    </div>
+</div>
 
-                                       <div class="mb-4">
-                                            <label class="form-label">Content</label>
-                                            <textarea name="content" placeholder="Type here" class="ckeditor form-control" rows="4" required>{{product.content}}</textarea>
-                                        </div>
-                               
-                               </div>
-                           </div>
-                           <!-- card end// -->
-                           <div class="card mb-4">
-                               <div class="card-header">
-                                   <h4>Dimensions</h4>
-                               </div>
-                               <div class="card-body">
-                               
-                                       <div class="row">
-                                           <div class="col-lg-6">
-                                               <div class="mb-4">
-                                                   <label for="product_name" class="form-label">Width</label>
-                                                   <input value="{{product.width|floatformat}}" type="text" placeholder="inch" name="width" class="form-control" id="product_name" />
-                                               </div>
-                                           </div>
-                                           <div class="col-lg-6">
-                                               <div class="mb-4">
-                                                   <label for="product_name" class="form-label">Height</label>
-                                                   <input value="{{product.height|floatformat}}" type="text" placeholder="inch" name="height" class="form-control" id="product_name" />
-                                               </div>
-                                           </div>
-                                       </div>
-                                     <div class="row"> 
-                                       <div class="col-lg-4">
-                                           <div class="mb-4">
-                                               <label class="form-label">Weight</label>
-                                               <input value="{{product.PRDWeight|floatformat}}" placeholder="gam" name="weight" type="text" class="form-control" required />
-                                           </div>
-                                       </div>
-                                       <div class="col-lg-4">
-                                           <label class="form-label">Product status </label>
-                                           <select name="product_status" class="form-select">
-                                            {% if product.PRDISactive%}
-                                               <option value="1">Active</option>
-                                               <option value="0">Inactive</option>
-                                            {%else%}
-                                            <option value="0">Inactive</option>
-                                            <option value="1">Active</option>
-                                           {%endif%}
-                                           </select>
-                                       </div>
-                                       
-                                       <div class="col-lg-4">
-                                        <div class="mb-4">
-                                            <label class="form-label">SKU</label>
-                                            <input placeholder="Product SKU" value="{{product.PRDSKU}}" name="SKU" type="text" class="form-control" />
-                                        </div>
-                                    </div> 
-                                      
-                                     </div>
-                                       
+<!-- Edit Product Form -->
+<div class="edit-product-container">
+    <form method="post" action="{% url 'supplier_dashboard:supplier-edit-product' product.id %}" enctype="multipart/form-data" id="editProductForm" onsubmit="return Validate(this);">
+        {% csrf_token %}
+        
+        <!-- Basic Infos -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="material-icons">info</i>
+                Informations de base
+            </h3>
+            
+            <div class="form-group">
+                <label for="product_name" class="form-label">Nom du produit *</label>
+                <input type="text" name="product_name" maxlength="99" value="{{ product.product_name }}" placeholder="Ex: T-shirt en coton" class="form-input" id="product_name" required/>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea name="introduction" placeholder="Décrivez votre produit..." class="form-textarea" rows="3" required>{{ product.product_description }}</textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Prix *</label>
+                    <input placeholder="FCFA" name="price" type="number" step="0.01" min="0" value="{{ product.PRDPrice }}" class="form-input" required/>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Promotion</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select name="promotional" class="form-select" id="promotional-select" style="display: none;">
+                            {% if product.promotional == "Hot" %}
+                            <option value="Hot" selected>Populaire</option>
+                            <option value="New">Nouveauté</option>
+                            {% else %}
+                            <option value="New" selected>Nouveauté</option>
+                            <option value="Hot">Populaire</option>
+                            {% endif %}
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownPromotional">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.promotional == "Hot" %}Populaire{% else %}Nouveauté{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu">
+                                <div class="dropdown-option" data-value="New" {% if product.promotional != "Hot" %}data-selected="true"{% endif %}>Nouveauté</div>
+                                <div class="dropdown-option" data-value="Hot" {% if product.promotional == "Hot" %}data-selected="true"{% endif %}>Populaire</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-check-label">
+                    <input id="discounted" name="checkbox" class="form-checkbox" type="checkbox" value="1" {% if product.PRDDiscountPrice %}checked{% endif %} />
+                    <span>Le produit bénéficie d'une remise</span>
+                </label>
+            </div>
+            
+            <div id="discount_box" class="form-group {% if not product.PRDDiscountPrice %}not-visible{% endif %}">
+                <label class="form-label">Prix avant remise</label>
+                <input placeholder="FCFA" name="discount" type="number" step="0.01" min="0" value="{{ product.PRDDiscountPrice|default:0 }}" class="form-input" />
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Quantité disponible *</label>
+                    <div class="number-input-wrapper">
+                        <button type="button" class="number-btn minus-btn" onclick="decrementValue('available')">
+                            <i class="material-icons">remove</i>
+                        </button>
+                        <input type="number" name="available" id="available" class="number-input" min="0" value="{{ product.available|default:0 }}" required />
+                        <button type="button" class="number-btn plus-btn" onclick="incrementValue('available')">
+                            <i class="material-icons">add</i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre d'unités *</label>
+                    <div class="number-input-wrapper">
+                        <button type="button" class="number-btn minus-btn" onclick="decrementValue('pieces')">
+                            <i class="material-icons">remove</i>
+                        </button>
+                        <input type="number" name="pieces" id="pieces" class="number-input" min="0" value="{{ product.pieces|default:0 }}" required />
+                        <button type="button" class="number-btn plus-btn" onclick="incrementValue('pieces')">
+                            <i class="material-icons">add</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                                       <div class="card mb-4">
-                                           <div class="card-header">
-                                               <h4>Additional Images</h4>
-                                           </div>
-                                           <div class="card-body">
-                                               <div class="input-upload">
-                                                   
-                                                   
-                                                 {% if product.additional_image_1%}           
-                                                <img id="url-img-1"  width="100" height="100"   style="width:100px;height:100px;" src="{{product.additional_image_1.url}}" alt="" />
-                                                <input id="id_image_1"  name="name_image_1" class="form-control" type="file" accept="image/*" />
-                                                {%else%}
-                                                <img id="url-img-1"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                <input id="id_image_1"  name="name_image_1" class="form-control" type="file" accept="image/*" />
-                                                {%endif%}
-                                                
+        <!-- Photos -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="material-icons">photo_library</i>
+                Photos du produit
+            </h3>
+            
+            <div class="form-group">
+                <label class="form-label">Image principale *</label>
+                <div class="image-upload-box">
+                    <img id="url-img" width="100" height="100" src="{{ product.product_image.url }}" alt="Product Image" />
+                    <input id="id_image" name="main_image" class="form-file-input" type="file" accept="image/*" />
+                    <label for="id_image" class="upload-label">
+                        <i class="material-icons">cloud_upload</i> Cliquer pour changer
+                    </label>
+                </div>
+            </div>
 
-                                                {% if product.additional_image_2%}           
-                                                <img id="url-img-2"  width="100" height="100"   style="width:100px;height:100px;" src="{{product.additional_image_2.url}}" alt="" />
-                                                <input id="id_image_2"  name="name_image_2" class="form-control" type="file" accept="image/*" />
-                                                {%else%}
-                                                <img id="url-img-2"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                <input id="id_image_2"  name="name_image_2" class="form-control" type="file" accept="image/*" />
-                                                {%endif%}
+            <div class="form-group">
+                <label class="form-label">Images additionnelles</label>
+                <div class="additional-images-grid">
+                    <div class="image-upload-box small">
+                        <img id="url-img-1" width="80" height="80" src="{% if product.additional_image_1 %}{{ product.additional_image_1.url }}{% else %}{% static 'assets-supplier/imgs/theme/upload.svg'%}{% endif %}" alt="Upload" />
+                        <input id="id_image_1" name="name_image_1" class="form-file-input" type="file" accept="image/*" />
+                    </div>
+                    <div class="image-upload-box small">
+                        <img id="url-img-2" width="80" height="80" src="{% if product.additional_image_2 %}{{ product.additional_image_2.url }}{% else %}{% static 'assets-supplier/imgs/theme/upload.svg'%}{% endif %}" alt="Upload" />
+                        <input id="id_image_2" name="name_image_2" class="form-file-input" type="file" accept="image/*" />
+                    </div>
+                    <div class="image-upload-box small">
+                        <img id="url-img-3" width="80" height="80" src="{% if product.additional_image_3 %}{{ product.additional_image_3.url }}{% else %}{% static 'assets-supplier/imgs/theme/upload.svg'%}{% endif %}" alt="Upload" />
+                        <input id="id_image_3" name="name_image_3" class="form-file-input" type="file" accept="image/*" />
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Categories -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="material-icons">category</i>
+                Catégories
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Super Catégorie</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select id="super_category" name="super_category_value" class="form-select super_category" style="display: none;">
+                            <option value="{{ product.product_supercategory.id }}" selected>{{ product.product_supercategory.name }}</option>
+                            {% for super in super_category %}
+                                {% if product.product_supercategory.id != super.id %}
+                                <option value="{{ super.id }}">{{ super.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownSuperCategory">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{{ product.product_supercategory.name }}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Catégorie principale</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select id="main_category" name="main_category_value" class="form-select main_category" style="display: none;">
+                            {% if product.product_maincategory %}
+                            <option value="{{ product.product_maincategory.id }}" selected>{{ product.product_maincategory.name }}</option>
+                            {% endif %}
+                            {% for main in main_category %}
+                                {% if product.product_maincategory and product.product_maincategory.id != main.id %}
+                                <option value="{{ main.id }}">{{ main.name }}</option>
+                                {% elif not product.product_maincategory %}
+                                <option value="{{ main.id }}">{{ main.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownMainCategory">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.product_maincategory %}{{ product.product_maincategory.name }}{% else %}Sélectionner{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                                {% if product.additional_image_3%}           
-                                                <img id="url-img-3"  width="100" height="100"   style="width:100px;height:100px;" src="{{product.additional_image_3.url}}" alt="" />
-                                                <input id="id_image_3"  name="name_image_3" class="form-control" type="file" accept="image/*" />
-                                                {%else%}
-                                                <img id="url-img-3"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                <input id="id_image_3"  name="name_image_3" class="form-control" type="file" accept="image/*" />
-                                                {%endif%}
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Sous-catégorie</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select id="sub_category" name="sub_category_value" class="form-select sub_category" style="display: none;">
+                            {% if product.product_subcategory %}
+                            <option value="{{ product.product_subcategory.id }}" selected>{{ product.product_subcategory.name }}</option>
+                            {% endif %}
+                            {% for sub in sub_category %}
+                                {% if product.product_subcategory and product.product_subcategory.id != sub.id %}
+                                <option value="{{ sub.id }}">{{ sub.name }}</option>
+                                {% elif not product.product_subcategory %}
+                                <option value="{{ sub.id }}">{{ sub.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownSubCategory">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.product_subcategory %}{{ product.product_subcategory.name }}{% else %}Sélectionner{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu"></div>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="form-group">
+                    <label class="form-label">Mini catégorie</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select id="mini_category" name="mini_category_value" class="form-select mini_category" style="display: none;">
+                            {% if product.product_minicategor %}
+                            <option value="{{ product.product_minicategor.id }}" selected>{{ product.product_minicategor.name }}</option>
+                            {% endif %}
+                            {% for mini in mini_category %}
+                                {% if product.product_minicategor and product.product_minicategor.id != mini.id %}
+                                <option value="{{ mini.id }}">{{ mini.name }}</option>
+                                {% elif not product.product_minicategor %}
+                                <option value="{{ mini.id }}">{{ mini.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownMiniCategory">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.product_minicategor %}{{ product.product_minicategor.name }}{% else %}Sélectionner{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                                {% if product.additional_image_4%}           
-                                                <img id="url-img-4"  width="100" height="100"   style="width:100px;height:100px;" src="{{product.additional_image_4.url}}" alt="" />
-                                                <input id="id_image_4"  name="name_image_4" class="form-control" type="file" accept="image/*" />
-                                                {%else%}
-                                                <img id="url-img-4"  width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="" />
-                                                <input id="id_image_4"  name="name_image_4" class="form-control" type="file" accept="image/*" />
-                                                {%endif%}
-                                                          
-                                               </div>
-                                           </div>
-                                       </div>
-                               
-                               </div>
-                           </div>
-                           <!-- card end// -->
-                       </div>
-                       <div class="col-lg-3">
-                           <div class="card mb-4">
-                               <div class="card-header">
-                                   <h4>Main Image</h4>
-                               </div>
-                               <div class="card-body">
-                                   <div class="input-upload">
-                                       <img id="url-img"  width="100" height="100"   style="width:100px;height:100px;" src="{{product.product_image.url}}" alt="" />
-                                       <input id="id_image"  name="main_image" class="form-control" type="file" accept="image/*" />
-                                   </div>
-                               </div>
-                               {% if product.digital_file %}
-                               <div class="card-header">
-                                <p class="file-upload">Digital File: <a href="{{product.digital_file.url}}">{{product.digital_file.url|truncatechars:30 }}</a>
-                                    <label class="form-check mb-4">
-                                       
-                                        <input id="digital_file" name="checkbox" class="form-check-input" type="checkbox" value="2" />
-                                        <span class="form-check-label">You want change your Digital File ?</span>
-                                    </label>
-                                </div>
-                                <div class="not-visible card-body" id="digital_file_box">
-                                    <div class="input-upload">
-                                        <img   width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload-file.svg'%}" alt="" />
-                                        <p>allowed extension are zip , rar</p>
-                                        <input   name="digital_file" class="form-control" type="file" accept="file/*" />
-                                    
-                                    </div>
-                                </div>
-                               {% else %}
-                               <div class="card-header">
-                                    <label class="form-check mb-4">
-                                        <input id="digital_file" name="checkbox" class="form-check-input" type="checkbox" value="2" />
-                                        <span class="form-check-label">Your Product Has Digital File ?</span>
-                                    </label>
-                               </div>
-                                <div class="not-visible card-body" id="digital_file_box">
-                                    <div class="input-upload">
-                                        <img   width="100" height="100"   style="width:100px;height:100px;" src="{% static 'assets-supplier/imgs/theme/upload-file.svg'%}" alt="" />
-                                        <p>allowed extension are zip , rar</p>
-                                        <input   name="digital_file" class="form-control" type="file" accept="file/*" />
-                                    
-                                    </div>
-                                </div>
-                               {% endif %}
-                               
+            <div class="form-group">
+                <label for="tags" class="form-label">Mots-clés (Tags)</label>
+                <input type="text" name="tags" maxlength="90" value="{{ product.PRDtags }}" class="form-input" placeholder="Ex: mode, homme, été, casual" />
+            </div>
+        </div>
+        
+        <!-- Product Details -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="material-icons">settings</i>
+                Détails du produit
+            </h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Condition *</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select name="product_condition" class="form-select" id="condition-select" required style="display: none;">
+                            <option value="1" {% if product.PRDProduct_condition == 1 %}selected{% endif %}>Nouveau</option>
+                            <option value="0" {% if product.PRDProduct_condition == 0 %}selected{% endif %}>Occasion</option>
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownCondition">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.PRDProduct_condition == 1 %}Nouveau{% else %}Occasion{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu">
+                                <div class="dropdown-option" data-value="1" {% if product.PRDProduct_condition == 1 %}data-selected="true"{% endif %}>Nouveau</div>
+                                <div class="dropdown-option" data-value="0" {% if product.PRDProduct_condition == 0 %}data-selected="true"{% endif %}>Occasion</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <div class="custom-dropdown-wrapper">
+                        <select name="product_status" class="form-select" id="status-select" style="display: none;">
+                            <option value="1" {% if product.PRDISactive %}selected{% endif %}>Actif</option>
+                            <option value="0" {% if not product.PRDISactive %}selected{% endif %}>Inactif</option>
+                        </select>
+                        <div class="custom-dropdown" id="customDropdownStatus">
+                            <button class="custom-dropdown-trigger" type="button">
+                                <span class="dropdown-selected-text">{% if product.PRDISactive %}Actif{% else %}Inactif{% endif %}</span>
+                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            </button>
+                            <div class="custom-dropdown-menu">
+                                <div class="dropdown-option" data-value="1" {% if product.PRDISactive %}data-selected="true"{% endif %}>Actif</div>
+                                <div class="dropdown-option" data-value="0" {% if not product.PRDISactive %}data-selected="true"{% endif %}>Inactif</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Code SKU</label>
+                <input placeholder="Ex: PROD-001" name="SKU" type="text" value="{{ product.PRDSKU }}" class="form-input" />
+            </div>
+        </div>
+        
+        <!-- Product Sizes -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <i class="material-icons">straighten</i>
+                Tailles disponibles
+            </h3>
+            
+            <div class="sizes-grid">
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="XXS" value="XXS" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "XXS" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>XXS</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="XS" value="XS" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "XS" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>XS</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="S" value="S" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "S" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>S</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="M" value="M" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "M" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>M</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="L" value="L" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "L" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>L</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="XL" value="XL" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "XL" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>XL</span>
+                </label>
+                <label class="size-checkbox">
+                    <input class="form-checkbox" type="checkbox" name="XXL" value="XXL" 
+                    {% for product_variation in product_variations %}
+                        {% if product_variation.name_variation == "XXL" %} checked {% endif %}
+                    {% endfor %} />
+                    <span>XXL</span>
+                </label>
+            </div>
+        </div>
 
-                           </div>
-                           <!-- card end// -->
-                           <div class="card mb-4">
-                               <div class="card-header">
-                                   <h4>Categories</h4>
-                               </div>
-                               <div class="card-body">
-                                   <div class="row gx-2">
-                                       <div class="col-sm-12 mb-3">
-                                           
-                                           <div class="mb-4">
-                                               <label class="form-label">Super Category</label>
-                                               <select id="super_category" name="super_category_value" class="form-select super_category">
-                                                     <option value="{{product.product_supercategory.id}}"> {{product.product_supercategory}} </option>
-                                                   {% for super in super_category%}
-                                                        {% if product.product_supercategory.id == super.id %}
-                                                           
-                                                        {%else%}
-                                                            <option value="{{super.id}}"> {{super.name}} </option>
-                                                        {%endif%}
-                                                    
-                                                   {%endfor%}
-                                                   
-                                               </select>
-                                           </div>
+        <!-- Form Footer -->
+        <div class="form-footer">
+            <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn-cancel">
+                <i class="material-icons">close</i>
+                Annuler
+            </a>
+            <button type="submit" class="btn-submit">
+                <i class="material-icons">save</i>
+                Enregistrer les modifications
+            </button>
+        </div>
+    </form>
+</div>
 
-                                           <div class="mb-4">
-                                               <label class="form-label">Main Category</label>
-                                               <select id="main_category" name="main_category_value"  class="form-select main_category">
-                                                        <option value="{{product.product_maincategory.id}}"> {{product.product_maincategory}} </option>
-                                                   {% for main in main_category%}
-                                                        {% if product.product_maincategory.id == main.id%}
-                                                           
-                                                        {%else%}
-                                                            <option value="{{main.id}}"> {{main.name}} </option>
-                                                        {%endif%}
-                                                  
-                                                   {%endfor%}
-                                               </select>
-                                           </div>
+<style>
+    /* Welcome Card */
+    .products-welcome-card {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        color: white;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex: 1;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0 0 6px 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .welcome-text strong {
+        color: #FCD34D;
+        font-weight: 700;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+    
+    .btn-secondary {
+        padding: 12px 24px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    /* Form Container */
+    .edit-product-container {
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 100px;
+    }
+    
+    /* Form Section (same as add product form) */
+    .form-section {
+        margin-bottom: 0;
+    }
+    
+    .form-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .form-section-title i {
+        color: #6B46C1;
+    }
+    
+    /* Form Elements */
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .form-input,
+    .form-textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1F2937;
+        transition: all 0.2s ease;
+        background: white;
+        font-family: inherit;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    
+    /* Number Input with +/- buttons */
+    .number-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 4px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+    
+    .number-input-wrapper:focus-within {
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .number-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        color: #6B7280;
+        flex-shrink: 0;
+    }
+    
+    .number-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .number-btn .material-icons {
+        font-size: 20px;
+    }
+    
+    .number-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+        padding: 8px;
+        min-width: 0;
+        -moz-appearance: textfield;
+    }
+    
+    .number-input::-webkit-outer-spin-button,
+    .number-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    .number-input:focus {
+        outline: none;
+    }
+    
+    /* Custom Dropdown */
+    .custom-dropdown-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown-trigger {
+        width: 100%;
+        padding: 12px 16px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .custom-dropdown-trigger:hover {
+        border-color: #6B46C1;
+    }
+    
+    .custom-dropdown.active .custom-dropdown-trigger {
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .dropdown-selected-text {
+        flex: 1;
+        text-align: left;
+    }
+    
+    .dropdown-arrow {
+        font-size: 20px;
+        color: #6B46C1;
+        transition: transform 0.3s ease;
+    }
+    
+    .custom-dropdown.active .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .custom-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .custom-dropdown.active .custom-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .dropdown-option {
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-option:hover {
+        background: rgba(107, 70, 193, 0.1);
+        color: #6B46C1;
+    }
+    
+    .dropdown-option[data-selected="true"] {
+        background: #6B46C1;
+        color: white;
+        font-weight: 700;
+    }
+    
+    /* Checkbox */
+    .form-check-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #374151;
+        cursor: pointer;
+    }
+    
+    .form-checkbox {
+        width: 20px;
+        height: 20px;
+        accent-color: #6B46C1;
+        cursor: pointer;
+    }
+    
+    .not-visible {
+        display: none !important;
+    }
+    
+    /* Image Upload */
+    .image-upload-box {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #E5E7EB;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        overflow: hidden;
+    }
+    
+    .image-upload-box:hover {
+        border-color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .image-upload-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-upload-box.small {
+        height: 120px;
+    }
+    
+    .form-file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .upload-label {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(107, 70, 193, 0.9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        pointer-events: none;
+    }
+    
+    .additional-images-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
+    /* Sizes Grid */
+    .sizes-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    
+    .size-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 8px;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        font-size: 14px;
+        color: #6B7280;
+        background: white;
+    }
+    
+    .size-checkbox:hover {
+        border-color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .size-checkbox input {
+        display: none;
+    }
+    
+    .size-checkbox:has(input:checked),
+    .size-checkbox input:checked + span {
+        border-color: #6B46C1;
+        background: #E0E7FF;
+        color: #6B46C1;
+    }
+    
+    /* Form Footer */
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        padding-top: 32px;
+        margin-top: 32px;
+        border-top: 2px solid #F3F4F6;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .btn-cancel {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    /* Responsive */
+    
+    @media (max-width: 768px) {
+        .products-welcome-card {
+            padding: 24px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .header-actions {
+            width: 100%;
+            margin-top: 16px;
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .edit-product-container {
+            padding: 20px;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .sizes-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .additional-images-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-footer {
+            flex-direction: column;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 
-                                           <div class="mb-4">
-                                               <label class="form-label">Sub Category</label>
-                                               <select id="sub_category" name="sub_category_value" class="form-select sub_category">
-                                                        <option value="{{product.product_subcategory.id}}"> {{product.product_subcategory}} </option>
-                                                   {% for sub in sub_category%}
-                                                        {% if product.product_subcategory.id == sub.id %}
-                                                        
-                                                        {%else%}
-                                                            <option value="{{sub.id}}"> {{sub.name}} </option>
-                                                        {%endif%}
-                                                       
-                                                   {%endfor%}
-                                               </select>
-                                           </div>
-
-
-                                           <div class="mb-4">
-                                               <label class="form-label">Mini Category</label>
-                                               <select id="mini_category" name="mini_category_value" class="form-select mini_category">
-                                                <option value="{{product.product_minicategor.id}}"> {{product.product_minicategor}} </option>
-                                                   {% for mini in mini_category%}
-                                                        {% if product.product_minicategor.id == mini.id %}
-                                                            
-                                                        {%else%}
-                                                            <option value="{{mini.id}}"> {{mini.name}} </option>
-                                                        {%endif%}
-                                                       
-                                                   {%endfor%}
-                                               </select>
-                                           </div>
-                                       
-                                       </div>
-                                       
-                                       <div class="mb-4">
-                                           <label for="product_name" class="form-label">Tags</label>
-                                           <input value ="{{product.PRDtags}}" type="text" name="tags" maxlength="90" class="form-control" />
-                                       </div>
-                                       
-                                       <h5 class="mb-3">Product Variations</h5>
-                                       <hr>
-                                       <h5 class="mb-3">Product Size</h5>
-                                       
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="XXS" value="XXS" id="product-cat" 
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "XXS"%} checked {% endif %}
-                                            {% endfor %}> 
-                                           <label class="form-check-label" for="product-cat"> XXS </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="XS" value="XS"id="product-cat1"
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "XS"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> XS </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="S" value="S" id="product-cat2" 
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "S"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> S </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="M" value="M" id="product-cat3"
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "M"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> M </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="L" value="L" id="product-cat4"
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "L"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> L </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="XL" value="XL" id="product-cat5"
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "XL"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> XL </label>
-                                       </div>
-                                       <div class="form-check">
-                                           <input class="form-check-input" type="checkbox" name="XXL" value="XXL" id="product-cat6"
-                                           {% for product_variation in  product_variations%}
-                                            {% if product_variation.name_variation == "XXL"%} checked {% endif %}
-                                            {% endfor %}>
-                                           <label class="form-check-label" for="product-cat"> XXL </label>
-                                       </div>
-                                   </div>
-                               
-                                   <!-- row.// -->
-                               </div>
-                           </div>
-                           <!-- card end// -->
-                       </div>
-                   </div>
-               </form>
-           </section>
 {%endblock section%}
 
 {%block script%}
 <script>
-
-   var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png" , "zip" , "rar"];    
-   function Validate(oForm) {
-       var arrInputs = oForm.getElementsByTagName("input");
-       for (var i = 0; i < arrInputs.length; i++) {
-           var oInput = arrInputs[i];
-           if (oInput.type == "file") {
-               var sFileName = oInput.value;
-               if (sFileName.length > 0) {
-                   var blnValid = false;
-                   for (var j = 0; j < _validFileExtensions.length; j++) {
-                       var sCurExtension = _validFileExtensions[j];
-                       if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
-                           blnValid = true;
-                           break;
-                       }
-                   }
-                   
-                   if (!blnValid) {
-                       alert("Sorry, " + sFileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
-                       return false;
-                   }
-               }
-           }
-       }
-   
-       return true;
-   }
-
-
-   const image = document.getElementById('id_image')
-  
-   image.addEventListener('change', () => {
-       const img_data = image.files[0]
-       
-       const url = URL.createObjectURL(img_data)
-       document.getElementById("url-img").src = url
-   })
-
-   const image_1 = document.getElementById('id_image_1')
-  
-   image_1.addEventListener('change', () => {
-       const img_data = image_1.files[0]
-       
-       const url = URL.createObjectURL(img_data)
-       document.getElementById("url-img-1").src = url
-   })
-
-   const image_2 = document.getElementById('id_image_2')
-  
-   image_2.addEventListener('change', () => {
-       const img_data = image_2.files[0]
-       
-       const url = URL.createObjectURL(img_data)
-       document.getElementById("url-img-2").src = url
-   })
-
-
-   const image_3 = document.getElementById('id_image_3')
-  
-   image_3.addEventListener('change', () => {
-       const img_data = image_3.files[0]
-       
-       const url = URL.createObjectURL(img_data)
-       document.getElementById("url-img-3").src = url
-   })    
-
-
-   const image_4 = document.getElementById('id_image_4')
-  
-   image_4.addEventListener('change', () => {
-       const img_data = image_4.files[0]
-       
-       const url = URL.createObjectURL(img_data)
-       document.getElementById("url-img-4").src = url
-   }) 
-   const discounted = document.getElementById("discounted")
-   const discountBox = document.getElementById("discount_box")
-   discounted.addEventListener('change', function() {
-       if (this.checked) {
-         
-         discountBox.classList.remove("not-visible");
-       } else {
-         
-         discountBox.classList.add("not-visible");
-       }
-     });
-     const digitalFile = document.getElementById("digital_file")
-     const digitalFileBox = document.getElementById("digital_file_box")
-     digitalFile.addEventListener('change', function() {
-         if (this.checked) {
+    // Number input +/- functions
+    function incrementValue(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 0;
+            input.value = currentValue + 1;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    function decrementValue(fieldId) {
+        const input = document.getElementById(fieldId);
+        if (input) {
+            const currentValue = parseInt(input.value) || 0;
+            if (currentValue > 0) {
+                input.value = currentValue - 1;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    }
+    
+    // Custom Dropdown Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+            const menu = dropdown.querySelector('.custom-dropdown-menu');
+            const select = dropdown.parentElement.querySelector('select');
             
-             digitalFileBox.classList.remove("not-visible");
-         } else {
+            if (!trigger || !menu || !select) return;
             
-             digitalFileBox.classList.add("not-visible");
-         }
-     });
+            // Sync dropdown with select
+            function syncDropdown() {
+                menu.innerHTML = '';
+                Array.from(select.options).forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'dropdown-option';
+                    optionDiv.setAttribute('data-value', option.value);
+                    optionDiv.textContent = option.textContent.trim();
+                    
+                    if (option.selected) {
+                        optionDiv.setAttribute('data-selected', 'true');
+                        trigger.querySelector('.dropdown-selected-text').textContent = option.textContent.trim();
+                    }
+                    
+                    optionDiv.addEventListener('click', function() {
+                        const value = this.getAttribute('data-value');
+                        const text = this.textContent.trim();
+                        
+                        trigger.querySelector('.dropdown-selected-text').textContent = text;
+                        menu.querySelectorAll('.dropdown-option').forEach(opt => {
+                            opt.removeAttribute('data-selected');
+                        });
+                        this.setAttribute('data-selected', 'true');
+                        
+                        select.value = value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        if (select.classList.contains('super_category') || 
+                            select.classList.contains('main_category') || 
+                            select.classList.contains('sub_category')) {
+                            $(select).trigger('change');
+                        }
+                        
+                        dropdown.classList.remove('active');
+                    });
+                    
+                    menu.appendChild(optionDiv);
+                });
+            }
+            
+            syncDropdown();
+            
+            // Toggle dropdown
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isActive = dropdown.classList.contains('active');
+                
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) d.classList.remove('active');
+                });
+                
+                dropdown.classList.toggle('active', !isActive);
+            });
+            
+            // Close on outside click
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+            
+            // Watch for select changes (from get-category.js)
+            const observer = new MutationObserver(function() {
+                syncDropdown();
+            });
+            
+            observer.observe(select, {
+                childList: true,
+                subtree: true
+            });
+        });
+    });
+    
+    // Image preview
+    const image = document.getElementById('id_image');
+    if (image) {
+        image.addEventListener('change', () => {
+            const img_data = image.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img").src = url;
+            }
+        });
+    }
+    
+    const image_1 = document.getElementById('id_image_1');
+    if (image_1) {
+        image_1.addEventListener('change', () => {
+            const img_data = image_1.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-1").src = url;
+            }
+        });
+    }
+    
+    const image_2 = document.getElementById('id_image_2');
+    if (image_2) {
+        image_2.addEventListener('change', () => {
+            const img_data = image_2.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-2").src = url;
+            }
+        });
+    }
+    
+    const image_3 = document.getElementById('id_image_3');
+    if (image_3) {
+        image_3.addEventListener('change', () => {
+            const img_data = image_3.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-3").src = url;
+            }
+        });
+    }
+    
+    const image_4 = document.getElementById('id_image_4');
+    if (image_4) {
+        image_4.addEventListener('change', () => {
+            const img_data = image_4.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                document.getElementById("url-img-4").src = url;
+            }
+        });
+    }
+    
+    // Discount checkbox
+    const discounted = document.getElementById("discounted");
+    const discountBox = document.getElementById("discount_box");
+    if (discounted && discountBox) {
+        discounted.addEventListener('change', function() {
+            if (this.checked) {
+                discountBox.classList.remove("not-visible");
+            } else {
+                discountBox.classList.add("not-visible");
+            }
+        });
+    }
+    
+    // File validation
+    var _validFileExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
+    function Validate(oForm) {
+        var arrInputs = oForm.getElementsByTagName("input");
+        for (var i = 0; i < arrInputs.length; i++) {
+            var oInput = arrInputs[i];
+            if (oInput.type == "file") {
+                var sFileName = oInput.value;
+                if (sFileName.length > 0) {
+                    var blnValid = false;
+                    for (var j = 0; j < _validFileExtensions.length; j++) {
+                        var sCurExtension = _validFileExtensions[j];
+                        if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                            blnValid = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!blnValid) {
+                        alert("Désolé, " + sFileName + " est invalide. Extensions autorisées: " + _validFileExtensions.join(", "));
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+    // Sync dropdowns before form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const editProductForm = document.getElementById('editProductForm');
+        if (editProductForm) {
+            editProductForm.addEventListener('submit', function(e) {
+                const allDropdowns = document.querySelectorAll('.custom-dropdown');
+                allDropdowns.forEach(dropdown => {
+                    const select = dropdown.parentElement.querySelector('select');
+                    const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+                    
+                    if (select && trigger) {
+                        const selectedText = trigger.querySelector('.dropdown-selected-text').textContent.trim();
+                        const selectedOption = Array.from(dropdown.querySelectorAll('.dropdown-option')).find(opt => {
+                            return opt.textContent.trim() === selectedText && opt.getAttribute('data-selected') === 'true';
+                        });
+                        
+                        if (selectedOption) {
+                            const value = selectedOption.getAttribute('data-value');
+                            if (value !== null && value !== undefined) {
+                                select.value = value;
+                            }
+                        }
+                    }
+                });
+                
+                if (!Validate(this)) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+    });
 </script>
-<script src="{% static 'assets-supplier/js/get-category.js'%}" type="text/javascript"></script>   
-<script src="//cdn.ckeditor.com/4.18.0/basic/ckeditor.js"></script>
+<script src="{% static 'assets-supplier/js/get-category.js'%}" type="text/javascript"></script>
 {%endblock script%}

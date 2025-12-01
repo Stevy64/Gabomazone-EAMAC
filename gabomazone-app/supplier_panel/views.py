@@ -160,309 +160,364 @@ def supplier_register(request):
 
 @vendor_only
 def supplier_add_product(request):
+    """
+    Vue pour ajouter un nouveau produit.
+    Gère la réception et la validation des données du formulaire d'ajout de produit.
+    """
     if not request.user.is_authenticated and request.user.is_anonymous:
         return redirect('accounts:login')
 
     if request.method == 'POST':
-        super_category_obj = None
-        main_category_obj = None
-        sub_category_obj = None
-        mini_category_obj = None
-
-        product_name = request.POST['product_name']
-        introduction = request.POST['introduction']
-        price = request.POST['price']
-        discount = request.POST['discount']
-        content = request.POST['content']
+        # ============================================
+        # 1. RÉCUPÉRATION DES DONNÉES DU FORMULAIRE
+        # ============================================
+        
+        # Informations de base du produit
+        nom_produit = request.POST.get('product_name', '').strip()
+        description_courte = request.POST.get('introduction', '').strip()
+        description_complete = request.POST.get('content', '').strip()
+        
+        # Prix et remise
+        prix_str = request.POST.get('price', '0')
+        prix_remise_str = request.POST.get('discount', '0')
+        
+        # Stock et unités
+        quantite_disponible = request.POST.get('available', '0')
+        nombre_unites = request.POST.get('pieces', '0')
+        
+        # Statut et promotion
+        statut_produit = request.POST.get('product_status', '1')
+        type_promotion = request.POST.get('promotional', 'New')
+        
+        # Dimensions et poids (optionnels)
+        largeur = request.POST.get('width', '').strip() or None
+        hauteur = request.POST.get('height', '').strip() or None
+        poids = request.POST.get('weight', '').strip() or None
+        
+        # SKU et tags (optionnels)
+        code_sku = request.POST.get('SKU', '').strip() or None
+        tags_produit = request.POST.get('tags', '').strip()
+        
+        # Condition du produit
+        condition_produit = request.POST.get('product_condition', '1')
+        
+        # ============================================
+        # 2. VALIDATION DES DONNÉES NUMÉRIQUES
+        # ============================================
+        
         try:
-            super_category_value = request.POST['super_category_value']
-        except:
-            super_category_value = None
-
-        try:
-            main_category_value = request.POST['main_category_value']
-        except:
-            main_category_value = None
-
-        try:
-            sub_category_value = request.POST['sub_category_value']
-        except:
-            sub_category_value = None
-
-        try:
-            mini_category_value = request.POST['mini_category_value']
-        except:
-            mini_category_value = None
-
-        XXS = "XXS-Delete"
-        try:
-            XXS = request.POST['XXS']
-
-        except:
-            XSS = "XXS-Delete"
-        # print("xxs: ", XXS)
-
-        XS = "XS-Delete"
-        try:
-            XS = request.POST['XS']
-
-        except:
-            XS = "XS-Delete"
-
-        S = "S-Delete"
-        try:
-            S = request.POST['S']
-
-        except:
-            S = "S-Delete"
-
-        M = "M-Delete"
-        try:
-            M = request.POST['M']
-
-        except:
-            M = "M-Delete"
-
-        L = "L-Delete"
-        try:
-            L = request.POST['L']
-
-        except:
-            L = "L-Delete"
-
-        XL = "XL-Delete"
-        try:
-            XL = request.POST['XL']
-
-        except:
-            XL = "XL-Delete"
-
-        XXL = "XXL-Delete"
-        try:
-            XXL = request.POST['XXL']
-
-        except:
-            XXL = "XXL-Delete"
-
-        # checkbox = request.POST['checkbox']
-        # if checkbox:
-        #     print("checkbox: ", checkbox)
-        available = request.POST['available']
-        pieces = request.POST['pieces']
-        promotional = request.POST['promotional']
-        product_status = int(request.POST['product_status'])
-        width = request.POST['width']
-        if not width:
-            width = None
-        product_SKU = request.POST['SKU']
-        if not product_SKU:
-            product_SKU = None
-        height = request.POST['height']
-        if not height:
-            height = None
-        weight = request.POST['weight']
-        tags = request.POST['tags']
-        if product_status == 1:
-            product_status = True
-        else:
-            product_status = False
-        # print(f"product_status: {product_status}", type(product_status))
-        try:
-            price = float(request.POST["price"])
+            prix = float(prix_str)
+            if prix < 0:
+                raise ValueError("Le prix ne peut pas être négatif")
         except (ValueError, TypeError):
             messages.warning(
-                request, '-Please Enter A Valid Pricing number')
+                request, 'Veuillez entrer un prix valide (nombre positif)')
             return redirect("supplier_dashboard:supplier-add-product")
 
         try:
-            discount = float(request.POST["discount"])
+            prix_remise = float(prix_remise_str)
+            if prix_remise < 0:
+                prix_remise = 0
         except (ValueError, TypeError):
-            discount = 0
+            prix_remise = 0
 
-        try:
-            main_image = request.FILES["main_image"]
-        except:
-            main_image = None
-        if main_image:
+        # Conversion du statut
+        est_actif = (statut_produit == '1')
+        
+        # ============================================
+        # 3. RÉCUPÉRATION DES CATÉGORIES
+        # ============================================
+        
+        super_categorie = None
+        categorie_principale = None
+        sous_categorie = None
+        mini_categorie = None
+        
+        id_super_categorie = request.POST.get('super_category_value')
+        if id_super_categorie:
             try:
-                Image.open(main_image)
-
-            except:
-                messages.warning(request, 'sorry, your image is invalid')
+                super_categorie = SuperCategory.objects.get(id=id_super_categorie)
+            except SuperCategory.DoesNotExist:
+                messages.warning(request, 'La super catégorie sélectionnée est invalide')
                 return redirect("supplier_dashboard:supplier-add-product")
-
-        try:
-            name_image_1 = request.FILES["name_image_1"]
-        except:
-            name_image_1 = None
-        if name_image_1:
+        
+        id_categorie_principale = request.POST.get('main_category_value')
+        if id_categorie_principale:
             try:
-                Image.open(name_image_1)
-
-            except:
-                messages.warning(request, 'sorry, your image is invalid')
-                return redirect("supplier_dashboard:supplier-add-product")
-
-        try:
-            name_image_2 = request.FILES["name_image_2"]
-        except:
-            name_image_2 = None
-        if name_image_2:
+                categorie_principale = MainCategory.objects.get(id=id_categorie_principale)
+            except MainCategory.DoesNotExist:
+                pass  # Optionnel
+        
+        id_sous_categorie = request.POST.get('sub_category_value')
+        if id_sous_categorie:
             try:
-                Image.open(name_image_2)
-
-            except:
-                messages.warning(request, 'sorry, your image is invalid')
-                return redirect("supplier_dashboard:supplier-add-product")
-
-        try:
-            name_image_3 = request.FILES["name_image_3"]
-        except:
-            name_image_3 = None
-        if name_image_3:
+                sous_categorie = SubCategory.objects.get(id=id_sous_categorie)
+            except SubCategory.DoesNotExist:
+                pass  # Optionnel
+        
+        id_mini_categorie = request.POST.get('mini_category_value')
+        if id_mini_categorie:
             try:
-                Image.open(name_image_3)
-
-            except:
-                messages.warning(request, 'sorry, your image is invalid')
-                return redirect("supplier_dashboard:supplier-add-product")
-
+                mini_categorie = MiniCategory.objects.get(id=id_mini_categorie)
+            except MiniCategory.DoesNotExist:
+                pass  # Optionnel
+        
+        # ============================================
+        # 4. VALIDATION ET TRAITEMENT DES IMAGES
+        # ============================================
+        
+        def valider_image(fichier_image, nom_champ):
+            """Valide qu'un fichier image est valide"""
+            if fichier_image:
+                try:
+                    Image.open(fichier_image)
+                    return True
+                except Exception:
+                    messages.warning(
+                        request, f'L\'image "{nom_champ}" est invalide. Formats acceptés : JPG, PNG, GIF, BMP')
+                    return False
+            return True
+        
+        # Image principale (obligatoire)
+        image_principale = request.FILES.get("main_image")
+        if not image_principale:
+            messages.warning(request, 'L\'image principale est obligatoire')
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        if not valider_image(image_principale, "Image principale"):
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        # Images additionnelles (optionnelles)
+        image_additionnelle_1 = request.FILES.get("name_image_1")
+        if image_additionnelle_1 and not valider_image(image_additionnelle_1, "Image additionnelle 1"):
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        image_additionnelle_2 = request.FILES.get("name_image_2")
+        if image_additionnelle_2 and not valider_image(image_additionnelle_2, "Image additionnelle 2"):
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        image_additionnelle_3 = request.FILES.get("name_image_3")
+        if image_additionnelle_3 and not valider_image(image_additionnelle_3, "Image additionnelle 3"):
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        image_additionnelle_4 = request.FILES.get("name_image_4")
+        if image_additionnelle_4 and not valider_image(image_additionnelle_4, "Image additionnelle 4"):
+            return redirect("supplier_dashboard:supplier-add-product")
+        
+        # Fichier numérique (optionnel)
+        fichier_numerique = request.FILES.get("digital_file")
+        
+        # ============================================
+        # 5. RÉCUPÉRATION DES TAILLES DISPONIBLES
+        # ============================================
+        
+        tailles_disponibles = []
+        tailles_possibles = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
+        
+        for taille in tailles_possibles:
+            if taille in request.POST:
+                tailles_disponibles.append(taille)
+        
+        # ============================================
+        # 6. CRÉATION DU PRODUIT
+        # ============================================
+        
         try:
-            name_image_4 = request.FILES["name_image_4"]
-        except:
-            name_image_4 = None
-        if name_image_4:
-            try:
-                Image.open(name_image_4)
+            vendeur = Profile.objects.get(user=request.user)
+            
+            nouveau_produit = Product.objects.create(
+                # Informations de base
+                product_name=nom_produit,
+                product_description=description_courte,
+                content=description_complete,
+                
+                # Prix
+                PRDPrice=prix,
+                PRDDiscountPrice=prix_remise,
+                
+                # Images
+                product_image=image_principale,
+                additional_image_1=image_additionnelle_1,
+                additional_image_2=image_additionnelle_2,
+                additional_image_3=image_additionnelle_3,
+                additional_image_4=image_additionnelle_4,
+                digital_file=fichier_numerique,
+                
+                # Catégories
+                product_vendor=vendeur,
+                product_supercategory=super_categorie,
+                product_maincategory=categorie_principale,
+                product_subcategory=sous_categorie,
+                product_minicategor=mini_categorie,
+                
+                # Stock et unités
+                available=quantite_disponible,
+                pieces=nombre_unites,
+                
+                # Statut et promotion
+                promotional=type_promotion,
+                PRDISactive=est_actif,
+                
+                # Dimensions
+                width=largeur,
+                height=hauteur,
+                # Note: Le champ PRDWeight n'existe pas dans le modèle Product
+                # Le poids n'est pas stocké pour le moment
+                
+                # Métadonnées
+                PRDSKU=code_sku,
+                PRDtags=tags_produit,
+            )
+            
+            # ============================================
+            # 7. CRÉATION DES IMAGES ADDITIONNELLES
+            # ============================================
+            
+            images_additionnelles = [
+                image_additionnelle_1,
+                image_additionnelle_2,
+                image_additionnelle_3,
+                image_additionnelle_4
+            ]
+            
+            for image in images_additionnelles:
+                if image:
+                    ProductImage.objects.create(
+                        PRDIProduct=nouveau_produit,
+                        PRDIImage=image
+                    )
+            
+            # ============================================
+            # 8. GESTION DES TAILLES DISPONIBLES
+            # ============================================
+            
+            for taille in tailles_disponibles:
+                if not ProductSize.objects.filter(
+                    PRDIProduct=nouveau_produit,
+                    name_variation=taille
+                ).exists():
+                    ProductSize.objects.create(
+                        PRDIProduct=nouveau_produit,
+                        name_variation=taille
+                    )
+            
+            messages.success(
+                request, f'Le produit "{nom_produit}" a été créé avec succès !')
+            return redirect('supplier_dashboard:supplier-add-product')
+            
+        except Exception as e:
+            messages.error(
+                request, f'Une erreur est survenue lors de la création du produit : {str(e)}')
+            return redirect("supplier_dashboard:supplier-add-product")
 
-            except:
-                messages.warning(request, 'sorry, your image is invalid')
-                return redirect("supplier_dashboard:supplier-add-product")
-
-        try:
-            digital_file = request.FILES["digital_file"]
-        except:
-            digital_file = None
-
-        if super_category_value:
-            super_category_obj = SuperCategory.objects.get(
-                id=super_category_value)
-        if main_category_value:
-            main_category_obj = MainCategory.objects.get(
-                id=main_category_value)
-        if sub_category_value:
-            sub_category_obj = SubCategory.objects.get(id=sub_category_value)
-        if mini_category_value:
-            mini_category_obj = MiniCategory.objects.get(
-                id=mini_category_value)
-
-        product_vendor = Profile.objects.get(user__username=request.user)
-        new_product_obj = Product.objects.create(
-            product_name=product_name,
-            product_description=introduction,
-            content=content,
-            PRDPrice=price,
-            PRDDiscountPrice=discount,
-            product_image=main_image,
-            digital_file=digital_file,
-            additional_image_1=name_image_1,
-            additional_image_2=name_image_2,
-            additional_image_3=name_image_3,
-            additional_image_4=name_image_4,
-
-            # content=description,
-            product_vendor=product_vendor,
-            product_supercategory=super_category_obj,
-            product_maincategory=main_category_obj,
-            product_subcategory=sub_category_obj,
-            product_minicategor=mini_category_obj,
-            available=available,
-            pieces=pieces,
-            promotional=promotional,
-            PRDISactive=product_status,
-            width=width,
-            height=height,
-            PRDWeight=weight,
-            PRDSKU=product_SKU,
-            PRDtags=tags,
+    # ============================================
+    # AFFICHAGE DU FORMULAIRE (GET)
+    # ============================================
+    
+    # Récupération de toutes les super catégories pour le formulaire
+    super_categories = SuperCategory.objects.all()
+    
+    # Récupération de la première super catégorie pour pré-remplir les catégories suivantes
+    premiere_super_categorie = super_categories.first()
+    
+    # Récupération des catégories principales de la première super catégorie
+    categories_principales = []
+    if premiere_super_categorie:
+        categories_principales = MainCategory.objects.filter(
+            super_category=premiere_super_categorie
         )
-        # print(new_product_obj)
-
-        image_list = [name_image_1, name_image_2, name_image_3, name_image_4]
-        for image in image_list:
-            if image:
-                ProductImage.objects.create(
-                    PRDIProduct=new_product_obj,
-                    PRDIImage=image
-                )
-            product_variations_list = [XXS, XS, S, M, L, XL, XXL]
-            for variation in product_variations_list:
-                if "Delete" in variation:
-                    variation = variation.replace('-Delete', '')
-
-                    if ProductSize.objects.all().filter(PRDIProduct=new_product_obj, name_variation=variation).exists():
-                        product_variations_obj = ProductSize.objects.get(
-                            PRDIProduct=new_product_obj,
-                            name_variation=variation
-                        )
-
-                        product_variations_obj.delete()
-
-                else:
-                    if ProductSize.objects.all().filter(PRDIProduct=new_product_obj, name_variation=variation).exists():
-                        pass
-                    else:
-                        ProductSize.objects.create(
-                            PRDIProduct=new_product_obj,
-                            name_variation=variation
-                        )
-
-        messages.success(
-            request, 'Your Products Has Been Saved !')
-        return redirect('supplier_dashboard:supplier-products-list')
-
-    super_category = SuperCategory.objects.all()
-    super_category_first = SuperCategory.objects.all().first()
-    main_category = MainCategory.objects.all().filter(
-        super_category=super_category_first)
-    main_category_first = MainCategory.objects.all().first()
-    sub_category = SubCategory.objects.all().filter(
-        main_category=main_category_first)
-    sub_category_first = SubCategory.objects.all().first()
-    mini_category = MiniCategory.objects.all().filter(
-        sub_category=sub_category_first
-    )
-    # print(sub_category)
+    
+    # Récupération de la première catégorie principale pour pré-remplir les sous-catégories
+    premiere_categorie_principale = categories_principales.first() if categories_principales else None
+    
+    # Récupération des sous-catégories de la première catégorie principale
+    sous_categories = []
+    if premiere_categorie_principale:
+        sous_categories = SubCategory.objects.filter(
+            main_category=premiere_categorie_principale
+        )
+    
+    # Récupération de la première sous-catégorie pour pré-remplir les mini catégories
+    premiere_sous_categorie = sous_categories.first() if sous_categories else None
+    
+    # Récupération des mini catégories de la première sous-catégorie
+    mini_categories = []
+    if premiere_sous_categorie:
+        mini_categories = MiniCategory.objects.filter(
+            sub_category=premiere_sous_categorie
+        )
+    
+    # Récupération de tous les produits du vendeur pour affichage dans la liste
+    vendeur = Profile.objects.get(user=request.user)
+    produits = Product.objects.filter(
+        product_vendor=vendeur,
+        PRDISDeleted=False
+    ).order_by('-date')
+    
     context = {
-        "super_category": super_category,
-        "main_category": main_category,
-        "sub_category": sub_category,
-        "mini_category": mini_category,
+        "super_category": super_categories,
+        "main_category": categories_principales,
+        "sub_category": sous_categories,
+        "mini_category": mini_categories,
+        "products": produits,
+        "vendor": vendeur,
     }
     return render(request, 'supplier-panel/supplier-add-product.html', context)
 
 
 class CategoriesJsonListView(View):
+    """
+    Vue AJAX pour charger dynamiquement les catégories.
+    Retourne les catégories en fonction de la hiérarchie sélectionnée.
+    """
     def get(self, *args, **kwargs):
-        super_category = list(SuperCategory.objects.all().values())
-        super_category_ajax = self.request.GET.get('super_category_ajax')
-        main_category_ajax = self.request.GET.get('main_category_ajax')
-        sub_category_ajax = self.request.GET.get('sub_category_ajax')
+        # Récupération de toutes les super catégories
+        super_categories = list(SuperCategory.objects.all().values())
+        
+        # Récupération des paramètres de filtrage depuis la requête AJAX
+        id_super_categorie = self.request.GET.get('super_category_ajax')
+        id_categorie_principale = self.request.GET.get('main_category_ajax')
+        id_sous_categorie = self.request.GET.get('sub_category_ajax')
 
-        main_category = list(MainCategory.objects.all().filter(
-            super_category__id=super_category_ajax).values())
+        # Chargement des catégories principales si une super catégorie est sélectionnée
+        if id_super_categorie:
+            categories_principales = list(MainCategory.objects.filter(
+                super_category__id=id_super_categorie).values())
+        else:
+            categories_principales = []
 
-        sub_category = list(SubCategory.objects.all().filter(
-            main_category__id=main_category_ajax).values())
-        mini_category = list(MiniCategory.objects.all().filter(
-            sub_category__id=sub_category_ajax).values())
+        # Chargement des sous-catégories si une catégorie principale est sélectionnée
+        if id_categorie_principale:
+            sous_categories = list(SubCategory.objects.filter(
+                main_category__id=id_categorie_principale).values())
+        else:
+            sous_categories = []
 
-        return JsonResponse({"super_category": super_category, "main_category": main_category, "sub_category": sub_category, "mini_category": mini_category, }, safe=False)
+        # Chargement des mini catégories si une sous-catégorie est sélectionnée
+        if id_sous_categorie:
+            mini_categories = list(MiniCategory.objects.filter(
+                sub_category__id=id_sous_categorie).values())
+        else:
+            mini_categories = []
+
+        return JsonResponse({
+            "super_category": super_categories,
+            "main_category": categories_principales,
+            "sub_category": sous_categories,
+            "mini_category": mini_categories,
+        }, safe=False)
 
 
 @vendor_only
 def supplier_products_list(request):
-    return render(request, "supplier-panel/supplier-products-list.html")
+    vendor = Profile.objects.get(user=request.user)
+    super_categories = SuperCategory.objects.all()
+    
+    context = {
+        "vendor": vendor,
+        "super_category": super_categories,
+    }
+    return render(request, "supplier-panel/supplier-products-list.html", context)
 
 
 class SupplierProductsJsonListView(View):
@@ -503,31 +558,44 @@ class SupplierProductsJsonListView(View):
 
 @vendor_only
 def remove_product(request, id):
-    if request.user.is_authenticated and not request.user.is_anonymous and id:
-        product_obj = Product.objects.get(id=id)
-
-        if product_obj.product_vendor.user.id == request.user.id:
-            product = Product.objects.all().filter(
-                product_vendor__user=request.user, id=id).exists()
-            if product:
-                product = Product.objects.get(
-                    product_vendor__user=request.user, id=id)
-                product.PRDISDeleted = True
-                product.PRDISactive = False
-                try:
-                    product.save()
-                except Exception as e:
-                    messages.warning(request, "product You can't delete it !")
-                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-                messages.warning(request, ' Your Product has been deleted ')
-                return redirect('supplier_dashboard:supplier-products-list')
-            else:
-                messages.warning(
-                    request, "product You can't delete it !")
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    messages.warning(request, "product You can't delete it !")
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    """
+    Vue pour supprimer un produit (soft delete).
+    Marque le produit comme supprimé sans le supprimer définitivement de la base de données.
+    """
+    if not request.user.is_authenticated or request.user.is_anonymous or not id:
+        messages.warning(request, "Vous devez être connecté pour supprimer un produit")
+        return redirect('accounts:login')
+    
+    try:
+        produit = Product.objects.get(id=id)
+        
+        # Vérifier que le produit appartient au vendeur connecté
+        if produit.product_vendor.user.id != request.user.id:
+            messages.warning(
+                request, "Vous n'avez pas l'autorisation de supprimer ce produit")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        
+        # Soft delete : marquer comme supprimé et inactif
+        produit.PRDISDeleted = True
+        produit.PRDISactive = False
+        
+        try:
+            produit.save()
+            messages.success(
+                request, f'Le produit "{produit.product_name}" a été supprimé avec succès')
+            return redirect('supplier_dashboard:supplier-products-list')
+        except Exception as e:
+            messages.error(
+                request, f'Une erreur est survenue lors de la suppression : {str(e)}')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+            
+    except Product.DoesNotExist:
+        messages.warning(request, "Le produit demandé n'existe pas")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    except Exception as e:
+        messages.error(
+            request, f'Une erreur est survenue : {str(e)}')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @vendor_only
@@ -545,11 +613,11 @@ def supplier_edit_product(request, id):
             sub_category_obj = None
             mini_category_obj = None
 
-            product_name = request.POST['product_name']
-            introduction = request.POST['introduction']
-            content = request.POST['content']
-            price = request.POST['price']
-            discount = request.POST['discount']
+            product_name = request.POST.get('product_name', '')
+            introduction = request.POST.get('introduction', '')
+            content = request.POST.get('content', '')
+            price = request.POST.get('price', '0')
+            discount = request.POST.get('discount', '0')
             # description = request.POST['description']
             try:
                 super_category_value = request.POST['super_category_value']
@@ -622,22 +690,22 @@ def supplier_edit_product(request, id):
             # checkbox = request.POST['checkbox']
             # if checkbox:
             #     print("checkbox: ", checkbox)
-            available = request.POST['available']
-            pieces = request.POST['pieces']
-            promotional = request.POST['promotional']
+            available = request.POST.get('available', '0')
+            pieces = request.POST.get('pieces', '0')
+            promotional = request.POST.get('promotional', 'New')
 
-            product_status = int(request.POST['product_status'])
-            width = request.POST['width']
+            product_status = int(request.POST.get('product_status', '1'))
+            width = request.POST.get('width', '')
             if not width:
                 width = None
-            height = request.POST['height']
+            height = request.POST.get('height', '')
             if not height:
                 height = None
-            weight = request.POST['weight']
-            product_SKU = request.POST['SKU']
+            weight = request.POST.get('weight', '')
+            product_SKU = request.POST.get('SKU', '')
             if not product_SKU:
                 product_SKU = None
-            tags = request.POST['tags']
+            tags = request.POST.get('tags', '')
             if product_status == 1:
                 product_status = True
             else:
@@ -775,7 +843,8 @@ def supplier_edit_product(request, id):
             new_product_obj.PRDISactive = product_status
             new_product_obj.width = width
             new_product_obj.height = height
-            new_product_obj.PRDWeight = weight
+            # Note: Le champ PRDWeight n'existe pas dans le modèle Product
+            # Le poids n'est pas stocké pour le moment
             new_product_obj.PRDSKU = product_SKU
             new_product_obj.PRDtags = tags
             try:
@@ -808,8 +877,8 @@ def supplier_edit_product(request, id):
                         )
 
             messages.success(
-                request, 'Your Products Has Been Updated !')
-            return redirect('supplier_dashboard:supplier-products-list')
+                request, 'Votre produit a été modifié avec succès !')
+            return redirect('supplier_dashboard:supplier-add-product')
 
     # product_obj = Product.objects.get(id=id)
     if product_obj.product_vendor.user.id == request.user.id:
@@ -848,6 +917,13 @@ def supplier_edit_product(request, id):
         )
     except:
         mini_category = None
+    # Récupération du vendeur et des produits pour le header
+    vendor = Profile.objects.get(user=request.user)
+    products = Product.objects.filter(
+        product_vendor=vendor,
+        PRDISDeleted=False
+    ).order_by('-date')
+    
     # print(sub_category)
     context = {
         "product": product,
@@ -857,13 +933,19 @@ def supplier_edit_product(request, id):
         "main_category": main_category,
         "sub_category": sub_category,
         "mini_category": mini_category,
+        "vendor": vendor,
+        "products": products,
     }
     return render(request, 'supplier-panel/supplier-edit-product.html', context)
 
 
 @vendor_only
 def supplier_orders_list(request):
-    return render(request, 'supplier-panel/supplier-orders-list.html')
+    vendor = Profile.objects.get(user=request.user)
+    context = {
+        "vendor": vendor,
+    }
+    return render(request, 'supplier-panel/supplier-orders-list.html', context)
 
 
 class SupplierOrdersJsonListView(View):

@@ -55,17 +55,17 @@
 <!-- ===== Empty Cart Page FLAVORIZ Design ===== -->
 <main class="main pages" style="padding-top: 120px; padding-bottom: 120px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); display: flex; align-items: center; justify-content: center;">
     <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 24px; text-align: center;">
-        {% if messages %}
-        {% for message in messages %}
+                    {% if messages %}
+                        {% for message in messages %}
         <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 16px; border-radius: 10px; margin-bottom: 24px; font-size: 14px; max-width: 600px; margin-left: auto; margin-right: auto;">
             {{message}}
         </div>
         {% endfor %}
         {% endif %}
-        
+            
         <div style="margin-bottom: 40px;">
             <i class="fi-rs-shopping-cart" style="font-size: 120px; color: #D1D5DB; opacity: 0.5;"></i>
-        </div>
+                        </div>
         
         <h1 style="font-size: 36px; font-weight: 700; color: #1F2937; margin-bottom: 20px; font-family: var(--font-primary); line-height: 1.2;">Votre panier est vide</h1>
         <p style="font-size: 16px; color: #6B7280; margin-bottom: 40px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
@@ -75,7 +75,7 @@
             Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a>
             {% else %}
             Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a> ou <a href="{% url 'accounts:login' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">connectez-vous</a> pour voir les produits dans votre panier
-            {% endif %}
+                    {% endif %}
         </p>
         
         <a href="{% url 'categories:shop'%}" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; background: var(--color-orange); color: white; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
