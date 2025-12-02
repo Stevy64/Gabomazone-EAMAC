@@ -82,13 +82,13 @@
                                         <i class="material-icons">star</i>
                                         <i class="material-icons">star</i>
                                     </div>
-                                </div>
+        </div>
                                 <span class="rating-value-small">{{ review.rate }}/5</span>
                             {% else %}
                                 <span class="no-rating-small">Aucune note</span>
                             {% endif %}
-                        </div>
-                    </div>
+        </div>
+    </div>
                     <div class="review-item-body">
                         <p class="review-item-product">
                             <i class="material-icons">inventory_2</i>
@@ -106,7 +106,7 @@
                             {{ review.rating_date|date:"d M Y à H:i" }}
                         </span>
                         <span class="review-item-id">ID: #{{ review.id }}</span>
-                    </div>
+                </div>
                 </div>
                 <div class="review-item-arrow">
                     <i class="material-icons">chevron_right</i>
@@ -154,11 +154,11 @@
                     {% if num == reviews.number %}
                     <li class="pagination-item">
                         <span class="pagination-link active">{{ num }}</span>
-                    </li>
+                                    </li>
                     {% elif num > reviews.number|add:"-2" and num < reviews.number|add:"2" %}
                     <li class="pagination-item">
                         <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
-                    </li>
+                                    </li>
                     {% endif %}
                 {% endif %}
             {% endfor %}
@@ -166,7 +166,7 @@
             {% if reviews.number < reviews.paginator.num_pages|add:"-2" %}
             <li class="pagination-item">
                 <span class="pagination-dots">...</span>
-            </li>
+                </li>
             {% endif %}
             
             {% if reviews.paginator.num_pages > 1 %}
@@ -183,11 +183,11 @@
                     Suivant
                     <i class="material-icons">chevron_right</i>
                 </a>
-            </li>
+                </li>
             {% endif %}
-        </ul>
-    </nav>
-</div>
+            </ul>
+        </nav>
+    </div>
 {% endif %}
 
 <!-- Review Details Modal -->
@@ -1123,7 +1123,7 @@
 
 {%endblock section%}
 
-{%block script%}
+{%block script%} 
 <script>
     // Fonction pour ouvrir le modal de détails de l'avis
     function openReviewDetailsModal(reviewId) {

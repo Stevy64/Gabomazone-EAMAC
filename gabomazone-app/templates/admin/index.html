@@ -32,148 +32,133 @@
 
 {% block content %}
 <div id="content-main" class="container-fluid">
-    	<div class="row">
-            <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-info">
-                  <div class="inner">
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
                     <h3>{{request.user|underway_orders_count}}</h3>
-    
-                    <p>Underway Orders</p>
-                  </div>
-                  <div class="icon">
-                    <i class="ion ion-bag"></i>
-                  </div>
-                 
+                    <p>Commandes en cours</p>
                 </div>
-              </div>
-              <!-- ./col -->
-              <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-success">
-                  <div class="inner">
+                <div class="icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
                     <h3>{{request.user|all_orders_count}}</h3>
-    
-                    <p>All Orders</p>
-                  </div>
-                  <div class="icon">
-                    <i class="ion ion-stats-bars"></i>
-                  </div>
-                 
+                    <p>Toutes les commandes</p>
                 </div>
-              </div>
-              <!-- ./col -->
-              <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-warning">
-                  <div class="inner">
+                <div class="icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
                     <h3>{{request.user|all_users_count}}</h3>
-    
-                    <p>User Registrations</p>
-                  </div>
-                  <div class="icon">
-                    <i class="ion ion-person-add"></i>
-                  </div>
-                  
+                    <p>Inscriptions utilisateurs</p>
                 </div>
-              </div>
-              <!-- ./col -->
-              <div class="col-lg-3 col-6">
-                <!-- small box -->
-                <div class="small-box bg-danger">
-                  <div class="inner">
+                <div class="icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
                     <h3>{{request.user|all_products_count}}</h3>
-    
-                    <p>All Products</p>
-                  </div>
-                  <div class="icon">
-                    <i class="ion ion-pie-graph"></i>
-                  </div>
-               
+                    <p>Tous les produits</p>
                 </div>
-              </div>
-              <!-- ./col -->
+                <div class="icon">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
         </div>
+    </div>
     
-       <!-- chart -->
-        <div class="row">
-            <div class="col-xl-12 col-lg-12">
-                <div class="card mb-4">
-                    <article class="card-body">
-                        <h5 class="card-title">Sale statistics</h5>
-                        <canvas id="myChart" height="355" width="890" style="display: block; box-sizing: border-box; height: 284px; width: 712.4px;"></canvas>
-                    </article>
+    <!-- Chart -->
+    <div class="row mt-4">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        Statistiques de vente
+                    </h3>
                 </div>
-                
-            </div>
-   
-       
-
-
-        {% block sidebar %}
-
-        <div class="card card-widget col-md-12">
-            <div class="card-header ">
-                <h2 class="card-title">{% trans 'Recent actions' %} / </h2>
-                <h3 class="card-title"> {% trans 'My actions' %}</h3>
-                <h3 class="card-title"><a href="{{ app.app_url }}" class="nav-link"
-                        title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
-                </h3>
-
-                <div class="card-tools pull-right">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i>
-                    </button>
+                <div class="card-body">
+                    <canvas id="myChart" height="355" width="890" style="display: block; box-sizing: border-box; height: 284px; width: 712.4px;"></canvas>
                 </div>
-                <!-- /.box-tools -->
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        {% load log %}
-                        {% get_admin_log 10 as admin_log for_user user %}
-                        {% if not admin_log %}
-                        <p>{% trans 'None available' %}</p>
-                        {% else %}
-                        <div class="timeline">
-                            {% for entry in admin_log %}
-                            <div>
-                                <i
-                                    class="fas fa-{% if entry.is_addition %}plus bg-blue{% endif %}{% if entry.is_change %}edit bg-green{% endif %}{% if entry.is_deletion %}minus bg-red{% endif %} "></i>
-                                <div class="timeline-item">
-                                    <span class="time"><i class="fas fa-clock"></i> {{entry.action_time}}</span>
-
-                                    <div class="timeline-body">
-                                        <a href="#">{{entry.user}}</a>
-                                        {% if entry.is_addition %}added{% endif %}{% if entry.is_change %}edited
-                                        {% endif %}{% if entry.is_deletion %}deleted{% endif %}
-                                        {% if entry.is_deletion or not entry.get_admin_url %}
-                                        {{ entry.object_repr }}
-                                        {% else %}
-                                        <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
-                                        {% endif %}
-                                        <br />
-                                        {% if entry.content_type %}
-                                        <span class="mini quiet">{% filter capfirst %}
-                                            {{ entry.content_type }}{% endfilter %}</span>
-                                        {% else %}
-                                        <span class="mini quiet">{% trans 'Unknown content' %}</span>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-            </div>
-
         </div>
-
-        {% endblock %}
-
     </div>
 
+    {% block sidebar %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history mr-2"></i>
+                        {% trans 'Actions récentes' %} / {% trans 'Mes actions' %}
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% load log %}
+                    {% get_admin_log 10 as admin_log for_user user %}
+                    {% if not admin_log %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">{% trans 'Aucune action disponible' %}</p>
+                    </div>
+                    {% else %}
+                    <div class="timeline">
+                        {% for entry in admin_log %}
+                        <div>
+                            <i class="fas fa-{% if entry.is_addition %}plus-circle bg-info{% elif entry.is_change %}edit bg-success{% elif entry.is_deletion %}trash bg-danger{% endif %}"></i>
+                            <div class="timeline-item">
+                                <span class="time">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    {{entry.action_time|date:"d M Y à H:i"}}
+                                </span>
+                                <div class="timeline-body">
+                                    <strong><a href="#">{{entry.user}}</a></strong>
+                                    {% if entry.is_addition %}a ajouté{% elif entry.is_change %}a modifié{% elif entry.is_deletion %}a supprimé{% endif %}
+                                    {% if entry.is_deletion or not entry.get_admin_url %}
+                                    <strong>{{ entry.object_repr }}</strong>
+                                    {% else %}
+                                    <strong><a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a></strong>
+                                    {% endif %}
+                                    <br />
+                                    {% if entry.content_type %}
+                                    <span class="text-muted small">
+                                        <i class="fas fa-tag mr-1"></i>
+                                        {% filter capfirst %}{{ entry.content_type }}{% endfilter %}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-muted small">{% trans 'Contenu inconnu' %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
     {% endblock %}
+</div>
+{% endblock %}
