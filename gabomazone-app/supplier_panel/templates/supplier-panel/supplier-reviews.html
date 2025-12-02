@@ -3,115 +3,1276 @@
 
 {%block section %}
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title card-title">Reviews</h2>
-            <!-- <p>Lorem ipsum dolor sit amet.</p> -->
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Welcome Card -->
+<div class="reviews-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">rate_review</i>
         </div>
-        <div>
-            <!-- <input type="text" placeholder="Search by name" class="form-control bg-white" /> -->
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">star</i>
+                Avis clients
+            </h2>
+            <p>Gérez et consultez tous les avis de vos produits</p>
+            <p id="reviews-count" class="reviews-count">Vous avez <strong>{{ reviews.paginator.count }}</strong> avis au total</p>
         </div>
     </div>
-    <div class="card mb-4">
-        <!-- <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control" />
+</div>
+
+<!-- Reviews List (Compact) -->
+<div class="reviews-list-container">
+    {% if reviews %}
+        <div class="reviews-list-compact">
+            {% for review in reviews %}
+            <div class="review-list-item" 
+                 onclick="openReviewDetailsModal({{ review.id }})"
+                 data-review-id="{{ review.id }}"
+                 data-review-client="{{ review.client_name }}"
+                 data-review-date="{{ review.rating_date|date:'d M Y à H:i' }}"
+                 data-review-rate="{{ review.rate|default:0 }}"
+                 data-review-comment="{{ review.client_comment|default:'' }}"
+                 data-review-product-name="{{ review.PRDIProduct.product_name }}"
+                 data-review-product-slug="{{ review.PRDIProduct.PRDSlug }}"
+                 data-review-product-image="{% if review.PRDIProduct.product_image %}/media/{{ review.PRDIProduct.product_image }}{% else %}{% static 'assets-supplier/imgs/placeholder.png' %}{% endif %}">
+                <div class="review-item-avatar">
+                    <i class="material-icons">person</i>
                 </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
+                <div class="review-item-content">
+                    <div class="review-item-header">
+                        <h3 class="review-item-name">{{ review.client_name }}</h3>
+                        <div class="review-item-rating">
+                            {% if review.rate %}
+                                {% widthratio review.rate 1 20 as rating_percent %}
+                                <div class="stars-container-small">
+                                    <div class="stars-background-small">
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                    </div>
+                                    <div class="stars-fill-small" style="width: {{ rating_percent }}%;">
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                        <i class="material-icons">star</i>
+                                    </div>
+                                </div>
+                                <span class="rating-value-small">{{ review.rate }}/5</span>
+                            {% else %}
+                                <span class="no-rating-small">Aucune note</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="review-item-body">
+                        <p class="review-item-product">
+                            <i class="material-icons">inventory_2</i>
+                            {{ review.PRDIProduct.product_name|truncatewords:8 }}
+                        </p>
+                        {% if review.client_comment %}
+                        <p class="review-item-comment">{{ review.client_comment|truncatewords:15 }}</p>
+                        {% else %}
+                        <p class="review-item-comment-empty">Aucun commentaire</p>
+                        {% endif %}
+                    </div>
+                    <div class="review-item-footer">
+                        <span class="review-item-date">
+                            <i class="material-icons">schedule</i>
+                            {{ review.rating_date|date:"d M Y à H:i" }}
+                        </span>
+                        <span class="review-item-id">ID: #{{ review.id }}</span>
+                    </div>
                 </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Show 20</option>
-                        <option>Show 30</option>
-                        <option>Show 40</option>
-                    </select>
+                <div class="review-item-arrow">
+                    <i class="material-icons">chevron_right</i>
                 </div>
             </div>
-        </header> -->
-        <!-- card-header end// -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            
-                            <th>#ID</th>
-                            <th>Product</th>
-                            <th>Name</th>
-                            <th>Rating</th>
-                            <th>Date</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%for review in reviews%}
-                        <tr>
-                            
-                            <td>{{review.id}}</td>
-                            <td> <a href="{%url 'products:product-details' review.PRDIProduct.PRDSlug %}" target="_blank">{{review.PRDIProduct.product_name}}</a></td>
-                            <td>{{review.client_name}}</td>
-                            <td>
-                                <ul class="rating-stars">
-                                    <li style="width: {{review.PRDIProduct.feedbak_average}}%" class="stars-active">
-                                        <img src="{% static 'assets-supplier/imgs/icons/stars-active.svg'%}" alt="stars" />
-                                    </li>
-                                    <li>
-                                        <img src="{% static 'assets-supplier/imgs/icons/starts-disable.svg'%}" alt="stars" />
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>{{review.rating_date}}</td>
-                            <td class="text-end">
-                                <a href="{%url 'products:product-details' review.PRDIProduct.PRDSlug %}" class="btn btn-md rounded font-sm">View</a>
-                            
-                            </td>
-                        </tr>
-                     {%endfor%}
-                    </tbody>
-                </table>
-            </div>
-            <!-- table-responsive//end -->
+            {% endfor %}
         </div>
-        <!-- card-body end// -->
+    {% else %}
+        <div class="empty-reviews">
+            <div class="empty-icon">
+                <i class="material-icons">rate_review</i>
+            </div>
+            <h3>Aucun avis pour le moment</h3>
+            <p>Les avis de vos clients apparaîtront ici</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% if reviews.has_other_pages %}
+<div class="modern-pagination">
+    <nav aria-label="Page navigation">
+        <ul class="pagination-list">
+            {% if reviews.has_previous %}
+            <li class="pagination-item">
+                <a href="?page={{ reviews.previous_page_number }}" class="pagination-link pagination-prev">
+                    <i class="material-icons">chevron_left</i>
+                    Précédent
+                </a>
+            </li>
+            {% endif %}
+            
+            <li class="pagination-item">
+                <a href="?page=1" class="pagination-link {% if reviews.number == 1 %}active{% endif %}">1</a>
+            </li>
+            
+            {% if reviews.number > 3 %}
+            <li class="pagination-item">
+                <span class="pagination-dots">...</span>
+            </li>
+            {% endif %}
+            
+            {% for num in reviews.paginator.page_range %}
+                {% if num > 1 and num < reviews.paginator.num_pages %}
+                    {% if num == reviews.number %}
+                    <li class="pagination-item">
+                        <span class="pagination-link active">{{ num }}</span>
+                    </li>
+                    {% elif num > reviews.number|add:"-2" and num < reviews.number|add:"2" %}
+                    <li class="pagination-item">
+                        <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if reviews.number < reviews.paginator.num_pages|add:"-2" %}
+            <li class="pagination-item">
+                <span class="pagination-dots">...</span>
+            </li>
+            {% endif %}
+            
+            {% if reviews.paginator.num_pages > 1 %}
+            <li class="pagination-item">
+                <a href="?page={{ reviews.paginator.num_pages }}" class="pagination-link {% if reviews.number == reviews.paginator.num_pages %}active{% endif %}">
+                    {{ reviews.paginator.num_pages }}
+                </a>
+            </li>
+            {% endif %}
+            
+            {% if reviews.has_next %}
+            <li class="pagination-item">
+                <a href="?page={{ reviews.next_page_number }}" class="pagination-link pagination-next">
+                    Suivant
+                    <i class="material-icons">chevron_right</i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<!-- Review Details Modal -->
+<div id="reviewDetailsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container review-details-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">rate_review</i>
+                Détails de l'avis
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeReviewDetailsModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body" id="reviewDetailsContent">
+            <!-- Le contenu sera chargé dynamiquement via JavaScript -->
+        </div>
     </div>
-    {%if reviews.has_other_pages %}
-    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                {%if reviews.has_previous%}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{reviews.previous_page_number}}"><i class="material-icons md-chevron_left"></i></a>
-                </li>
-                {%endif%}
-                <li class="page-item active"><a class="page-link" href="#">{{reviews.number}}</a></li>
-                {%if reviews.paginator.num_pages > reviews.number  %}
-                
-                <li class="page-item"><a class="page-link" href="?page={{reviews.number|add:1}}">{{reviews.number|add:1}}</a></li>
-                {%endif%}
-                 <!-- <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                
-                <li class="page-item"><a class="page-link" href="?page={{reviews.paginator.num_pages}}">{{reviews.paginator.num_pages}}</a></li>
-                {%if reviews.has_next%}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{reviews.next_page_number}}"><i class="material-icons md-chevron_right"></i></a>
-                </li>
-                {%endif%}
-            </ul>
-        </nav>
-    </div>
-    {%endif%}
-</section>
+</div>
+
+<style>
+    /* Welcome Card */
+    .reviews-welcome-card {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        color: white;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0 0 6px 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    .welcome-text strong {
+        color: #FCD34D;
+        font-weight: 700;
+    }
+    
+    .reviews-count {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Reviews List Container */
+    .reviews-list-container {
+        margin-bottom: 32px;
+    }
+    
+    .reviews-list-compact {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    /* Review List Item (Compact) */
+    .review-list-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        border: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        cursor: pointer;
+    }
+    
+    @media (max-width: 768px) {
+        .review-list-item {
+            padding: 12px;
+            gap: 12px;
+            border-radius: 10px;
+        }
+        
+        .review-item-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+        }
+        
+        .review-item-avatar i {
+            font-size: 22px;
+        }
+        
+        .review-item-name {
+            font-size: 15px;
+        }
+        
+        .review-item-header {
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+        
+        .review-item-body {
+            margin-bottom: 8px;
+        }
+        
+        .review-item-product {
+            font-size: 13px;
+            margin: 0 0 6px 0;
+        }
+        
+        .review-item-product i {
+            font-size: 16px;
+        }
+        
+        .review-item-comment,
+        .review-item-comment-empty {
+            font-size: 12px;
+        }
+        
+        .review-item-footer {
+            padding-top: 8px;
+            gap: 6px;
+        }
+        
+        .review-item-date {
+            font-size: 11px;
+        }
+        
+        .review-item-date i {
+            font-size: 14px;
+        }
+        
+        .review-item-id {
+            font-size: 11px;
+        }
+        
+        .review-item-arrow {
+            font-size: 20px;
+        }
+        
+        .stars-container-small {
+            font-size: 14px;
+        }
+        
+        .stars-background-small i,
+        .stars-fill-small i {
+            font-size: 14px;
+        }
+        
+        .rating-value-small {
+            font-size: 12px;
+        }
+    }
+    
+    .review-list-item:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+        border-color: #6B46C1;
+    }
+    
+    .review-item-avatar {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .review-item-avatar i {
+        font-size: 28px;
+        color: white;
+    }
+    
+    .review-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .review-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        gap: 16px;
+    }
+    
+    .review-item-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+    }
+    
+    .review-item-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    
+    .stars-container-small {
+        position: relative;
+        display: inline-flex;
+        font-size: 16px;
+        line-height: 1;
+    }
+    
+    .stars-background-small {
+        display: flex;
+        gap: 2px;
+        color: #E5E7EB;
+    }
+    
+    .stars-fill-small {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        gap: 2px;
+        overflow: hidden;
+        color: #FCD34D;
+    }
+    
+    .stars-background-small i,
+    .stars-fill-small i {
+        font-size: 16px;
+    }
+    
+    .rating-value-small {
+        font-size: 13px;
+        font-weight: 700;
+        color: #6B7280;
+    }
+    
+    .no-rating-small {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-style: italic;
+    }
+    
+    .review-item-body {
+        margin-bottom: 12px;
+    }
+    
+    .review-item-product {
+        font-size: 15px;
+        font-weight: 600;
+        color: #6B46C1;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .review-item-product i {
+        font-size: 18px;
+    }
+    
+    .review-item-comment {
+        font-size: 14px;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .review-item-comment-empty {
+        font-size: 14px;
+        color: #9CA3AF;
+        font-style: italic;
+        margin: 0;
+    }
+    
+    .review-item-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 12px;
+        border-top: 1px solid #F3F4F6;
+    }
+    
+    .review-item-date {
+        font-size: 13px;
+        color: #6B7280;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .review-item-date i {
+        font-size: 16px;
+    }
+    
+    .review-item-id {
+        font-size: 12px;
+        color: #9CA3AF;
+        font-weight: 500;
+    }
+    
+    .review-item-arrow {
+        color: #9CA3AF;
+        font-size: 24px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .review-list-item:hover .review-item-arrow {
+        transform: translateX(4px);
+        color: #6B46C1;
+    }
+    
+    /* Empty State */
+    .empty-reviews {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 24px;
+        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-icon i {
+        font-size: 64px;
+        color: #9CA3AF;
+    }
+    
+    .empty-reviews h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .empty-reviews p {
+        font-size: 16px;
+        color: #6B7280;
+        margin: 0;
+    }
+    
+    /* Modern Pagination */
+    .modern-pagination {
+        margin-top: 32px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .pagination-list {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .pagination-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        color: #6B7280;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        min-width: 44px;
+        justify-content: center;
+    }
+    
+    .pagination-link:hover {
+        border-color: #6B46C1;
+        color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .pagination-link.active {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-color: #6B46C1;
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .pagination-link.active:hover {
+        background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%);
+    }
+    
+    .pagination-dots {
+        padding: 10px 8px;
+        color: #9CA3AF;
+        font-size: 14px;
+    }
+    
+    .pagination-prev,
+    .pagination-next {
+        padding: 10px 20px;
+    }
+    
+    .pagination-link i {
+        font-size: 20px;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 480px;
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    .review-details-modal {
+        max-width: 480px;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 16px 20px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .modal-header h2 i {
+        color: #6B46C1;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 16px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    /* Review Details Card in Modal */
+    .review-details-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .review-details-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .review-details-avatar {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .review-details-avatar i {
+        font-size: 22px;
+        color: white;
+    }
+    
+    .review-details-user {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .review-details-user-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 4px 0;
+    }
+    
+    .review-details-date {
+        font-size: 12px;
+        color: #6B7280;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+    }
+    
+    .review-details-date i {
+        font-size: 14px;
+    }
+    
+    /* Rating Section - Mise en valeur */
+    .review-details-rating-section {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        border-radius: 10px;
+        padding: 12px 14px;
+        border: 2px solid #FCD34D;
+        margin: 0;
+    }
+    
+    .review-details-rating-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #92400E;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .review-details-rating-label i {
+        font-size: 14px;
+    }
+    
+    .review-details-rating {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .stars-container-large {
+        position: relative;
+        display: inline-flex;
+        font-size: 18px;
+        line-height: 1;
+    }
+    
+    .stars-background-large {
+        display: flex;
+        gap: 3px;
+        color: #E5E7EB;
+    }
+    
+    .stars-fill-large {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        gap: 3px;
+        overflow: hidden;
+        color: #F59E0B;
+    }
+    
+    .stars-background-large i,
+    .stars-fill-large i {
+        font-size: 18px;
+    }
+    
+    .rating-value-large {
+        font-size: 16px;
+        font-weight: 700;
+        color: #92400E;
+        background: white;
+        padding: 3px 8px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .review-details-product {
+        padding: 12px;
+        background: #F9FAFB;
+        border-radius: 10px;
+        border: 2px solid #F3F4F6;
+    }
+    
+    .review-details-product-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .review-details-product-header i {
+        font-size: 20px;
+        color: #6B46C1;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    .review-details-product-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .review-details-product-label {
+        font-size: 11px;
+        color: #6B7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px 0;
+    }
+    
+    .review-details-product-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+    }
+    
+    .review-details-product-image {
+        width: 100%;
+        max-width: 160px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .review-details-product-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        background: white;
+        border: 2px solid #6B46C1;
+        border-radius: 8px;
+        color: #6B46C1;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .review-details-product-link:hover {
+        background: #6B46C1;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .review-details-product-link i {
+        font-size: 16px;
+    }
+    
+    /* Comment Section - Mise en valeur */
+    .review-details-comment {
+        padding: 12px;
+        background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+        border-radius: 10px;
+        border: 2px solid #818CF8;
+        box-shadow: 0 4px 12px rgba(129, 140, 248, 0.15);
+    }
+    
+    .review-details-comment-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #4C1D95;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .review-details-comment-label i {
+        font-size: 14px;
+        color: #6B46C1;
+    }
+    
+    .review-details-comment-text {
+        font-size: 13px;
+        line-height: 1.6;
+        color: #1E293B;
+        margin: 0;
+        font-weight: 500;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+        border-left: 4px solid #6B46C1;
+    }
+    
+    .review-details-comment-empty {
+        font-size: 13px;
+        color: #64748B;
+        font-style: italic;
+        margin: 0;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .review-details-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding-top: 10px;
+        border-top: 2px solid #F3F4F6;
+    }
+    
+    .review-details-id {
+        font-size: 11px;
+        color: #9CA3AF;
+        font-weight: 500;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .reviews-welcome-card {
+            padding: 24px;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .welcome-icon {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .welcome-icon i {
+            font-size: 32px;
+        }
+        
+        .welcome-text h2 {
+            font-size: 22px;
+            justify-content: center;
+        }
+        
+        .modal-container {
+            max-width: 95%;
+            max-height: 90vh;
+        }
+        
+        .modal-header {
+            padding: 12px 16px;
+        }
+        
+        .modal-header h2 {
+            font-size: 16px;
+        }
+        
+        .modal-body {
+            padding: 12px;
+        }
+        
+        .review-details-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+        
+        .review-details-rating-section {
+            padding: 12px;
+        }
+        
+        .review-details-rating {
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stars-container-large {
+            font-size: 18px;
+        }
+        
+        .stars-background-large i,
+        .stars-fill-large i {
+            font-size: 18px;
+        }
+        
+        .rating-value-large {
+            font-size: 16px;
+        }
+        
+        .review-details-comment {
+            padding: 14px;
+        }
+        
+        .review-details-comment-text {
+            font-size: 13px;
+        }
+        
+        .review-details-product-image {
+            max-width: 100%;
+        }
+        
+        .review-details-product-header {
+            flex-direction: column;
+        }
+        
+        .review-details-product-content {
+            width: 100%;
+        }
+        
+        .pagination-list {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination-link {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        .pagination-prev,
+        .pagination-next {
+            padding: 8px 16px;
+        }
+    }
+</style>
 
 {%endblock section%}
 
-{%block script%} 
+{%block script%}
+<script>
+    // Fonction pour ouvrir le modal de détails de l'avis
+    function openReviewDetailsModal(reviewId) {
+        const reviewItem = document.querySelector(`[data-review-id="${reviewId}"]`);
+        if (!reviewItem) return;
+        
+        const modal = document.getElementById('reviewDetailsModal');
+        const content = document.getElementById('reviewDetailsContent');
+        
+        if (!modal || !content) return;
+        
+        // Récupérer les données depuis les attributs data
+        const clientName = reviewItem.getAttribute('data-review-client') || 'Client';
+        const date = reviewItem.getAttribute('data-review-date') || '';
+        const rate = parseInt(reviewItem.getAttribute('data-review-rate')) || 0;
+        const comment = reviewItem.getAttribute('data-review-comment') || '';
+        const productName = reviewItem.getAttribute('data-review-product-name') || '';
+        const productSlug = reviewItem.getAttribute('data-review-product-slug') || '';
+        const productImage = reviewItem.getAttribute('data-review-product-image') || '';
+        
+        // Calculer le pourcentage pour les étoiles
+        const ratingPercent = rate * 20;
+        
+        // Construire le HTML du rating avec mise en valeur
+        let ratingSectionHTML = '';
+        if (rate > 0) {
+            ratingSectionHTML = `
+                <div class="review-details-rating-section">
+                    <p class="review-details-rating-label">
+                        <i class="material-icons">star</i>
+                        Note attribuée
+                    </p>
+                    <div class="review-details-rating">
+                        <div class="stars-container-large">
+                            <div class="stars-background-large">
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                            </div>
+                            <div class="stars-fill-large" style="width: ${ratingPercent}%;">
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                                <i class="material-icons">star</i>
+                            </div>
+                        </div>
+                        <span class="rating-value-large">${rate}/5</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            ratingSectionHTML = `
+                <div class="review-details-rating-section" style="background: #F3F4F6; border-color: #D1D5DB;">
+                    <p class="review-details-rating-label" style="color: #6B7280;">
+                        <i class="material-icons">star_border</i>
+                        Aucune note
+                    </p>
+                </div>
+            `;
+        }
+        
+        const commentHTML = comment 
+            ? `<p class="review-details-comment-text">${comment}</p>`
+            : `<p class="review-details-comment-empty">Aucun commentaire</p>`;
+        
+        const productImageHTML = productImage 
+            ? `<img src="${productImage}" alt="${productName}" class="review-details-product-image" />`
+            : '';
+        
+        // Construire l'URL du produit
+        const productLink = productSlug 
+            ? `/product-details/${productSlug}/`
+            : '#';
+        
+        content.innerHTML = `
+            <div class="review-details-card">
+                <div class="review-details-header">
+                    <div class="review-details-avatar">
+                        <i class="material-icons">person</i>
+                    </div>
+                    <div class="review-details-user">
+                        <h3 class="review-details-user-name">${clientName}</h3>
+                        <p class="review-details-date">
+                            <i class="material-icons">schedule</i>
+                            ${date}
+                        </p>
+                    </div>
+                </div>
+                
+                ${ratingSectionHTML}
+                
+                <div class="review-details-product">
+                    <div class="review-details-product-header">
+                        <i class="material-icons">inventory_2</i>
+                        <div class="review-details-product-content">
+                            <p class="review-details-product-label">Produit</p>
+                            <h4 class="review-details-product-name">${productName}</h4>
+                            ${productImageHTML}
+                            <a href="${productLink}" target="_blank" class="review-details-product-link">
+                                <i class="material-icons">visibility</i>
+                                Voir le produit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="review-details-comment">
+                    <h4 class="review-details-comment-label">
+                        <i class="material-icons">comment</i>
+                        Commentaire
+                    </h4>
+                    ${commentHTML}
+                </div>
+                
+                <div class="review-details-footer">
+                    <span class="review-details-id">ID: #${reviewId}</span>
+                </div>
+            </div>
+        `;
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Fonction pour fermer le modal
+    function closeReviewDetailsModal() {
+        const modal = document.getElementById('reviewDetailsModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('reviewDetailsModal');
+        if (modal && e.target === modal) {
+            closeReviewDetailsModal();
+        }
+    });
+    
+    // Fermer le modal avec la touche Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeReviewDetailsModal();
+        }
+    });
+</script>
 {%endblock script%}

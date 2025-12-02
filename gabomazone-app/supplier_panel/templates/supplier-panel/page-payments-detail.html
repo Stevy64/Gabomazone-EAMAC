@@ -3,233 +3,2545 @@
 
 {%block section %}
 
-<section class="content-main">
-    <div class="content-header">
-        <a href="javascript:history.back()"><i class="material-icons md-arrow_back"></i> Go back </a>
-    </div>
-    <div class="card mb-4">
-        {% if messages %}
-        {% for message in messages %}
-
-        <div    class="alert align-middle alert-{{message.tags}}">
-           
-            <span class="align-middle"> {{message}}</span>
-        </div>
-
-        {% endfor %}
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
-        <div class="card-body">
-            
-            <!-- card-body.// -->
-            
-            <div class="row g-4">
-                <div class="col-md-12 col-lg-4 col-xl-2">
-                    <article class="box">
-                        <p class="mb-0 text-muted">Balance:</p>
-                        <h5 class="text-success">${{vendor.blance|floatformat:"2"}}</h5>
-                        <p class="mb-0 text-muted">Last Requested:</p>
-                        <h5 class="text-success mb-0">${{vendor.requested|floatformat:"2"}}</h5>
-                    </article>
-                </div>
-                <!--  col.// -->
-                 
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <!-- <h6>Contacts</h6> -->
-                    <p>
-                        Bank Name: {{bank_info_obj.bank_name}}<br />
-                        Account Number: {{bank_info_obj.account_number}} <br />
-                        Swift Code: {{bank_info_obj.swift_code}}
-                    </p>
-                </div>
-                <!--  col.// -->
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <!-- <h6>Address</h6> -->
-                    <p>
-                        Country: {{bank_info_obj.country}} <br />
-                        Account Name: {{bank_info_obj.account_name}} <br />
-                        Paypal Email: {{bank_info_obj.paypal_email}}
-                    </p>
-                </div>
-                <!--  col.// -->
-                <div class="col-sm-6 col-xl-4 text-xl-end">
-                    <map class="mapbox position-relative d-inline-block">
-                        <a href="#payment_request_modal" class="btn btn-primary request_btn" data-bs-toggle="modal">Payment Request <i class="material-icons md-launch"></i> </a>
-
-                    </map>
-                </div>
-                <!--  col.// -->
-            </div>
-            <!--  row.// -->
-        </div>
-        <!--  card-body.// -->
     </div>
-    <!--  card.// -->
-    <div class="card mb-4">
-        <!-- <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control" />
-                </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Show 20</option>
-                        <option>Show 30</option>
-                        <option>Show 40</option>
-                    </select>
-                </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Welcome Card -->
+<div class="payments-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">account_balance_wallet</i>
+        </div>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">monetization_on</i>
+                Gestion des paiements
+            </h2>
+            <p>Suivez vos entrées/sorties, recettes et gérez votre portefeuille</p>
+        </div>
+    </div>
+        </div>
+
+<!-- Financial Overview Cards -->
+<div class="financial-overview">
+    <div class="financial-card balance-card clickable-card" onclick="openBalanceModal()">
+        <div class="financial-card-header">
+            <div class="financial-card-icon">
+                <i class="material-icons">account_balance</i>
             </div>
-        </header> -->
-        <!-- card-header end// -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+            <div class="financial-card-label">Solde disponible</div>
+        </div>
+        <div class="financial-card-value">{{vendor.blance|floatformat:0}} FCFA</div>
+        <div class="financial-card-footer">
+            <i class="material-icons">trending_up</i>
+            <span>Montant total disponible</span>
+            <i class="material-icons click-indicator">arrow_forward</i>
+        </div>
+    </div>
+    
+    <div class="financial-card requested-card clickable-card" onclick="openRequestedModal()">
+        <div class="financial-card-header">
+            <div class="financial-card-icon">
+                <i class="material-icons">pending_actions</i>
+            </div>
+            <div class="financial-card-label">Dernière demande</div>
+        </div>
+        <div class="financial-card-value">{{vendor.requested|floatformat:0}} FCFA</div>
+        <div class="financial-card-footer">
+            <i class="material-icons">schedule</i>
+            <span>En attente de traitement</span>
+            <i class="material-icons click-indicator">arrow_forward</i>
+        </div>
+    </div>
+    
+    <div class="financial-card total-card clickable-card" onclick="openTransactionsModal()">
+        <div class="financial-card-header">
+            <div class="financial-card-icon">
+                <i class="material-icons">payments</i>
+            </div>
+            <div class="financial-card-label">Total transactions</div>
+        </div>
+        <div class="financial-card-value">{{payments.paginator.count}}</div>
+        <div class="financial-card-footer">
+            <i class="material-icons">receipt_long</i>
+            <span>Historique complet</span>
+            <i class="material-icons click-indicator">arrow_forward</i>
+        </div>
+    </div>
+    
+    <div class="financial-card revenue-card clickable-card" onclick="openRevenueModal()">
+        <div class="financial-card-header">
+            <div class="financial-card-icon">
+                <i class="material-icons">attach_money</i>
+            </div>
+            <div class="financial-card-label">Récettes</div>
+        </div>
+        <div class="financial-card-value">{{total_revenue|floatformat:0}} FCFA</div>
+        <div class="financial-card-footer">
+            <i class="material-icons">bar_chart</i>
+            <span>Total des ventes</span>
+            <i class="material-icons click-indicator">arrow_forward</i>
+        </div>
+    </div>
+</div>
+
+<!-- Bank Information Card -->
+{% if bank_info_obj %}
+<div class="bank-info-card">
+    <div class="bank-info-header">
+        <div class="bank-info-title">
+            <i class="material-icons">account_balance</i>
+            <h3>Informations bancaires</h3>
+        </div>
+        <button class="btn-request-payment" onclick="openPaymentRequestModal()">
+            <i class="material-icons">send</i>
+            Demander un paiement
+        </button>
+    </div>
+    <div class="bank-info-content">
+        <div class="bank-info-grid">
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">business</i>
+                    <span>Banque</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.bank_name|default:"Non renseigné"}}</div>
+            </div>
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">credit_card</i>
+                    <span>Numéro de compte</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.account_number|default:"Non renseigné"}}</div>
+            </div>
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">code</i>
+                    <span>Code Swift</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.swift_code|default:"Non renseigné"}}</div>
+            </div>
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">person</i>
+                    <span>Titulaire du compte</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.account_name|default:"Non renseigné"}}</div>
+            </div>
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">public</i>
+                    <span>Pays</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.country|default:"Non renseigné"}}</div>
+            </div>
+            <div class="bank-info-item">
+                <div class="bank-info-label">
+                    <i class="material-icons">email</i>
+                    <span>Email PayPal</span>
+                </div>
+                <div class="bank-info-value">{{bank_info_obj.paypal_email|default:"Non renseigné"}}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Transactions Table -->
+<div class="transactions-card-modern">
+    <div class="transactions-header">
+        <div class="transactions-title">
+            <i class="material-icons">history</i>
+            <h3>Historique des transactions</h3>
+        </div>
+    </div>
+    <div class="transactions-content">
+        {% if payments %}
+        <div class="transactions-table-container">
+            <table class="transactions-table">
                     <thead>
                         <tr>
-                            <th>Transaction ID</th>
-                            <th>Amount</th>
-                            <th>FEE</th>
-                            <th>Method</th>
-                            <th>Status</th>
+                        <th>ID Transaction</th>
+                        <th>Montant</th>
+                        <th>Frais</th>
+                        <th>Méthode</th>
+                        <th>Statut</th>
                             <th>Date</th>
-                            <th>Comment</th>
-                            <!-- <th class="text-end">Action</th> -->
+                        <th>Commentaire</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for payment in payments%}
-                        <tr>
-                            <td>#{{payment.id}}</td>
-                            <td>${{payment.request_amount}}</td>
-                            <td>${{payment.fee}}</td>
-                            <td>
-                                {% if payment.method == "Paypal"%}
-                                <div class="icontext">
-                                    <img class="icon border" src="{% static 'assets-supplier/imgs/card-brands/3.png' %}" alt="Paypal">
-                                    <span class="text text-muted">{{payment.method}}</span>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>
+                            <div class="transaction-id">
+                                <i class="material-icons">receipt</i>
+                                <span>#{{payment.id}}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="transaction-amount">
+                                <strong>{{payment.request_amount|floatformat:0}} FCFA</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="transaction-fee">
+                                <span>{{payment.fee|floatformat:0}} FCFA</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="transaction-method">
+                                {% if payment.method == "Paypal" %}
+                                <div class="method-badge method-paypal">
+                                    <i class="material-icons">account_balance_wallet</i>
+                                    <span>PayPal</span>
                                 </div>
-                                {%else%}
-                                <div class="icontext">
-                                    <img class="icon border" src="{% static 'assets-supplier/imgs/card-brands/5.png' %}" alt="Bank">
-                                    <span class="text text-muted">{{payment.method}}</span>
+                                {% else %}
+                                <div class="method-badge method-bank">
+                                    <i class="material-icons">account_balance</i>
+                                    <span>Banque</span>
                                 </div>
-                                {%endif%}
+                                {% endif %}
+                            </div>
                             </td>
                             <td>
                                 {% if payment.status == "Paid" %}
-                                    <span class="badge rounded-pill alert-success">{{payment.status}}</span>
-                                {%elif payment.status == "Pending" %}
-                                    <span class="badge rounded-pill badge-soft-info">{{payment.status}}</span>
-                                {%elif payment.status == "Progressing" %}
-                                    <span class="badge rounded-pill badge-soft-warning">{{payment.status}}</span>
-                                {%else%}    
-                                <span class="badge rounded-pill badge-soft-danger">{{payment.status}}</span>
-                                {%endif%}
+                                <span class="status-badge status-paid">
+                                    <i class="material-icons">check_circle</i>
+                                    Payé
+                                </span>
+                            {% elif payment.status == "Pending" %}
+                                <span class="status-badge status-pending">
+                                    <i class="material-icons">schedule</i>
+                                    En attente
+                                </span>
+                            {% elif payment.status == "Progressing" %}
+                                <span class="status-badge status-progressing">
+                                    <i class="material-icons">sync</i>
+                                    En cours
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-refunded">
+                                    <i class="material-icons">undo</i>
+                                    Remboursé
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="transaction-date">
+                                <i class="material-icons">calendar_today</i>
+                                <span>{{payment.date|date:"d M Y à H:i"}}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="transaction-comment">
+                                {% if payment.comment %}
+                                    <span class="comment-text">{{payment.comment|truncatewords:8}}</span>
+                                {% else %}
+                                    <span class="comment-empty">-</span>
+                                {% endif %}
+                            </div>
                             </td>
-                            <td>{{payment.date}}</td>
-                            {%if payment.comment %}
-                            <td>{{payment.comment}}</td>
-                            {%else%}
-                            <td></td>
-                            {%endif%}
-                            <!-- <td class="text-end">
-                                <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15">View details</a>
-                            </td> -->
                         </tr>
-                      {%endfor%}
-                        
+                    {% endfor %}
                     </tbody>
                 </table>
-                <!-- table-responsive.// -->
-            </div>
         </div>
-        <!-- card-body end// -->
+        {% else %}
+        <div class="empty-transactions">
+            <div class="empty-icon">
+                <i class="material-icons">receipt_long</i>
+            </div>
+            <h3>Aucune transaction</h3>
+            <p>Vos transactions apparaîtront ici une fois que vous aurez effectué des demandes de paiement.</p>
+        </div>
+        {% endif %}
     </div>
-    <!--  card.// -->
-    {%if payments.has_other_pages %}
-    <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                {%if payments.has_previous%}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{payments.previous_page_number}}"><i class="material-icons md-chevron_left"></i></a>
+</div>
+
+<!-- Pagination -->
+{% if payments.has_other_pages %}
+<div class="modern-pagination">
+    <nav aria-label="Page navigation">
+        <ul class="pagination-list">
+            {% if payments.has_previous %}
+            <li class="pagination-item">
+                <a href="?page={{ payments.previous_page_number }}" class="pagination-link pagination-prev">
+                    <i class="material-icons">chevron_left</i>
+                    Précédent
+                </a>
+            </li>
+            {% endif %}
+            
+            <li class="pagination-item">
+                <a href="?page=1" class="pagination-link {% if payments.number == 1 %}active{% endif %}">1</a>
+            </li>
+            
+            {% if payments.number > 3 %}
+            <li class="pagination-item">
+                <span class="pagination-dots">...</span>
+            </li>
+            {% endif %}
+            
+            {% for num in payments.paginator.page_range %}
+                {% if num > 1 and num < payments.paginator.num_pages %}
+                    {% if num == payments.number %}
+                    <li class="pagination-item">
+                        <span class="pagination-link active">{{ num }}</span>
+                    </li>
+                    {% elif num > payments.number|add:"-2" and num < payments.number|add:"2" %}
+                    <li class="pagination-item">
+                        <a href="?page={{ num }}" class="pagination-link">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if payments.number < payments.paginator.num_pages|add:"-2" %}
+            <li class="pagination-item">
+                <span class="pagination-dots">...</span>
                 </li>
-                {%endif%}
-                <li class="page-item active"><a class="page-link" href="#">{{payments.number}}</a></li>
-                {%if payments.paginator.num_pages > payments.number  %}
-                
-                <li class="page-item"><a class="page-link" href="?page={{payments.number|add:1}}">{{payments.number|add:1}}</a></li>
-                {%endif%}
-                 <!-- <li class="page-item"><a class="page-link" href="#">3</a></li> -->
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                
-                <li class="page-item"><a class="page-link" href="?page={{payments.paginator.num_pages}}">{{payments.paginator.num_pages}}</a></li>
-                {%if payments.has_next%}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{payments.next_page_number}}"><i class="material-icons md-chevron_right"></i></a>
+            {% endif %}
+            
+            {% if payments.paginator.num_pages > 1 %}
+            <li class="pagination-item">
+                <a href="?page={{ payments.paginator.num_pages }}" class="pagination-link {% if payments.number == payments.paginator.num_pages %}active{% endif %}">
+                    {{ payments.paginator.num_pages }}
+                </a>
+            </li>
+            {% endif %}
+            
+            {% if payments.has_next %}
+            <li class="pagination-item">
+                <a href="?page={{ payments.next_page_number }}" class="pagination-link pagination-next">
+                    Suivant
+                    <i class="material-icons">chevron_right</i>
+                </a>
                 </li>
-                {%endif%}
+            {% endif %}
             </ul>
         </nav>
     </div>
-    {%endif%} 
-</section>
+{% endif %}
 
-		<!-- Payment Request Moodal -->
+<!-- Billing Section for Subscriptions and Boosts -->
+<div class="billing-section-modern">
+    <div class="billing-section-header-modern">
+        <div class="billing-header-content">
+            <div class="billing-header-icon">
+                <i class="material-icons">receipt_long</i>
+            </div>
+            <div class="billing-header-text">
+                <h3>Facturation des services</h3>
+                <p>Gérez vos abonnements et boosts de produits</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="billing-cards-container">
+        <!-- Subscription Card -->
+        <div class="billing-card-modern subscription-card">
+            <div class="billing-card-header-modern">
+                <div class="billing-card-icon-wrapper premium-icon">
+                    <i class="material-icons">workspace_premium</i>
+                </div>
+                <div class="billing-card-title-wrapper">
+                    <h4>Abonnement Premium</h4>
+                    {% if subscription_stats.active %}
+                    <span class="status-badge-modern active-badge">
+                        <i class="material-icons">check_circle</i>
+                        Actif
+                    </span>
+                    {% else %}
+                    <span class="status-badge-modern inactive-badge">
+                        <i class="material-icons">cancel</i>
+                        Inactif
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="billing-stats-modern">
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper">
+                        <i class="material-icons">account_balance_wallet</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total payé</span>
+                        <span class="stat-value">{{subscription_stats.total_paid|floatformat:0}} FCFA</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper">
+                        <i class="material-icons">calendar_month</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Coût mensuel</span>
+                        <span class="stat-value">{{subscription_stats.monthly_cost|floatformat:0}} FCFA</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper">
+                        <i class="material-icons">event</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Date de début</span>
+                        <span class="stat-value">{{subscription_stats.start_date|date:"d M Y"|default:"-"}}</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper">
+                        <i class="material-icons">event_available</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Date de fin</span>
+                        <span class="stat-value">{{subscription_stats.end_date|date:"d M Y"|default:"-"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boost Card -->
+        <div class="billing-card-modern boost-card">
+            <div class="billing-card-header-modern">
+                <div class="billing-card-icon-wrapper boost-icon">
+                    <i class="material-icons">rocket_launch</i>
+                </div>
+                <div class="billing-card-title-wrapper">
+                    <h4>Boosts de produits</h4>
+                    <span class="count-badge-modern">
+                        {{boost_stats.total_requests}} demande(s)
+                    </span>
+                </div>
+            </div>
+            
+            <div class="billing-stats-modern">
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper success-icon">
+                        <i class="material-icons">check_circle</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Validés</span>
+                        <span class="stat-value">{{boost_stats.approved}}</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper warning-icon">
+                        <i class="material-icons">schedule</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">En attente</span>
+                        <span class="stat-value">{{boost_stats.pending}}</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern">
+                    <div class="stat-icon-wrapper error-icon">
+                        <i class="material-icons">cancel</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Refusés</span>
+                        <span class="stat-value">{{boost_stats.rejected}}</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern highlight-stat">
+                    <div class="stat-icon-wrapper money-icon">
+                        <i class="material-icons">attach_money</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total dépensé</span>
+                        <span class="stat-value highlight-value">{{boost_stats.total_spent|floatformat:0}} FCFA</span>
+                    </div>
+                </div>
+                
+                <div class="billing-stat-modern highlight-stat">
+                    <div class="stat-icon-wrapper money-icon">
+                        <i class="material-icons">calendar_month</i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Ce mois</span>
+                        <span class="stat-value highlight-value">{{boost_stats.monthly_spent|floatformat:0}} FCFA</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
-        <div class="modal fade custom-modal" id="payment_request_modal" role="dialog" style="display: none;" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
+<!-- Revenue Modal -->
+<div id="revenueModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container revenue-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">attach_money</i>
+                Récettes
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeRevenueModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="revenue-filters">
+                <button class="revenue-filter-btn active" data-filter="all" onclick="changeRevenueFilter('all')">
+                    <i class="material-icons">all_inclusive</i>
+                    Total
+                </button>
+                <button class="revenue-filter-btn" data-filter="day" onclick="changeRevenueFilter('day')">
+                    <i class="material-icons">today</i>
+                    Aujourd'hui
+                </button>
+                <button class="revenue-filter-btn" data-filter="week" onclick="changeRevenueFilter('week')">
+                    <i class="material-icons">date_range</i>
+                    Semaine
+                </button>
+                <button class="revenue-filter-btn" data-filter="month" onclick="changeRevenueFilter('month')">
+                    <i class="material-icons">calendar_month</i>
+                    Mois
+                </button>
+                <button class="revenue-filter-btn" data-filter="year" onclick="changeRevenueFilter('year')">
+                    <i class="material-icons">calendar_today</i>
+                    Année
+                </button>
+            </div>
+            <div class="revenue-display">
+                <div class="revenue-value" id="revenueModalValue">{{total_revenue|floatformat:0}} FCFA</div>
+                <div class="revenue-description" id="revenueModalDescription">Récettes totales depuis le début de votre activité</div>
+            </div>
+            <div class="revenue-details">
+                <div class="revenue-detail-item">
+                    <span class="revenue-detail-label">
+                        <i class="material-icons">today</i>
+                        Aujourd'hui
+                    </span>
+                    <span class="revenue-detail-value">{{daily_revenue|floatformat:0}} FCFA</span>
+                </div>
+                <div class="revenue-detail-item">
+                    <span class="revenue-detail-label">
+                        <i class="material-icons">date_range</i>
+                        Cette semaine
+                    </span>
+                    <span class="revenue-detail-value">{{weekly_revenue|floatformat:0}} FCFA</span>
+                </div>
+                <div class="revenue-detail-item">
+                    <span class="revenue-detail-label">
+                        <i class="material-icons">calendar_month</i>
+                        Ce mois
+                    </span>
+                    <span class="revenue-detail-value">{{monthly_revenue|floatformat:0}} FCFA</span>
+                </div>
+                <div class="revenue-detail-item">
+                    <span class="revenue-detail-label">
+                        <i class="material-icons">calendar_today</i>
+                        Cette année
+                    </span>
+                    <span class="revenue-detail-value">{{yearly_revenue|floatformat:0}} FCFA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Balance Modal -->
+<div id="balanceModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container stat-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">account_balance</i>
+                Solde disponible
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeBalanceModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="stat-modal-content">
+                <div class="stat-modal-value">{{vendor.blance|floatformat:0}} FCFA</div>
+                <div class="stat-modal-description">Montant total disponible sur votre compte</div>
+                <div class="stat-modal-details">
+                    <div class="stat-detail-item">
+                        <i class="material-icons">trending_up</i>
+                        <span>Solde actuel</span>
+                        <strong>{{vendor.blance|floatformat:0}} FCFA</strong>
+                    </div>
+                    <div class="stat-detail-item">
+                        <i class="material-icons">pending_actions</i>
+                        <span>En attente</span>
+                        <strong>{{vendor.requested|floatformat:0}} FCFA</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Requested Modal -->
+<div id="requestedModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container stat-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">pending_actions</i>
+                Dernière demande
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeRequestedModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="stat-modal-content">
+                <div class="stat-modal-value">{{vendor.requested|floatformat:0}} FCFA</div>
+                <div class="stat-modal-description">Montant en attente de traitement</div>
+                <div class="stat-modal-details">
+                    <div class="stat-detail-item">
+                        <i class="material-icons">schedule</i>
+                        <span>Statut</span>
+                        <strong>En attente</strong>
+                    </div>
+                    <div class="stat-detail-item">
+                        <i class="material-icons">account_balance</i>
+                        <span>Solde disponible</span>
+                        <strong>{{vendor.blance|floatformat:0}} FCFA</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions Modal -->
+<div id="transactionsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container stat-modal">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons">payments</i>
+                Total transactions
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeTransactionsModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="stat-modal-content">
+                <div class="stat-modal-value">{{payments.paginator.count}}</div>
+                <div class="stat-modal-description">Nombre total de transactions effectuées</div>
+                <div class="stat-modal-details">
+                    <div class="stat-detail-item">
+                        <i class="material-icons">receipt_long</i>
+                        <span>Total transactions</span>
+                        <strong>{{payments.paginator.count}}</strong>
+                    </div>
+                    <div class="stat-detail-item">
+                        <i class="material-icons">history</i>
+                        <span>Historique</span>
+                        <strong>Voir ci-dessous</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Request Modal -->
+<div id="paymentRequestModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container payment-modal">
                     <div class="modal-header">
-                        <h3 class="modal-title">Payment Request</h3>
-                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            <h2>
+                <i class="material-icons">send</i>
+                Demande de paiement
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closePaymentRequestModal()">
+                <i class="material-icons">close</i>
+            </button>
                     </div>
                     <div class="modal-body">
-                        <form id="payment_request_form" method="post" action ="{% url 'supplier_dashboard:request-payment'%}">
+            <form id="payment_request_form" method="post" action="{% url 'supplier_dashboard:request-payment' %}">
                             {% csrf_token %}
                             <input type="hidden" name="payment_type" id="payment_type" value="1">
+                
                             <div class="form-group">
-                                <label>Available balance</label>
-                                <input type="text" name="available_balance" id="balance" class="form-control"   value="${{vendor.blance|floatformat:'2'}}" readonly>
-                                <span class="help-block"></span>
+                    <label class="form-label">
+                        <i class="material-icons">account_balance</i>
+                        Solde disponible
+                    </label>
+                    <input type="text" name="available_balance" id="balance" class="form-input" value="{{vendor.blance|floatformat:'2'}} FCFA" readonly>
                             </div>
+                
                             <div class="form-group">
-                                <label>Amount to Withdraw</label>
-                                <input type="number" name="request_amount" id="request_amount" step=any class="form-control"  required>
-                                <span class="help-block"></span>
+                    <label class="form-label">
+                        <i class="material-icons">attach_money</i>
+                        Montant à retirer
+                    </label>
+                    <input type="number" name="request_amount" id="request_amount" step="any" class="form-input" placeholder="Entrez le montant" required>
+                    <small class="form-hint">Montant maximum: {{vendor.blance|floatformat:'2'}} FCFA</small>
                             </div>
+                
                             <div class="form-group">
-                                <label>Choase Method</label>
-                                <select name="method" class="form-select">
-                                    <option value="Paypal">Paypal</option>
-                                    <option value="Bank">Bank</option>
-                                    
+                    <label class="form-label">
+                        <i class="material-icons">payment</i>
+                        Méthode de paiement
+                    </label>
+                    <select name="method" class="form-select" required>
+                        <option value="Paypal">PayPal</option>
+                        <option value="Bank">Banque</option>
                                 </select>
                             </div> 
+                
                             <div class="form-group">
-                                <label>Description (Optional)</label>
-                                <textarea class="form-control" name="description" id="description"></textarea>
-                                <span class="help-block"></span>
+                    <label class="form-label">
+                        <i class="material-icons">description</i>
+                        Description (optionnel)
+                    </label>
+                    <textarea class="form-textarea" name="description" id="description" rows="3" placeholder="Ajoutez une description pour cette demande..."></textarea>
                             </div>
                         
-                    </div>
-                    <div class="modal-footer text-center">
-                        <button type="submit" id="request_btn" class="btn btn-primary">Request</button>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closePaymentRequestModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn-submit" id="request_btn">
+                        <i class="material-icons">send</i>
+                        Envoyer la demande
+                    </button>
                     </div>
                 </form>
                 </div>
             </div>
         </div>
 
-        <!-- /Payment Request Moodal -->
+<style>
+    /* Welcome Card */
+    .payments-welcome-card {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+        color: white;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Financial Overview */
+    .financial-overview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    
+    .financial-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 2px solid #F3F4F6;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .financial-card.clickable-card {
+        cursor: pointer;
+    }
+    
+    .financial-card.clickable-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border-color: #D1D5DB;
+    }
+    
+    .financial-card.clickable-card:active {
+        transform: translateY(-2px);
+    }
+    
+    .click-indicator {
+        margin-left: auto;
+        font-size: 18px;
+        color: #9CA3AF;
+        transition: all 0.3s ease;
+    }
+    
+    .financial-card.clickable-card:hover .click-indicator {
+        color: #6B46C1;
+        transform: translateX(4px);
+    }
+    
+    .balance-card {
+        border-left: 4px solid #10B981;
+    }
+    
+    .requested-card {
+        border-left: 4px solid #F59E0B;
+    }
+    
+    .total-card {
+        border-left: 4px solid #6B46C1;
+    }
+    
+    .financial-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .financial-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+    
+    .balance-card .financial-card-icon {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        color: #059669;
+    }
+    
+    .requested-card .financial-card-icon {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        color: #D97706;
+    }
+    
+    .total-card .financial-card-icon {
+        background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
+        color: #6B46C1;
+    }
+    
+    .financial-card-label {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .financial-card-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1F2937;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+    
+    .financial-card-footer {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: #6B7280;
+    }
+    
+    .financial-card-footer i {
+        font-size: 16px;
+    }
+    
+    .revenue-card .financial-card-icon {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        color: #2563EB;
+    }
+    
+    /* Bank Info Card */
+    .bank-info-card {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 2px solid #F3F4F6;
+    }
+    
+    .bank-info-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .bank-info-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .bank-info-title i {
+        font-size: 28px;
+        color: #6B46C1;
+    }
+    
+    .bank-info-title h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+    }
+    
+    .btn-request-payment {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .btn-request-payment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+    }
+    
+    .btn-request-payment i {
+        font-size: 20px;
+    }
+    
+    .bank-info-content {
+        margin-top: 20px;
+    }
+    
+    .bank-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    
+    .bank-info-item {
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        border: 1px solid #F3F4F6;
+    }
+    
+    .bank-info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    
+    .bank-info-label i {
+        font-size: 18px;
+    }
+    
+    .bank-info-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    .bank-info-empty {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .bank-info-empty i {
+        font-size: 64px;
+        color: #9CA3AF;
+        margin-bottom: 20px;
+    }
+    
+    .bank-info-empty h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    /* Billing Section - Modern Design */
+    .billing-section-modern {
+        margin-bottom: 32px;
+    }
+    
+    .billing-section-header-modern {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 20px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+    }
+    
+    .billing-header-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .billing-header-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+    
+    .billing-header-icon i {
+        font-size: 28px;
+        color: white;
+    }
+    
+    .billing-header-text h3 {
+        font-size: 24px;
+        font-weight: 800;
+        color: white;
+        margin: 0 0 4px 0;
+        letter-spacing: -0.5px;
+    }
+    
+    .billing-header-text p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+    }
+    
+    .billing-cards-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+    
+    .billing-card-modern {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 2px solid #F3F4F6;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .billing-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+    }
+    
+    .subscription-card::before {
+        background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+    }
+    
+    .boost-card::before {
+        background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%);
+    }
+    
+    .billing-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        border-color: #E5E7EB;
+    }
+    
+    .billing-card-header-modern {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .billing-card-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .premium-icon {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    }
+    
+    .premium-icon i {
+        font-size: 32px;
+        color: #D97706;
+    }
+    
+    .boost-icon {
+        background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
+    }
+    
+    .boost-icon i {
+        font-size: 32px;
+        color: #6B46C1;
+    }
+    
+    .billing-card-title-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .billing-card-title-wrapper h4 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+    }
+    
+    .status-badge-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        width: fit-content;
+    }
+    
+    .status-badge-modern.active-badge {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        color: #059669;
+    }
+    
+    .status-badge-modern.inactive-badge {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        color: #DC2626;
+    }
+    
+    .status-badge-modern i {
+        font-size: 14px;
+    }
+    
+    .count-badge-modern {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
+        color: #6B46C1;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        width: fit-content;
+    }
+    
+    .billing-stats-modern {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
+    .billing-stat-modern {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 14px;
+        border: 2px solid #F3F4F6;
+        transition: all 0.3s ease;
+    }
+    
+    .billing-stat-modern:hover {
+        background: white;
+        border-color: #E5E7EB;
+        transform: translateX(4px);
+    }
+    
+    .billing-stat-modern.highlight-stat {
+        background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+        border-color: #BBF7D0;
+    }
+    
+    .billing-stat-modern.highlight-stat:hover {
+        background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+    }
+    
+    .stat-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: white;
+    }
+    
+    .stat-icon-wrapper i {
+        font-size: 24px;
+        color: #6B46C1;
+    }
+    
+    .stat-icon-wrapper.success-icon {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+    }
+    
+    .stat-icon-wrapper.success-icon i {
+        color: #059669;
+    }
+    
+    .stat-icon-wrapper.warning-icon {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    }
+    
+    .stat-icon-wrapper.warning-icon i {
+        color: #D97706;
+    }
+    
+    .stat-icon-wrapper.error-icon {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+    }
+    
+    .stat-icon-wrapper.error-icon i {
+        color: #DC2626;
+    }
+    
+    .stat-icon-wrapper.money-icon {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    }
+    
+    .stat-icon-wrapper.money-icon i {
+        color: #2563EB;
+    }
+    
+    .stat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1F2937;
+        letter-spacing: -0.5px;
+    }
+    
+    .stat-value.highlight-value {
+        color: #059669;
+        font-size: 20px;
+    }
+    
+    .billing-empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .billing-empty-state i {
+        font-size: 48px;
+        color: #9CA3AF;
+        margin-bottom: 16px;
+    }
+    
+    .billing-empty-state p {
+        font-size: 15px;
+        color: #6B7280;
+        margin: 0 0 20px 0;
+    }
+    
+    .btn-activate-service {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .btn-activate-service:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+    }
+    
+    .btn-activate-service i {
+        font-size: 18px;
+    }
+    
+    /* Boost Requests List */
+    .boost-requests-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .boost-request-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        border: 2px solid #E5E7EB;
+        transition: all 0.2s ease;
+    }
+    
+    .boost-request-item:hover {
+        border-color: #6B46C1;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.1);
+    }
+    
+    .boost-request-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    .boost-request-product {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .boost-request-product i {
+        font-size: 20px;
+        color: #6B46C1;
+    }
+    
+    .boost-request-product .product-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    .boost-request-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+    }
+    
+    .boost-detail-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .boost-detail-label {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .boost-detail-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+    }
+    
+    .boost-detail-value.comment {
+        font-size: 13px;
+        color: #6B7280;
+        font-weight: 500;
+        font-style: italic;
+    }
+    
+    /* Transactions Card */
+    .transactions-card {
+        background: white;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 2px solid #F3F4F6;
+        margin-bottom: 32px;
+    }
+    
+    .transactions-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .transactions-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .transactions-title i {
+        font-size: 28px;
+        color: #6B46C1;
+    }
+    
+    .transactions-title h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+    }
+    
+    .transactions-table-container {
+        overflow-x: auto;
+    }
+    
+    .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .transactions-table thead {
+        background: #F9FAFB;
+    }
+    
+    .transactions-table th {
+        padding: 16px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 700;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .transactions-table td {
+        padding: 16px;
+        border-bottom: 1px solid #F3F4F6;
+        vertical-align: middle;
+    }
+    
+    .transactions-table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .transactions-table tbody tr:hover {
+        background: #F9FAFB;
+    }
+    
+    .transaction-id {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        color: #1F2937;
+        font-size: 15px;
+    }
+    
+    .transaction-id i {
+        font-size: 20px;
+        color: #6B46C1;
+        background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
+        padding: 6px;
+        border-radius: 8px;
+    }
+    
+    .transaction-amount strong {
+        font-size: 17px;
+        color: #059669;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+    }
+    
+    .transaction-fee {
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .method-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+    }
+    
+    .method-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+    
+    .method-paypal {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        color: #D97706;
+    }
+    
+    .method-bank {
+        background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
+        color: #6B46C1;
+    }
+    
+    .method-badge i {
+        font-size: 18px;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    
+    .status-paid {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        color: #059669;
+    }
+    
+    .status-pending {
+        background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+        color: #2563EB;
+    }
+    
+    .status-progressing {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        color: #D97706;
+    }
+    
+    .status-refunded {
+        background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+        color: #DC2626;
+    }
+    
+    .status-badge i {
+        font-size: 16px;
+    }
+    
+    .transaction-date {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .transaction-date i {
+        font-size: 18px;
+        color: #9CA3AF;
+    }
+    
+    .transaction-comment .comment-text {
+        font-size: 13px;
+        color: #6B7280;
+        font-weight: 500;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .transaction-comment .comment-empty {
+        font-size: 13px;
+        color: #9CA3AF;
+        font-style: italic;
+    }
+    
+    .empty-transactions {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    
+    .empty-transactions .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 24px;
+        background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .empty-transactions .empty-icon i {
+        font-size: 64px;
+        color: #9CA3AF;
+    }
+    
+    .empty-transactions h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .empty-transactions p {
+        font-size: 16px;
+        color: #6B7280;
+        margin: 0;
+    }
+    
+    /* Modern Pagination */
+    .modern-pagination {
+        margin-top: 32px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .pagination-list {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .pagination-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .pagination-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        color: #6B7280;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        min-width: 44px;
+        justify-content: center;
+    }
+    
+    .pagination-link:hover {
+        border-color: #6B46C1;
+        color: #6B46C1;
+        background: #F9FAFB;
+    }
+    
+    .pagination-link.active {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-color: #6B46C1;
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .pagination-dots {
+        padding: 10px 8px;
+        color: #9CA3AF;
+        font-size: 14px;
+    }
+    
+    .pagination-prev,
+    .pagination-next {
+        padding: 10px 20px;
+    }
+    
+    .pagination-link i {
+        font-size: 20px;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h2 i {
+        color: #6B46C1;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+    
+    .form-label i {
+        font-size: 18px;
+        color: #6B46C1;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        font-size: 15px;
+        color: #1F2937;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #6B46C1;
+        box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+    }
+    
+    .form-input[readonly] {
+        background: #F9FAFB;
+        color: #6B7280;
+        cursor: not-allowed;
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .form-hint {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: #6B7280;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 2px solid #F3F4F6;
+    }
+    
+    .btn-cancel {
+        padding: 12px 24px;
+        background: #F3F4F6;
+        color: #6B7280;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .btn-submit {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+    }
+    
+    .btn-submit i {
+        font-size: 20px;
+    }
+    
+    /* Stat Modal Styles */
+    .stat-modal {
+        max-width: 420px;
+    }
+    
+    .stat-modal-content {
+        text-align: center;
+        padding: 20px 0;
+    }
+    
+    .stat-modal-value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #1F2937;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+    
+    .stat-modal-description {
+        font-size: 14px;
+        color: #6B7280;
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }
+    
+    .stat-modal-details {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 24px;
+    }
+    
+    .stat-detail-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        border: 2px solid #F3F4F6;
+    }
+    
+    .stat-detail-item i {
+        font-size: 20px;
+        color: #6B46C1;
+        margin-right: 12px;
+    }
+    
+    .stat-detail-item span {
+        flex: 1;
+        text-align: left;
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .stat-detail-item strong {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    /* Revenue Modal Styles */
+    .revenue-modal {
+        max-width: 600px;
+    }
+    
+    .revenue-filters {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .revenue-filter-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: #F3F4F6;
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        color: #6B7280;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .revenue-filter-btn:hover {
+        background: #E5E7EB;
+        border-color: #6B46C1;
+        color: #6B46C1;
+    }
+    
+    .revenue-filter-btn.active {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-color: #6B46C1;
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .revenue-filter-btn i {
+        font-size: 18px;
+    }
+    
+    .revenue-display {
+        text-align: center;
+        padding: 24px;
+        background: linear-gradient(135deg, #F0FDF4 0%, #D1FAE5 100%);
+        border-radius: 16px;
+        margin-bottom: 24px;
+        border: 2px solid #10B981;
+    }
+    
+    .revenue-value {
+        font-size: 42px;
+        font-weight: 800;
+        color: #059669;
+        margin-bottom: 12px;
+        letter-spacing: -1px;
+    }
+    
+    .revenue-description {
+        font-size: 14px;
+        color: #047857;
+        font-weight: 500;
+    }
+    
+    .revenue-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .revenue-detail-item {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 16px;
+        border: 2px solid #F3F4F6;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .revenue-detail-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .revenue-detail-label i {
+        font-size: 16px;
+    }
+    
+    .revenue-detail-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .payments-welcome-card {
+            padding: 24px;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .welcome-icon {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .welcome-icon i {
+            font-size: 32px;
+        }
+        
+        .welcome-text h2 {
+            font-size: 22px;
+            justify-content: center;
+        }
+        
+        .financial-overview {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .financial-card {
+            padding: 14px;
+        }
+        
+        .financial-card-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+        }
+        
+        .financial-card-value {
+            font-size: 20px;
+        }
+        
+        .financial-card-label {
+            font-size: 11px;
+        }
+        
+        .financial-card-footer {
+            font-size: 10px;
+        }
+        
+        .financial-card-footer i {
+            font-size: 14px;
+        }
+        
+        .click-indicator {
+            font-size: 16px;
+        }
+        
+        .stat-modal {
+            max-width: 90%;
+        }
+        
+        .stat-modal-value {
+            font-size: 28px;
+        }
+        
+        .billing-category {
+            padding: 20px;
+        }
+        
+        .billing-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .billing-stat-item {
+            padding: 16px;
+        }
+        
+        .bank-info-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .btn-request-payment {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .bank-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .billing-cards-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .billing-card-modern {
+            padding: 20px;
+        }
+        
+        .billing-header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .billing-header-icon {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .billing-header-icon i {
+            font-size: 24px;
+        }
+        
+        .billing-header-text h3 {
+            font-size: 20px;
+        }
+        
+        .billing-card-icon-wrapper {
+            width: 56px;
+            height: 56px;
+        }
+        
+        .billing-card-icon-wrapper i {
+            font-size: 28px;
+        }
+        
+        .billing-stats-modern {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .billing-stat-modern {
+            padding: 14px;
+        }
+        
+        .stat-icon-wrapper {
+            width: 44px;
+            height: 44px;
+        }
+        
+        .stat-icon-wrapper i {
+            font-size: 20px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+        }
+        
+        .stat-value.highlight-value {
+            font-size: 18px;
+        }
+        
+        .transactions-table-container {
+            border-radius: 12px;
+        }
+        
+        .transactions-table th,
+        .transactions-table td {
+            padding: 14px 12px;
+            font-size: 13px;
+        }
+        
+        .transactions-table th {
+            font-size: 11px;
+        }
+        
+        .transaction-id {
+            font-size: 14px;
+        }
+        
+        .transaction-amount strong {
+            font-size: 15px;
+        }
+        
+        .method-badge,
+        .status-badge {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        
+        .boost-request-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .billing-stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .revenue-filters {
+            justify-content: center;
+        }
+        
+        .revenue-filter-btn {
+            flex: 1;
+            min-width: 100px;
+            justify-content: center;
+        }
+        
+        .revenue-details {
+            grid-template-columns: 1fr;
+        }
+        
+        .revenue-value {
+            font-size: 32px;
+        }
+        
+        .transactions-table-container {
+            overflow-x: scroll;
+        }
+        
+        .transactions-table {
+            min-width: 800px;
+        }
+        
+        .modal-container {
+            max-width: 95%;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .pagination-list {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+</style>
+
 {%endblock section%}
 
 {%block script%} 
+<script>
+    function openPaymentRequestModal() {
+        const modal = document.getElementById('paymentRequestModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closePaymentRequestModal() {
+        const modal = document.getElementById('paymentRequestModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Balance Modal
+    function openBalanceModal() {
+        const modal = document.getElementById('balanceModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeBalanceModal() {
+        const modal = document.getElementById('balanceModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Requested Modal
+    function openRequestedModal() {
+        const modal = document.getElementById('requestedModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeRequestedModal() {
+        const modal = document.getElementById('requestedModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Transactions Modal
+    function openTransactionsModal() {
+        const modal = document.getElementById('transactionsModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeTransactionsModal() {
+        const modal = document.getElementById('transactionsModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const paymentModal = document.getElementById('paymentRequestModal');
+        const revenueModal = document.getElementById('revenueModal');
+        const balanceModal = document.getElementById('balanceModal');
+        const requestedModal = document.getElementById('requestedModal');
+        const transactionsModal = document.getElementById('transactionsModal');
+        
+        if (paymentModal && e.target === paymentModal) {
+            closePaymentRequestModal();
+        }
+        if (revenueModal && e.target === revenueModal) {
+            closeRevenueModal();
+        }
+        if (balanceModal && e.target === balanceModal) {
+            closeBalanceModal();
+        }
+        if (requestedModal && e.target === requestedModal) {
+            closeRequestedModal();
+        }
+        if (transactionsModal && e.target === transactionsModal) {
+            closeTransactionsModal();
+        }
+    });
+    
+    // Fermer le modal avec la touche Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePaymentRequestModal();
+            closeRevenueModal();
+            closeBalanceModal();
+            closeRequestedModal();
+            closeTransactionsModal();
+        }
+    });
+    
+    // Revenue Modal
+    let currentRevenueFilter = 'all';
+    const revenueData = {
+        'all': {
+            label: 'Total',
+            value: {{total_revenue|floatformat:0}},
+            description: 'Récettes totales depuis le début de votre activité'
+        },
+        'day': {
+            label: 'Aujourd\'hui',
+            value: {{daily_revenue|floatformat:0}},
+            description: 'Récettes générées aujourd\'hui'
+        },
+        'week': {
+            label: 'Cette semaine',
+            value: {{weekly_revenue|floatformat:0}},
+            description: 'Récettes des 7 derniers jours'
+        },
+        'month': {
+            label: 'Ce mois',
+            value: {{monthly_revenue|floatformat:0}},
+            description: 'Récettes du mois en cours'
+        },
+        'year': {
+            label: 'Cette année',
+            value: {{yearly_revenue|floatformat:0}},
+            description: 'Récettes de l\'année en cours'
+        }
+    };
+    
+    function openRevenueModal() {
+        const modal = document.getElementById('revenueModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            updateRevenueDisplay(currentRevenueFilter);
+        }
+    }
+    
+    function closeRevenueModal() {
+        const modal = document.getElementById('revenueModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    function changeRevenueFilter(filter) {
+        currentRevenueFilter = filter;
+        updateRevenueDisplay(filter);
+        
+        // Update active state
+        document.querySelectorAll('.revenue-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+    }
+    
+    function updateRevenueDisplay(filter) {
+        const data = revenueData[filter];
+        if (data) {
+            document.getElementById('revenueModalValue').textContent = data.value.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('revenueModalDescription').textContent = data.description;
+        }
+    }
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const revenueModal = document.getElementById('revenueModal');
+        if (revenueModal && e.target === revenueModal) {
+            closeRevenueModal();
+        }
+    });
+    
+    // Validation du formulaire
+    document.getElementById('payment_request_form')?.addEventListener('submit', function(e) {
+        const requestAmount = parseFloat(document.getElementById('request_amount').value);
+        const availableBalance = parseFloat('{{vendor.blance}}');
+        
+        if (requestAmount > availableBalance) {
+            e.preventDefault();
+            alert('Le montant demandé ne peut pas être supérieur au solde disponible.');
+            return false;
+        }
+        
+        if (requestAmount <= 0) {
+            e.preventDefault();
+            alert('Le montant doit être supérieur à 0.');
+            return false;
+        }
+    });
+</script>
 {%endblock script%}

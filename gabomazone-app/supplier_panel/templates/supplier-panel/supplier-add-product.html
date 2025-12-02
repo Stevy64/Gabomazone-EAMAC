@@ -180,9 +180,9 @@
                                                 </div>
                 <div class="product-list-details">
                     <div class="product-list-price">
-                        <span class="price-value">{{ product.PRDPrice|floatformat:0 }} XOF</span>
+                        <span class="price-value">{{ product.PRDPrice|floatformat:0 }} FCFA</span>
                         {% if product.PRDDiscountPrice and product.PRDDiscountPrice > 0 %}
-                            <span class="price-discount">{{ product.PRDDiscountPrice|floatformat:0 }} XOF</span>
+                            <span class="price-discount">{{ product.PRDDiscountPrice|floatformat:0 }} FCFA</span>
                         {% endif %}
                                                     </div>
                     <div class="product-list-meta">
@@ -2579,8 +2579,8 @@
                         <i class="material-icons">local_offer</i> ${productCategory}
                     </p>
                     <div class="product-details-price-section">
-                        <span class="product-details-price">${parseFloat(productPrice).toLocaleString('fr-FR')} XOF</span>
-                        ${productDiscount && parseFloat(productDiscount) > 0 ? `<span class="product-details-discount">${parseFloat(productDiscount).toLocaleString('fr-FR')} XOF</span>` : ''}
+                        <span class="product-details-price">${parseFloat(productPrice).toLocaleString('fr-FR')} FCFA</span>
+                        ${productDiscount && parseFloat(productDiscount) > 0 ? `<span class="product-details-discount">${parseFloat(productDiscount).toLocaleString('fr-FR')} FCFA</span>` : ''}
                     </div>
                     <div class="product-details-info-grid">
                         <div class="product-details-info-item">

@@ -16,7 +16,7 @@
     <!-- Cartes de Statistiques -->
     <div class="stats-grid">
         <!-- Carte Revenus -->
-        <div class="stat-card stat-card-blue">
+        <div class="stat-card stat-card-blue" onclick="openStatModal('revenue')" data-stat-type="revenue">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
                 <div class="stat-card-icon">
@@ -24,13 +24,13 @@
                 </div>
             </div>
             <div class="stat-card-content">
-                <div class="stat-card-value">{{vendor.blance|floatformat:0}} XOF</div>
+                <div class="stat-card-value">{{vendor.blance|floatformat:0}} FCFA</div>
                 <div class="stat-card-label">Revenus totaux</div>
             </div>
         </div>
 
         <!-- Carte Commandes en cours -->
-        <div class="stat-card stat-card-green">
+        <div class="stat-card stat-card-green" onclick="openStatModal('orders-underway')" data-stat-type="orders-underway">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
                 <div class="stat-card-icon">
@@ -44,7 +44,7 @@
         </div>
 
         <!-- Carte Produits -->
-        <div class="stat-card stat-card-orange">
+        <div class="stat-card stat-card-orange" onclick="openStatModal('products')" data-stat-type="products">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
                 <div class="stat-card-icon">
@@ -58,7 +58,7 @@
         </div>
 
         <!-- Carte Total Commandes -->
-        <div class="stat-card stat-card-purple">
+        <div class="stat-card stat-card-purple" onclick="openStatModal('total-orders')" data-stat-type="total-orders">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
                 <div class="stat-card-icon">
@@ -82,7 +82,9 @@
                     <h3>Statistiques de vente</h3>
                 </div>
                 <div class="chart-card-period">
-                    <span class="period-badge active">12 mois</span>
+                    <span class="period-badge" data-period="3" onclick="changeChartPeriod(3)">3 mois</span>
+                    <span class="period-badge" data-period="6" onclick="changeChartPeriod(6)">6 mois</span>
+                    <span class="period-badge active" data-period="12" onclick="changeChartPeriod(12)">12 mois</span>
                 </div>
             </div>
             <div class="chart-container">
@@ -466,11 +468,428 @@
                 height: 250px;
             }
         }
+        
+        /* Modal Styles - Design compact et raffiné */
+        .stat-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+        
+        .stat-modal-overlay.active {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .stat-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .stat-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        }
+        
+        .stat-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-modal-title i {
+            font-size: 22px;
+            color: #6B46C1;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(107, 70, 193, 0.1);
+            border-radius: 8px;
+            line-height: 0;
+            vertical-align: middle;
+            position: relative;
+            font-style: normal;
+        }
+        
+        /* S'assurer que les icônes Flaticon s'affichent correctement */
+        /* Les icônes Flaticon utilisent le pseudo-élément :before */
+        .stat-modal-title i[class*="fi-rs-"] {
+            line-height: 0 !important;
+        }
+        
+        .stat-modal-title i[class*="fi-rs-"]:before {
+            font-family: "uicons-regular-rounded" !important;
+            font-style: normal !important;
+            font-weight: normal !important;
+            line-height: 1 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            line-height: 32px;
+        }
+        
+        .stat-modal-title h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin: 0;
+        }
+        
+        .stat-modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #F3F4F6;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6B7280;
+            padding: 0;
+        }
+        
+        .stat-modal-close:hover {
+            background: #E5E7EB;
+            color: #1F2937;
+            transform: rotate(90deg);
+        }
+        
+        .stat-modal-close i {
+            font-size: 16px;
+        }
+        
+        .stat-modal-content {
+            padding: 24px;
+        }
+        
+        .stat-modal-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1F2937;
+            margin-bottom: 12px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+        
+        .stat-modal-description {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stat-modal-details {
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #F3F4F6;
+        }
+        
+        .stat-modal-details h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6B7280;
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-modal-details ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .stat-modal-details li {
+            padding: 10px 0;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-modal-details li:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-modal-details li span:first-child {
+            color: #6B7280;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .stat-modal-details li span:last-child {
+            color: #1F2937;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-modal {
+                max-width: 90%;
+                border-radius: 16px;
+            }
+            
+            .stat-modal-header {
+                padding: 16px 20px;
+            }
+            
+            .stat-modal-content {
+                padding: 20px;
+            }
+            
+            .stat-modal-value {
+                font-size: 32px;
+            }
+        }
     </style>
+
+    <!-- Modals pour les statistiques -->
+    <div id="statModalOverlay" class="stat-modal-overlay" onclick="closeStatModal(event)">
+        <div class="stat-modal" onclick="event.stopPropagation()">
+            <div class="stat-modal-header">
+                <div class="stat-modal-title">
+                    <i id="statModalIcon"></i>
+                    <h3 id="statModalTitle"></h3>
+                </div>
+                <button class="stat-modal-close" onclick="closeStatModal()">
+                    <i class="fi fi-rs-cross"></i>
+                </button>
+            </div>
+            <div class="stat-modal-content">
+                <div class="stat-modal-value" id="statModalValue"></div>
+                <div class="stat-modal-description" id="statModalDescription"></div>
+                <div class="stat-modal-details" id="statModalDetails"></div>
+            </div>
+        </div>
+    </div>
 
 {%endblock section%}
 
 {%block script%} 
 <script src="{% static 'assets-supplier/js/vendors/chart.js'%}"></script>
-<script src="{% static 'assets-supplier/js/custom-chart.js'%}" type="text/javascript"></script>
+<!-- Note: custom-chart.js n'est pas chargé ici car nous utilisons notre propre script inline avec support des périodes -->
+
+<script>
+    // Variables globales pour le graphique
+    let chartInstance = null;
+    let currentPeriod = 12;
+    
+    // Données des statistiques pour les modals
+    const statData = {
+        'revenue': {
+            icon: 'fi-rs-money',
+            title: 'Revenus totaux',
+            value: '{{vendor.blance|floatformat:0}} FCFA',
+            description: 'Vos revenus totaux représentent l\'ensemble des commissions que vous avez gagnées sur toutes vos ventes.',
+            details: [
+                ['Revenus disponibles', '{{vendor.blance|floatformat:0}} FCFA'],
+                ['Revenus en attente', '{{vendor.requested|floatformat:0}} FCFA'],
+            ]
+        },
+        'orders-underway': {
+            icon: 'fi-rs-shopping-cart',
+            title: 'Commandes en cours',
+            value: '{{orders_underway.count}}',
+            description: 'Nombre de commandes actuellement en cours de traitement. Ces commandes sont en phase de préparation ou d\'expédition.',
+            details: [
+                ['Commandes en préparation', '{{orders_underway.count}}'],
+                ['Statut', 'En cours'],
+            ]
+        },
+        'products': {
+            icon: 'fi-rs-shopping-bag',
+            title: 'Produits actifs',
+            value: '{{products_supplier.count}}',
+            description: 'Nombre total de vos produits actuellement disponibles à la vente sur la plateforme.',
+            details: [
+                ['Produits actifs', '{{products_supplier.count}}'],
+                ['Statut', 'Disponibles'],
+            ]
+        },
+        'total-orders': {
+            icon: 'fi-rs-receipt',
+            title: 'Total commandes',
+            value: '{{orders_supplier.count}}',
+            description: 'Nombre total de commandes que vous avez reçues (hors commandes en attente).',
+            details: [
+                ['Total commandes', '{{orders_supplier.count}}'],
+                ['Commandes en cours', '{{orders_underway.count}}'],
+            ]
+        }
+    };
+    
+    // Fonction pour ouvrir le modal de statistiques
+    function openStatModal(statType) {
+        const data = statData[statType];
+        if (!data) return;
+        
+        // Mettre à jour l'icône - créer un nouvel élément i avec la classe
+        const iconElement = document.getElementById('statModalIcon');
+        // Supprimer toutes les classes et attributs
+        iconElement.removeAttribute('class');
+        // Appliquer la nouvelle classe de l'icône
+        iconElement.setAttribute('class', data.icon);
+        
+        // S'assurer que l'icône est visible
+        iconElement.style.display = 'inline-flex';
+        iconElement.style.visibility = 'visible';
+        iconElement.style.opacity = '1';
+        
+        // Forcer le reflow pour que le CSS soit appliqué
+        void iconElement.offsetHeight;
+        
+        document.getElementById('statModalTitle').textContent = data.title;
+        document.getElementById('statModalValue').textContent = data.value;
+        document.getElementById('statModalDescription').textContent = data.description;
+        
+        // Construire les détails
+        const detailsHtml = '<h4>Détails</h4><ul>' + 
+            data.details.map(detail => 
+                `<li><span>${detail[0]}</span><span>${detail[1]}</span></li>`
+            ).join('') + 
+            '</ul>';
+        document.getElementById('statModalDetails').innerHTML = detailsHtml;
+        
+        document.getElementById('statModalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Fonction pour fermer le modal
+    function closeStatModal(event) {
+        if (event && event.target !== event.currentTarget) return;
+        document.getElementById('statModalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Fonction pour changer la période du graphique
+    function changeChartPeriod(months) {
+        currentPeriod = months;
+        
+        // Mettre à jour les badges actifs
+        document.querySelectorAll('.period-badge').forEach(badge => {
+            badge.classList.remove('active');
+            if (parseInt(badge.getAttribute('data-period')) === months) {
+                badge.classList.add('active');
+            }
+        });
+        
+        // Recharger les données du graphique
+        loadChartData(months);
+    }
+    
+    // Fonction pour charger les données du graphique selon la période
+    function loadChartData(months) {
+        $.ajax({
+            type: "GET",
+            url: `/chart-ajax/`,
+            data: { period: months },
+            success: function (response) {
+                const productCount = response.product_count_list;
+                const ordercount = response.order_count_list;
+                const labels = response.labels;
+                
+                // Mettre à jour ou créer le graphique
+                if (chartInstance) {
+                    chartInstance.data.labels = labels;
+                    chartInstance.data.datasets[0].data = ordercount;
+                    chartInstance.data.datasets[1].data = productCount;
+                    chartInstance.update();
+                } else {
+                    // Créer le graphique si il n'existe pas encore
+                    if ($('#myChart').length) {
+                        var ctx = document.getElementById('myChart').getContext('2d');
+                        chartInstance = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Ventes',
+                                    tension: 0.3,
+                                    fill: true,
+                                    backgroundColor: 'rgba(4, 209, 130, 0.2)',
+                                    borderColor: 'rgb(4, 209, 130)',
+                                    data: ordercount
+                                },
+                                {
+                                    label: 'Produits',
+                                    tension: 0.3,
+                                    fill: true,
+                                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                                    borderColor: 'rgb(139, 92, 246)',
+                                    data: productCount
+                                }]
+                            },
+                            options: {
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            usePointStyle: true,
+                                        },
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            },
+            error: function (error) {
+                console.error('Erreur lors du chargement des données:', error);
+            }
+        });
+    }
+    
+    // Initialiser le graphique au chargement de la page
+    $(document).ready(function() {
+        loadChartData(12);
+    });
+</script>
 {%endblock script%}

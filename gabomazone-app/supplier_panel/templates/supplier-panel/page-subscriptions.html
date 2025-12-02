@@ -1,0 +1,1257 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+
+{%block section %}
+
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Welcome Card -->
+<div class="settings-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">workspace_premium</i>
+        </div>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">star</i>
+                Abonnements et services premium
+            </h2>
+            <p>Gérez votre abonnement premium et boostez vos produits pour améliorer votre visibilité</p>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Container -->
+<div class="settings-container">
+    <div class="settings-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="settings-sidebar">
+            <nav class="settings-nav">
+                <a class="settings-nav-link active" href="{% url 'supplier_dashboard:subscriptions' %}">
+                    <i class="material-icons">workspace_premium</i>
+                    <span>Abonnements</span>
+                </a>
+                <a class="settings-nav-link" href="{% url 'supplier_dashboard:store-settings' %}">
+                    <i class="material-icons">settings</i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="settings-content">
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3>
+                        <i class="material-icons">workspace_premium</i>
+                        Abonnements premium
+                    </h3>
+                    <p>Améliorez votre visibilité avec nos plans premium</p>
+                </div>
+                
+                <!-- Premium Subscription Card -->
+                <div class="subscription-section">
+                    <div class="subscription-card premium-card">
+                        <div class="subscription-header">
+                            <div class="subscription-icon">
+                                <i class="material-icons">diamond</i>
+                            </div>
+                            <div class="subscription-info">
+                                <h4>Plan Premium</h4>
+                                <p class="subscription-status">
+                                    {% if subscription_active %}
+                                        <span class="status-badge active">Actif</span>
+                                    {% else %}
+                                        <span class="status-badge inactive">Inactif</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="subscription-features">
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Nombre de produits illimité</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Mise en avant des produits</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Priorité dans les résultats de recherche</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Badge "Vendeur Premium"</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Accès prioritaire au support</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="material-icons">check_circle</i>
+                                <span>Commission plafonnée à 5% pour des prix compétitifs</span>
+                            </div>
+                        </div>
+                        
+                        <div class="subscription-price">
+                            <span class="price-amount">15 000</span>
+                            <span class="price-currency">FCFA</span>
+                            <span class="price-period">/ mois</span>
+                        </div>
+                        
+                        <form method="post" action="{% url 'supplier_dashboard:subscriptions' %}" style="margin-top: 20px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="toggle_subscription">
+                            {% if subscription_active %}
+                                <button type="submit" class="btn-subscription btn-cancel-subscription">
+                                    <i class="material-icons">cancel</i>
+                                    Désactiver l'abonnement
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn-subscription btn-activate-subscription">
+                                    <i class="material-icons">workspace_premium</i>
+                                    Activer l'abonnement premium
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+                
+                <hr class="settings-divider" />
+                
+                <!-- Product Boost Section -->
+                <div class="boost-section">
+                    <div class="form-section-header-inline">
+                        <div style="width: 3px; height: 20px; background: #6B46C1; border-radius: 2px;"></div>
+                        <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Boost de produits</h4>
+                    </div>
+                    <p style="font-size: 14px; color: #6B7280; margin: 12px 0 20px 0;">Mettez en avant vos produits en les boostant. Les produits boostés apparaissent en premier dans les résultats de recherche.</p>
+                    
+                    <div class="boost-info-card">
+                        <div class="boost-info-header">
+                            <i class="material-icons">trending_up</i>
+                            <div>
+                                <h5>Prix du boost</h5>
+                                <p class="boost-price" id="boost-price-display">Sélectionnez un produit <span>pour voir le prix</span></p>
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: #6B7280; margin: 12px 0 0 0;">Boostez vos articles pour accélérer vos ventes. Le boost dure 7 jours et peut être renouvelé.</p>
+                    </div>
+                    
+                    <form method="post" action="{% url 'supplier_dashboard:subscriptions' %}" class="boost-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="request_boost">
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label class="form-label">
+                                <i class="material-icons">inventory_2</i>
+                                Sélectionner un produit à booster
+                            </label>
+                                <div class="custom-dropdown-wrapper">
+                                <select name="product_id" id="product-select" class="modern-select" style="display: none;" {% if not products_data %}disabled{% else %}required{% endif %}>
+                                    <option value="">Sélectionnez un produit</option>
+                                    {% for product_data in products_data %}
+                                    <option value="{{ product_data.id }}" 
+                                            data-price="{{ product_data.price }}" 
+                                            data-boost-percentage="{{ product_data.boost_percentage }}"
+                                            data-boost-price="{{ product_data.boost_price_per_week }}"
+                                            data-category="{{ product_data.super_category|default:product_data.main_category|default:'Autre' }}">
+                                        {{ product_data.name }} - {{ product_data.price|floatformat:0 }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="custom-dropdown" id="customDropdownProduct">
+                                    <button class="custom-dropdown-trigger" type="button" {% if not products_data %}disabled{% endif %}>
+                                        <span class="dropdown-selected-text">{% if products_data %}Sélectionnez un produit{% else %}Aucun produit disponible{% endif %}</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        <div class="dropdown-option" data-value="" data-selected="true" data-price="0" data-boost-percentage="0" data-boost-price="0">{% if products_data %}Sélectionnez un produit{% else %}Aucun produit disponible{% endif %}</div>
+                                        {% for product_data in products_data %}
+                                        <div class="dropdown-option" 
+                                             data-value="{{ product_data.id }}"
+                                             data-price="{{ product_data.price }}"
+                                             data-boost-percentage="{{ product_data.boost_percentage }}"
+                                             data-boost-price="{{ product_data.boost_price_per_week }}"
+                                             data-category="{{ product_data.super_category|default:product_data.main_category|default:'Autre' }}">
+                                            {{ product_data.name }} - {{ product_data.price|floatformat:0 }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if not products_data %}
+                            <p style="font-size: 13px; color: #DC2626; margin-top: 8px;">
+                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">info</i>
+                                Vous devez avoir au moins un produit actif pour demander un boost.
+                            </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="material-icons">schedule</i>
+                                Durée du boost
+                            </label>
+                            <div class="custom-dropdown-wrapper">
+                                <select name="boost_duration" id="duration-select" class="modern-select" style="display: none;" required>
+                                    <option value="7" selected>1 semaine (7 jours)</option>
+                                    <option value="14">2 semaines (14 jours)</option>
+                                    <option value="30">1 mois (30 jours)</option>
+                                </select>
+                                <div class="custom-dropdown" id="customDropdownDuration">
+                                    <button class="custom-dropdown-trigger" type="button">
+                                        <span class="dropdown-selected-text">1 semaine (7 jours)</span>
+                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                    </button>
+                                    <div class="custom-dropdown-menu">
+                                        <div class="dropdown-option" data-value="7" data-selected="true">1 semaine (7 jours)</div>
+                                        <div class="dropdown-option" data-value="14">2 semaines (14 jours)</div>
+                                        <div class="dropdown-option" data-value="30">1 mois (30 jours)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="boost-summary">
+                            <div class="boost-summary-item">
+                                <span>Prix du produit :</span>
+                                <strong id="product-price-display">-</strong>
+                            </div>
+                            <div class="boost-summary-item">
+                                <span>Taux de boost :</span>
+                                <strong id="boost-percentage-display">-</strong>
+                            </div>
+                            <div class="boost-summary-item">
+                                <span>Prix unitaire :</span>
+                                <strong id="boost-unit-price">-</strong>
+                            </div>
+                            <div class="boost-summary-item">
+                                <span>Durée sélectionnée :</span>
+                                <strong id="selected-duration-text">1 semaine</strong>
+                            </div>
+                            <div class="boost-summary-total">
+                                <span>Total à payer :</span>
+                                <strong id="boost-total-price">-</strong>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit-boost" {% if not products %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                            <i class="material-icons">rocket_launch</i>
+                            Demander le boost
+                        </button>
+                    </form>
+                </div>
+                
+                <hr class="settings-divider" />
+                
+                <!-- Badges Section -->
+                <div class="badges-section">
+                    <div class="form-section-header-inline">
+                        <div style="width: 3px; height: 20px; background: #6B46C1; border-radius: 2px;"></div>
+                        <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Badges</h4>
+                    </div>
+                    <p style="font-size: 14px; color: #6B7280; margin: 12px 0 20px 0;">Vos badges reflètent vos performances et votre statut sur la plateforme</p>
+                    
+                    <div class="badges-grid">
+                        <!-- Badges obtenus en premier -->
+                        {% if vendor_badges.premium %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon">
+                                <i class="material-icons">workspace_premium</i>
+                            </div>
+                            <h5>Premium</h5>
+                            <p>Abonnement actif</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if vendor_badges.excellent_rating %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon">
+                                <i class="material-icons">star</i>
+                            </div>
+                            <h5>Note Excellente</h5>
+                            <p>Note moyenne ≥ 4.5/5</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if vendor_badges.verified %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon">
+                                <i class="material-icons">verified</i>
+                            </div>
+                            <h5>Vérifié</h5>
+                            <p>Compte vérifié</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if vendor_badges.new_seller %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon">
+                                <i class="material-icons">new_releases</i>
+                            </div>
+                            <h5>Nouveau Vendeur</h5>
+                            <p>Inscrit depuis moins de 30 jours</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Badges verrouillés ensuite -->
+                        {% if not vendor_badges.premium %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon">
+                                <i class="material-icons">workspace_premium</i>
+                            </div>
+                            <h5>Premium</h5>
+                            <p>Abonnement actif</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not vendor_badges.excellent_rating %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon">
+                                <i class="material-icons">star</i>
+                            </div>
+                            <h5>Note Excellente</h5>
+                            <p>Note moyenne ≥ 4.5/5</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not vendor_badges.verified %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon">
+                                <i class="material-icons">verified</i>
+                            </div>
+                            <h5>Vérifié</h5>
+                            <p>Compte vérifié</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if not vendor_badges.new_seller %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon">
+                                <i class="material-icons">new_releases</i>
+                            </div>
+                            <h5>Nouveau Vendeur</h5>
+                            <p>Inscrit depuis moins de 30 jours</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Welcome Card */
+    .settings-welcome-card {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        color: white;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Settings Container */
+    .settings-container {
+        margin-bottom: 32px;
+    }
+    
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 32px;
+    }
+    
+    /* Sidebar */
+    .settings-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+    
+    .settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .settings-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        color: #6B7280;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+    
+    .settings-nav-link i {
+        font-size: 22px;
+    }
+    
+    .settings-nav-link:hover {
+        background: #F9FAFB;
+        color: #6B46C1;
+    }
+    
+    .settings-nav-link.active {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .settings-nav-link.active i {
+        color: white;
+    }
+    
+    /* Settings Content */
+    .settings-content {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .settings-section-header {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .settings-section-header h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .settings-section-header h3 i {
+        font-size: 28px;
+        color: #6B46C1;
+    }
+    
+    .settings-section-header p {
+        font-size: 15px;
+        color: #6B7280;
+        margin: 0;
+    }
+    
+    .form-section-header-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    
+    .settings-divider {
+        border: none;
+        border-top: 2px solid #F3F4F6;
+        margin: 40px 0;
+    }
+    
+    /* Subscription Section */
+    .subscription-section {
+        margin-bottom: 32px;
+    }
+    
+    .subscription-card {
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        border-radius: 16px;
+        padding: 32px;
+        border: 2px solid #E5E7EB;
+        transition: all 0.3s ease;
+    }
+    
+    .premium-card {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        border-color: #FCD34D;
+    }
+    
+    .subscription-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .subscription-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .subscription-icon i {
+        font-size: 32px;
+        color: white;
+    }
+    
+    .subscription-info {
+        flex: 1;
+    }
+    
+    .subscription-info h4 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+    }
+    
+    .subscription-status {
+        margin: 0;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-badge.active {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    
+    .status-badge.inactive {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+    
+    .subscription-features {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: #374151;
+    }
+    
+    .feature-item i {
+        font-size: 20px;
+        color: #059669;
+    }
+    
+    .subscription-price {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .price-amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: #6B46C1;
+    }
+    
+    .price-currency {
+        font-size: 20px;
+        font-weight: 600;
+        color: #6B46C1;
+    }
+    
+    .price-period {
+        font-size: 14px;
+        color: #6B7280;
+    }
+    
+    .btn-subscription {
+        width: 100%;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .btn-activate-subscription {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .btn-activate-subscription:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.4);
+    }
+    
+    .btn-cancel-subscription {
+        background: #F3F4F6;
+        color: #6B7280;
+        border: 2px solid #E5E7EB;
+    }
+    
+    .btn-cancel-subscription:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    /* Boost Section */
+    .boost-section {
+        margin-bottom: 32px;
+    }
+    
+    .boost-info-card {
+        background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+        border-radius: 12px;
+        padding: 20px;
+        border: 2px solid #818CF8;
+        margin-bottom: 24px;
+    }
+    
+    .boost-info-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .boost-info-header i {
+        font-size: 32px;
+        color: #6B46C1;
+    }
+    
+    .boost-info-header h5 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 4px 0;
+    }
+    
+    .boost-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #6B46C1;
+        margin: 0;
+    }
+    
+    .boost-price span {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6B7280;
+    }
+    
+    .boost-form {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-label i {
+        font-size: 18px;
+        color: #6B46C1;
+    }
+    
+    .boost-summary {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px solid #E5E7EB;
+    }
+    
+    .boost-summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #E5E7EB;
+        font-size: 14px;
+        color: #6B7280;
+    }
+    
+    .boost-summary-item:last-of-type {
+        border-bottom: none;
+    }
+    
+    .boost-summary-item strong {
+        color: #1F2937;
+        font-weight: 600;
+    }
+    
+    .boost-summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0 0 0;
+        margin-top: 12px;
+        border-top: 2px solid #6B46C1;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    .boost-summary-total strong {
+        color: #6B46C1;
+        font-size: 20px;
+    }
+    
+    .btn-submit-boost {
+        width: 100%;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-submit-boost:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+    }
+    
+    /* Badges Section */
+    .badges-section {
+        margin-bottom: 32px;
+    }
+    
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .badge-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 2px solid #F3F4F6;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .badge-card.badge-earned {
+        border-color: #FCD34D;
+        background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+    }
+    
+    .badge-card.badge-locked {
+        opacity: 0.6;
+        background: #F9FAFB;
+    }
+    
+    .badge-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .badge-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .badge-card.badge-locked .badge-icon {
+        background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+    }
+    
+    .badge-icon i {
+        font-size: 32px;
+        color: white;
+    }
+    
+    .badge-card h5 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+    }
+    
+    .badge-card p {
+        font-size: 13px;
+        color: #6B7280;
+        margin: 0 0 12px 0;
+    }
+    
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .badge-status.earned {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    
+    .badge-status.locked {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    /* Custom Dropdown Styles */
+    .custom-dropdown-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown-trigger {
+        width: 100%;
+        padding: 14px 20px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: inherit;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .custom-dropdown-trigger:hover {
+        border-color: #6B46C1;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    .custom-dropdown-trigger:active {
+        transform: translateY(0);
+    }
+    
+    .dropdown-selected-text {
+        flex: 1;
+        text-align: left;
+    }
+    
+    .dropdown-arrow {
+        font-size: 20px;
+        color: #6B46C1;
+        transition: transform 0.3s ease;
+    }
+    
+    .custom-dropdown.active .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .custom-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        overflow: hidden;
+        padding: 8px 0;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 2px solid #E5E7EB;
+        width: 100%;
+    }
+    
+    .custom-dropdown.active .custom-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .dropdown-option {
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .dropdown-option:hover {
+        background: rgba(107, 70, 193, 0.1);
+        color: #6B46C1;
+    }
+    
+    .dropdown-option[data-selected="true"] {
+        background: #6B46C1;
+        color: white;
+        font-weight: 700;
+    }
+    
+    .dropdown-option[data-selected="true"]:hover {
+        background: #8B5CF6;
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .settings-sidebar {
+            position: static;
+        }
+        
+        .settings-nav {
+            flex-direction: row;
+            overflow-x: auto;
+        }
+        
+        .settings-nav-link {
+            white-space: nowrap;
+        }
+        
+        .badges-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .settings-welcome-card {
+            padding: 24px;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .welcome-icon {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .welcome-icon i {
+            font-size: 32px;
+        }
+        
+        .welcome-text h2 {
+            font-size: 22px;
+            justify-content: center;
+        }
+        
+        .settings-content {
+            padding: 24px;
+        }
+        
+        .badges-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .subscription-card {
+            padding: 24px;
+        }
+    }
+</style>
+
+{%endblock section%}
+
+{%block script%}
+<script>
+    // Variables globales pour le calcul du boost
+    let selectedProductPrice = 0;
+    let selectedBoostPercentage = 0;
+    let selectedBoostPricePerWeek = 0;
+    
+    // Fonction pour mettre à jour l'affichage du prix du boost
+    function updateBoostPriceDisplay() {
+        const productPriceDisplay = document.getElementById('product-price-display');
+        const boostPercentageDisplay = document.getElementById('boost-percentage-display');
+        const boostUnitPrice = document.getElementById('boost-unit-price');
+        const boostTotalPrice = document.getElementById('boost-total-price');
+        const boostPriceDisplay = document.getElementById('boost-price-display');
+        const durationSelect = document.getElementById('duration-select');
+        const selectedDurationText = document.getElementById('selected-duration-text');
+        
+        if (selectedProductPrice > 0 && selectedBoostPricePerWeek > 0) {
+            // Afficher le prix du produit
+            if (productPriceDisplay) {
+                productPriceDisplay.textContent = selectedProductPrice.toLocaleString('fr-FR') + ' FCFA';
+            }
+            
+            // Afficher le pourcentage de boost
+            if (boostPercentageDisplay) {
+                boostPercentageDisplay.textContent = selectedBoostPercentage.toFixed(1) + '%';
+            }
+            
+            // Afficher le prix unitaire par semaine
+            if (boostUnitPrice) {
+                boostUnitPrice.textContent = selectedBoostPricePerWeek.toLocaleString('fr-FR') + ' FCFA / semaine';
+            }
+            
+            // Calculer le prix total selon la durée
+            const days = durationSelect ? parseInt(durationSelect.value) || 7 : 7;
+            const weeks = days / 7;
+            const totalPrice = selectedBoostPricePerWeek * weeks;
+            
+            if (boostTotalPrice) {
+                boostTotalPrice.textContent = totalPrice.toLocaleString('fr-FR') + ' FCFA';
+            }
+            
+            // Mettre à jour l'affichage principal
+            if (boostPriceDisplay) {
+                boostPriceDisplay.innerHTML = selectedBoostPricePerWeek.toLocaleString('fr-FR') + ' FCFA <span>/ produit / semaine</span>';
+            }
+        } else {
+            // Réinitialiser l'affichage
+            if (productPriceDisplay) productPriceDisplay.textContent = '-';
+            if (boostPercentageDisplay) boostPercentageDisplay.textContent = '-';
+            if (boostUnitPrice) boostUnitPrice.textContent = '-';
+            if (boostTotalPrice) boostTotalPrice.textContent = '-';
+            if (boostPriceDisplay) {
+                boostPriceDisplay.innerHTML = 'Sélectionnez un produit <span>pour voir le prix</span>';
+            }
+        }
+    }
+    
+    // Custom Dropdown for Product Selection
+    const productDropdown = document.getElementById('customDropdownProduct');
+    const productSelect = document.getElementById('product-select');
+    
+    if (productDropdown && productSelect) {
+        const trigger = productDropdown.querySelector('.custom-dropdown-trigger');
+        const menu = productDropdown.querySelector('.custom-dropdown-menu');
+        const options = menu.querySelectorAll('.dropdown-option');
+        const selectedText = trigger.querySelector('.dropdown-selected-text');
+        
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            productDropdown.classList.toggle('active');
+        });
+        
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const price = parseFloat(this.getAttribute('data-price')) || 0;
+                const boostPercentage = parseFloat(this.getAttribute('data-boost-percentage')) || 0;
+                const boostPricePerWeek = parseFloat(this.getAttribute('data-boost-price')) || 0;
+                const category = this.getAttribute('data-category') || '';
+                
+                // Mettre à jour les variables globales
+                selectedProductPrice = price;
+                selectedBoostPercentage = boostPercentage;
+                selectedBoostPricePerWeek = boostPricePerWeek;
+                
+                // Mettre à jour le select
+                productSelect.value = value;
+                
+                // Mettre à jour le texte affiché (sans le prix dans le dropdown)
+                const productName = this.textContent.split(' - ')[0];
+                selectedText.textContent = productName || 'Sélectionnez un produit';
+                
+                // Mettre à jour l'affichage du prix
+                updateBoostPriceDisplay();
+                
+                options.forEach(opt => opt.removeAttribute('data-selected'));
+                this.setAttribute('data-selected', 'true');
+                
+                productDropdown.classList.remove('active');
+            });
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!productDropdown.contains(e.target)) {
+                productDropdown.classList.remove('active');
+            }
+        });
+    }
+    
+    // Custom Dropdown for Duration Selection
+    const durationDropdown = document.getElementById('customDropdownDuration');
+    const durationSelect = document.getElementById('duration-select');
+    
+    if (durationDropdown && durationSelect) {
+        const trigger = durationDropdown.querySelector('.custom-dropdown-trigger');
+        const menu = durationDropdown.querySelector('.custom-dropdown-menu');
+        const options = menu.querySelectorAll('.dropdown-option');
+        const selectedText = trigger.querySelector('.dropdown-selected-text');
+        const durationText = document.getElementById('selected-duration-text');
+        
+        const durationLabels = {
+            '7': '1 semaine',
+            '14': '2 semaines',
+            '30': '1 mois'
+        };
+        
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            durationDropdown.classList.toggle('active');
+        });
+        
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                
+                durationSelect.value = value;
+                selectedText.textContent = text;
+                
+                if (durationText) {
+                    durationText.textContent = durationLabels[value] || text;
+                }
+                
+                // Mettre à jour le prix total
+                updateBoostPriceDisplay();
+                
+                options.forEach(opt => opt.removeAttribute('data-selected'));
+                this.setAttribute('data-selected', 'true');
+                
+                durationDropdown.classList.remove('active');
+            });
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!durationDropdown.contains(e.target)) {
+                durationDropdown.classList.remove('active');
+            }
+        });
+    }
+</script>
+{%endblock script%}
+

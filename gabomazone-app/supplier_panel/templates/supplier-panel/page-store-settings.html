@@ -1,0 +1,1270 @@
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+
+{%block section %}
+
+<!-- Messages Django -->
+{% if messages %}
+<div class="messages-container" style="margin-bottom: 24px;">
+    {% for message in messages %}
+    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+        {% if message.tags == 'success' %}
+            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <span style="color: #059669;">{{ message }}</span>
+        {% elif message.tags == 'error' %}
+            <i class="material-icons" style="color: #DC2626;">error</i>
+            <span style="color: #DC2626;">{{ message }}</span>
+        {% elif message.tags == 'warning' %}
+            <i class="material-icons" style="color: #D97706;">warning</i>
+            <span style="color: #D97706;">{{ message }}</span>
+        {% else %}
+            <i class="material-icons" style="color: #2563EB;">info</i>
+            <span style="color: #2563EB;">{{ message }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Welcome Card -->
+<div class="settings-welcome-card">
+    <div class="welcome-content">
+        <div class="welcome-icon">
+            <i class="material-icons">store</i>
+        </div>
+        <div class="welcome-text">
+            <h2>
+                <i class="material-icons">settings</i>
+                Paramètres du compte
+            </h2>
+            <p>Personnalisez les informations de votre magasin et gérez vos paramètres</p>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Container -->
+<div class="settings-container">
+    <div class="settings-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="settings-sidebar">
+            <nav class="settings-nav">
+                <!-- Onglet Abonnements - Sélectionné par défaut -->
+                <a class="settings-nav-link" href="{% url 'supplier_dashboard:subscriptions' %}">
+                    <i class="material-icons">workspace_premium</i>
+                    <span>Abonnements</span>
+                </a>
+                <!-- Onglet Paramètres du magasin -->
+                <a class="settings-nav-link active" href="{% url 'supplier_dashboard:store-settings' %}">
+                    <i class="material-icons">settings</i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="settings-content">
+            <div class="settings-section">
+                <div class="settings-section-header">
+                    <h3>
+                        <i class="material-icons">store</i>
+                        Paramètres du magasin
+                    </h3>
+                    <p>Personnalisez les informations de votre magasin et vos coordonnées</p>
+                </div>
+                
+                <form action="{% url 'supplier_dashboard:store-settings' %}" method="post" enctype="multipart/form-data" class="settings-form">
+                    {% csrf_token %}
+                    
+                    <!-- Photo/Logo du magasin -->
+                    <div class="form-section">
+                        <div class="form-section-header-inline">
+                            <div style="width: 3px; height: 20px; background: #6B46C1; border-radius: 2px;"></div>
+                            <label style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0;">
+                                Logo du magasin
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 16px;">
+                            <div style="position: relative;">
+                                {% if profile.image %}
+                                <img id="url-img" src="{{profile.image.url}}" alt="{{profile.user}}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #6B46C1; box-shadow: 0 6px 20px rgba(107, 70, 193, 0.25); transition: all 0.3s ease;">
+                                {% else %}
+                                <img id="url-img" src="{% static 'assets/imgs/theme/avatar.png'%}" alt="Store Logo" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #6B46C1; box-shadow: 0 6px 20px rgba(107, 70, 193, 0.25); transition: all 0.3s ease;">
+                                {% endif %}
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label for="id_image" style="display: inline-block; padding: 11px 24px; background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%); color: white; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3); margin-bottom: 8px;">
+                                    <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">upload</i> Choisir un logo
+                                </label>
+                                <input type="file" accept="image/*" id="id_image" name="image" class="form-control upload" style="display: none;">
+                                <p style="font-size: 12px; color: #9CA3AF; margin: 0; line-height: 1.4;">
+                                    Formats acceptés : JPG, GIF ou PNG<br>Taille max : 2MB
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informations du magasin -->
+                    <div class="form-section">
+                        <div class="form-section-header-inline">
+                            <div style="width: 3px; height: 20px; background: #6B46C1; border-radius: 2px;"></div>
+                            <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Informations du magasin</h4>
+                        </div>
+                        
+                        <div class="form-grid" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="material-icons">person</i>
+                                    Prénom <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="first_name" 
+                                    value="{{profile.user.first_name}}" 
+                                    placeholder="Votre prénom" 
+                                    required
+                                />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="material-icons">person</i>
+                                    Nom <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="last_name" 
+                                    value="{{profile.user.last_name}}" 
+                                    placeholder="Votre nom" 
+                                    required
+                                />
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i class="material-icons">store</i>
+                                    Nom du magasin <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="display_name" 
+                                    value="{{profile.display_name}}" 
+                                    placeholder="Ex: Mon Super Magasin" 
+                                    required
+                                />
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i class="material-icons">description</i>
+                                    Description du magasin
+                                </label>
+                                <textarea 
+                                    class="form-textarea" 
+                                    name="bio" 
+                                    placeholder="Décrivez votre magasin, vos produits, vos valeurs..." 
+                                    rows="4"
+                                >{{profile.bio}}</textarea>
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i class="material-icons">phone</i>
+                                    Numéro de téléphone <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="tel" 
+                                    name="mobile_number" 
+                                    value="{{profile.mobile_number}}" 
+                                    placeholder="+241 XX XX XX XX" 
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adresse -->
+                    <div class="form-section">
+                        <div class="form-section-header-inline">
+                            <div style="width: 3px; height: 20px; background: #6B46C1; border-radius: 2px;"></div>
+                            <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Adresse</h4>
+                        </div>
+                        
+                        <div class="form-grid" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="material-icons">location_on</i>
+                                    Province <span style="color: #EF4444;">*</span>
+                                </label>
+                                <div class="custom-dropdown-wrapper">
+                                    <select name="province" id="province-select" required class="modern-select" style="display: none;">
+                                        <option value="">Sélectionnez une province</option>
+                                        <option value="Estuaire" {% if profile.state == "Estuaire" %}selected{% endif %}>Estuaire</option>
+                                        <option value="Haut-Ogooué" {% if profile.state == "Haut-Ogooué" %}selected{% endif %}>Haut-Ogooué</option>
+                                        <option value="Moyen-Ogooué" {% if profile.state == "Moyen-Ogooué" %}selected{% endif %}>Moyen-Ogooué</option>
+                                        <option value="Ngounié" {% if profile.state == "Ngounié" %}selected{% endif %}>Ngounié</option>
+                                        <option value="Nyanga" {% if profile.state == "Nyanga" %}selected{% endif %}>Nyanga</option>
+                                        <option value="Ogooué-Ivindo" {% if profile.state == "Ogooué-Ivindo" %}selected{% endif %}>Ogooué-Ivindo</option>
+                                        <option value="Ogooué-Lolo" {% if profile.state == "Ogooué-Lolo" %}selected{% endif %}>Ogooué-Lolo</option>
+                                        <option value="Ogooué-Maritime" {% if profile.state == "Ogooué-Maritime" %}selected{% endif %}>Ogooué-Maritime</option>
+                                        <option value="Woleu-Ntem" {% if profile.state == "Woleu-Ntem" %}selected{% endif %}>Woleu-Ntem</option>
+                                    </select>
+                                    <div class="custom-dropdown" id="customDropdownProvince">
+                                        <button class="custom-dropdown-trigger" type="button">
+                                            <span class="dropdown-selected-text">{% if profile.state %}{{profile.state}}{% else %}Sélectionnez une province{% endif %}</span>
+                                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        </button>
+                                        <div class="custom-dropdown-menu">
+                                            <div class="dropdown-option" data-value="" {% if not profile.state %}data-selected="true"{% endif %}>Sélectionnez une province</div>
+                                            <div class="dropdown-option" data-value="Estuaire" {% if profile.state == "Estuaire" %}data-selected="true"{% endif %}>Estuaire</div>
+                                            <div class="dropdown-option" data-value="Haut-Ogooué" {% if profile.state == "Haut-Ogooué" %}data-selected="true"{% endif %}>Haut-Ogooué</div>
+                                            <div class="dropdown-option" data-value="Moyen-Ogooué" {% if profile.state == "Moyen-Ogooué" %}data-selected="true"{% endif %}>Moyen-Ogooué</div>
+                                            <div class="dropdown-option" data-value="Ngounié" {% if profile.state == "Ngounié" %}data-selected="true"{% endif %}>Ngounié</div>
+                                            <div class="dropdown-option" data-value="Nyanga" {% if profile.state == "Nyanga" %}data-selected="true"{% endif %}>Nyanga</div>
+                                            <div class="dropdown-option" data-value="Ogooué-Ivindo" {% if profile.state == "Ogooué-Ivindo" %}data-selected="true"{% endif %}>Ogooué-Ivindo</div>
+                                            <div class="dropdown-option" data-value="Ogooué-Lolo" {% if profile.state == "Ogooué-Lolo" %}data-selected="true"{% endif %}>Ogooué-Lolo</div>
+                                            <div class="dropdown-option" data-value="Ogooué-Maritime" {% if profile.state == "Ogooué-Maritime" %}data-selected="true"{% endif %}>Ogooué-Maritime</div>
+                                            <div class="dropdown-option" data-value="Woleu-Ntem" {% if profile.state == "Woleu-Ntem" %}data-selected="true"{% endif %}>Woleu-Ntem</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="material-icons">location_city</i>
+                                    Ville (Capitale) <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="city" 
+                                    id="city" 
+                                    value="{{profile.city}}" 
+                                    placeholder="Ville" 
+                                    required
+                                    readonly
+                                    style="background: #F9FAFB; cursor: not-allowed;"
+                                />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="material-icons">home</i>
+                                    Quartier <span style="color: #EF4444;">*</span>
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="quartier" 
+                                    value="{{profile.post_code}}" 
+                                    placeholder="Ex: Quartier Nzeng-Ayong" 
+                                    required
+                                />
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">
+                                    <i class="material-icons">place</i>
+                                    Adresse complète
+                                </label>
+                                <input 
+                                    class="form-input" 
+                                    type="text" 
+                                    name="address" 
+                                    value="{{profile.address}}" 
+                                    placeholder="Ex: Rue de la Paix, Maison 123" 
+                                />
+                            </div>
+                            
+                            <input type="hidden" name="country" value="Gabon">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'supplier_dashboard:supplier-products-list' %}" class="btn-cancel">
+                            <i class="material-icons">close</i>
+                            Annuler
+                        </a>
+                        <button class="btn-submit" type="submit">
+                            <i class="material-icons">save</i>
+                            <span class="btn-text-desktop">Enregistrer les modifications</span>
+                            <span class="btn-text-mobile">Enregistrer</span>
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="settings-divider" />
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action-card">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);">
+                            <i class="material-icons">lock</i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Mot de passe</h4>
+                            <p>Vous pouvez réinitialiser ou modifier votre mot de passe en cliquant ici</p>
+                        </div>
+                        <a href="{% url 'accounts:change_password' %}" class="quick-action-btn">
+                            Modifier
+                            <i class="material-icons">arrow_forward</i>
+                        </a>
+                    </div>
+                    
+                    <div class="quick-action-card">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                            <i class="material-icons">delete_forever</i>
+                        </div>
+                        <div class="quick-action-content">
+                            <h4>Supprimer le compte</h4>
+                            <p>Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
+                        </div>
+                        <button type="button" class="quick-action-btn" style="background: #DC2626; border-color: #DC2626; color: white;" onclick="openDeleteAccountModal()">
+                            Supprimer
+                            <i class="material-icons">arrow_forward</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="deleteAccountModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2>
+                <i class="material-icons" style="color: #DC2626;">warning</i>
+                Confirmer la suppression
+            </h2>
+            <button type="button" class="modal-close-btn" onclick="closeDeleteAccountModal()">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="material-icons" style="font-size: 48px; color: #DC2626;">delete_outline</i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Êtes-vous sûr ?</h3>
+                <p style="font-size: 15px; color: #6B7280; margin: 0 0 8px 0;">Vous êtes sur le point de supprimer définitivement votre compte.</p>
+                <p style="font-size: 14px; color: #9CA3AF; margin: 0 0 24px 0;">Cette action est irréversible et supprimera toutes vos données : produits, commandes, paramètres, etc.</p>
+                <div style="background: #FEF2F2; border: 2px solid #FEE2E2; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <p style="font-size: 14px; color: #991B1B; margin: 0; font-weight: 600;">
+                        <i class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">error</i>
+                        Attention : Cette action ne peut pas être annulée !
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeDeleteAccountModal()">Annuler</button>
+            <form id="deleteAccountForm" method="post" action="{% url 'supplier_dashboard:delete-account' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                    <i class="material-icons">delete</i>
+                    Supprimer définitivement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Welcome Card */
+    .settings-welcome-card {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        color: white;
+    }
+    
+    .welcome-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    
+    .welcome-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .welcome-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    
+    .welcome-text h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .welcome-text h2 i {
+        font-size: 32px;
+        color: #FCD34D;
+    }
+    
+    .welcome-text p {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Settings Container */
+    .settings-container {
+        margin-bottom: 32px;
+    }
+    
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 32px;
+    }
+    
+    /* Sidebar */
+    .settings-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+    
+    .settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .settings-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        color: #6B7280;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+    
+    .settings-nav-link i {
+        font-size: 22px;
+    }
+    
+    .settings-nav-link:hover {
+        background: #F9FAFB;
+        color: #6B46C1;
+    }
+    
+    .settings-nav-link.active {
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .settings-nav-link.active i {
+        color: white;
+    }
+    
+    /* Settings Content */
+    .settings-content {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .settings-section-header {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .settings-section-header h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .settings-section-header h3 i {
+        font-size: 28px;
+        color: #6B46C1;
+    }
+    
+    .settings-section-header p {
+        font-size: 15px;
+        color: #6B7280;
+        margin: 0;
+    }
+    
+    .form-section-header-inline {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    
+    /* Form Styles */
+    .settings-form {
+        margin-bottom: 32px;
+    }
+    
+    .form-section {
+        margin-bottom: 32px;
+        padding-bottom: 32px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .form-label i {
+        font-size: 18px;
+        color: #6B46C1;
+    }
+    
+    .form-input,
+    .form-textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #1F2937;
+        background: #FAFAFA;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: #6B46C1;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(107, 70, 193, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 2px solid #F3F4F6;
+        flex-wrap: wrap;
+    }
+    
+    .btn-cancel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 24px;
+        background: #F3F4F6;
+        border: none;
+        border-radius: 12px;
+        color: #6B7280;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+        transform: translateY(-1px);
+    }
+    
+    .btn-submit {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+        white-space: nowrap;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.4);
+    }
+    
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+    
+    .btn-submit i {
+        font-size: 20px;
+    }
+    
+    .settings-divider {
+        border: none;
+        border-top: 2px solid #F3F4F6;
+        margin: 40px 0;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .quick-action-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: #F9FAFB;
+        border-radius: 16px;
+        border: 2px solid #F3F4F6;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-card:hover {
+        border-color: #6B46C1;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .quick-action-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .quick-action-icon i {
+        font-size: 28px;
+        color: white;
+    }
+    
+    .quick-action-content {
+        flex: 1;
+    }
+    
+    .quick-action-content h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 6px 0;
+    }
+    
+    .quick-action-content p {
+        font-size: 13px;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.5;
+    }
+    
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        background: white;
+        border: 2px solid #6B46C1;
+        border-radius: 8px;
+        color: #6B46C1;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+    
+    .quick-action-btn:hover {
+        background: #6B46C1;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+    }
+    
+    .quick-action-btn i {
+        font-size: 18px;
+    }
+    
+    /* Custom Dropdown Styles */
+    .custom-dropdown-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown {
+        position: relative;
+        width: 100%;
+    }
+    
+    .custom-dropdown-trigger {
+        width: 100%;
+        padding: 14px 20px;
+        background: white;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: inherit;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .custom-dropdown-trigger:hover {
+        border-color: #6B46C1;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.15);
+        transform: translateY(-1px);
+    }
+    
+    .custom-dropdown-trigger:active {
+        transform: translateY(0);
+    }
+    
+    .dropdown-selected-text {
+        flex: 1;
+        text-align: left;
+    }
+    
+    .dropdown-arrow {
+        font-size: 20px;
+        color: #6B46C1;
+        transition: transform 0.3s ease;
+    }
+    
+    .custom-dropdown.active .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .custom-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(107, 70, 193, 0.25);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        overflow: hidden;
+        padding: 8px 0;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 2px solid #E5E7EB;
+        width: 100%;
+    }
+    
+    .custom-dropdown.active .custom-dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .dropdown-option {
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .dropdown-option:hover {
+        background: rgba(107, 70, 193, 0.1);
+        color: #6B46C1;
+    }
+    
+    .dropdown-option[data-selected="true"] {
+        background: #6B46C1;
+        color: white;
+        font-weight: 700;
+    }
+    
+    .dropdown-option[data-selected="true"]:hover {
+        background: #8B5CF6;
+        color: white;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h2 i {
+        color: #DC2626;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 2px solid #F3F4F6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #F9FAFB;
+        flex-shrink: 0;
+    }
+    
+    .modal-footer .btn-cancel,
+    .modal-footer .btn-submit {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .modal-footer .btn-cancel {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .modal-footer .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    
+    .modal-footer .btn-submit {
+        background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        color: white;
+    }
+    
+    .modal-footer .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+    
+    /* Image preview hover */
+    #url-img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 32px rgba(107, 70, 193, 0.3) !important;
+    }
+    
+    label[for="id_image"]:hover {
+        background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%) !important;
+        box-shadow: 0 6px 16px rgba(107, 70, 193, 0.4) !important;
+        transform: translateY(-2px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .settings-sidebar {
+            position: static;
+        }
+        
+        .settings-nav {
+            flex-direction: row;
+            overflow-x: auto;
+        }
+        
+        .settings-nav-link {
+            white-space: nowrap;
+        }
+        
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .settings-welcome-card {
+            padding: 24px;
+        }
+        
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .welcome-icon {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .welcome-icon i {
+            font-size: 32px;
+        }
+        
+        .welcome-text h2 {
+            font-size: 22px;
+            justify-content: center;
+        }
+        
+        .settings-content {
+            padding: 24px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .quick-action-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .quick-action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-text-desktop {
+            display: none !important;
+        }
+        
+        .btn-text-mobile {
+            display: inline !important;
+        }
+    }
+    
+    .btn-text-mobile {
+        display: none;
+    }
+    
+    .btn-text-desktop {
+        display: inline;
+    }
+</style>
+
+{%endblock section%}
+
+{%block script%}
+<script>
+    // Image preview with smooth transition
+    const image = document.getElementById('id_image');
+    const urlImg = document.getElementById('url-img');
+    
+    if (image && urlImg) {
+        image.addEventListener('change', () => {
+            const img_data = image.files[0];
+            if (img_data) {
+                const url = URL.createObjectURL(img_data);
+                urlImg.style.opacity = '0';
+                urlImg.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    urlImg.src = url;
+                    urlImg.style.opacity = '1';
+                    urlImg.style.transform = 'scale(1)';
+                }, 150);
+            }
+        });
+    }
+    
+    // Custom Dropdown for Province
+    const provinceDropdown = document.getElementById('customDropdownProvince');
+    const provinceSelect = document.getElementById('province-select');
+    
+    if (provinceDropdown && provinceSelect) {
+        const trigger = provinceDropdown.querySelector('.custom-dropdown-trigger');
+        const menu = provinceDropdown.querySelector('.custom-dropdown-menu');
+        const options = menu.querySelectorAll('.dropdown-option');
+        const selectedText = trigger.querySelector('.dropdown-selected-text');
+        
+        // Initialize selected option
+        const selectedOption = menu.querySelector('[data-selected="true"]');
+        if (selectedOption) {
+            selectedText.textContent = selectedOption.textContent;
+            provinceSelect.value = selectedOption.getAttribute('data-value');
+        }
+        
+        // Toggle dropdown
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            provinceDropdown.classList.toggle('active');
+        });
+        
+        // Handle option selection
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                
+                // Update select
+                provinceSelect.value = value;
+                
+                // Update display
+                selectedText.textContent = text;
+                
+                // Update selected state
+                options.forEach(opt => opt.removeAttribute('data-selected'));
+                this.setAttribute('data-selected', 'true');
+                
+                // Close dropdown
+                provinceDropdown.classList.remove('active');
+                
+                // Auto-fill city
+                updateCity(value);
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!provinceDropdown.contains(e.target)) {
+                provinceDropdown.classList.remove('active');
+            }
+        });
+    }
+    
+    // Province to City mapping (Gabon)
+    const provinceCities = {
+        'Estuaire': 'Libreville',
+        'Haut-Ogooué': 'Franceville',
+        'Moyen-Ogooué': 'Lambaréné',
+        'Ngounié': 'Mouila',
+        'Nyanga': 'Tchibanga',
+        'Ogooué-Ivindo': 'Makokou',
+        'Ogooué-Lolo': 'Koulamoutou',
+        'Ogooué-Maritime': 'Port-Gentil',
+        'Woleu-Ntem': 'Oyem'
+    };
+    
+    // Auto-fill city based on province with animation
+    function updateCity(province) {
+        const cityInput = document.getElementById('city');
+        if (cityInput && province && provinceCities[province]) {
+            cityInput.style.transition = 'all 0.3s ease';
+            cityInput.style.opacity = '0.7';
+            setTimeout(() => {
+                cityInput.value = provinceCities[province];
+                cityInput.style.opacity = '1';
+            }, 150);
+        } else if (cityInput) {
+            cityInput.value = '';
+        }
+    }
+    
+    // Initialize city on page load
+    const provinceSelectInit = document.getElementById('province-select');
+    const cityInputInit = document.getElementById('city');
+    if (provinceSelectInit && cityInputInit && provinceSelectInit.value && provinceCities[provinceSelectInit.value]) {
+        cityInputInit.value = provinceCities[provinceSelectInit.value];
+    }
+    
+    // Smooth scroll to form sections on focus
+    document.querySelectorAll('.form-input, .form-textarea').forEach(input => {
+        input.addEventListener('focus', function() {
+            const section = this.closest('.form-section');
+            if (section) {
+                const offset = 120;
+                const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: sectionTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Delete Account Modal Functions
+    function openDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function closeDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+    
+    // Fermer le modal en cliquant sur l'overlay
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('deleteAccountModal');
+        if (modal && e.target === modal) {
+            closeDeleteAccountModal();
+        }
+    });
+    
+    // Fermer le modal avec la touche Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteAccountModal();
+        }
+    });
+</script>
+{%endblock script%}

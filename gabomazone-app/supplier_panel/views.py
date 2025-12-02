@@ -15,6 +15,7 @@ from orders.models import Order, OrderSupplier,  OrderDetailsSupplier, Payment
 from .utils import vendor_only
 from django.db.models import Sum
 from datetime import datetime, date, timedelta
+from django.utils import timezone as tz
 from payments.models import VendorPayments
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -39,22 +40,103 @@ def supplier_dashboard(request):
 
 
 class chartJsonListView(View):
+    """
+    Vue pour récupérer les données des statistiques de vente.
+    Supporte les périodes de 3, 6 et 12 mois.
+    """
     def get(self, *args, **kwargs):
         today = date.today()
         if self.request.user.is_authenticated and not self.request.user.is_anonymous:
             vendor = Profile.objects.get(user=self.request.user)
+            
+            # Récupérer la période demandée (par défaut 12 mois)
+            period = int(self.request.GET.get('period', 12))
+            
+            # Calculer la date de début selon la période
+            if period == 3:
+                start_date = today - timedelta(days=90)
+                months_to_show = 3
+            elif period == 6:
+                start_date = today - timedelta(days=180)
+                months_to_show = 6
+            else:  # 12 mois par défaut
+                start_date = date(today.year, 1, 1)  # Début de l'année
+                months_to_show = 12
 
             product_count_list = []
             order_count_list = []
-            for i in range(1, 13):
-                product_count = Product.objects.filter(
-                    product_vendor=vendor,  date__year=today.year, date__month=i,).count()
-                product_count_list.append(product_count)
-                order_count = OrderSupplier.objects.all().filter(vendor=vendor, order_date__year=today.year,
-                                                                 order_date__month=i,).exclude(status="PENDING").count()
-                order_count_list.append(order_count)
+            labels = []
+            
+            # Générer les données pour chaque mois de la période
+            # Pour 3 et 6 mois, on prend les X derniers mois
+            # Pour 12 mois, on prend tous les mois de l'année en cours
+            if period == 12:
+                # Pour 12 mois, utiliser tous les mois de l'année en cours
+                for month in range(1, 13):
+                    month_names = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+                    labels.append(month_names[month - 1])
+                    
+                    # Compter les produits créés ce mois
+                    product_count = Product.objects.filter(
+                        product_vendor=vendor,
+                        date__year=today.year,
+                        date__month=month
+                    ).count()
+                    product_count_list.append(product_count)
+                    
+                    # Compter les commandes ce mois (hors PENDING)
+                    order_count = OrderSupplier.objects.filter(
+                        vendor=vendor,
+                        order_date__year=today.year,
+                        order_date__month=month
+                    ).exclude(status="PENDING").count()
+                    order_count_list.append(order_count)
+            else:
+                # Pour 3 et 6 mois, prendre les X derniers mois complets
+                month_names = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+                
+                # Calculer le mois de départ (X mois en arrière)
+                current_month = today.month
+                current_year = today.year
+                
+                for i in range(months_to_show):
+                    # Calculer le mois en remontant depuis le mois actuel
+                    months_back = months_to_show - 1 - i
+                    target_month = current_month - months_back
+                    target_year = current_year
+                    
+                    # Gérer le débordement d'année
+                    while target_month <= 0:
+                        target_month += 12
+                        target_year -= 1
+                    while target_month > 12:
+                        target_month -= 12
+                        target_year += 1
+                    
+                    # Labels pour le graphique
+                    labels.append(month_names[target_month - 1])
+                    
+                    # Compter les produits créés ce mois
+                    product_count = Product.objects.filter(
+                        product_vendor=vendor,
+                        date__year=target_year,
+                        date__month=target_month
+                    ).count()
+                    product_count_list.append(product_count)
+                    
+                    # Compter les commandes ce mois (hors PENDING)
+                    order_count = OrderSupplier.objects.filter(
+                        vendor=vendor,
+                        order_date__year=target_year,
+                        order_date__month=target_month
+                    ).exclude(status="PENDING").count()
+                    order_count_list.append(order_count)
 
-            return JsonResponse({"product_count_list": product_count_list, "order_count_list": order_count_list, }, safe=False)
+            return JsonResponse({
+                "product_count_list": product_count_list,
+                "order_count_list": order_count_list,
+                "labels": labels
+            }, safe=False)
 
 
 class chartJsonListViewAdmin(View):
@@ -1025,107 +1107,330 @@ def supplier_orders_detail(request, id):
 
 
 @vendor_only
-def bank_info(request):
+def store_settings(request):
+    """
+    Vue pour gérer les paramètres du magasin du vendeur.
+    Permet de modifier :
+    - Les informations du magasin (logo, nom, bio, coordonnées)
+    - Les informations bancaires (compte bancaire, PayPal)
+    - Les informations d'adresse (province, ville, quartier, pays)
+    """
     context = None
     if request.user.is_authenticated and not request.user.is_anonymous:
+        # Récupérer le profil du vendeur
+        profile = Profile.objects.get(user=request.user)
+        
+        # Traitement du formulaire POST
         if request.method == 'POST':
-            bank_name = request.POST["bank_name"]
-            account_number = request.POST["account_number"]
-            account_name = request.POST["account_name"]
-            swift_code = request.POST["swift_code"]
-            country = request.POST["country"]
-            paypal_email = request.POST["paypal_email"]
-            description = request.POST["description"]
-            profile = Profile.objects.get(user=request.user)
-            if BankAccount.objects.all().filter(vendor_profile=profile,).exists():
-                old_bank_info = BankAccount.objects.get(
-                    vendor_profile=profile,)
-                old_bank_info.bank_name = bank_name
-
-                old_bank_info.account_number = account_number
-                old_bank_info.account_name = account_name
-                old_bank_info.swift_code = swift_code
-                old_bank_info.country = country
-                old_bank_info.paypal_email = paypal_email
-                old_bank_info.description = description
-                old_bank_info.save()
-                messages.success(
-                    request, 'Your Bank Info Has Been Saved !')
-                # return redirect("supplier_dashboard:bank-info")
-
-            else:
-                new_bank_info = BankAccount.objects.create(
-                    vendor_profile=profile,
-                    bank_name=bank_name,
-                    account_number=account_number,
-                    account_name=account_name,
-                    swift_code=swift_code,
-                    country=country,
-                    paypal_email=paypal_email,
-                    description=description,
-                )
-                messages.success(
-                    request, 'Your Bank Info Has Been Saved !')
-                # return redirect("supplier_dashboard:bank-info")
-        if BankAccount.objects.all().filter(vendor_profile__user=request.user,).exists():
-            bank_info_obj = BankAccount.objects.get(
-                vendor_profile__user=request.user,)
-            context = {
-                "bank_info_obj": bank_info_obj,
-            }
-        return render(request, 'supplier-panel/page-bank-info.html', context)
+            # Récupération des informations personnelles du vendeur
+            first_name = request.POST.get('first_name', '')
+            last_name = request.POST.get('last_name', '')
+            display_name = request.POST.get('display_name', '')  # Nom d'affichage du magasin
+            bio = request.POST.get('bio', '')  # Description du magasin
+            mobile_number = request.POST.get('mobile_number', '')
+            
+            # Récupération des informations d'adresse
+            province = request.POST.get('province', '')
+            city = request.POST.get('city', '')
+            quartier = request.POST.get('quartier', '')  # Code postal / Quartier
+            address = request.POST.get('address', '')
+            country = request.POST.get('country', 'Gabon')
+            
+            # Mise à jour des informations de l'utilisateur (User model)
+            user = request.user
+            if first_name:
+                user.first_name = first_name
+            if last_name:
+                user.last_name = last_name
+            user.save()
+            
+            # Traitement de l'upload de l'image du magasin
+            try:
+                image = request.FILES.get("image")
+                if image:
+                    # Validation de l'image avant sauvegarde
+                    try:
+                        Image.open(image)
+                        profile.image = image
+                    except:
+                        messages.warning(request, 'Désolé, votre image est invalide')
+                        return redirect("supplier_dashboard:store-settings")
+            except:
+                pass
+            
+            # Mise à jour du profil du vendeur (Profile model)
+            if display_name:
+                profile.display_name = display_name
+            if bio:
+                profile.bio = bio
+            if mobile_number:
+                profile.mobile_number = mobile_number
+            if city:
+                profile.city = city
+            if address:
+                profile.address = address
+            if quartier:
+                profile.post_code = quartier
+            if country:
+                profile.country = country
+            if province:
+                profile.state = province
+            profile.save()
+            
+            messages.success(request, 'Vos informations ont été enregistrées avec succès !')
+            return redirect("supplier_dashboard:store-settings")
+        
+        # Préparer le contexte pour l'affichage du formulaire
+        context = {
+            "profile": profile,
+        }
+        
+        return render(request, 'supplier-panel/page-store-settings.html', context)
 
     else:
-        messages.warning(
-            request, '-Please Login First To see This Page !')
+        messages.warning(request, '-Please Login First To see This Page !')
         return redirect('accounts:login')
 
 
 @vendor_only
-def social_links(request):
-    context = None
+def delete_account(request):
+    if request.method == 'POST':
+        try:
+            user = request.user
+            profile = Profile.objects.get(user=user)
+            
+            # Supprimer le profil (cela supprimera aussi les données liées via CASCADE)
+            profile.delete()
+            
+            # Déconnecter l'utilisateur
+            logout(request)
+            
+            # Supprimer l'utilisateur
+            user.delete()
+            
+            messages.success(request, 'Votre compte a été supprimé avec succès.')
+            return redirect('accounts:login')
+        except Exception as e:
+            messages.error(request, 'Une erreur est survenue lors de la suppression du compte.')
+            return redirect("supplier_dashboard:store-settings")
+    return redirect("supplier_dashboard:store-settings")
+
+
+def get_boost_percentage(product):
+    """
+    Calcule le pourcentage de boost selon la catégorie du produit.
+    
+    Le système applique des tarifs variables pour les boosts de produits :
+    - 15% pour les produits électroniques/technologie (haute valeur)
+    - 12% pour les produits mode/lifestyle (valeur moyenne)
+    - 8% pour les produits quotidiens (faible valeur)
+    - 10% par défaut (moyenne)
+    
+    Args:
+        product: Instance du modèle Product
+        
+    Returns:
+        float: Pourcentage de boost (entre 8.0 et 15.0)
+    """
+    # Catégories avec pourcentages plus élevés (produits de valeur)
+    # Ces produits ont généralement un prix plus élevé, donc un pourcentage plus élevé
+    high_value_categories = ['électronique', 'électroniques', 'technologie', 'tech', 'informatique', 
+                             'ordinateur', 'smartphone', 'téléphone', 'tablette', 'appareil']
+    
+    # Catégories avec pourcentages moyens (produits mode/lifestyle)
+    # Produits avec une valeur moyenne, tarif intermédiaire
+    medium_value_categories = ['mode', 'vêtement', 'habillement', 'accessoire', 'cosmétique', 
+                               'beauté', 'parfum', 'bijou', 'montre']
+    
+    # Catégories avec pourcentages bas (produits quotidiens)
+    # Produits de consommation courante, tarif réduit pour encourager les ventes
+    low_value_categories = ['alimentaire', 'nourriture', 'boisson', 'hygiène', 'ménage', 
+                           'quotidien', 'papeterie', 'fourniture', 'scolaire']
+    
+    # Vérifier d'abord la super catégorie (niveau le plus haut de la hiérarchie)
+    if product.product_supercategory:
+        super_cat_name = product.product_supercategory.name.lower()
+        for high_cat in high_value_categories:
+            if high_cat in super_cat_name:
+                return 15.0  # 15% pour produits électroniques/technologie
+        for medium_cat in medium_value_categories:
+            if medium_cat in super_cat_name:
+                return 12.0  # 12% pour produits mode/lifestyle
+        for low_cat in low_value_categories:
+            if low_cat in super_cat_name:
+                return 8.0   # 8% pour produits quotidiens
+    
+    # Si aucune correspondance dans la super catégorie, vérifier la catégorie principale
+    if product.product_maincategory:
+        main_cat_name = product.product_maincategory.name.lower()
+        for high_cat in high_value_categories:
+            if high_cat in main_cat_name:
+                return 15.0
+        for medium_cat in medium_value_categories:
+            if medium_cat in main_cat_name:
+                return 12.0
+        for low_cat in low_value_categories:
+            if low_cat in main_cat_name:
+                return 8.0
+    
+    # Par défaut, utiliser 10% (moyenne) si aucune catégorie ne correspond
+    return 10.0
+
+
+@vendor_only
+def subscriptions(request):
     if request.user.is_authenticated and not request.user.is_anonymous:
+        profile = Profile.objects.get(user=request.user)
+        
+        # Get vendor products with category and price info
+        products = Product.objects.filter(product_vendor=profile, PRDISactive=True).order_by('-date')
+        
+        # Prepare products data with boost calculation info
+        products_data = []
+        for product in products:
+            # Calculate boost percentage based on category
+            boost_percentage = get_boost_percentage(product)
+            product_price = product.PRDPrice or 0
+            boost_price_per_week = (product_price * boost_percentage / 100) if product_price > 0 else 0
+            
+            products_data.append({
+                'id': product.id,
+                'name': product.product_name,
+                'price': product_price,
+                'boost_percentage': boost_percentage,
+                'boost_price_per_week': boost_price_per_week,
+                'super_category': product.product_supercategory.name if product.product_supercategory else None,
+                'main_category': product.product_maincategory.name if product.product_maincategory else None,
+            })
+        
+        # Handle POST requests
         if request.method == 'POST':
-            facebook = request.POST["facebook"]
-            twitter = request.POST["twitter"]
-            instagram = request.POST["instagram"]
-            pinterest = request.POST["pinterest"]
-
-            profile = Profile.objects.get(user=request.user)
-            if SocialLink.objects.all().filter(vendor_profile=profile,).exists():
-                old_social_links = SocialLink.objects.get(
-                    vendor_profile=profile,)
-                old_social_links.facebook = facebook
-                old_social_links.twitter = twitter
-                old_social_links.instagram = instagram
-                old_social_links.pinterest = pinterest
-                old_social_links.save()
-                messages.success(
-                    request, 'Your Social Links Has Been Saved !')
-                # return redirect("supplier_dashboard:bank-info")
-
-            else:
-                new_social_links = SocialLink.objects.create(
-                    vendor_profile=profile,
-                    facebook=facebook,
-                    twitter=twitter,
-                    instagram=instagram,
-                    pinterest=pinterest,
-                )
-                messages.success(
-                    request, 'Your  Social Links Has Been Saved !')
-                # return redirect("supplier_dashboard:bank-info")
-        if SocialLink.objects.all().filter(vendor_profile__user=request.user,).exists():
-            social_links_obj = SocialLink.objects.get(
-                vendor_profile__user=request.user,)
-            context = {
-                "social_links_obj": social_links_obj,
-            }
-        return render(request, 'supplier-panel/page-social-links.html', context)
-
+            action = request.POST.get('action')
+            
+            if action == 'toggle_subscription':
+                # Toggle premium subscription (simplified - in production, this would handle payment)
+                # For now, we'll just show a message
+                messages.info(request, 'La fonctionnalité d\'abonnement premium sera bientôt disponible. Contactez-nous pour plus d\'informations.')
+                return redirect('supplier_dashboard:subscriptions')
+            
+            elif action == 'request_boost':
+                product_id = request.POST.get('product_id')
+                boost_duration = request.POST.get('boost_duration', '7')
+                
+                if product_id:
+                    try:
+                        product = Product.objects.get(id=product_id, product_vendor=profile)
+                        # In production, this would create a BoostRequest model and handle payment
+                        # For now, we'll just show a message
+                        messages.success(request, f'Votre demande de boost pour "{product.product_name}" a été enregistrée. Vous serez contacté pour le paiement.')
+                        return redirect('supplier_dashboard:subscriptions')
+                    except Product.DoesNotExist:
+                        messages.error(request, 'Produit introuvable.')
+                else:
+                    messages.error(request, 'Veuillez sélectionner un produit.')
+        
+        # Calculate commissions
+        # Total commissions from all completed orders
+        completed_orders = OrderSupplier.objects.filter(
+            vendor=profile,
+            status='COMPLETE'
+        )
+        total_commissions = 0
+        for order in completed_orders:
+            try:
+                amount = float(order.amount.replace(',', '').replace(' ', ''))
+                # Assuming 10% commission rate (adjust as needed)
+                commission = amount * 0.10
+                total_commissions += commission
+            except (ValueError, AttributeError):
+                pass
+        
+        # Monthly commissions (current month)
+        today = date.today()
+        first_day_month = date(today.year, today.month, 1)
+        monthly_orders = completed_orders.filter(order_date__gte=first_day_month)
+        monthly_commissions = 0
+        for order in monthly_orders:
+            try:
+                amount = float(order.amount.replace(',', '').replace(' ', ''))
+                commission = amount * 0.10
+                monthly_commissions += commission
+            except (ValueError, AttributeError):
+                pass
+        
+        # Pending commissions (orders in progress)
+        pending_orders = OrderSupplier.objects.filter(
+            vendor=profile,
+            status__in=['PENDING', 'Underway']
+        )
+        pending_commissions = 0
+        for order in pending_orders:
+            try:
+                amount = float(order.amount.replace(',', '').replace(' ', ''))
+                commission = amount * 0.10
+                pending_commissions += commission
+            except (ValueError, AttributeError):
+                pass
+        
+        # Calculate badges based on vendor performance
+        vendor_badges = {
+            'premium': False,  # Would check subscription status
+            'top_seller': False,
+            'fast_shipping': False,
+            'excellent_rating': False,
+            'verified': profile.admission,  # Using admission as verification
+            'new_seller': False,
+        }
+        
+        # Top Seller: More than 100 sales
+        total_sales = completed_orders.count()
+        if total_sales >= 100:
+            vendor_badges['top_seller'] = True
+        
+        # New Seller: Registered less than 30 days ago
+        if profile.date:
+            days_since_registration = (today - profile.date.date()).days
+            if days_since_registration <= 30:
+                vendor_badges['new_seller'] = True
+        
+        # Excellent Rating: Average rating >= 4.5
+        ratings = ProductRating.objects.filter(
+            PRDIProduct__product_vendor=profile
+        )
+        if ratings.exists():
+            avg_rating = sum(r.rate for r in ratings) / ratings.count()
+            if avg_rating >= 4.5:
+                vendor_badges['excellent_rating'] = True
+        
+        # Fast Shipping: Would check order fulfillment times (simplified)
+        # For now, we'll check if most orders are completed quickly
+        fast_orders = 0
+        for order in completed_orders[:10]:  # Check last 10 orders
+            if order.date_update and order.order_date:
+                days_to_complete = (order.date_update.date() - order.order_date.date()).days
+                if days_to_complete <= 1:
+                    fast_orders += 1
+        if fast_orders >= 7:  # 70% of orders completed within 1 day
+            vendor_badges['fast_shipping'] = True
+        
+        # Subscription status (simplified - would check actual subscription model)
+        subscription_active = False  # Would check actual subscription status
+        
+        context = {
+            'vendor': profile,
+            'products': products,
+            'products_data': products_data,  # Products with boost calculation data
+            'total_commissions': int(total_commissions),
+            'monthly_commissions': int(monthly_commissions),
+            'pending_commissions': int(pending_commissions),
+            'vendor_badges': vendor_badges,
+            'subscription_active': subscription_active,
+        }
+        
+        return render(request, 'supplier-panel/page-subscriptions.html', context)
+    
     else:
-        messages.warning(
-            request, '-Please Login First To see This Page !')
+        messages.warning(request, '-Please Login First To see This Page !')
         return redirect('accounts:login')
 
 
@@ -1146,12 +1451,103 @@ def payments(request):
             payments = paginator.page(1)
         except EmptyPage:
             payments = paginator.page(paginator.num_page)
+        
+        # Calculer les récettes totales (commandes complétées)
+        completed_orders = OrderSupplier.objects.filter(
+            vendor=vendor,
+            status='COMPLETE'
+        )
+        total_revenue = 0
+        for order in completed_orders:
+            try:
+                amount = float(str(order.amount).replace(',', '').replace(' ', ''))
+                total_revenue += amount
+            except (ValueError, AttributeError, TypeError):
+                pass
+        
+        # Calculer les récettes par période
+        today = date.today()
+        
+        # Récettes du jour
+        today_start = tz.make_aware(datetime.combine(today, datetime.min.time()))
+        today_orders = completed_orders.filter(order_date__gte=today_start)
+        daily_revenue = 0
+        for o in today_orders:
+            if o.amount:
+                try:
+                    daily_revenue += float(str(o.amount).replace(',', '').replace(' ', ''))
+                except (ValueError, AttributeError, TypeError):
+                    pass
+        
+        # Récettes de la semaine (7 derniers jours)
+        week_start = today - timedelta(days=7)
+        week_start_dt = tz.make_aware(datetime.combine(week_start, datetime.min.time()))
+        week_orders = completed_orders.filter(order_date__gte=week_start_dt)
+        weekly_revenue = 0
+        for o in week_orders:
+            if o.amount:
+                try:
+                    weekly_revenue += float(str(o.amount).replace(',', '').replace(' ', ''))
+                except (ValueError, AttributeError, TypeError):
+                    pass
+        
+        # Récettes du mois
+        month_start = date(today.year, today.month, 1)
+        month_start_dt = tz.make_aware(datetime.combine(month_start, datetime.min.time()))
+        month_orders = completed_orders.filter(order_date__gte=month_start_dt)
+        monthly_revenue = 0
+        for o in month_orders:
+            if o.amount:
+                try:
+                    monthly_revenue += float(str(o.amount).replace(',', '').replace(' ', ''))
+                except (ValueError, AttributeError, TypeError):
+                    pass
+        
+        # Récettes de l'année
+        year_start = date(today.year, 1, 1)
+        year_start_dt = tz.make_aware(datetime.combine(year_start, datetime.min.time()))
+        year_orders = completed_orders.filter(order_date__gte=year_start_dt)
+        yearly_revenue = 0
+        for o in year_orders:
+            if o.amount:
+                try:
+                    yearly_revenue += float(str(o.amount).replace(',', '').replace(' ', ''))
+                except (ValueError, AttributeError, TypeError):
+                    pass
+        
+        # Statistiques de facturation des services
+        # Abonnements premium (simulé - à remplacer par un vrai modèle)
+        subscription_stats = {
+            'active': False,
+            'total_paid': 0,
+            'monthly_cost': 0,
+            'start_date': None,
+            'end_date': None,
+        }
+        
+        # Statistiques des boosts (simulé - à remplacer par un vrai modèle)
+        boost_stats = {
+            'total_requests': 0,
+            'approved': 0,
+            'pending': 0,
+            'rejected': 0,
+            'total_spent': 0,
+            'monthly_spent': 0,
+        }
+        
         context = {
             "vendor": vendor,
             "payments": payments,
             "bank_info_obj": bank_info_obj,
             "paginator": paginator,
             "page": page,
+            "total_revenue": total_revenue,
+            "daily_revenue": daily_revenue,
+            "weekly_revenue": weekly_revenue,
+            "monthly_revenue": monthly_revenue,
+            "yearly_revenue": yearly_revenue,
+            "subscription_stats": subscription_stats,
+            "boost_stats": boost_stats,
         }
         return render(request, 'supplier-panel/page-payments-detail.html', context)
     else:
@@ -1208,13 +1604,16 @@ def get_notifications(request):
         status='PENDING'
     ).order_by('-order_date')[:10]
     
-    total_count = OrderSupplier.objects.filter(
-        vendor=vendor, 
-        status='PENDING'
-    ).count()
+    # Récupérer les notifications lues depuis la session
+    read_notifications = request.session.get('read_notifications', [])
+    if not isinstance(read_notifications, list):
+        read_notifications = []
+    
+    # Filtrer les commandes pour exclure celles déjà lues
+    unread_orders = [order for order in pending_orders if order.id not in read_notifications]
     
     notifications = []
-    for order in pending_orders:
+    for order in unread_orders:
         notifications.append({
             'id': order.id,
             'title': f'Nouvelle commande #{order.id}',
@@ -1223,10 +1622,53 @@ def get_notifications(request):
             'amount': order.amount,
         })
     
+    # Compter uniquement les notifications non lues
+    total_count = len(unread_orders)
+    
     return JsonResponse({
         'notifications': notifications,
         'count': total_count
     })
+
+
+@vendor_only
+def mark_notification_read(request, notification_id):
+    """Marque une notification comme lue"""
+    if request.method == 'POST':
+        # Récupérer les notifications lues depuis la session
+        read_notifications = request.session.get('read_notifications', [])
+        if not isinstance(read_notifications, list):
+            read_notifications = []
+        
+        # Ajouter l'ID de la notification à la liste des lues
+        if notification_id not in read_notifications:
+            read_notifications.append(notification_id)
+            request.session['read_notifications'] = read_notifications
+            request.session.modified = True
+        
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
+
+
+@vendor_only
+def mark_all_notifications_read(request):
+    """Marque toutes les notifications comme lues"""
+    if request.method == 'POST':
+        vendor = Profile.objects.get(user=request.user)
+        pending_orders = OrderSupplier.objects.filter(
+            vendor=vendor, 
+            status='PENDING'
+        )
+        
+        # Récupérer tous les IDs des commandes en attente
+        all_order_ids = list(pending_orders.values_list('id', flat=True))
+        
+        # Mettre à jour la session avec tous les IDs
+        request.session['read_notifications'] = all_order_ids
+        request.session.modified = True
+        
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
 
 def supplier_reviews(request):
     if request.user.is_authenticated and not request.user.is_anonymous:

@@ -34,8 +34,11 @@ urlpatterns = [
 #          name="supplier-transactions"),
     path('supplier-reviews/', views.supplier_reviews,  name="supplier-reviews"),
 
-    path('settings/bank-info/', views.bank_info, name="bank-info"),
-    path('settings/social-links/', views.social_links, name="social-links"),
+    # Paramètres du magasin (anciennement bank-info) - Gestion des informations du magasin et coordonnées bancaires
+    path('settings/store-settings/', views.store_settings, name="store-settings"),
+    # Abonnements et services premium - Gestion des abonnements, boosts de produits et badges
+    path('settings/subscriptions/', views.subscriptions, name="subscriptions"),
+    path('settings/delete-account/', views.delete_account, name="delete-account"),
 #     path('page_settings_2/', views.page_settings_2, name="page-settings-2"),
     path('supplier-orders-list-ajax/', views.SupplierOrdersJsonListView.as_view(),
          name="supplier-orders-list-ajax"),
@@ -44,6 +47,8 @@ urlpatterns = [
     path('payments/', views.payments, name="payments"), 
     path('request_payment/', views.request_payment, name="request-payment"),
     path('notifications/', views.get_notifications, name="notifications"),
+    path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name="mark-notification-read"),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name="mark-all-notifications-read"),
 
 
 ]

@@ -93,9 +93,10 @@
                 <hr class="sidebar-divider" />
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link {% if 'bank' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:bank-info' %}" data-tooltip="Paramètres" data-spa-link>
-                            <i class="material-icons sidebar-menu-icon">settings</i>
-                            <span class="sidebar-menu-text">Paramètres</span>
+                        <!-- Lien vers les Abonnements (page par défaut) -->
+                        <a class="sidebar-menu-link {% if 'store-settings' in request.resolver_match.url_name or 'subscriptions' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'supplier_dashboard:subscriptions' %}" data-tooltip="Abonnements" data-spa-link>
+                            <i class="material-icons sidebar-menu-icon">workspace_premium</i>
+                            <span class="sidebar-menu-text">Abonnements</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
@@ -161,7 +162,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                                 <li><a class="dropdown-item" href="{% url 'accounts:account_details'%}"><i class="material-icons">person</i> Modifier le profil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'supplier_dashboard:bank-info' %}"><i class="material-icons">settings</i> Paramètres du compte</a></li>
+                                <li><a class="dropdown-item" href="{% url 'supplier_dashboard:store-settings' %}"><i class="material-icons">settings</i> Paramètres du magasin</a></li>
                                 <li><a class="dropdown-item" href="{% url 'supplier_dashboard:payments' %}"><i class="material-icons">receipt</i> Facturation</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout'%}"><i class="material-icons">logout</i> Déconnexion</a></li>
@@ -1205,84 +1206,17 @@
                 }
             }
             
-            // Navigation SPA - Intercepter les clics sur les liens de la sidebar
+            // Navigation avec rechargement complet de la page
+            // Désactivé la navigation SPA pour garantir le chargement de tous les scripts JavaScript
             function initSPANavigation() {
+                // Ne plus intercepter les clics - laisser le navigateur faire un rechargement complet
+                // Cela garantit que tous les scripts JavaScript spécifiques à chaque page sont chargés
                 document.querySelectorAll('[data-spa-link]').forEach(function(link) {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('href');
-                        
-                        if (!url) return;
-                        
-                        // Mettre à jour l'état actif dans la sidebar
-                        document.querySelectorAll('.sidebar-menu-link').forEach(function(l) {
-                            l.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                        
-                        // Afficher le loader
-                        showContentLoader();
-                        
-                        // Charger le contenu via fetch
-                        fetch(url, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-SPA-Request': 'true'
-                            }
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Parser le HTML
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            
-                            // Extraire le contenu de la section
-                            const newContent = doc.querySelector('.dashboard-content');
-                            const newTitle = doc.querySelector('#pageTitle, .dashboard-header h1');
-                            const newSubtitle = doc.querySelector('#pageSubtitle, .dashboard-header p');
-                            
-                            // Mettre à jour le contenu
-                            const contentWrapper = document.getElementById('dashboardContent');
-                            if (newContent && contentWrapper) {
-                                contentWrapper.innerHTML = newContent.innerHTML;
-                            }
-                            
-                            // Mettre à jour le titre et sous-titre
-                            const titleEl = document.getElementById('pageTitle');
-                            const subtitleEl = document.getElementById('pageSubtitle');
-                            if (newTitle && titleEl) {
-                                titleEl.textContent = newTitle.textContent;
-                            }
-                            if (newSubtitle && subtitleEl) {
-                                subtitleEl.textContent = newSubtitle.textContent;
-                            }
-                            
-                            // Mettre à jour l'URL sans recharger la page
-                            window.history.pushState({}, '', url);
-                            
-                            // Réinitialiser les scripts si nécessaire
-                            if (typeof reinitializeScripts === 'function') {
-                                reinitializeScripts();
-                            }
-                            
-                            // Masquer le loader
-                            hideContentLoader();
-                        })
-                        .catch(error => {
-                            console.error('Erreur lors du chargement:', error);
-                            hideContentLoader();
-                            // Fallback: recharger la page normalement
-                            window.location.href = url;
-                        });
-                    });
+                    // Retirer l'attribut data-spa-link pour éviter toute confusion
+                    // Le lien fonctionnera normalement avec un rechargement complet
+                    link.removeAttribute('data-spa-link');
                 });
             }
-            
-            // Gérer le bouton retour du navigateur
-            window.addEventListener('popstate', function(e) {
-                // Recharger la page actuelle
-                window.location.reload();
-            });
             
             // Toggle Notification Dropdown
             function toggleNotificationDropdown() {
@@ -1338,17 +1272,76 @@
             function markAsRead(orderId) {
                 const notificationItem = document.querySelector(`[data-order-id="${orderId}"]`);
                 if (notificationItem) {
-                    notificationItem.classList.remove('unread');
-                    updateNotificationBadge();
+                    // Envoyer la requête au serveur pour marquer comme lue
+                    fetch(`{% url "supplier_dashboard:mark-notification-read" 0 %}`.replace('0', orderId), {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Retirer visuellement la notification
+                            notificationItem.remove();
+                            updateNotificationBadge();
+                            // Recharger les notifications pour mettre à jour la liste
+                            loadNotifications();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors du marquage de la notification:', error);
+                    });
                 }
             }
             
             // Marquer toutes les notifications comme lues
             function markAllAsRead() {
-                document.querySelectorAll('.notification-item.unread').forEach(function(item) {
-                    item.classList.remove('unread');
+                fetch('{% url "supplier_dashboard:mark-all-notifications-read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Retirer toutes les notifications
+                        const notificationList = document.getElementById('notificationList');
+                        if (notificationList) {
+                            notificationList.innerHTML = `
+                                <div class="notification-empty">
+                                    <i class="material-icons">notifications_none</i>
+                                    <p>Aucune nouvelle notification</p>
+                                </div>
+                            `;
+                        }
+                        updateNotificationBadge();
+                        // Recharger les notifications pour mettre à jour la liste
+                        loadNotifications();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors du marquage de toutes les notifications:', error);
                 });
-                updateNotificationBadge();
+            }
+            
+            // Fonction pour récupérer le cookie CSRF
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
             }
             
             // Charger les notifications
@@ -1391,7 +1384,12 @@
                                 `;
                                 notificationItem.addEventListener('click', function(e) {
                                     if (!e.target.closest('.notification-close')) {
-                                        window.location.href = '{% url "supplier_dashboard:supplier-orders-list" %}';
+                                        // Marquer la notification comme lue avant de rediriger
+                                        markAsRead(notification.id);
+                                        // Rediriger vers la liste des commandes
+                                        setTimeout(function() {
+                                            window.location.href = '{% url "supplier_dashboard:supplier-orders-list" %}';
+                                        }, 100);
                                     }
                                 });
                                 notificationList.appendChild(notificationItem);
