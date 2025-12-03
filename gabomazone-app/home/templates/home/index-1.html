@@ -221,9 +221,9 @@
                                      </div>
                                      <div class="product-card-bottom">
                                          <div class="product-price">
-                                            <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                            {%if product.PRDDiscountPrice%}
-                                            <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                            <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                             {%if product.PRDDiscountPrice%}
+                                            <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
                                              {%endif%}
                                          </div>
                                          <div class="add-cart">
@@ -331,18 +331,18 @@
                                              <div class="product-rate d-inline-block">
                                                  <div class="product-rating" style="width: {{product.feedbak_average}}%"></div>
                                              </div>
-                                            <div class="product-price mt-10">
-                                                <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                               {%if product.PRDDiscountPrice%}
-                                                <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
-                                               {%endif%}
-                                            </div>
-                                            <div class="sold mt-15 mb-15">
-                                                {% comment %} <div class="progress mb-5">
-                                                    <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
+                                             <div class="product-price mt-10">
+                                                <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                                {%if product.PRDDiscountPrice%}
+                                                <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
+                                                 {%endif%}
+                                             </div>
+                                             <div class="sold mt-15 mb-15">
+                                                 {% comment %} <div class="progress mb-5">
+                                                     <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuemin="0" aria-valuemax="100"></div>
+                                                 </div>
                                                 <span class="font-xs text-heading"> Vendu: 90/120</span> {% endcomment %}
-                                            </div>
+                                             </div>
                                             <a href="{% url 'products:product-details' product.PRDSlug %}" class="btn-primary btn-sm w-100"><i class="fi-rs-eye"></i>  Voir</a>
                                          </div>
                                      </div>
@@ -400,9 +400,9 @@
                                  </div>
                                  <div class="product-card-bottom">
                                      <div class="product-price">
-                                         <span class="currency-xof">{{home_ad_deal_time.PRDPrice|floatformat:0}} XOF</span>
+                                         <span class="currency-xof">{{home_ad_deal_time.PRDPrice|format_price}} FCFA</span>
                                          {% if home_ad_deal_time.PRDDiscountPrice%}
-                                         <span class="old-price">{{home_ad_deal_time.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                         <span class="old-price">{{home_ad_deal_time.PRDDiscountPrice|format_price}} FCFA</span>
                                          {%endif %}
                                      </div>
                                      <div class="add-cart">
@@ -442,9 +442,9 @@
                                      <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
                                  </div>
                                  <div class="product-price">
-                                    <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                    {%if product.PRDDiscountPrice%}
-                                    <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                    <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                     {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
                                      {%endif%}
                                  </div>
                              </div>
@@ -471,9 +471,9 @@
                                      <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
                                  </div>
                                  <div class="product-price">
-                                    <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                    {%if product.PRDDiscountPrice%}
-                                    <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                    <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                     {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
                                      {%endif%}
                                  </div>
                              </div>
@@ -500,9 +500,9 @@
                                      <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
                                  </div>
                                  <div class="product-price">
-                                    <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                    {%if product.PRDDiscountPrice%}
-                                    <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                    <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                     {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
                                      {%endif%}
                                  </div>
                              </div>
@@ -529,9 +529,9 @@
                                      <span class="font-small ml-5 text-muted"> ({{product.feedbak_number}})</span>
                                  </div>
                                  <div class="product-price">
-                                    <span class="currency-xof">{{product.PRDPrice|floatformat:0}} XOF</span>
-                                    {%if product.PRDDiscountPrice%}
-                                    <span class="old-price">{{product.PRDDiscountPrice|floatformat:0}} XOF</span>
+                                    <span class="currency-xof">{{product.PRDPrice|format_price}} FCFA</span>
+                                     {%if product.PRDDiscountPrice%}
+                                    <span class="old-price">{{product.PRDDiscountPrice|format_price}} FCFA</span>
                                      {%endif%}
                                  </div>
                              </div>

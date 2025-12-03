@@ -1,5 +1,12 @@
 window.onload = function () {
     console.log("heeeeeeeeeee")
+    // Fonction pour formater un prix avec des espaces
+    function formatPrice(priceValue) {
+        const price = parseFloat(priceValue || 0);
+        const intPrice = Math.floor(price);
+        return intPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
     const ordersList = document.getElementById("orders-list");
 
     const loadBtn = document.getElementById("load-btn");
@@ -85,7 +92,7 @@ window.onload = function () {
                         <td class="order-id-cell">#${order.id}</td>
                         <td class="order-email-cell">${order.email_client || 'N/A'}</td>
                         <td class="order-weight-cell">${order.weight || 0} kg</td>
-                        <td class="order-total-cell">${order.amount || 0} XOF</td>
+                        <td class="order-total-cell">${formatPrice(order.amount || 0)} FCFA</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td class="order-date-cell">${formattedDate}</td>
                         <td class="text-right">

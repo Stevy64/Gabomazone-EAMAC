@@ -1,5 +1,6 @@
- {% extends 'supplier-panel/supplier-base.html' %}
- {%load static%}
+{% extends 'supplier-panel/supplier-base.html' %}
+{%load static%}
+{% load cart_template_tags %}
 
 {%block section %}
 
@@ -180,9 +181,9 @@
                                                 </div>
                 <div class="product-list-details">
                     <div class="product-list-price">
-                        <span class="price-value">{{ product.PRDPrice|floatformat:0 }} FCFA</span>
+                        <span class="price-value">{{ product.PRDPrice|format_price }} FCFA</span>
                         {% if product.PRDDiscountPrice and product.PRDDiscountPrice > 0 %}
-                            <span class="price-discount">{{ product.PRDDiscountPrice|floatformat:0 }} FCFA</span>
+                            <span class="price-discount">{{ product.PRDDiscountPrice|format_price }} FCFA</span>
                         {% endif %}
                                                     </div>
                     <div class="product-list-meta">

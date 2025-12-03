@@ -22,13 +22,13 @@
 ### 3. Settings Configuration
 - ✅ `LANGUAGE_CODE = 'fr-fr'`
 - ✅ `USE_I18N = False`
-- ✅ `DEFAULT_CURRENCY = 'XOF'`
+- ✅ `DEFAULT_CURRENCY = 'FCFA'`
 - ✅ `TIME_ZONE = 'Africa/Libreville'`
 
 ### 4. Base Templates Updated
 - ✅ `templates/base.html` - Client app base with new theme
   - French translations throughout
-  - XOF currency formatting
+  - FCFA currency formatting
   - Removed language switcher
   - Added bottom navigation component
   
@@ -39,13 +39,13 @@
 
 ### 5. Pages Updated
 - ✅ Home page templates (index-1.html) - Price formatting
-- ✅ Cart page (shop-cart.html) - Complete French translation + XOF
+- ✅ Cart page (shop-cart.html) - Complete French translation + FCFA
 - ✅ Vendor dashboard index - Glassmorphism design + French
 
 ## 🔄 In Progress
 
 ### Currency Updates
-- Most templates updated to use `{{price|floatformat:0}} XOF`
+- Most templates updated to use `{{price|floatformat:0}} FCFA`
 - Some templates may still use old currency filter (needs verification)
 
 ### French Translations
@@ -60,7 +60,7 @@
 
 ### High Priority
 1. **Product Detail Pages**
-   - Update price displays to XOF
+   - Update price displays to FCFA
    - Add French translations
    - Apply new design components
 
@@ -83,7 +83,7 @@
 
 5. **Checkout/Payment Pages**
    - French translations
-   - XOF currency
+   - FCFA currency
    - Form styling
 
 6. **Mobile Responsiveness**
@@ -124,7 +124,7 @@
 
 ## 📝 Notes
 
-- All currency should use: `{{price|floatformat:0}} XOF`
+- All currency should use: `{{price|floatformat:0}} FCFA`
 - Remove all `{% trans %}` and `{% blocktrans %}` tags
 - Language switchers removed from base templates
 - Bottom navigation only shows on mobile (< 992px)

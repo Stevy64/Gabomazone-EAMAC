@@ -1,5 +1,6 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+{% load cart_template_tags %}
 
 {%block section %}
 
@@ -24,7 +25,7 @@
                 </div>
             </div>
             <div class="stat-card-content">
-                <div class="stat-card-value">{{vendor.blance|floatformat:0}} FCFA</div>
+                <div class="stat-card-value">{{vendor.blance|format_price}} FCFA</div>
                 <div class="stat-card-label">Revenus totaux</div>
             </div>
         </div>
@@ -728,11 +729,11 @@
         'revenue': {
             icon: 'fi-rs-money',
             title: 'Revenus totaux',
-            value: '{{vendor.blance|floatformat:0}} FCFA',
+            value: '{{vendor.blance|format_price}} FCFA',
             description: 'Vos revenus totaux représentent l\'ensemble des commissions que vous avez gagnées sur toutes vos ventes.',
             details: [
-                ['Revenus disponibles', '{{vendor.blance|floatformat:0}} FCFA'],
-                ['Revenus en attente', '{{vendor.requested|floatformat:0}} FCFA'],
+                ['Revenus disponibles', '{{vendor.blance|format_price}} FCFA'],
+                ['Revenus en attente', '{{vendor.requested|format_price}} FCFA'],
             ]
         },
         'orders-underway': {

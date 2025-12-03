@@ -1,176 +1,589 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+{% load cart_template_tags %}
 
 {%block section %}
 
-<section class="content-main">
-    <div class="content-header">
+<style>
+    .flavoriz-order-detail-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 24px 20px;
+    }
+    
+    .flavoriz-order-header {
+        background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 32px;
+        color: white;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .flavoriz-order-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .flavoriz-order-title-section h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: white;
+    }
+    
+    .flavoriz-order-title-section p {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+    }
+    
+    .flavoriz-order-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .flavoriz-order-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+    }
+    
+    .flavoriz-order-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .flavoriz-order-meta-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .flavoriz-order-meta-content h6 {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0 0 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .flavoriz-order-meta-content p {
+        font-size: 14px;
+        color: white;
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .flavoriz-order-content {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 32px;
+        margin-bottom: 32px;
+    }
+    
+    .flavoriz-order-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #E5E7EB;
+    }
+    
+    .flavoriz-order-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 20px 0;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #F3F4F6;
+    }
+    
+    .flavoriz-order-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .flavoriz-order-table thead {
+        background: #F9FAFB;
+    }
+    
+    .flavoriz-order-table th {
+        padding: 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #E5E7EB;
+    }
+    
+    .flavoriz-order-table td {
+        padding: 20px 16px;
+        border-bottom: 1px solid #F3F4F6;
+        vertical-align: middle;
+    }
+    
+    .flavoriz-order-table tbody tr:hover {
+        background: #F9FAFB;
+    }
+    
+    .flavoriz-product-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .flavoriz-product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid #F3F4F6;
+    }
+    
+    .flavoriz-product-details h6 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 4px 0;
+    }
+    
+    .flavoriz-product-details p {
+        font-size: 12px;
+        color: #6B7280;
+        margin: 0;
+    }
+    
+    .flavoriz-price-cell {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    .flavoriz-quantity-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #F3F4F6;
+        border-radius: 10px;
+        font-weight: 700;
+        color: #1F2937;
+        font-size: 14px;
+    }
+    
+    .flavoriz-order-summary {
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        border-radius: 16px;
+        padding: 24px;
+        border: 2px solid #E5E7EB;
+    }
+    
+    .flavoriz-summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #E5E7EB;
+    }
+    
+    .flavoriz-summary-item:last-child {
+        border-bottom: none;
+        margin-top: 8px;
+        padding-top: 20px;
+        border-top: 2px solid #E5E7EB;
+    }
+    
+    .flavoriz-summary-label {
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .flavoriz-summary-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    
+    .flavoriz-summary-total .flavoriz-summary-label {
+        font-size: 18px;
+        color: #1F2937;
+        font-weight: 700;
+    }
+    
+    .flavoriz-summary-total .flavoriz-summary-value {
+        font-size: 24px;
+        color: var(--color-orange);
+    }
+    
+    .flavoriz-info-section {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #E5E7EB;
+        margin-bottom: 24px;
+    }
+    
+    .flavoriz-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+    }
+    
+    .flavoriz-info-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .flavoriz-info-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    
+    .flavoriz-info-content h6 {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6B7280;
+        margin: 0 0 8px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .flavoriz-info-content p {
+        font-size: 14px;
+        color: #1F2937;
+        margin: 0;
+        line-height: 1.6;
+        font-weight: 500;
+    }
+    
+    .flavoriz-payment-card {
+        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+        border-radius: 16px;
+        padding: 24px;
+        border: 2px solid #FCD34D;
+    }
+    
+    .flavoriz-payment-card h6 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #92400E;
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .flavoriz-payment-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .flavoriz-payment-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: #78350F;
+        font-weight: 500;
+    }
+    
+    .flavoriz-print-btn {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(255, 123, 44, 0.4);
+        transition: all 0.3s ease;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .flavoriz-print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 123, 44, 0.5);
+    }
+    
+    @media (max-width: 1024px) {
+        .flavoriz-order-content {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .flavoriz-order-detail-container {
+            padding: 16px;
+        }
+        
+        .flavoriz-order-header {
+            padding: 20px;
+        }
+        
+        .flavoriz-order-title-section h1 {
+            font-size: 22px;
+        }
+        
+        .flavoriz-order-meta {
+            grid-template-columns: 1fr;
+        }
+        
+        .flavoriz-info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .flavoriz-order-table {
+            font-size: 12px;
+        }
+        
+        .flavoriz-order-table th,
+        .flavoriz-order-table td {
+            padding: 12px 8px;
+        }
+        
+        .flavoriz-product-image {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .flavoriz-print-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+        }
+    }
+</style>
+
+<div class="flavoriz-order-detail-container">
+    <!-- Header -->
+    <div class="flavoriz-order-header">
+        <div class="flavoriz-order-header-top">
+            <div class="flavoriz-order-title-section">
+                <h1>
+                    <i class="fi-rs-shopping-bag" style="margin-right: 8px;"></i>
+                    Détails de la commande
+                </h1>
+                <p>Commande #{{order_supplier.id}} • {{order_supplier.date_update|date:"d/m/Y à H:i"}}</p>
+            </div>
+            <div class="flavoriz-order-status-badge">
+                <i class="fi-rs-check-circle"></i>
+                <span>{{order_supplier.status}}</span>
+            </div>
+        </div>
+        <div class="flavoriz-order-meta">
+            <div class="flavoriz-order-meta-item">
+                <div class="flavoriz-order-meta-icon">
+                    <i class="fi-rs-user"></i>
+                </div>
+                <div class="flavoriz-order-meta-content">
+                    <h6>Client</h6>
+                    <p>{{order_supplier.user.get_full_name|default:order_supplier.user.username}}</p>
+                </div>
+            </div>
+            <div class="flavoriz-order-meta-item">
+                <div class="flavoriz-order-meta-icon">
+                    <i class="fi-rs-envelope"></i>
+                </div>
+                <div class="flavoriz-order-meta-content">
+                    <h6>Email</h6>
+                    <p>{{order_supplier.user.email}}</p>
+                </div>
+            </div>
+            <div class="flavoriz-order-meta-item">
+                <div class="flavoriz-order-meta-icon">
+                    <i class="fi-rs-phone"></i>
+                </div>
+                <div class="flavoriz-order-meta-content">
+                    <h6>Téléphone</h6>
+                    <p>{{payment_info.phone|default:"Non renseigné"}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informations de livraison et commande -->
+    <div class="flavoriz-info-grid">
+        <div class="flavoriz-info-section">
+            <div class="flavoriz-info-card">
+                <div class="flavoriz-info-icon">
+                    <i class="fi-rs-marker"></i>
+                </div>
+                <div class="flavoriz-info-content">
+                    <h6>Adresse de livraison</h6>
+                    <p>
+                        {{payment_info.street_address|default:"Non renseigné"}}<br>
+                        {{payment_info.City|default:""}}{% if payment_info.state %}, {{payment_info.state}}{% endif %}<br>
+                        {{payment_info.country|default:""}} {{payment_info.post_code|default:""}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flavoriz-info-section">
+            <div class="flavoriz-info-card">
+                <div class="flavoriz-info-icon">
+                    <i class="fi-rs-truck"></i>
+                </div>
+                <div class="flavoriz-info-content">
+                    <h6>Informations de livraison</h6>
+                    <p>
+                        Transporteur: Aramex Express<br>
+                        Statut: {{order_supplier.status}}<br>
+                        Date: {{order_supplier.date_update|date:"d/m/Y"}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenu principal -->
+    <div class="flavoriz-order-content">
+        <!-- Liste des produits -->
+        <div class="flavoriz-order-card">
+            <h2 class="flavoriz-order-card-title">
+                <i class="fi-rs-box" style="margin-right: 8px; color: var(--color-orange);"></i>
+                Produits commandés
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="flavoriz-order-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Prix unitaire</th>
+                            <th>Quantité</th>
+                            <th>Taille</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order_detail in order_details_supplier %}
+                        <tr>
+                            <td>
+                                <div class="flavoriz-product-info">
+                                    <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-image" />
+                                    <div class="flavoriz-product-details">
+                                        <h6>{{order_detail.product.product_name}}</h6>
+                                        <p>Réf: #{{order_detail.product.id}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="flavoriz-price-cell">{{order_detail.product.PRDPrice|format_price}} FCFA</span>
+                            </td>
+                            <td>
+                                <span class="flavoriz-quantity-badge">{{order_detail.quantity}}</span>
+                            </td>
+                            <td>
+                                <span style="font-size: 14px; color: #6B7280; font-weight: 500;">{{order_detail.size|default:"-"}}</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <span class="flavoriz-price-cell">{{order_detail.product.PRDPrice|multiply_and_format:order_detail.quantity}} FCFA</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Résumé de la commande -->
         <div>
-            <h2 class="content-title card-title">Order detail</h2>
-            <p>Details for Order ID: {{order_supplier.id}}</p>
-        </div>
-    </div>
-    <div class="card">
-        <header class="card-header">
-            <div class="row align-items-center">
-                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
-                    <span> <i class="material-icons md-calendar_today"></i> <b>{{order_supplier.date_update}}</b> </span> <br />
-                    <small class="text-muted">Order ID: {{order_supplier.id}}</small>
+            <div class="flavoriz-order-summary">
+                <h2 class="flavoriz-order-card-title" style="margin-bottom: 20px;">
+                    <i class="fi-rs-receipt" style="margin-right: 8px; color: var(--color-orange);"></i>
+                    Résumé
+                </h2>
+                <div class="flavoriz-summary-item">
+                    <span class="flavoriz-summary-label">Sous-total</span>
+                    <span class="flavoriz-summary-value">{{order_supplier.amount|format_price}} FCFA</span>
                 </div>
-                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                    <div class="form-select d-inline-block mb-lg-0 mr-5 mw-200 text-center">
-                        <span >{{order_supplier.status}}</span>
-                        
-                    </div>
-                    
-                    <a class="btn btn-secondary print ms-2" href="javascript:window.print()"><i class="icon material-icons md-print"></i></a>
+                <div class="flavoriz-summary-item">
+                    <span class="flavoriz-summary-label">Statut du paiement</span>
+                    <span class="flavoriz-summary-value" style="color: #059669;">
+                        <i class="fi-rs-check-circle" style="margin-right: 4px;"></i>
+                        Payé
+                    </span>
+                </div>
+                <div class="flavoriz-summary-item flavoriz-summary-total">
+                    <span class="flavoriz-summary-label">Total</span>
+                    <span class="flavoriz-summary-value">{{order_supplier.amount|format_price}} FCFA</span>
                 </div>
             </div>
-        </header>
-        <!-- card-header end// -->
-        <div class="card-body">
-            <div class="row mb-50 mt-20 order-info-wrap">
-                <div class="col-md-4">
-                    <article class="icontext align-items-start">
-                        <span class="icon icon-sm rounded-circle bg-primary-light">
-                            <i class="text-primary material-icons md-person"></i>
-                        </span>
-                        <div class="text">
-                            <h6 class="mb-1">Customer</h6>
-                            <p class="mb-1">
-                                {{order_supplier.user}}<br />
-                                {{order_supplier.user.email}}<br />
-                                {{payment_info.phone}}
-                              
-                            </p>
-                            
-                        </div>
-                    </article>
-                </div>
-                <!-- col// -->
-                <div class="col-md-4">
-                    <article class="icontext align-items-start">
-                        <span class="icon icon-sm rounded-circle bg-primary-light">
-                            <i class="text-primary material-icons md-local_shipping"></i>
-                        </span>
-                        <div class="text">
-                            <h6 class="mb-1">Order info</h6>
-                            <p class="mb-1">
-                                Shipping By: aramex express <br />
-                                Amount: ${{order_supplier.amount}} <br />
-                                Status: {{order_supplier.status}}
-                            </p>
-                            
-                        </div>
-                    </article>
-                </div>
-                <!-- col// -->
-                <div class="col-md-4">
-                    <article class="icontext align-items-start">
-                        <span class="icon icon-sm rounded-circle bg-primary-light">
-                            <i class="text-primary material-icons md-place"></i>
-                        </span>
-                        <div class="text">
-                            <h6 class="mb-1">Deliver to</h6>
-                            <p class="mb-1">
-                                City: {{payment_info.City}}, {{payment_info.state}} <br />
-                                street: {{payment_info.street_address}}<br />
-                                {{payment_info.country}}, {{payment_info.post_code}} 
-                            </p>
-                           
-                        </div>
-                    </article>
-                </div>
-                <!-- col// -->
-            </div>
-            <!-- row // -->
-            <div class="row">
-                <div class="col-lg-7">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th width="40%">Product</th>
-                                    <th width="20%">Unit Price</th>
-                                    <th width="20%">Quantity</th>
-                                    <th width="20%">Size</th>
-                                    <th width="20%" class="text-end">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                {% for order_detail in  order_details_supplier%}
-                                <tr>
-                                    <td>
-                                        <a class="itemside" href="#">
-                                            <div class="left">
-                                                <img src="{{order_detail.product.product_image.url}}" width="60" height="60" class="" alt="Item" />
-                                            </div>
-                                            <div class="info">{{order_detail.product.product_name}}</div>
-                                        </a>
-                                    </td>
-                                    <td>${{order_detail.product.PRDPrice}}</td>
-                                    <td>{{order_detail.quantity}}</td>
-                                    <td>{{order_detail.size}}</td>
-                                    <td class="text-end">${% widthratio order_detail.product.PRDPrice 1 order_detail.quantity %} </td>
-                                </tr>
-                                {%endfor%}
-
-                                <tr>
-                                    <td colspan="4">
-                                        <article class="float-end">
-                                            {% comment %} <dl class="dlist">
-                                                <dt>Subtotal:</dt>
-                                                <dd>$973.35</dd>
-                                            </dl>
-                                            <dl class="dlist">
-                                                <dt>Shipping cost:</dt>
-                                                <dd>$10.00</dd>
-                                            </dl> {% endcomment %}
-                                            <dl class="dlist">
-                                                <dt>Total:</dt>
-                                                <dd><b class="h5">${{order_supplier.amount}} </b></dd>
-                                            </dl>
-                                            <dl class="dlist">
-                                                <dt class="text-muted">Status:</dt>
-                                                <dd>
-                                                    <span class="badge rounded-pill alert-success text-success">Payment done</span>
-                                                </dd>
-                                            </dl>
-                                        </article>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            
+            <!-- Informations de paiement -->
+            <div class="flavoriz-payment-card" style="margin-top: 24px;">
+                <h6>
+                    <i class="fi-rs-credit-card"></i>
+                    Informations de paiement
+                </h6>
+                <div class="flavoriz-payment-info">
+                    <div class="flavoriz-payment-item">
+                        <i class="fi-rs-credit-card" style="font-size: 16px;"></i>
+                        <span>{{payment_info.payment_method|default:"Non spécifié"}}</span>
                     </div>
-                    <!-- table-responsive// -->
-                </div>
-                <!-- col// -->
-                <div class="col-lg-1"></div>
-                <div class="col-lg-4">
-                    <div class="box shadow-sm bg-light">
-                        <h6 class="mb-15">Payment info</h6>
-                        <p>
-                            <img src="{% static 'assets-supplier/imgs/card-brands/2.png'%}" class="border" height="20" />  {{payment_info.payment_method}} <br />
-                            Business name: {{payment_info.first_name}} {{payment_info.last_name}} <br />
-                            Phone: {{payment_info.phone}}
-                        </p>
+                    <div class="flavoriz-payment-item">
+                        <i class="fi-rs-user" style="font-size: 16px;"></i>
+                        <span>{{payment_info.first_name}} {{payment_info.last_name}}</span>
                     </div>
-                    {% comment %} <div class="h-25 pt-4">
-                        <div class="mb-3">
-                            <label>Notes</label>
-                            <textarea class="form-control" name="notes" id="notes" placeholder="Type some note"></textarea>
-                        </div>
-                        <button class="btn btn-primary">Save note</button>
-                    </div> {% endcomment %}
+                    <div class="flavoriz-payment-item">
+                        <i class="fi-rs-phone" style="font-size: 16px;"></i>
+                        <span>{{payment_info.phone|default:"Non renseigné"}}</span>
+                    </div>
                 </div>
-                <!-- col// -->
             </div>
         </div>
-        <!-- card-body end// -->
     </div>
-    <!-- card end// -->
-</section>
+</div>
+
+<!-- Bouton d'impression flottant -->
+<button class="flavoriz-print-btn" onclick="window.print()" title="Imprimer">
+    <i class="fi-rs-print"></i>
+</button>
 
 {%endblock section%}
 

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load cart_template_tags %}
 
 {%block head%}
 {{ block.super }}
@@ -103,10 +104,10 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6;">
                                 <div>
                                     <div style="font-size: 20px; font-weight: 700; color: var(--color-orange);">
-                                        {% widthratio item.price 1 item.quantity|floatformat:0 %} XOF
+                                        {{ item.price|multiply_and_format:item.quantity }} FCFA
                                     </div>
                                     <div style="font-size: 12px; color: #9CA3AF; margin-top: 2px;">
-                                        {{item.price|floatformat:0}} XOF × {{item.quantity}}
+                                        {{item.price|format_price}} FCFA × {{item.quantity}}
                                     </div>
                 </div>
                                 <a href="{% url 'orders:remove-item' productdeatails_id=item.id %}" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #FEE2E2; color: #DC2626; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; cursor: pointer;" title="Retirer du panier">
@@ -225,7 +226,7 @@
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
-                            <strong style="font-size: 16px; color: var(--color-orange); font-weight: 700;">{{f_total|floatformat:0}} XOF</strong>
+                            <strong style="font-size: 16px; color: var(--color-orange); font-weight: 700;">{{f_total|format_price}} FCFA</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Articles</span>
@@ -239,13 +240,13 @@
                         {% if coupon_id %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Code promo</span>
-                            <span style="font-size: 14px; color: #1F2937; font-weight: 600;">{{code}} <span style="color: #10b981; font-weight: 700;">-{{value|floatformat:0}} XOF</span></span>
+                            <span style="font-size: 14px; color: #1F2937; font-weight: 600;">{{code}} <span style="color: #10b981; font-weight: 700;">-{{value|format_price}} FCFA</span></span>
                             </div>
                         <div style="height: 1px; background: #E5E7EB; margin: 4px 0;"></div>
                         {% endif %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 4px; border-top: 2px solid #F3F4F6;">
                             <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
-                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{total|floatformat:0}} XOF</strong>
+                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{total|format_price}} FCFA</strong>
                             </div>
                         </div>
                     <div style="padding: 16px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%); border-radius: 10px; border: 1px solid rgba(255, 123, 44, 0.2);">

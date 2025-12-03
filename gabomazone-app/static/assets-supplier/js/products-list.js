@@ -1,4 +1,11 @@
 window.onload = function () {
+    // Fonction pour formater un prix avec des espaces
+    function formatPrice(priceValue) {
+        const price = parseFloat(priceValue || 0);
+        const intPrice = Math.floor(price);
+        return intPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
     const productList = document.getElementById("products-list");
 
     const loadBtn = document.getElementById("load-btn");
@@ -46,7 +53,7 @@ window.onload = function () {
                     data.map(product => {
                         let discount = ""
                         if (product.PRDDiscountPrice > 0) {
-                            discount = `${product.PRDDiscountPrice} XOF`
+                            discount = `${product.PRDDiscountPrice} FCFA`
                         }
                         if (product.PRDISactive) {
                             productStatus = 'Active'
@@ -72,7 +79,7 @@ window.onload = function () {
                                     </div>
                                 </a>
                             </div>
-                            <div class="col-lg-2 col-sm-2 col-4 col-price"><span>${product.PRDPrice} XOF</span></div>
+                            <div class="col-lg-2 col-sm-2 col-4 col-price"><span>${formatPrice(product.PRDPrice)} FCFA</span></div>
                             <div class="col-lg-2 col-sm-2 col-4 col-status">
                                 <span class="badge rounded-pill ${alertStatus}">${productStatus}</span>
                             </div>

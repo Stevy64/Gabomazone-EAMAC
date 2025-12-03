@@ -1,5 +1,6 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+{% load cart_template_tags %}
 
 {%block section %}
 
@@ -51,7 +52,7 @@
             </div>
             <div class="financial-card-label">Solde disponible</div>
         </div>
-        <div class="financial-card-value">{{vendor.blance|floatformat:0}} FCFA</div>
+        <div class="financial-card-value">{{vendor.blance|format_price}} FCFA</div>
         <div class="financial-card-footer">
             <i class="material-icons">trending_up</i>
             <span>Montant total disponible</span>
@@ -66,7 +67,7 @@
             </div>
             <div class="financial-card-label">Dernière demande</div>
         </div>
-        <div class="financial-card-value">{{vendor.requested|floatformat:0}} FCFA</div>
+        <div class="financial-card-value">{{vendor.requested|format_price}} FCFA</div>
         <div class="financial-card-footer">
             <i class="material-icons">schedule</i>
             <span>En attente de traitement</span>
@@ -96,7 +97,7 @@
             </div>
             <div class="financial-card-label">Récettes</div>
         </div>
-        <div class="financial-card-value">{{total_revenue|floatformat:0}} FCFA</div>
+        <div class="financial-card-value">{{total_revenue|format_price}} FCFA</div>
         <div class="financial-card-footer">
             <i class="material-icons">bar_chart</i>
             <span>Total des ventes</span>
@@ -200,12 +201,12 @@
                         </td>
                         <td>
                             <div class="transaction-amount">
-                                <strong>{{payment.request_amount|floatformat:0}} FCFA</strong>
+                                <strong>{{payment.request_amount|format_price}} FCFA</strong>
                             </div>
                         </td>
                         <td>
                             <div class="transaction-fee">
-                                <span>{{payment.fee|floatformat:0}} FCFA</span>
+                                <span>{{payment.fee|format_price}} FCFA</span>
                             </div>
                         </td>
                         <td>
@@ -387,7 +388,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total payé</span>
-                        <span class="stat-value">{{subscription_stats.total_paid|floatformat:0}} FCFA</span>
+                        <span class="stat-value">{{subscription_stats.total_paid|format_price}} FCFA</span>
                     </div>
                 </div>
                 
@@ -397,7 +398,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Coût mensuel</span>
-                        <span class="stat-value">{{subscription_stats.monthly_cost|floatformat:0}} FCFA</span>
+                        <span class="stat-value">{{subscription_stats.monthly_cost|format_price}} FCFA</span>
                     </div>
                 </div>
                 
@@ -474,7 +475,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total dépensé</span>
-                        <span class="stat-value highlight-value">{{boost_stats.total_spent|floatformat:0}} FCFA</span>
+                        <span class="stat-value highlight-value">{{boost_stats.total_spent|format_price}} FCFA</span>
                     </div>
                 </div>
                 
@@ -484,7 +485,7 @@
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Ce mois</span>
-                        <span class="stat-value highlight-value">{{boost_stats.monthly_spent|floatformat:0}} FCFA</span>
+                        <span class="stat-value highlight-value">{{boost_stats.monthly_spent|format_price}} FCFA</span>
                     </div>
                 </div>
             </div>
@@ -529,7 +530,7 @@
                 </button>
             </div>
             <div class="revenue-display">
-                <div class="revenue-value" id="revenueModalValue">{{total_revenue|floatformat:0}} FCFA</div>
+                <div class="revenue-value" id="revenueModalValue">{{total_revenue|format_price}} FCFA</div>
                 <div class="revenue-description" id="revenueModalDescription">Récettes totales depuis le début de votre activité</div>
             </div>
             <div class="revenue-details">
@@ -538,28 +539,28 @@
                         <i class="material-icons">today</i>
                         Aujourd'hui
                     </span>
-                    <span class="revenue-detail-value">{{daily_revenue|floatformat:0}} FCFA</span>
+                    <span class="revenue-detail-value">{{daily_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
                         <i class="material-icons">date_range</i>
                         Cette semaine
                     </span>
-                    <span class="revenue-detail-value">{{weekly_revenue|floatformat:0}} FCFA</span>
+                    <span class="revenue-detail-value">{{weekly_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
                         <i class="material-icons">calendar_month</i>
                         Ce mois
                     </span>
-                    <span class="revenue-detail-value">{{monthly_revenue|floatformat:0}} FCFA</span>
+                    <span class="revenue-detail-value">{{monthly_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
                         <i class="material-icons">calendar_today</i>
                         Cette année
                     </span>
-                    <span class="revenue-detail-value">{{yearly_revenue|floatformat:0}} FCFA</span>
+                    <span class="revenue-detail-value">{{yearly_revenue|format_price}} FCFA</span>
                 </div>
             </div>
         </div>
@@ -580,18 +581,18 @@
         </div>
         <div class="modal-body">
             <div class="stat-modal-content">
-                <div class="stat-modal-value">{{vendor.blance|floatformat:0}} FCFA</div>
+                <div class="stat-modal-value">{{vendor.blance|format_price}} FCFA</div>
                 <div class="stat-modal-description">Montant total disponible sur votre compte</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
                         <i class="material-icons">trending_up</i>
                         <span>Solde actuel</span>
-                        <strong>{{vendor.blance|floatformat:0}} FCFA</strong>
+                        <strong>{{vendor.blance|format_price}} FCFA</strong>
                     </div>
                     <div class="stat-detail-item">
                         <i class="material-icons">pending_actions</i>
                         <span>En attente</span>
-                        <strong>{{vendor.requested|floatformat:0}} FCFA</strong>
+                        <strong>{{vendor.requested|format_price}} FCFA</strong>
                     </div>
                 </div>
             </div>
@@ -613,7 +614,7 @@
         </div>
         <div class="modal-body">
             <div class="stat-modal-content">
-                <div class="stat-modal-value">{{vendor.requested|floatformat:0}} FCFA</div>
+                <div class="stat-modal-value">{{vendor.requested|format_price}} FCFA</div>
                 <div class="stat-modal-description">Montant en attente de traitement</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
@@ -624,7 +625,7 @@
                     <div class="stat-detail-item">
                         <i class="material-icons">account_balance</i>
                         <span>Solde disponible</span>
-                        <strong>{{vendor.blance|floatformat:0}} FCFA</strong>
+                        <strong>{{vendor.blance|format_price}} FCFA</strong>
                     </div>
                 </div>
             </div>

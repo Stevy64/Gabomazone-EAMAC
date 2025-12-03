@@ -175,6 +175,8 @@ class Product(models.Model):
 
     PRDSlug = models.SlugField(max_length=150,
                                blank=True, null=True, allow_unicode=True, unique=True, verbose_name=_("Slugfiy"))
+    view_count = models.PositiveIntegerField(
+        default=0, blank=True, null=True, verbose_name=_("Nombre de vues"))
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     date_update = models.DateTimeField(auto_now=True, blank=True, null=True)
     __original_product_image_name = None

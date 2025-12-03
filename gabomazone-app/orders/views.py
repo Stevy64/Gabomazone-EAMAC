@@ -4,7 +4,7 @@ from products.models import Product
 from django.contrib import messages
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
-from decimal import Context, Decimal
+from decimal import Context, Decimal, InvalidOperation
 from accounts.models import Profile
 from settings.models import SiteSetting
 # from django.contrib.messages.storage import session
@@ -22,7 +22,7 @@ import requests
 from bs4 import BeautifulSoup
 from settings.models import SiteSetting
 import datetime
-from django_countries import countries as allcountries
+# from django_countries import countries as allcountries  # Plus utilisé, on travaille uniquement au Gabon
 import razorpay
 from .utils import code_generator
 from django.db.models import Sum
@@ -32,397 +32,667 @@ ts = datetime.datetime.now().timestamp()
 time = round(ts * 1000)
 
 
+def safe_decimal_price(price_value, max_digits=10, decimal_places=2):
+    """
+    Convertit un prix (float, int, str, Decimal ou None) en Decimal de manière sécurisée.
+    Retourne Decimal('0') si la valeur est None ou invalide.
+    Valide que la valeur respecte les contraintes max_digits et decimal_places.
+    """
+    if price_value is None:
+        return Decimal('0')
+    try:
+        if isinstance(price_value, Decimal):
+            decimal_value = price_value
+        else:
+            # Convertir en string puis en Decimal pour éviter les problèmes de précision float
+            decimal_value = Decimal(str(price_value))
+        
+        # Vérifier que la valeur n'est pas NaN ou Infinity
+        if decimal_value.is_nan() or decimal_value.is_infinite():
+            return Decimal('0')
+        
+        # Quantifier pour respecter decimal_places
+        # Utiliser un contexte avec une précision suffisante
+        quantize_value = Decimal('1') / (Decimal('10') ** decimal_places)
+        # Utiliser le contexte par défaut avec arrondi
+        try:
+            return decimal_value.quantize(quantize_value)
+        except InvalidOperation:
+            # Si la quantification échoue, essayer avec un contexte explicite
+            context = Context(prec=28, rounding='ROUND_HALF_UP')
+            return decimal_value.quantize(quantize_value, context=context)
+    except (ValueError, TypeError, InvalidOperation) as e:
+        print(f"Erreur dans safe_decimal_price: {e}, valeur: {price_value}")
+        # En cas d'erreur, retourner 0 plutôt que de planter
+        return Decimal('0')
+
+
 def add_to_cart(request):
-    if not request.session.has_key('currency'):
-        request.session['currency'] = settings.DEFAULT_CURRENCY
+    try:
+        if not request.session.has_key('currency'):
+            request.session['currency'] = settings.DEFAULT_CURRENCY
 
-    # Détecter si c'est une requête AJAX
-    is_ajax = (
-        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
-        'application/json' in request.headers.get('Accept', '') or
-        request.headers.get('Content-Type') == 'application/json'
-    )
+        # Détecter si c'est une requête AJAX
+        is_ajax = (
+            request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+            'application/json' in request.headers.get('Accept', '') or
+            request.headers.get('Content-Type') == 'application/json'
+        )
 
-    if "qyt" in request.POST and "product_id" in request.POST and "product_Price" in request.POST:
+        if "qyt" in request.POST and "product_id" in request.POST and "product_Price" in request.POST:
 
-        product_id = request.POST['product_id']
-        qyt = int(request.POST['qyt'])
-        size = None
-        try:
-            size = request.POST['name_variation']
-        except:
+            product_id = request.POST['product_id']
+            qyt = int(request.POST['qyt'])
             size = None
+            try:
+                size = request.POST['name_variation']
+            except:
+                size = None
 
-        product = Product.objects.get(id=product_id)
-
-        if qyt <= 0 and product.available == 0:
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
-            messages.warning(request, 'This product is out of stock !')
-            return redirect('orders:cart')
-
-        if product.available < qyt and product.available == 0:
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
-            messages.warning(request, 'This product is out of stock !')
-            return redirect('orders:cart')
-
-        if qyt <= 0 and product.available != 0:
-            qyt = 1
-
-        if product.available < qyt and product.available != 0:
-            qyt = product.available
-
-        try:
-            if request.user.is_authenticated and not request.user.is_anonymous:
-                order = Order.objects.filter(
-                    user=request.user, is_finished=False).first()
-                print("order: ", order)
-            else:
-                cart_id = request.session.get('cart_id')
-                if cart_id:
-                    order = Order.objects.filter(id=cart_id, is_finished=False).first()
-                else:
-                    order = None
-
-        except Exception as e:
-            print(f"Erreur lors de la récupération de la commande: {e}")
-            order = None
-
-        if not Product.objects.all().filter(id=product_id).exists():
-            if is_ajax:
-                return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
-            return HttpResponse(f"this product not found !")
-
-        if order:
-            if request.user.is_authenticated and not request.user.is_anonymous:
-                old_orde = Order.objects.filter(
-                    user=request.user, is_finished=False).first()
-            else:
-                cart_id = request.session.get('cart_id')
-                if cart_id:
-                    try:
-                        old_orde = Order.objects.get(id=cart_id, is_finished=False)
-                    except Order.DoesNotExist:
-                        old_orde = None
-                else:
-                    old_orde = None
+            # Vérifier si c'est un article entre particuliers
+            is_peer_to_peer = str(product_id).startswith('peer_')
             
-            if not old_orde:
-                if is_ajax:
-                    return JsonResponse({'success': False, 'error': 'Erreur: Commande non trouvée'}, status=400)
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-            # old_orde_supplier = OrderSupplier.objects.get(
-            #     user=request.user, is_finished=False, order=old_orde)
-            # print("old_orde_supplier:", old_orde_supplier)
-            if OrderDetails.objects.all().filter(order=old_orde, product=product).exists() and OrderDetailsSupplier.objects.all().filter(order=old_orde, product=product).exists():
-                item = OrderDetails.objects.get(
-                    order=old_orde, product=product)
-                item_supplier = OrderDetailsSupplier.objects.get(
-                    order=old_orde, product=product)
-                # for i in items:
-                if item.quantity >= product.available:
-                    qyt = item.quantity
-                    # i.quantity = int(qyt)
-                    # i.save()
+            if is_peer_to_peer:
+                # Extraire l'ID réel (après "peer_")
+                from accounts.models import PeerToPeerProduct
+                try:
+                    peer_id = int(str(product_id).replace('peer_', ''))
+                    product = PeerToPeerProduct.objects.get(id=peer_id, status=PeerToPeerProduct.APPROVED)
+                    # Pour les articles entre particuliers, on ne peut pas les ajouter directement au panier
+                    # car ils nécessitent un processus spécial (paiement à la livraison)
                     if is_ajax:
-                        return JsonResponse({'success': False, 'error': f"Vous ne pouvez pas ajouter plus de ce produit, disponible seulement : {qyt}"}, status=400)
-                    messages.warning(
-                        request, f"You can't add more from this product, available only : {qyt}")
+                        return JsonResponse({
+                            'success': False, 
+                            'error': 'Les articles entre particuliers ne peuvent pas être ajoutés au panier de cette manière. Veuillez contacter le vendeur directement.'
+                        }, status=400)
+                    messages.warning(request, 'Les articles entre particuliers nécessitent un processus de commande spécial. Veuillez contacter le vendeur.')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                except (ValueError, PeerToPeerProduct.DoesNotExist):
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'Article entre particuliers introuvable ou non approuvé.'}, status=404)
+                    messages.error(request, 'Article entre particuliers introuvable ou non approuvé.')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            else:
+                # Produit normal
+                try:
+                    product_id_int = int(product_id)
+                except (ValueError, TypeError):
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'ID de produit invalide.'}, status=400)
+                    messages.error(request, 'ID de produit invalide.')
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                
+                product = Product.objects.get(id=product_id_int)
+
+            # Vérifier que le produit a un prix valide
+            if product.PRDPrice is None or product.PRDPrice <= 0:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Ce produit n\'a pas de prix valide !'}, status=400)
+                messages.warning(request, 'Ce produit n\'a pas de prix valide !')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+            if qyt <= 0 and product.available == 0:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
+                messages.warning(request, 'Ce produit est en rupture de stock !')
+                return redirect('orders:cart')
+
+            if product.available < qyt and product.available == 0:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
+                messages.warning(request, 'Ce produit est en rupture de stock !')
+                return redirect('orders:cart')
+
+            if qyt <= 0 and product.available != 0:
+                qyt = 1
+
+            if product.available < qyt and product.available != 0:
+                qyt = product.available
+
+            try:
+                if request.user.is_authenticated and not request.user.is_anonymous:
+                    order = Order.objects.filter(
+                        user=request.user, is_finished=False).first()
+                    print("order: ", order)
+                else:
+                    cart_id = request.session.get('cart_id')
+                    if cart_id:
+                        order = Order.objects.filter(id=cart_id, is_finished=False).first()
+                    else:
+                        order = None
+
+            except Exception as e:
+                print(f"Erreur lors de la récupération de la commande: {e}")
+                order = None
+
+            if not Product.objects.all().filter(id=product_id).exists():
+                if is_ajax:
+                    return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
+                return HttpResponse(f"this product not found !")
+
+            if order:
+                if request.user.is_authenticated and not request.user.is_anonymous:
+                    old_orde = Order.objects.filter(
+                        user=request.user, is_finished=False).first()
+                else:
+                    cart_id = request.session.get('cart_id')
+                    if cart_id:
+                        try:
+                            old_orde = Order.objects.get(id=cart_id, is_finished=False)
+                        except Order.DoesNotExist:
+                            old_orde = None
+                    else:
+                        old_orde = None
+                
+                if not old_orde:
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'Erreur: Commande non trouvée'}, status=400)
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                # old_orde_supplier = OrderSupplier.objects.get(
+                #     user=request.user, is_finished=False, order=old_orde)
+                # print("old_orde_supplier:", old_orde_supplier)
+                if OrderDetails.objects.all().filter(order=old_orde, product=product).exists():
+                    item = OrderDetails.objects.get(
+                        order=old_orde, product=product)
+                    # Vérifier si OrderDetailsSupplier existe, sinon le créer
+                    # Seulement si le produit a un vendeur (product_vendor)
+                    if product.product_vendor:
+                        if OrderDetailsSupplier.objects.all().filter(order=old_orde, product=product).exists():
+                            item_supplier = OrderDetailsSupplier.objects.get(
+                                order=old_orde, product=product)
+                        else:
+                            # Créer OrderDetailsSupplier si il n'existe pas
+                            try:
+                                old_order_supplier = OrderSupplier.objects.get(
+                                    is_finished=False, order=old_orde, vendor=product.product_vendor)
+                            except OrderSupplier.DoesNotExist:
+                                old_order_supplier = OrderSupplier.objects.create(
+                                    user=request.user if request.user.is_authenticated else None,
+                                    order=old_orde,
+                                    vendor=product.product_vendor,
+                                    is_finished=False
+                                )
+                            item_supplier = OrderDetailsSupplier.objects.create(
+                                supplier=product.product_vendor.user,
+                                product=product,
+                                order=old_orde,
+                                order_supplier=old_order_supplier,
+                                order_details=item,
+                                price=safe_decimal_price(product.PRDPrice),
+                                quantity=item.quantity,
+                                size=size if hasattr(item, 'size') else None,
+                                weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                            )
+                    else:
+                        # Si le produit n'a pas de vendeur, on ne crée pas OrderDetailsSupplier
+                        item_supplier = None
+                    # for i in items:
+                    if item.quantity >= product.available:
+                        qyt = item.quantity
+                        # i.quantity = int(qyt)
+                        # i.save()
+                        if is_ajax:
+                            return JsonResponse({'success': False, 'error': f"Vous ne pouvez pas ajouter plus de ce produit, disponible seulement : {qyt}"}, status=400)
+                        messages.warning(
+                            request, f"You can't add more from this product, available only : {qyt}")
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-                elif qyt < product.available:
-                    qyt = qyt + item.quantity
-                    if qyt > product.available:
-                        qyt = product.available
+                    elif qyt < product.available:
+                        qyt = qyt + item.quantity
+                        if qyt > product.available:
+                            qyt = product.available
 
-                    item.quantity = int(qyt)
-                    item_supplier.quantity = int(qyt)
-                    item.save()
-                    item_supplier.save()
+                        item.quantity = int(qyt)
+                        item.save()
+                        if item_supplier:
+                            item_supplier.quantity = int(qyt)
+                            item_supplier.save()
 
-                    # code for total amount main order
-                    order_details_main = OrderDetails.objects.all().filter(order=old_orde)
-                    f_total = 0
-                    w_total = 0
-                    weight = 0
-                    for sub in order_details_main:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
+                        # code for total amount main order
+                        order_details_main = OrderDetails.objects.all().filter(order=old_orde)
+                        f_total = Decimal('0')
+                        w_total = Decimal('0')
+                        weight = Decimal('0')
+                        for sub in order_details_main:
+                            if sub.price and sub.quantity:
+                                f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                            if sub.weight and sub.quantity:
+                                w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
                         total = f_total
                         weight = w_total
 
-                    old_orde.sub_total = f_total
-                    old_orde.weight = weight
-                    old_orde.amount = total
-                    old_orde.save()
+                        old_orde.sub_total = str(f_total)
+                        old_orde.weight = float(weight)
+                        old_orde.amount = str(total)
+                        old_orde.save()
 
-                    # code for total amount supplier order
-                    old_order_supplier = OrderSupplier.objects.get(
-                        is_finished=False, order=old_orde, vendor=product.product_vendor)
-                    order_supplier = OrderDetailsSupplier.objects.all().filter(
-                        order_supplier=old_order_supplier)
-                    weight = 0
-                    f_total = 0
-                    w_total = 0
-                    for sub in order_supplier:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
+                        # code for total amount supplier order - seulement si le produit a un vendeur
+                        if product.product_vendor:
+                            try:
+                                old_order_supplier = OrderSupplier.objects.get(
+                                    is_finished=False, order=old_orde, vendor=product.product_vendor)
+                                order_supplier = OrderDetailsSupplier.objects.all().filter(
+                                    order_supplier=old_order_supplier)
+                                weight = Decimal('0')
+                                f_total = Decimal('0')
+                                w_total = Decimal('0')
+                                for sub in order_supplier:
+                                    if sub.price and sub.quantity:
+                                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                    if sub.weight and sub.quantity:
+                                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                                total = f_total
+                                weight = w_total
+                                old_order_supplier.weight = float(weight)
+                                old_order_supplier.amount = str(total)
+                                old_order_supplier.save()
+                            except OrderSupplier.DoesNotExist:
+                                # Créer OrderSupplier si il n'existe pas
+                                old_order_supplier = OrderSupplier.objects.create(
+                                    user=request.user if request.user.is_authenticated else None,
+                                    order=old_orde,
+                                    vendor=product.product_vendor,
+                                    is_finished=False
+                                )
+                                # Mettre à jour item_supplier avec le nouveau order_supplier
+                                if item_supplier:
+                                    try:
+                                        item_supplier.order_supplier = old_order_supplier
+                                        item_supplier.save()
+                                    except:
+                                        pass
+                                # Calculer le total
+                                order_supplier = OrderDetailsSupplier.objects.all().filter(
+                                    order_supplier=old_order_supplier)
+                                weight = Decimal('0')
+                                f_total = Decimal('0')
+                                w_total = Decimal('0')
+                                for sub in order_supplier:
+                                    if sub.price and sub.quantity:
+                                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                    if sub.weight and sub.quantity:
+                                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                                total = f_total
+                                weight = w_total
+                                old_order_supplier.weight = float(weight)
+                                old_order_supplier.amount = str(total)
+                                old_order_supplier.save()
+                            except Exception as e:
+                                if is_ajax:
+                                    return JsonResponse({'success': False, 'error': f'Erreur lors de la mise à jour: {str(e)}'}, status=500)
+                                messages.error(request, f'Erreur lors de la mise à jour: {str(e)}')
+                                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+                    # if i.size != size:
+                    #     order_details = OrderDetails.objects.create(
+                    #         supplier=product.product_vendor.user,
+                    #         product=product,
+                    #         order=old_orde,
+                    #         price=product.PRDPrice,
+                    #         quantity=qyt,
+                    #         size=size,
+                    #         weight=product.PRDWeight
+
+                    #     )
+                    #     break
+
+                    else:
+                        item.quantity = int(qyt)
+                        # i.supplier = product.product_vendor.user
+                        item.save()
+                        # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur
+                        if product.product_vendor:
+                            try:
+                                item_supplier = OrderDetailsSupplier.objects.get(
+                                    order=old_orde, product=product)
+                                item_supplier.quantity = int(qyt)
+                                item_supplier.save()
+                            except OrderDetailsSupplier.DoesNotExist:
+                                # Créer OrderDetailsSupplier si il n'existe pas
+                                try:
+                                    old_order_supplier = OrderSupplier.objects.get(
+                                        is_finished=False, order=old_orde, vendor=product.product_vendor)
+                                except OrderSupplier.DoesNotExist:
+                                    old_order_supplier = OrderSupplier.objects.create(
+                                        user=request.user if request.user.is_authenticated else None,
+                                        order=old_orde,
+                                        vendor=product.product_vendor,
+                                        is_finished=False
+                                    )
+                                OrderDetailsSupplier.objects.create(
+                                    supplier=product.product_vendor.user,
+                                    product=product,
+                                    order=old_orde,
+                                    order_supplier=old_order_supplier,
+                                    order_details=item,
+                                    price=safe_decimal_price(product.PRDPrice),
+                                    quantity=int(qyt),
+                                    size=size if hasattr(item, 'size') else None,
+                                    weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                                )
+
+                        # code for total amount main order
+                        order_details_main = OrderDetails.objects.all().filter(order=old_orde)
+                        f_total = Decimal('0')
+                        w_total = Decimal('0')
+                        weight = Decimal('0')
+                        for sub in order_details_main:
+                            if sub.price and sub.quantity:
+                                f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                            if sub.weight and sub.quantity:
+                                w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
                         total = f_total
                         weight = w_total
-                    old_order_supplier.weight = weight
-                    old_order_supplier.amount = total
-                    old_order_supplier.save()
 
-                # if i.size != size:
-                #     order_details = OrderDetails.objects.create(
-                #         supplier=product.product_vendor.user,
-                #         product=product,
-                #         order=old_orde,
-                #         price=product.PRDPrice,
-                #         quantity=qyt,
-                #         size=size,
-                #         weight=product.PRDWeight
+                        old_orde.sub_total = str(f_total)
+                        old_orde.weight = float(weight)
+                        old_orde.amount = str(total)
+                        old_orde.save()
 
-                #     )
-                #     break
+                        # code for total amount supplier order
+                        try:
+                            old_order_supplier = OrderSupplier.objects.get(
+                                is_finished=False, order=old_orde, vendor=product.product_vendor)
+                            order_supplier = OrderDetailsSupplier.objects.all().filter(
+                                order_supplier=old_order_supplier)
+
+                            f_total = Decimal('0')
+                            w_total = Decimal('0')
+                            weight = Decimal('0')
+                            for sub in order_supplier:
+                                if sub.price and sub.quantity:
+                                    f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                if sub.weight and sub.quantity:
+                                    w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                            total = f_total
+                            weight = w_total
+                            old_order_supplier.weight = float(weight)
+                            old_order_supplier.amount = str(total)
+                            old_order_supplier.save()
+                        except OrderSupplier.DoesNotExist:
+                            # Si OrderSupplier n'existe pas, le créer
+                            old_order_supplier = OrderSupplier.objects.create(
+                                user=request.user if request.user.is_authenticated else None,
+                                order=old_orde,
+                                vendor=product.product_vendor,
+                                is_finished=False
+                            )
+                            # Récupérer ou créer OrderDetailsSupplier
+                            try:
+                                item_supplier = OrderDetailsSupplier.objects.get(
+                                    order=old_orde, product=product)
+                                item_supplier.order_supplier = old_order_supplier
+                                item_supplier.save()
+                            except OrderDetailsSupplier.DoesNotExist:
+                                OrderDetailsSupplier.objects.create(
+                                    supplier=product.product_vendor.user,
+                                    product=product,
+                                    order=old_orde,
+                                    order_supplier=old_order_supplier,
+                                    order_details=item,
+                                    price=safe_decimal_price(product.PRDPrice),
+                                    quantity=int(qyt),
+                                    size=size if hasattr(item, 'size') else None,
+                                    weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                                )
+                            # Calculer le total
+                            order_supplier = OrderDetailsSupplier.objects.all().filter(
+                                order_supplier=old_order_supplier)
+                            f_total = Decimal('0')
+                            w_total = Decimal('0')
+                            weight = Decimal('0')
+                            for sub in order_supplier:
+                                if sub.price and sub.quantity:
+                                    f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                if sub.weight and sub.quantity:
+                                    w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                            total = f_total
+                            weight = w_total
+                            old_order_supplier.weight = float(weight)
+                            old_order_supplier.amount = str(total)
+                            old_order_supplier.save()
+                        
+                        # Retourner une réponse JSON pour AJAX
+                        if is_ajax:
+                            from django.db.models import Sum
+                            cart_count = OrderDetails.objects.filter(order=old_orde).aggregate(total=Sum('quantity'))['total'] or 0
+                            return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
                 else:
-                    item.quantity = int(qyt)
-                    item_supplier.quantity = int(qyt)
-                    # i.supplier = product.product_vendor.user
-                    item.save()
-                    item_supplier.save()
-
+                    # Vérifier si le produit a un vendeur avant de créer OrderDetails
+                    supplier_user = product.product_vendor.user if product.product_vendor else None
+                    order_details = OrderDetails.objects.create(
+                        supplier=supplier_user,
+                        product=product,
+                        order=old_orde,
+                        price=safe_decimal_price(product.PRDPrice),
+                        quantity=qyt,
+                        size=size,
+                        weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                    )
                     # code for total amount main order
+
                     order_details_main = OrderDetails.objects.all().filter(order=old_orde)
-                    f_total = 0
-                    w_total = 0
-                    weight = 0
+                    weight = Decimal('0')
+                    f_total = Decimal('0')
+                    w_total = Decimal('0')
                     for sub in order_details_main:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
-                        total = f_total
-                        weight = w_total
-
-                    old_orde.sub_total = f_total
-                    old_orde.weight = weight
-                    old_orde.amount = total
-                    old_orde.save()
-
-                    # code for total amount supplier order
-                    old_order_supplier = OrderSupplier.objects.get(
-                        is_finished=False, order=old_orde, vendor=product.product_vendor)
-                    order_supplier = OrderDetailsSupplier.objects.all().filter(
-                        order_supplier=old_order_supplier)
-
-                    f_total = 0
-                    w_total = 0
-                    weight = 0
-                    for sub in order_supplier:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
-                        total = f_total
-                        weight = w_total
-                    old_order_supplier.weight = weight
-                    old_order_supplier.amount = total
-                    old_order_supplier.save()
-
-            else:
-                order_details = OrderDetails.objects.create(
-                    supplier=product.product_vendor.user,
-                    product=product,
-                    order=old_orde,
-                    price=product.PRDPrice,
-                    quantity=qyt,
-                    size=size,
-                    weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
-                )
-                # code for total amount main order
-
-                order_details_main = OrderDetails.objects.all().filter(order=old_orde)
-                weight = 0
-                f_total = 0
-                w_total = 0
-                for sub in order_details_main:
-                    f_total += sub.price * sub.quantity
-                    w_total += sub.weight * sub.quantity
+                        if sub.price and sub.quantity:
+                            f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                        if sub.weight and sub.quantity:
+                            w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
                     total = f_total
                     weight = w_total
 
-                old_orde.sub_total = f_total
-                old_orde.weight = weight
-                old_orde.amount = total
-                old_orde.save()
-                # add product for old order supplier
-                if OrderSupplier.objects.all().filter(
-                        order=old_orde, is_finished=False, vendor=product.product_vendor).exists():
-                    old_order_supplier = OrderSupplier.objects.get(
-                        is_finished=False, order=old_orde, vendor=product.product_vendor)
-                    order_details_supplier = OrderDetailsSupplier.objects.create(
-                        supplier=product.product_vendor.user,
-                        product=product,
-                        order=old_orde,
-                        order_supplier=old_order_supplier,
-                        order_details=order_details,
-                        price=product.PRDPrice,
-                        quantity=qyt,
-                        size=size,
-                        weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
-                    )
+                    old_orde.sub_total = str(f_total)
+                    old_orde.weight = float(weight)
+                    old_orde.amount = str(total)
+                    old_orde.save()
+                    # add product for old order supplier - seulement si le produit a un vendeur
+                    if product.product_vendor:
+                        if OrderSupplier.objects.all().filter(
+                                order=old_orde, is_finished=False, vendor=product.product_vendor).exists():
+                            old_order_supplier = OrderSupplier.objects.get(
+                                is_finished=False, order=old_orde, vendor=product.product_vendor)
+                            order_details_supplier = OrderDetailsSupplier.objects.create(
+                                supplier=product.product_vendor.user,
+                                product=product,
+                                order=old_orde,
+                                order_supplier=old_order_supplier,
+                                order_details=order_details,
+                                price=safe_decimal_price(product.PRDPrice),
+                                quantity=qyt,
+                                size=size,
+                                weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                            )
 
-                    # code for total amount supplier order
-                    order__supplier = OrderDetailsSupplier.objects.all().filter(
-                        order_supplier=old_order_supplier)
-                    f_total = 0
-                    w_total = 0
-                    weight = 0
-                    for sub in order__supplier:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
+                            # code for total amount supplier order
+                            order__supplier = OrderDetailsSupplier.objects.all().filter(
+                                order_supplier=old_order_supplier)
+                            f_total = Decimal('0')
+                            w_total = Decimal('0')
+                            weight = Decimal('0')
+                            for sub in order__supplier:
+                                if sub.price and sub.quantity:
+                                    f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                if sub.weight and sub.quantity:
+                                    w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                            total = f_total
+                            weight = w_total
+                            old_order_supplier.weight = float(weight)
+                            old_order_supplier.amount = str(total)
+                            old_order_supplier.save()
+
+                        else:
+                            # order for  new supllier
+                            new_order_supplier = OrderSupplier()
+                            if request.user.is_authenticated and not request.user.is_anonymous:
+                                new_order_supplier.user = request.user
+                                new_order_supplier.email_client = request.user.email
+
+                            new_order_supplier.vendor = product.product_vendor
+                            new_order_supplier.order = old_orde
+                            new_order_supplier.save()
+                            order_details_supplier = OrderDetailsSupplier.objects.create(
+                                supplier=product.product_vendor.user,
+                                product=product,
+                                order=old_orde,
+                                order_supplier=new_order_supplier,
+                                order_details=order_details,
+                                price=safe_decimal_price(product.PRDPrice),
+                                quantity=qyt,
+                                size=size,
+                                weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                            )
+
+                        order_supplier = OrderDetailsSupplier.objects.all().filter(
+                            order_supplier=new_order_supplier)
+                        weight = Decimal('0')
+                        f_total = Decimal('0')
+                        w_total = Decimal('0')
+                        for sub in order_supplier:
+                            if sub.price and sub.quantity:
+                                f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                            if sub.weight and sub.quantity:
+                                w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
                         total = f_total
                         weight = w_total
-                    old_order_supplier.weight = weight
-                    old_order_supplier.amount = total
-                    old_order_supplier.save()
+                        new_order_supplier.weight = float(weight)
+                        new_order_supplier.amount = str(total)
+                        new_order_supplier.save()
 
-                else:
-                    # order for  new supllier
+                messages.success(request, 'Produit ajouté au panier avec succès !')
+                # return redirect('orders:cart')
+                if is_ajax:
+                    # Compter les articles dans le panier
+                    try:
+                        cart_count = OrderDetails.objects.filter(order=old_orde).count()
+                    except:
+                        cart_count = 0
+                    return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+            else:
+                # order for all
+                new_order = Order()
+                if request.user.is_authenticated and not request.user.is_anonymous:
+                    new_order.user = request.user
+                    new_order.email_client = request.user.email
+
+                new_order.save()
+                # will edite
+                # new_order.supplier = product.product_vendor.user
+                # new_order.vendors.add(product.product_vendor)
+
+                # order for supllier - seulement si le produit a un vendeur
+                if product.product_vendor:
                     new_order_supplier = OrderSupplier()
                     if request.user.is_authenticated and not request.user.is_anonymous:
                         new_order_supplier.user = request.user
                         new_order_supplier.email_client = request.user.email
 
                     new_order_supplier.vendor = product.product_vendor
-                    new_order_supplier.order = old_orde
+                    new_order_supplier.order = new_order
                     new_order_supplier.save()
+
+                order_details = OrderDetails.objects.create(
+                    supplier=product.product_vendor.user if product.product_vendor else None,
+                    product=product,
+                    order=new_order,
+                    price=safe_decimal_price(product.PRDPrice),
+                    quantity=qyt,
+                    size=size,
+                    weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                )
+
+                # Créer OrderDetailsSupplier seulement si le produit a un vendeur
+                if product.product_vendor:
                     order_details_supplier = OrderDetailsSupplier.objects.create(
                         supplier=product.product_vendor.user,
                         product=product,
-                        order=old_orde,
+                        order=new_order,
                         order_supplier=new_order_supplier,
                         order_details=order_details,
-                        price=product.PRDPrice,
+                        price=safe_decimal_price(product.PRDPrice),
                         quantity=qyt,
                         size=size,
-                        weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
+                        weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
                     )
+                # code for total amount main order
 
-                    order_supplier = OrderDetailsSupplier.objects.all().filter(
-                        order_supplier=new_order_supplier)
-                    weight = 0
-                    f_total = 0
-                    w_total = 0
-                    for sub in order_supplier:
-                        f_total += sub.price * sub.quantity
-                        w_total += sub.weight * sub.quantity
-                        total = f_total
-                        weight = w_total
-                    new_order_supplier.weight = weight
-                    new_order_supplier.amount = total
-                    new_order_supplier.save()
+                order_details_main = OrderDetails.objects.all().filter(order=new_order)
+                f_total = Decimal('0')
+                w_total = Decimal('0')
+                weight = Decimal('0')
+                for sub in order_details_main:
+                    if sub.price and sub.quantity:
+                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                    if sub.weight and sub.quantity:
+                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                total = f_total
+                weight = w_total
 
-            messages.success(request, 'product has been added to cart !')
-            # return redirect('orders:cart')
-            if is_ajax:
-                # Compter les articles dans le panier
-                try:
-                    cart_count = OrderDetails.objects.filter(order=old_orde).count()
-                except:
-                    cart_count = 0
-                return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
+                new_order.sub_total = str(f_total)
+                new_order.weight = float(weight)
+                new_order.amount = str(total)
+                new_order.save()
+                # code for total amount supplier order
+                order_details__supplier = OrderDetailsSupplier.objects.all().filter(
+                    order_supplier=new_order_supplier)
+                f_total = Decimal('0')
+                w_total = Decimal('0')
+                weight = Decimal('0')
+                for sub in order_details__supplier:
+                    if sub.price and sub.quantity:
+                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                    if sub.weight and sub.quantity:
+                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                total = f_total
+                weight = w_total
+                new_order_supplier.weight = float(weight)
+                new_order_supplier.amount = str(total)
+                new_order_supplier.save()
+                request.session['cart_id'] = new_order.id
+                messages.success(request, 'Produit ajouté au panier avec succès !')
+                # return redirect('orders:cart')
+                if is_ajax:
+                    # Compter les articles dans le panier
+                    try:
+                        cart_count = OrderDetails.objects.filter(order=new_order).count()
+                    except:
+                        cart_count = 0
+                    return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
-            # order for all
-            new_order = Order()
-            if request.user.is_authenticated and not request.user.is_anonymous:
-                new_order.user = request.user
-                new_order.email_client = request.user.email
-
-            new_order.save()
-            # will edite
-            # new_order.supplier = product.product_vendor.user
-            # new_order.vendors.add(product.product_vendor)
-
-            # order for supllier
-            new_order_supplier = OrderSupplier()
-            if request.user.is_authenticated and not request.user.is_anonymous:
-                new_order_supplier.user = request.user
-                new_order_supplier.email_client = request.user.email
-
-            new_order_supplier.vendor = product.product_vendor
-            new_order_supplier.order = new_order
-            new_order_supplier.save()
-
-            order_details = OrderDetails.objects.create(
-                supplier=product.product_vendor.user,
-                product=product,
-                order=new_order,
-                price=product.PRDPrice,
-                quantity=qyt,
-                size=size,
-                weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
-            )
-
-            order_details_supplier = OrderDetailsSupplier.objects.create(
-                supplier=product.product_vendor.user,
-                product=product,
-                order=new_order,
-                order_supplier=new_order_supplier,
-                order_details=order_details,
-                price=product.PRDPrice,
-                quantity=qyt,
-                size=size,
-                weight=getattr(product, 'PRDWeight', 0) if hasattr(product, 'PRDWeight') else 0
-            )
-            # code for total amount main order
-
-            order_details_main = OrderDetails.objects.all().filter(order=new_order)
-            f_total = 0
-            w_total = 0
-            weight = 0
-            for sub in order_details_main:
-                f_total += sub.price * sub.quantity
-                w_total += sub.weight * sub.quantity
-                total = f_total
-                weight = w_total
-
-            new_order.sub_total = f_total
-            new_order.weight = weight
-            new_order.amount = total
-            new_order.save()
-            # code for total amount supplier order
-            order_details__supplier = OrderDetailsSupplier.objects.all().filter(
-                order_supplier=new_order_supplier)
-            f_total = 0
-            w_total = 0
-            weight = 0
-            for sub in order_details__supplier:
-                f_total += sub.price * sub.quantity
-                w_total += sub.weight * sub.quantity
-                total = f_total
-                weight = w_total
-            new_order_supplier.weight = weight
-            new_order_supplier.amount = total
-            new_order_supplier.save()
-            request.session['cart_id'] = new_order.id
-            messages.success(request, 'product has been added to cart !')
-            # return redirect('orders:cart')
             if is_ajax:
-                # Compter les articles dans le panier
-                try:
-                    cart_count = OrderDetails.objects.filter(order=new_order).count()
-                except:
-                    cart_count = 0
-                return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
+                return JsonResponse({'success': False, 'error': 'Vous devez d\'abord vous connecter pour ajouter un produit au panier.', 'requires_login': True}, status=403)
+            messages.warning(
+                request, 'You must first log in to your account to purchase the product')
+            return redirect('accounts:login')
+    except Product.DoesNotExist:
         if is_ajax:
-            return JsonResponse({'success': False, 'error': 'Vous devez d\'abord vous connecter pour ajouter un produit au panier.', 'requires_login': True}, status=403)
-        messages.warning(
-            request, 'You must first log in to your account to purchase the product')
-        return redirect('accounts:login')
+            return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
+        messages.error(request, 'Produit non trouvé !')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    except InvalidOperation as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Erreur Decimal dans add_to_cart: {str(e)}")
+        print(f"Traceback: {error_trace}")
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': 'Erreur de calcul lors de l\'ajout au panier. Veuillez réessayer.'}, status=500)
+        messages.error(request, 'Erreur de calcul lors de l\'ajout au panier. Veuillez réessayer.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"Erreur dans add_to_cart: {str(e)}")
+        print(f"Traceback: {error_trace}")
+        if is_ajax:
+            return JsonResponse({'success': False, 'error': f'Erreur lors de l\'ajout au panier: {str(e)}'}, status=500)
+        messages.error(request, f'Erreur lors de l\'ajout au panier: {str(e)}')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def cart(request):
@@ -438,24 +708,19 @@ def cart(request):
             coupon = Coupon.objects.get(code=code, active=True)
             request.session['coupon_id'] = coupon.id
             messages.success(
-                request, 'Discount code has been added successfully ')
+                request, 'Code de réduction ajouté avec succès')
 
         else:
             messages.warning(
-                request, 'The discount code is not available or has expired ')
+                request, 'Le code de réduction n\'est pas disponible ou a expiré')
             request.session['coupon_id'] = None
             # request.session['code'] = None
         return redirect('orders:cart')
 
     context = None
     PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
-    # if request.user.is_authenticated and not request.user.is_anonymous:
-    # countries = Country.objects.all().filter().order_by('-name_country')
-    countries = allcountries
+    # Plus de gestion des pays, on travaille uniquement au Gabon
     provinces = Province.objects.all()
-    first_country = Country.objects.all(
-    ).filter().order_by('-name_country')[0:1]
-    # states = State.objects.filter(country=first_country)
 
     try:
         if request.user.is_authenticated and not request.user.is_anonymous:
@@ -571,7 +836,6 @@ def cart(request):
             "code": code,
             "blance": blance,
             "PUBLIC_KEY": PUBLIC_KEY,
-            "countries": countries,
             "provinces": provinces,
             # "states": states,
             "weight": weight,
@@ -589,7 +853,6 @@ def cart(request):
         
         context = {
             "order_details": None,
-            "countries": countries,
             "provinces": provinces,
             "PUBLIC_KEY": PUBLIC_KEY,
             "profile": profile,
@@ -599,13 +862,13 @@ def cart(request):
 
 class StatesJsonListView(View):
     def get(self, *args, **kwargs):
-        country = kwargs.get('country')
+        # Pays fixé au Gabon uniquement
+        country = 'GA'  # Code ISO du Gabon
 
         states = None
         provinces = Province.objects.all()
-        # country_id = Country.objects.get(country_code=country)
+        # Plus de gestion des pays multiples, on travaille uniquement au Gabon
 
-        # qs = list(State.objects.all().filter(country=country_id).values())
         if settings.ARAMEX_USERNAME != "":
             print("true")
             data = {
@@ -623,7 +886,7 @@ class StatesJsonListView(View):
                 },
                 "Transaction": None,
 
-                "CountryCode": f"{country}"
+                "CountryCode": "GA"  # Gabon uniquement
             }
 
             url = 'https://ws.aramex.net/ShippingAPI.V2/Location/Service_1_0.svc/xml/FetchStates'
@@ -677,13 +940,13 @@ def remove_item(request, productdeatails_id):
                     old_orde = Order.objects.get(
                         id=cart_id, is_finished=False)
                     old_orde.delete()
-                    messages.warning(request, ' Product has been deleted ')
+                    messages.warning(request, 'Produit supprimé du panier')
                     return redirect('orders:cart')
                 except:
                     order_view = False
                 if "coupon_id" in request.session.keys():
                     del request.session["coupon_id"]
-                messages.warning(request, ' Order has been deleted ')
+                messages.warning(request, 'Commande supprimée')
                 return redirect('orders:cart')
             else:
 
@@ -743,7 +1006,7 @@ def remove_item(request, productdeatails_id):
                             request, "product You can't delete it !")
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     except:
-        messages.warning(request, "product You can't delete it !")
+        messages.warning(request, "Vous ne pouvez pas supprimer ce produit !")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -798,48 +1061,36 @@ def payment(request):
 
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
-        country = request.POST['country']
-        
+        # Pays fixé au Gabon uniquement
+        country = 'GA'  # Code ISO du Gabon
+        country_code = 'GA'
 
-        try:
-            province_state = request.POST.get('state')
-            other_state = request.POST.get('other_state')
-            # print("STATE : ", province_state)
-            # print("OTHER_STATE : ", other_state)
+        # Gestion de la province et de l'état
+        province_state = request.POST.get('state')
+        other_state = request.POST.get('other_state')
 
-            if province_state == 'autre_ville' and other_state:
-                state = other_state  # On récupère ce que l'utilisateur a saisi
-                province = request.POST.get('province')
-                # print("STATE Changed : ", state)
+        if province_state == 'autre_ville' and other_state:
+            state = other_state  # On récupère ce que l'utilisateur a saisi
+            province = request.POST.get('province')
+        else:
+            state = request.POST.get('state', '')
+            if '|' in state:
+                province, state = state.split("|")
             else:
-                state = request.POST['state']
-                if request.method == "POST":
-                    province, state = state.split("|")
-                    print("STATE : ", state)
-                    print("PROVINCE : ", province)
-
-        except:
-            messages.warning(
-                request, 'Please contact us because this country is not in our shipping list')
-            return redirect(request.META.get('HTTP_REFERER'))
+                province = request.POST.get('province', '')
 
         street_address = request.POST['street']
-
         city = request.POST['city']
         email_address = request.POST['email_address']
         phone = request.POST['phone']
 
-        # return HttpResponse(f"your info is request")
+        # Informations du pays (Gabon uniquement)
         state_obj = state
         province_obj = province
-        country_obj = dict(allcountries)[str(country)]
-        country_code = country
-        if country_code == settings.ARAMEX_ACCOUNTCOUNTRYCODE:
-            product_group = "DOM"
-            product_type = "OND"
-        else:
-            product_group = "EXP"
-            product_type = "PPX"
+        country_obj = "Gabon"  # Nom du pays
+        # Configuration pour le Gabon uniquement
+        product_group = "DOM"
+        product_type = "OND"
         # country_obj = Country.objects.get(
         #     country_code=country)
         # country_code = country_obj.country_code
@@ -955,14 +1206,65 @@ def payment(request):
                 payment_info = Payment.objects.get(order=old_orde)
             payment = None
             if RAZORPAY_KEY_ID:
-                client = razorpay.Client(
-                    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-                data = {
-                    "amount": float(old_orde.amount) * 7828,
-                    "currency": "INR",
-                    "receipt": "order_rcptid_11",
-                }
-                payment = client.order.create(data=data)['id']
+                try:
+                    client = razorpay.Client(
+                        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+                    # Razorpay exige un montant entier (en paise pour INR)
+                    amount_in_fcfa = float(old_orde.amount)
+                    
+                    # Taux de conversion FCFA vers INR (ajustez selon le taux réel)
+                    # 1 FCFA ≈ 0.13 INR (taux approximatif, à ajuster selon le taux réel)
+                    FCFA_TO_INR_RATE = 0.13
+                    amount_in_inr = amount_in_fcfa * FCFA_TO_INR_RATE
+                    amount_in_paise = int(round(amount_in_inr * 100))  # Conversion INR vers paise
+                    
+                    # Limite Razorpay: généralement 100,000 INR (10,000,000 paise) pour les comptes de test
+                    # Pour les comptes en production, la limite peut être plus élevée (jusqu'à 10,000,000 INR)
+                    max_amount_paise = 1000000000  # 10,000,000 INR (limite production)
+                    min_amount_paise = 100  # 1 INR minimum
+                    
+                    if amount_in_paise < min_amount_paise:
+                        messages.error(
+                            request, 
+                            f'Le montant de la commande est trop faible pour le paiement.'
+                        )
+                        return redirect('orders:cart')
+                    
+                    if amount_in_paise > max_amount_paise:
+                        messages.error(
+                            request, 
+                            f'Le montant de la commande ({amount_in_fcfa:.0f} FCFA ≈ {amount_in_inr:.2f} INR) dépasse la limite autorisée pour le paiement Razorpay ({max_amount_paise/100:.0f} INR). Veuillez contacter le support.'
+                        )
+                        return redirect('orders:cart')
+                    
+                    data = {
+                        "amount": amount_in_paise,
+                        "currency": "INR",
+                        "receipt": f"order_{old_orde.id}",
+                    }
+                    payment = client.order.create(data=data)['id']
+                except razorpay.errors.BadRequestError as e:
+                    error_msg = str(e)
+                    if "maximum amount" in error_msg.lower():
+                        messages.error(
+                            request, 
+                            f'Le montant de la commande dépasse la limite autorisée par Razorpay. Veuillez contacter le support ou utiliser un autre mode de paiement.'
+                        )
+                    else:
+                        messages.error(
+                            request, 
+                            f'Erreur lors de la création de la commande de paiement: {error_msg}. Veuillez réessayer ou contacter le support.'
+                        )
+                    return redirect('orders:cart')
+                except Exception as e:
+                    import traceback
+                    print(f"Erreur Razorpay: {str(e)}")
+                    print(traceback.format_exc())
+                    messages.error(
+                        request, 
+                        f'Erreur lors de l\'initialisation du paiement. Veuillez réessayer ou contacter le support.'
+                    )
+                    return redirect('orders:cart')
 
             context = {
                 "order": old_orde,
@@ -981,7 +1283,7 @@ def payment(request):
 
             }
             messages.success(
-                request, ' Your Billing Details information has been saved')
+                request, 'Vos informations de facturation ont été enregistrées')
             return render(request, "orders/shop-checkout.html", context)
 
     if request.user.is_authenticated and not request.user.is_anonymous:
@@ -1000,7 +1302,7 @@ def payment(request):
         #     return render(request, "orders/payment.html", context)
         return redirect('orders:cart')
 
-    messages.success(request, ' There is no order for you to buy it ')
+    messages.warning(request, 'Aucune commande à acheter')
     return redirect('orders:cart')
 
 
@@ -1248,9 +1550,9 @@ def payment_blance(request):
             return redirect("orders:success")
         else:
             messages.warning(
-                request, 'You do not have enough credit to purchase this product')
+                request, 'Vous n\'avez pas assez de crédit pour acheter ce produit')
             return redirect("orders:payment")
-    messages.warning(request, ' There is no order for you to buy it')
+    messages.warning(request, 'Aucune commande à acheter')
     return redirect("home:index")
 
 
@@ -1499,7 +1801,7 @@ def payment_cash(request):
         return redirect("orders:success")
 
     # return redirect("orders:payment")
-    messages.warning(request, ' There is no order for you to buy it ')
+    messages.warning(request, 'Aucune commande à acheter')
     # return redirect("products:homepage")
     return redirect('home:index')
 
@@ -2179,7 +2481,7 @@ def checkout_payment_paymob(request, id):
 
         return HttpResponseRedirect(f"https://accept.paymob.com/api/acceptance/iframes/430703?payment_token={payment_key_token}")
     else:
-        messages.warning(request, 'Please enter your information correctly.')
+        messages.warning(request, 'Veuillez saisir vos informations correctement.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 

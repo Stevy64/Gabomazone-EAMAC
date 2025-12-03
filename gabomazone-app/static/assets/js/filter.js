@@ -40,8 +40,7 @@ window.onload = function () {
     //console.log(productNum);
     const childern = ulCategory
 
-    // Utiliser la variable globale visible
-    let visible = window.visible;
+    // Fonction pour charger les produits avec HTMX
     window.handleGetData = function(sorted) {
         // Éviter les appels multiples simultanés
         if (window.isLoadingProducts) {
@@ -50,25 +49,68 @@ window.onload = function () {
         window.isLoadingProducts = true;
         
         // Utiliser les variables globales
-        const currentVisible = window.visible || 10;
         const currentCategoryType = window.categoryType || "all";
         const currentCategoryID = window.categoryID || null;
+        const orderBy = mySelect ? mySelect.value : '-date';
         
-        // Mettre à jour visible si nécessaire
-        if (sorted) {
-            window.visible = 10;
+        // Construire l'URL HTMX
+        const htmxUrl = `/shop-htmx/?page=1&order_by=${orderBy}&cat_type=${currentCategoryType}&cat_id=${currentCategoryID || ''}`;
+        
+        // Utiliser HTMX pour charger les produits
+        if (typeof htmx !== 'undefined') {
+            htmx.ajax('GET', htmxUrl, {
+                target: '#products-list',
+                swap: sorted ? 'innerHTML' : 'beforeend',
+                indicator: '#loading-indicator',
+                beforeRequest: function() {
+                    if (sorted && spinnerBox) {
+                        spinnerBox.classList.remove("not-visible");
+                    }
+                }
+            }).then(function() {
+                window.isLoadingProducts = false;
+                if (spinnerBox) spinnerBox.classList.add("not-visible");
+                
+                // Mettre à jour le compteur de produits depuis le template
+                const totalCountEl = document.getElementById('total-products-count');
+                if (totalCountEl && productNum) {
+                    const total = totalCountEl.textContent || '0';
+                    if (parseInt(total) > 0) {
+                        productNum.innerHTML = `<p style="margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i><span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">${total}</strong> articles pour vous !</span></p>`;
+                    } else {
+                        productNum.innerHTML = `<p style="margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-box" style="color: #9CA3AF; font-size: 16px;"></i><span>Aucun produit disponible</span></p>`;
+                    }
+                }
+                
+                // Attacher les event listeners après le chargement
+                if (typeof attachProductEventListeners === 'function') {
+                    attachProductEventListeners();
+                }
+            }).catch(function() {
+                window.isLoadingProducts = false;
+                if (spinnerBox) spinnerBox.classList.add("not-visible");
+            });
+        } else {
+            // Fallback si HTMX n'est pas disponible
+            console.error('HTMX n\'est pas disponible');
+            window.isLoadingProducts = false;
         }
-        
-        $.ajax({
-            type: "GET",
-            url: `/shop-ajax/`,
-            data: {
-                "num_products": window.visible,
-                "order_by": mySelect.value,
-                "CAT_id": currentCategoryID,
-                "cat_type": currentCategoryType
-            },
-            success: function (response) {
+    }
+    
+    // Ancienne fonction AJAX (désactivée, conservée pour référence)
+    window.handleGetDataOld = function(sorted) {
+        // Cette fonction est désactivée - utiliser HTMX maintenant
+        if (false) { // Désactivé
+            $.ajax({
+                type: "GET",
+                url: `/shop-ajax/`,
+                data: {
+                    "num_products": window.visible,
+                    "order_by": mySelect.value,
+                    "CAT_id": currentCategoryID,
+                    "cat_type": currentCategoryType
+                },
+                success: function (response) {
                 const data = response.data;
                 //console.log(data);
                 const maxSize = response.max
@@ -94,10 +136,19 @@ window.onload = function () {
 
                     // Construire le HTML de tous les produits d'abord
                     let productsHTML = '';
+                    // Fonction pour formater un prix avec des espaces
+                    function formatPrice(priceValue) {
+                        const price = parseFloat(priceValue || 0);
+                        const intPrice = Math.floor(price);
+                        return intPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                    }
+
                     data.forEach(product => {
-                        const price = parseFloat(product.PRDPrice || 0).toFixed(0);
-                        const discountPrice = product.PRDDiscountPrice > 0 ? parseFloat(product.PRDDiscountPrice).toFixed(0) : null;
+                        const price = formatPrice(product.PRDPrice || 0);
+                        const discountPrice = product.PRDDiscountPrice > 0 ? formatPrice(product.PRDDiscountPrice) : null;
                         const likeCount = product.like_count || 0;
+                        const viewCount = product.view_count || 0;
+                        const isBoosted = product.is_boosted || false;
                         const productName = product.product_name || 'Produit sans nom';
                         const productSlug = product.PRDSlug || '';
                         const productId = product.id;
@@ -126,12 +177,24 @@ window.onload = function () {
                                         <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
                                         <span class="favorite-count">${likeCount}</span>
                                     </button>
-                                            </div>
+                                    ${isBoosted ? `
+                                    <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <i class="fi-rs-rocket" style="font-size: 12px;"></i>
+                                        <span>Boosté</span>
+                                    </div>
+                                    ` : ''}
+                                    ${viewCount > 0 ? `
+                                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
+                                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
+                                        <span>${viewCount}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
                                 <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
                                     <h3 class="flavoriz-product-title" onclick="window.location.href='/product-details/${productSlug}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">${productName}</h3>
                                     <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
-                                        <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">${price} XOF</span>
-                                        ${discountPrice ? `<span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} XOF</span>` : ''}
+                                        <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">${price} FCFA</span>
+                                        ${discountPrice ? `<span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} FCFA</span>` : ''}
                                             </div>
                                     <div style="display: flex; gap: 8px; margin-top: auto;">
                                         <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${productSlug}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
@@ -205,18 +268,17 @@ window.onload = function () {
                 }, 500)
 
 
-            },
-            error: function (error) {
-                window.isLoadingProducts = false;
-            },
-            complete: function() {
-                // Réinitialiser le flag après un court délai pour permettre les appels suivants
-                setTimeout(function() {
+                },
+                error: function (error) {
                     window.isLoadingProducts = false;
-                }, 100);
-            }
-        })
-
+                },
+                complete: function() {
+                    setTimeout(function() {
+                        window.isLoadingProducts = false;
+                    }, 100);
+                }
+            });
+        }
     }
     
     // DÉSACTIVÉ : Le chargement est maintenant géré par HTMX
@@ -224,14 +286,39 @@ window.onload = function () {
     // productList.innerHTML = "";
     // handleGetData(true); // true = sorted, donc on vide la liste d'abord
     
-    loadBtn.addEventListener("click", () => {
-        window.visible += 10;
-        handleGetData(false); // false = pas sorted, donc on ajoute à la liste existante
-    })
+    // Le bouton "Charger plus" est maintenant géré par HTMX dans le template
+    // Plus besoin de gérer manuellement le chargement
     
+    // Gérer le changement de tri avec HTMX
     $('.mySelect').on('change', function () {
-        window.visible = 10;
-        handleGetData(true);
+        const orderBy = $(this).val();
+        const catType = $('#cat_type_input').val() || 'all';
+        const catId = $('#cat_id_input').val() || '';
+        const htmxUrl = `/shop-htmx/?page=1&order_by=${orderBy}&cat_type=${catType}&cat_id=${catId}`;
+        
+        if (typeof htmx !== 'undefined') {
+            htmx.ajax('GET', htmxUrl, {
+                target: '#products-list',
+                swap: 'innerHTML',
+                indicator: '#loading-indicator'
+            }).then(function() {
+                // Mettre à jour le compteur
+                const totalCountEl = document.getElementById('total-products-count');
+                if (totalCountEl && productNum) {
+                    const total = totalCountEl.textContent || '0';
+                    if (parseInt(total) > 0) {
+                        productNum.innerHTML = `<p style="margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i><span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">${total}</strong> articles pour vous !</span></p>`;
+                    } else {
+                        productNum.innerHTML = `<p style="margin: 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-box" style="color: #9CA3AF; font-size: 16px;"></i><span>Aucun produit disponible</span></p>`;
+                    }
+                }
+                
+                // Réattacher les event listeners
+                if (typeof attachProductEventListeners === 'function') {
+                    attachProductEventListeners();
+                }
+            });
+        }
     })
 
     if (categoryType == "sub") {
@@ -339,7 +426,7 @@ window.toggleFavorite = function(productId, buttonElement) {
 window.addToCartQuick = function(productId, productPrice) {
     console.log('addToCartQuick appelée pour le produit:', productId, 'prix:', productPrice);
     
-    // Nettoyer le prix (enlever "XOF" et espaces)
+    // Nettoyer le prix (enlever "FCFA" et espaces)
     const cleanPrice = String(productPrice).replace(/[^\d.]/g, '');
     
     const formData = new FormData();
@@ -576,7 +663,9 @@ function attachProductEventListeners() {
             const productId = favoriteBtn.getAttribute('data-product-id');
             if (productId && typeof window.toggleFavorite === 'function') {
                 console.log('Clic sur bouton favoris, produit:', productId);
-                window.toggleFavorite(parseInt(productId), favoriteBtn);
+                // Ne pas parser les IDs "peer_X" comme des entiers
+                const parsedId = productId.toString().startsWith('peer_') ? productId : parseInt(productId);
+                window.toggleFavorite(parsedId, favoriteBtn);
             } else {
                 console.error('toggleFavorite non disponible ou productId manquant', productId, typeof window.toggleFavorite);
             }
@@ -592,7 +681,9 @@ function attachProductEventListeners() {
             const productPrice = cartBtn.getAttribute('data-product-price');
             if (productId && productPrice && typeof window.addToCartQuick === 'function') {
                 console.log('Clic sur bouton panier, produit:', productId, 'prix:', productPrice);
-                window.addToCartQuick(parseInt(productId), productPrice);
+                // Ne pas parser les IDs "peer_X" comme des entiers
+                const parsedId = productId.toString().startsWith('peer_') ? productId : parseInt(productId);
+                window.addToCartQuick(parsedId, productPrice);
             } else {
                 console.error('addToCartQuick non disponible ou données manquantes', productId, productPrice, typeof window.addToCartQuick);
             }

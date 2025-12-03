@@ -31,7 +31,8 @@ urlpatterns = [
                                                                                            post_reset_login=True, success_url=reverse_lazy('accounts:password_reset_complete')),   name='password_reset_confirm'),
     path('password-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='accounts/auth/password_reset_complete.html'), name='password_reset_complete'),
-    path('download-list/', views.download_list, name="download-list"),
+    path('sell-product/', views.sell_product, name="sell-product"),
+    path('peer-product/<str:slug>/', views.peer_product_details, name="peer-product-details"),
     path('download_file/<int:order_id>/<str:filename>/',
          views.download_file, name="download-file"),
 

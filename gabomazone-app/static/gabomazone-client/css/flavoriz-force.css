@@ -36,17 +36,20 @@ header:not(.flavoriz-header) {
     opacity: 0 !important;
 }
 
-/* Forcer le body blanc avec padding-top pour compenser le header fixe */
+/* Forcer le body blanc - pas de padding-top, géré par main.main */
 body {
     background: #FFFFFF !important;
     padding: 0 !important;
-    padding-top: 100px !important;
     margin: 0 !important;
 }
 
-/* ===== PADDING TOP POUR TOUTES LES PAGES - FORCER ===== */
-/* Assure que le contenu ne se chevauche JAMAIS avec le header fixe */
-main.main,
+/* ===== MARGIN TOP POUR TOUTES LES PAGES - FORCER ===== */
+/* Assure que le contenu commence juste sous le header fixe */
+main.main {
+    margin-top: 80px !important;
+    padding-top: 0 !important;
+}
+
 main.main .container,
 main.main .row,
 .flavoriz-hero,
@@ -60,6 +63,17 @@ section:first-of-type {
     margin-top: 0 !important;
 }
 
+/* Hero banner - pleine largeur, pas de margin-top */
+.flavoriz-hero-banner {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    width: 100vw !important;
+    max-width: 100% !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    position: relative !important;
+}
+
 /* Hero section - première section visible */
 .flavoriz-hero {
     padding-top: 20px !important;
@@ -68,6 +82,7 @@ section:first-of-type {
 
 /* Pages de compte */
 main.main.pages {
+    margin-top: 80px !important;
     padding-top: 20px !important;
 }
 
@@ -75,10 +90,15 @@ main.main.pages .container {
     padding-top: 0 !important;
 }
 
-/* Mobile : ajuster le padding-top - header plus haut sur mobile */
+/* Mobile : ajuster le margin-top - header plus haut sur mobile */
 @media (max-width: 768px) {
-    body {
-        padding-top: 110px !important;
+    main.main {
+        margin-top: 90px !important;
+    }
+    
+    main.main.pages {
+        margin-top: 90px !important;
+        padding-top: 15px !important;
     }
     
     .flavoriz-hero {
@@ -202,7 +222,14 @@ main.main:not(.pages) {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    padding-top: 100px !important;
+    margin-top: 80px !important;
+    padding-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+    main.main:not(.pages) {
+        margin-top: 90px !important;
+    }
 }
 
 main.main:not(.pages) .container,

@@ -9,8 +9,8 @@ app_name = 'suppliers'
 urlpatterns = [
     path('supplier-list/', views.supplier_list, name='supplier-list'),
     path('vendors-ajax/', views.VendorsJsonListView.as_view(), name="vendors-ajax"),
-    path('vendor-details/<str:slug>',
-         views.vendor_details, name="vendor-details"),
+    path('suppliers/vendor-details/<str:slug>/', views.vendor_details, name="vendor-details"),
+    path('vendor-details/<str:slug>/', views.vendor_details, name="vendor-details-alt"),  # Alias pour compatibilité
     path('vendor-details-ajax/',
          views.VendorDetailsJsonListView.as_view(), name="orders-ajax"),
 

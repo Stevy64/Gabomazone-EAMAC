@@ -1,0 +1,756 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{%block body%}
+<style>
+/* Styles responsive pour mobile */
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 90px !important;
+        padding-bottom: 40px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    /* Sidebar - masquer sur mobile ou rendre collapsible */
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px;
+        order: 2; /* Mettre la sidebar après le contenu principal */
+    }
+    
+    .col-md-9 {
+        order: 1; /* Mettre le contenu principal en premier */
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: relative !important;
+        top: 0 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+    }
+    
+    .flavoriz-dashboard-menu ul {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu li a {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+    
+    /* Main content - pleine largeur sur mobile */
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .main-content-wrapper {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+    }
+    
+    /* Breadcrumb responsive */
+    nav {
+        font-size: 12px !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
+    
+    nav a span {
+        display: none !important; /* Masquer le texte "Accueil" sur très petit écran */
+    }
+    
+    nav span:not(:last-child) {
+        display: none !important; /* Masquer les séparateurs sur mobile */
+    }
+    
+    /* Header */
+    .main-content-header h1 {
+        font-size: 22px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    
+    .main-content-header h1 i {
+        font-size: 24px !important;
+    }
+    
+    .main-content-header p {
+        font-size: 13px !important;
+    }
+    
+    /* Parcours visuel - empiler verticalement */
+    .sales-journey {
+        padding: 20px 16px !important;
+    }
+    
+    .sales-journey-steps {
+        flex-direction: column !important;
+        gap: 24px !important;
+    }
+    
+    .sales-journey-steps .journey-line {
+        display: none !important;
+    }
+    
+    .journey-step {
+        min-width: 100% !important;
+        flex: 1 1 100% !important;
+        padding: 12px !important;
+        background: white !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .journey-step > div:first-child {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    
+    .journey-step h4 {
+        font-size: 13px !important;
+    }
+    
+    .journey-step p {
+        font-size: 11px !important;
+    }
+    
+    /* Form sections */
+    .form-section {
+        margin-bottom: 24px !important;
+    }
+    
+    .form-section-title {
+        font-size: 18px !important;
+        padding-bottom: 10px !important;
+    }
+    
+    .form-section-title i {
+        font-size: 18px !important;
+    }
+    .form-section-title {
+        font-size: 18px !important;
+    }
+    
+    /* Grids - une colonne sur mobile */
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-4 {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    /* Listes déroulantes - amélioration pour mobile */
+    select,
+    .custom-select {
+        font-size: 16px !important; /* Évite le zoom automatique sur iOS */
+        padding: 14px 16px !important;
+        min-height: 48px !important; /* Taille de touche recommandée */
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236B7280' d='M7 10L2 5h10z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 16px center !important;
+        background-size: 14px !important;
+        padding-right: 45px !important;
+        border-width: 2px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    select:focus,
+    .custom-select:focus {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF7B2C' d='M7 10L2 5h10z'/%3E%3C/svg%3E") !important;
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    }
+    
+    /* Inputs de fichiers - amélioration pour mobile */
+    input[type="file"] {
+        font-size: 16px !important;
+        padding: 16px !important;
+        min-height: 56px !important;
+        border-width: 2px !important;
+        border-style: dashed !important;
+        background: #FAFAFA !important;
+    }
+    
+    input[type="file"]:focus {
+        background: #FFFFFF !important;
+        border-color: var(--color-orange) !important;
+        border-width: 2px !important;
+    }
+    
+    /* Labels */
+    label {
+        font-size: 14px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* Textareas */
+    textarea {
+        font-size: 16px !important; /* Évite le zoom automatique sur iOS */
+        min-height: 100px !important;
+    }
+    
+    /* Inputs texte */
+    input[type="text"],
+    input[type="tel"],
+    input[type="number"] {
+        font-size: 16px !important; /* Évite le zoom automatique sur iOS */
+        padding: 14px 16px !important;
+        min-height: 48px !important;
+    }
+    
+    /* Boutons */
+    .form-buttons {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    
+    .form-buttons button {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        min-height: 48px !important;
+    }
+    
+    /* Mes articles - grille responsive */
+    .user-products-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    /* Preview images */
+    .image-preview {
+        margin-top: 16px !important;
+    }
+    
+    .image-preview img {
+        max-height: 200px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+    }
+    
+    /* Espacement général */
+    .main-content-wrapper > * {
+        margin-bottom: 24px !important;
+    }
+    
+    .main-content-wrapper > *:last-child {
+        margin-bottom: 0 !important;
+    }
+}
+
+/* Amélioration des listes déroulantes sur tous les écrans */
+select,
+.custom-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236B7280' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 14px;
+    padding-right: 45px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+select:hover,
+.custom-select:hover {
+    border-color: #D1D5DB !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+select:focus,
+.custom-select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF7B2C' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+
+/* Amélioration des inputs de fichiers */
+input[type="file"] {
+    position: relative;
+    cursor: pointer;
+    background: #FAFAFA !important;
+    border: 2px dashed #E5E7EB !important;
+    transition: all 0.3s ease !important;
+}
+
+input[type="file"]::file-selector-button {
+    display: none;
+}
+
+input[type="file"]:hover {
+    background: #F9FAFB !important;
+    border-color: #D1D5DB !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+input[type="file"]:focus {
+    background: #FFFFFF !important;
+    border-color: var(--color-orange) !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+
+input[type="file"]:active {
+    background: #F3F4F6 !important;
+    transform: scale(0.98);
+}
+
+/* Zone de drop améliorée pour mobile */
+@media (max-width: 768px) {
+    input[type="file"] {
+        text-align: center;
+        position: relative;
+    }
+    
+    /* Amélioration visuelle pour les zones de fichiers */
+    .form-grid-4 > div {
+        position: relative;
+    }
+    
+    .form-grid-4 input[type="file"] {
+        background: linear-gradient(135deg, #FAFAFA 0%, #F3F4F6 100%) !important;
+        border: 2px dashed #D1D5DB !important;
+    }
+    
+    .form-grid-4 input[type="file"]:focus {
+        background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%) !important;
+        border-color: var(--color-orange) !important;
+        border-width: 2px !important;
+    }
+    
+    /* Amélioration des previews d'images */
+    .image-preview {
+        text-align: center;
+    }
+    
+    .image-preview img {
+        max-height: 180px !important;
+        width: auto !important;
+        margin: 0 auto;
+    }
+}
+</style>
+
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Vendre un article</span>
+        </nav>
+
+        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+            <!-- Sidebar Menu -->
+            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+                <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
+                            Mon compte
+                        </h3>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <li>
+                            <a href="{% url 'accounts:dashboard_customer'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mes commandes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:sell-product' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-orange); text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);">
+                                <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center; color: var(--color-orange);"></i>
+                                <span>Vendre un article</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mot de passe</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:account_details'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Paramètres</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9" style="flex: 1; min-width: 0;">
+                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <!-- Header -->
+                    <div class="main-content-header" style="margin-bottom: 32px;">
+                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <i class="fi-rs-shopping-cart-add" style="color: var(--color-orange); font-size: 32px;"></i>
+                            Vendre un article entre particuliers
+                        </h1>
+                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
+                            Ajoutez votre article à vendre. Le paiement se fera uniquement à la livraison avec un code de confirmation.
+                            <strong style="color: var(--color-orange);">Commission: 20%</strong>
+                        </p>
+                    </div>
+
+                    <!-- Parcours visuel des étapes -->
+                    <div class="sales-journey" style="margin-bottom: 40px; padding: 24px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 16px; border: 2px solid #E5E7EB;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fi-rs-list-check" style="color: var(--color-orange);"></i>
+                            Parcours de vente
+                        </h3>
+                        <div class="sales-journey-steps" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; position: relative;">
+                            <!-- Ligne de connexion -->
+                            <div class="journey-line" style="position: absolute; top: 30px; left: 60px; right: 60px; height: 3px; background: linear-gradient(90deg, var(--color-orange) 0%, #E5E7EB 100%); z-index: 0; border-radius: 2px;"></div>
+                            
+                            <!-- Étape 1 -->
+                            <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
+                                    <i class="fi-rs-edit" style="color: white; font-size: 24px;"></i>
+                                </div>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">1. Publication</h4>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Vous publiez votre article</p>
+                            </div>
+
+                            <!-- Étape 2 -->
+                            <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                    <i class="fi-rs-check" style="color: white; font-size: 24px;"></i>
+                                </div>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">2. Validation</h4>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Validation par l'admin</p>
+                            </div>
+
+                            <!-- Étape 3 -->
+                            <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                                    <i class="fi-rs-shopping-bag" style="color: white; font-size: 24px;"></i>
+                                </div>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">3. Commande</h4>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Un client commande</p>
+                            </div>
+
+                            <!-- Étape 4 -->
+                            <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                                    <i class="fi-rs-key" style="color: white; font-size: 24px;"></i>
+                                </div>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">4. Code envoyé</h4>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Code envoyé au client</p>
+                            </div>
+
+                            <!-- Étape 5 -->
+                            <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                                    <i class="fi-rs-truck" style="color: white; font-size: 24px;"></i>
+                                </div>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">5. Livraison</h4>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Livraison et paiement</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div style="margin-bottom: 24px;">
+                        {% for message in messages %}
+                        <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; {% if message.tags == 'success' %}background: #D1FAE5; color: #065F46; border: 1px solid #10B981;{% elif message.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444;{% else %}background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B;{% endif %}">
+                            <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}alert-circle{% else %}info{% endif %}" style="font-size: 20px;"></i>
+                            <span style="font-weight: 500;">{{message}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Formulaire -->
+                    <form method="post" action="{% url 'accounts:sell-product' %}" enctype="multipart/form-data" id="addProductForm">
+                        {% csrf_token %}
+                        
+                        <!-- Informations de base -->
+                        <div class="form-section" style="margin-bottom: 32px;">
+                            <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
+                                <i class="fi-rs-info" style="color: var(--color-orange);"></i>
+                                Informations de base
+                            </h3>
+                            
+                            <div class="form-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Nom du produit <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input type="text" name="product_name" required maxlength="150" placeholder="Ex: iPhone 13 Pro Max" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Prix (FCFA) <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input type="number" name="PRDPrice" required min="1" step="0.01" placeholder="Ex: 200000" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                    <p style="font-size: 12px; color: #6B7280; margin: 6px 0 0 0;">
+                                        Commission: 20% | Vous recevrez: 80%
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                    Description <span style="color: #EF4444;">*</span>
+                                </label>
+                                <textarea name="product_description" required rows="4" placeholder="Décrivez votre article en détail..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Catégories -->
+                        <div class="form-section" style="margin-bottom: 32px;">
+                            <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
+                                <i class="fi-rs-tag" style="color: var(--color-orange);"></i>
+                                Catégories
+                            </h3>
+                            
+                            <div class="form-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Super catégorie
+                                    </label>
+                                    <select name="product_supercategory" id="super_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onchange="loadMainCategories(this.value)" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                        <option value="">Sélectionner...</option>
+                                        {% for cat in super_categories %}
+                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Catégorie principale
+                                    </label>
+                                    <select name="product_maincategory" id="main_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onchange="loadSubCategories(this.value)" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                        <option value="">Sélectionner...</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Sous-catégorie
+                                    </label>
+                                    <select name="product_subcategory" id="sub_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                        <option value="">Sélectionner...</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Images -->
+                        <div class="form-section" style="margin-bottom: 32px;">
+                            <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
+                                <i class="fi-rs-picture" style="color: var(--color-orange);"></i>
+                                Images
+                            </h3>
+                            
+                            <div class="form-grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Image principale <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input type="file" name="product_image" required accept="image/*" style="width: 100%; padding: 12px; border: 2px dashed #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; cursor: pointer;" onchange="previewImage(this, 'preview_main')" onfocus="this.style.borderColor='var(--color-orange)'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E5E7EB'; this.style.background='#FAFAFA'">
+                                    <div id="preview_main" class="image-preview" style="margin-top: 12px; display: none;">
+                                        <img src="" alt="Preview" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Image supplémentaire 1
+                                    </label>
+                                    <input type="file" name="additional_image_1" accept="image/*" style="width: 100%; padding: 12px; border: 2px dashed #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; cursor: pointer;" onchange="previewImage(this, 'preview_1')" onfocus="this.style.borderColor='var(--color-orange)'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E5E7EB'; this.style.background='#FAFAFA'">
+                                    <div id="preview_1" class="image-preview" style="margin-top: 12px; display: none;">
+                                        <img src="" alt="Preview" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Image supplémentaire 2
+                                    </label>
+                                    <input type="file" name="additional_image_2" accept="image/*" style="width: 100%; padding: 12px; border: 2px dashed #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; cursor: pointer;" onchange="previewImage(this, 'preview_2')" onfocus="this.style.borderColor='var(--color-orange)'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E5E7EB'; this.style.background='#FAFAFA'">
+                                    <div id="preview_2" class="image-preview" style="margin-top: 12px; display: none;">
+                                        <img src="" alt="Preview" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Image supplémentaire 3
+                                    </label>
+                                    <input type="file" name="additional_image_3" accept="image/*" style="width: 100%; padding: 12px; border: 2px dashed #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; cursor: pointer;" onchange="previewImage(this, 'preview_3')" onfocus="this.style.borderColor='var(--color-orange)'; this.style.background='#FFFFFF'" onblur="this.style.borderColor='#E5E7EB'; this.style.background='#FAFAFA'">
+                                    <div id="preview_3" class="image-preview" style="margin-top: 12px; display: none;">
+                                        <img src="" alt="Preview" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations de contact -->
+                        <div class="form-section" style="margin-bottom: 32px;">
+                            <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
+                                <i class="fi-rs-phone-call" style="color: var(--color-orange);"></i>
+                                Informations de contact
+                            </h3>
+                            
+                            <div class="form-grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Téléphone <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input type="tel" name="seller_phone" required placeholder="Ex: +241 01 23 45 67" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                </div>
+                                
+                                <div>
+                                    <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                        Ville <span style="color: #EF4444;">*</span>
+                                    </label>
+                                    <input type="text" name="seller_city" required placeholder="Ex: Libreville" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                    Adresse complète <span style="color: #EF4444;">*</span>
+                                </label>
+                                <textarea name="seller_address" required rows="3" placeholder="Votre adresse complète pour la livraison..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Bouton de soumission -->
+                        <div class="form-buttons" style="display: flex; justify-content: flex-end; gap: 16px; padding-top: 24px; border-top: 2px solid #F3F4F6;">
+                            <button type="reset" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                                Réinitialiser
+                            </button>
+                            <button type="submit" style="padding: 14px 32px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                                <i class="fi-rs-check"></i>
+                                Publier l'article
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Mes articles -->
+                    {% if user_products %}
+                    <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid #F3F4F6;">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-list" style="color: var(--color-orange);"></i>
+                            Mes articles publiés
+                        </h3>
+                        <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                            {% for product in user_products %}
+                            <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                <div style="margin-bottom: 12px;">
+                                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                                </div>
+                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">{{ product.product_name }}</h4>
+                                <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                    {% if product.status == 'PENDING' %}
+                                    <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600;">En attente</span>
+                                    {% elif product.status == 'APPROVED' %}
+                                    <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600;">Approuvé</span>
+                                    {% elif product.status == 'REJECTED' %}
+                                    <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600;">Rejeté</span>
+                                    {% elif product.status == 'SOLD' %}
+                                    <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600;">Vendu</span>
+                                    {% endif %}
+                                </div>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0;">Publié le {{ product.date|date:"d/m/Y" }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+function previewImage(input, previewId) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById(previewId);
+            preview.style.display = 'block';
+            preview.querySelector('img').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function loadMainCategories(superCategoryId) {
+    if (!superCategoryId) {
+        document.getElementById('main_category').innerHTML = '<option value="">Sélectionner...</option>';
+        document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+        return;
+    }
+    
+    fetch(`/categories/get-main-categories/?super_category_id=${superCategoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('main_category');
+            select.innerHTML = '<option value="">Sélectionner...</option>';
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                select.appendChild(option);
+            });
+            document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function loadSubCategories(mainCategoryId) {
+    if (!mainCategoryId) {
+        document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+        return;
+    }
+    
+    fetch(`/categories/get-sub-categories/?main_category_id=${mainCategoryId}`)
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('sub_category');
+            select.innerHTML = '<option value="">Sélectionner...</option>';
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                select.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
+

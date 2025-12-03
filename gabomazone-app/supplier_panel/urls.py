@@ -17,8 +17,9 @@ urlpatterns = [
          name="supplier-add-product"),
     path('supplier-categories-ajax/', views.CategoriesJsonListView.as_view(),
          name="get-categories"),
-    path('supplier-products-list/', views.supplier_products_list,
-         name="supplier-products-list"),
+    # Page supplier-products-list supprimée - redirection vers supplier-add-product
+    # path('supplier-products-list/', views.supplier_products_list,
+    #      name="supplier-products-list"),
 
     path('supplier-products-list-ajax/', views.SupplierProductsJsonListView.as_view(),
          name="supplier-products-list-ajax"),

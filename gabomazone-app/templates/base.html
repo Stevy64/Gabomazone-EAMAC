@@ -295,7 +295,7 @@
 											</div>
 											<div class="shopping-cart-title">
 												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
-												<h4><span>{{order.quantity}} × </span>{{order.price|floatformat:0}} XOF</h4>
+												<h4><span>{{order.quantity}} × </span>{{order.price|format_price}} FCFA</h4>
 											</div>
 											<div class="shopping-cart-delete">
 												<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
@@ -306,7 +306,7 @@
 									<div class="shopping-cart-footer">
 										<div class="shopping-cart-total">
 											{% if order_context.amount%}
-											 <h4>Total <span>{{order_context.amount|floatformat:0}} XOF</span></h4> 
+											 <h4>Total <span>{{order_context.amount|format_price}} FCFA</span></h4> 
 											{%endif%}
 										</div>
 										<div class="shopping-cart-button">
@@ -516,7 +516,7 @@
 										</div>
 										<div class="shopping-cart-title">
 											<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
-											<h3><span>{{order.quantity}} × </span>{{order.price|floatformat:0}} XOF</h3>
+											<h3><span>{{order.quantity}} × </span>{{order.price|format_price}} FCFA</h3>
 										</div>
 										<div class="shopping-cart-delete">
 											<a href="{% url 'orders:remove-item' order.id  %}"><i class="fi-rs-cross-small"></i></a>
@@ -528,7 +528,7 @@
 								<div class="shopping-cart-footer">
 									<div class="shopping-cart-total">
 										{% if order_context.amount%}
-											<h4>Total <span>{{order_context.amount|floatformat:0}} XOF</span></h4> 
+											<h4>Total <span>{{order_context.amount|format_price}} FCFA</span></h4> 
 										{%endif%}
 									</div>
 									<div class="shopping-cart-button">
@@ -692,13 +692,26 @@
 			<!-- Style global pour éviter le chevauchement avec le header fixe -->
 			<style>
 				/* ===== PADDING TOP GLOBAL POUR TOUTES LES PAGES ===== */
-				/* Assure que le contenu ne se chevauche JAMAIS avec le header fixe */
+				/* Assure que le contenu commence juste sous le header fixe */
 				body {
-					padding-top: 100px !important;
+					padding-top: 0 !important;
 				}
 				
-				/* Sections principales - pas de padding-top supplémentaire, le body gère déjà */
-				main.main,
+				/* Main content - margin-top pour compenser le header fixe */
+				main.main {
+					margin-top: 80px !important;
+					padding-top: 0 !important;
+				}
+				
+				/* Hero banner - pleine largeur, pas de margin-top */
+				.flavoriz-hero-banner {
+					margin-top: 0 !important;
+					padding-top: 0 !important;
+					width: 100% !important;
+					max-width: 100% !important;
+				}
+				
+				/* Sections principales - pas de padding-top supplémentaire */
 				main.main .container,
 				.flavoriz-section,
 				section.flavoriz-section,
@@ -716,24 +729,25 @@
 				
 				/* Pages de compte */
 				main.main.pages {
+					margin-top: 80px !important;
 					padding-top: 20px !important;
 				}
 				
-				/* Mobile : ajuster le padding-top - header plus haut sur mobile */
+				/* Mobile : ajuster le margin-top - header plus haut sur mobile */
 				@media (max-width: 768px) {
-					body {
-						padding-top: 110px !important;
+					main.main {
+						margin-top: 90px !important;
+					}
+					
+					main.main.pages {
+						margin-top: 90px !important;
+						padding-top: 15px !important;
 					}
 					
 					.flavoriz-hero {
 						padding-top: 15px !important;
 					}
 					
-					main.main.pages {
-						padding-top: 15px !important;
-					}
-					
-					main.main,
 					main.main .container {
 						padding-top: 0 !important;
 					}
@@ -1107,8 +1121,8 @@
 			<script src="{% static 'gabomazone-client/js/desktop-search-expand.js' %}?v=7.0"></script>
 			<!-- Account Dropdown Fix -->
 			<script src="{% static 'gabomazone-client/js/account-dropdown-fix.js' %}?v=8.0"></script>
-			<!-- Infinite Scroll + Lazy Loading -->
-			<script src="{% static 'gabomazone-client/js/infinite-scroll.js' %}?v=5.0"></script>
+			<!-- Infinite Scroll + Lazy Loading - DÉSACTIVÉ, HTMX gère maintenant le scroll infini -->
+			<!-- <script src="{% static 'gabomazone-client/js/infinite-scroll.js' %}?v=6.0"></script> -->
 			<!-- Vendor JS-->
 			<script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
 			<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>

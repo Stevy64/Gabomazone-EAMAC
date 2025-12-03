@@ -69,12 +69,16 @@ html, body {
 }
 
 body {
-    padding-top: 100px !important;
+    padding-top: 0 !important;
 }
 
-/* ===== PADDING TOP POUR TOUTES LES PAGES - COMPENSER LE HEADER FIXE ===== */
+/* ===== MARGIN TOP POUR TOUTES LES PAGES - COMPENSER LE HEADER FIXE ===== */
 /* Assure que le contenu ne se chevauche pas avec le header fixe */
-main.main,
+main.main {
+    margin-top: 80px !important;
+    padding-top: 0 !important;
+}
+
 main.main .container,
 .flavoriz-hero,
 .flavoriz-section,
@@ -94,24 +98,25 @@ section.flavoriz-section,
 
 /* Pages de compte et autres pages avec classe .pages */
 main.main.pages {
+    margin-top: 80px !important;
     padding-top: 20px !important;
 }
 
-/* Mobile : ajuster le padding-top - header plus haut sur mobile */
+/* Mobile : ajuster le margin-top - header plus haut sur mobile */
 @media (max-width: 768px) {
-    body {
-        padding-top: 110px !important;
+    main.main {
+        margin-top: 90px !important;
+    }
+    
+    main.main.pages {
+        margin-top: 90px !important;
+        padding-top: 15px !important;
     }
     
     .flavoriz-hero {
         padding-top: 15px !important;
     }
     
-    main.main.pages {
-        padding-top: 15px !important;
-    }
-    
-    main.main,
     main.main .container {
         padding-top: 0 !important;
     }

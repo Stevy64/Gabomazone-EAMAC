@@ -14,7 +14,7 @@ L'erreur `Currency matching query does not exist` est maintenant **complètement
 - ✅ Retiré `'currencies.context_processors.currencies'` des context_processors
 
 ### 3. Tous les Templates Mis à Jour
-Tous les filtres `currency:` ont été remplacés par le formatage direct XOF :
+Tous les filtres `currency:` ont été remplacés par le formatage direct FCFA :
 
 **Format Ancien:**
 ```django
@@ -23,7 +23,7 @@ Tous les filtres `currency:` ont été remplacés par le formatage direct XOF :
 
 **Format Nouveau:**
 ```django
-{{price|floatformat:0}} XOF
+{{price|floatformat:0}} FCFA
 ```
 
 ### 4. Fichiers Corrigés
@@ -46,7 +46,7 @@ Relancez le serveur :
 python manage.py runserver
 ```
 
-L'application devrait maintenant fonctionner sans erreur de devise. Tous les prix s'affichent en XOF.
+L'application devrait maintenant fonctionner sans erreur de devise. Tous les prix s'affichent en FCFA.
 
 ## Note
 

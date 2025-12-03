@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load cart_template_tags %}
 
 {% block headextra%}
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <!-- Polyfill.io supprimé car le domaine n'est plus accessible - fetch est supporté nativement par tous les navigateurs modernes -->
+    <!-- <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script> -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <style>
@@ -190,7 +192,7 @@
                                 </h4>
                                 <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px;">
                                     <span>Qté: <strong style="color: #1F2937;">{{item.quantity}}</strong></span>
-                                    <span style="margin-left: auto; font-size: 15px; font-weight: 700; color: var(--color-orange);">{% widthratio item.price 1 item.quantity|floatformat:0 %} FCFA</span>
+                                    <span style="margin-left: auto; font-size: 15px; font-weight: 700; color: var(--color-orange);">{{ item.price|multiply_and_format:item.quantity }} FCFA</span>
                                         </div>
                     </div>
                 </div>
@@ -201,7 +203,7 @@
                     <div style="border-top: 2px solid #F3F4F6; padding-top: 20px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
-                            <strong style="font-size: 16px; color: #1F2937; font-weight: 600;">{{order.sub_total|floatformat:0}} FCFA</strong>
+                            <strong style="font-size: 16px; color: #1F2937; font-weight: 600;">{{order.sub_total|format_price}} FCFA</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Articles</span>
@@ -214,19 +216,19 @@
                         {% if order.coupon %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Code promo ({{order.coupon}})</span>
-                            <strong style="font-size: 15px; color: #10B981; font-weight: 700;">-{{order.discount|floatformat:0}} FCFA</strong>
+                            <strong style="font-size: 15px; color: #10B981; font-weight: 700;">-{{order.discount|format_price}} FCFA</strong>
                         </div> 
                         {% endif %}
                         {% if order.shipping %}
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                             <span style="font-size: 14px; color: #6B7280;">Livraison</span>
-                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.shipping|floatformat:0}} FCFA</strong>
+                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.shipping|format_price}} FCFA</strong>
                         </div> 
                         {% endif %}
                         <div style="height: 1px; background: #E5E7EB; margin: 12px 0;"></div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 8px;">
                             <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
-                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{order.amount|floatformat:0}} FCFA</strong>
+                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{order.amount|format_price}} FCFA</strong>
                         </div>
                     </div>
                 </div>

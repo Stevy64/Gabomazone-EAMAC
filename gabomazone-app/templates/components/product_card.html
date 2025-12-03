@@ -1,4 +1,5 @@
 {% load static %}
+{% load cart_template_tags %}
 <div class="card-product">
     <div class="product-img-wrapper">
         <a href="{% url 'products:product-details' product.PRDSlug %}">
@@ -32,9 +33,9 @@
         </div>
         {% endif %}
         <div class="product-price mb-3">
-            <span class="currency-xof">{{ product.PRDPrice|floatformat:0 }} XOF</span>
+            <span class="currency-xof">{{ product.PRDPrice|format_price }} FCFA</span>
             {% if product.PRDDiscountPrice %}
-            <span class="old-price ms-2">{{ product.PRDDiscountPrice|floatformat:0 }} XOF</span>
+            <span class="old-price ms-2">{{ product.PRDDiscountPrice|format_price }} FCFA</span>
             {% endif %}
         </div>
         <a href="{% url 'products:product-details' product.PRDSlug %}" class="btn-primary btn-sm w-100">

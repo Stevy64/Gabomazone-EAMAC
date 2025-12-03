@@ -33,7 +33,7 @@
 
 ### Prix
 - ✅ Couleur orange (#FF7B2C)
-- ✅ Format: "X XOF" (ex: "15000 XOF")
+- ✅ Format: "X FCFA" (ex: "15000 FCFA")
 - ✅ Ancien prix barré en gris
 
 ## 🔄 Pour Voir les Changements

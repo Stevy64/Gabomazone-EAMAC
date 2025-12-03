@@ -4,7 +4,7 @@
 L'erreur `Currency matching query does not exist` se produisait car :
 1. L'application utilisait encore le système multi-devises `django-currencies`
 2. Le filtre `currency:request.session.currency` cherchait une devise qui n'existait pas en base
-3. Nous voulons utiliser uniquement XOF sans système de devises
+3. Nous voulons utiliser uniquement FCFA sans système de devises
 
 ## Solution Appliquée
 
@@ -23,7 +23,7 @@ L'erreur `Currency matching query does not exist` se produisait car :
 
 **Nouveau format:**
 ```django
-{{product.PRDPrice|floatformat:0}} XOF
+{{product.PRDPrice|floatformat:0}} FCFA
 ```
 
 ### 4. Fichiers modifiés
@@ -43,7 +43,7 @@ Relancez le serveur :
 python manage.py runserver
 ```
 
-L'erreur devrait être résolue. Tous les prix s'affichent maintenant directement en XOF sans passer par le système de devises.
+L'erreur devrait être résolue. Tous les prix s'affichent maintenant directement en FCFA sans passer par le système de devises.
 
 ## Note
 

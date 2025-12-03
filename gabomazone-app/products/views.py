@@ -23,6 +23,12 @@ def product_details(request, slug):
         print("SESSION_Currency: ", request.session['currency'])
 
     product_detail = get_object_or_404(Product, PRDSlug=slug, PRDISactive=True)
+    
+    # Incrémenter le compteur de vues
+    from django.db.models import F
+    Product.objects.filter(id=product_detail.id).update(view_count=F('view_count') + 1)
+    product_detail.refresh_from_db()
+    
     product_variations = ProductSize.objects.all().filter(PRDIProduct=product_detail)
     product_image = ProductImage.objects.all().filter(PRDIProduct=product_detail)
     related_products_minicategor = product_detail.product_minicategor
@@ -398,7 +404,28 @@ def toggle_favorite(request):
                 }, status=503)
             
             product_id = request.POST.get('product_id')
-            product = get_object_or_404(Product, id=product_id)
+            
+            # Vérifier si c'est un article entre particuliers
+            is_peer_to_peer = str(product_id).startswith('peer_')
+            
+            if is_peer_to_peer:
+                # Les articles entre particuliers ne supportent pas les favoris pour l'instant
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Les favoris ne sont pas disponibles pour les articles entre particuliers.',
+                    'like_count': 0
+                }, status=400)
+            
+            try:
+                product_id_int = int(product_id)
+            except (ValueError, TypeError):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'ID de produit invalide.',
+                    'like_count': 0
+                }, status=400)
+            
+            product = get_object_or_404(Product, id=product_id_int)
             
             if request.user.is_authenticated:
                 favorite, created = ProductFavorite.objects.get_or_create(

@@ -590,16 +590,17 @@ class CategoriesJsonListView(View):
         }, safe=False)
 
 
-@vendor_only
-def supplier_products_list(request):
-    vendor = Profile.objects.get(user=request.user)
-    super_categories = SuperCategory.objects.all()
-    
-    context = {
-        "vendor": vendor,
-        "super_category": super_categories,
-    }
-    return render(request, "supplier-panel/supplier-products-list.html", context)
+# Page supplier-products-list supprimée - redirection vers supplier-add-product
+# @vendor_only
+# def supplier_products_list(request):
+#     vendor = Profile.objects.get(user=request.user)
+#     super_categories = SuperCategory.objects.all()
+#     
+#     context = {
+#         "vendor": vendor,
+#         "super_category": super_categories,
+#     }
+#     return render(request, "supplier-panel/supplier-products-list.html", context)
 
 
 class SupplierProductsJsonListView(View):
@@ -665,7 +666,7 @@ def remove_product(request, id):
             produit.save()
             messages.success(
                 request, f'Le produit "{produit.product_name}" a été supprimé avec succès')
-            return redirect('supplier_dashboard:supplier-products-list')
+            return redirect('supplier_dashboard:supplier-add-product')
         except Exception as e:
             messages.error(
                 request, f'Une erreur est survenue lors de la suppression : {str(e)}')
@@ -1319,13 +1320,49 @@ def subscriptions(request):
                 
                 if product_id:
                     try:
+                        from accounts.models import ProductBoostRequest
+                        from django.utils import timezone
+                        
                         product = Product.objects.get(id=product_id, product_vendor=profile)
-                        # In production, this would create a BoostRequest model and handle payment
-                        # For now, we'll just show a message
-                        messages.success(request, f'Votre demande de boost pour "{product.product_name}" a été enregistrée. Vous serez contacté pour le paiement.')
+                        
+                        # Calculer le pourcentage de boost selon la catégorie
+                        boost_percentage = get_boost_percentage(product)
+                        
+                        # Calculer le prix du boost
+                        # Le prix est calculé par semaine, donc on multiplie par le nombre de semaines
+                        product_price = product.PRDPrice or 0
+                        boost_price_per_week = (product_price * boost_percentage / 100)  # Prix par semaine
+                        number_of_weeks = int(boost_duration) / 7.0  # Nombre de semaines
+                        total_price = boost_price_per_week * number_of_weeks
+                        
+                        # Vérifier si une demande en attente existe déjà pour ce produit
+                        existing_request = ProductBoostRequest.objects.filter(
+                            vendor=profile,
+                            product=product,
+                            status=ProductBoostRequest.PENDING
+                        ).first()
+                        
+                        if existing_request:
+                            messages.warning(request, f'Une demande de boost est déjà en attente pour "{product.product_name}". Veuillez attendre la validation de l\'administrateur.')
+                            return redirect('supplier_dashboard:subscriptions')
+                        
+                        # Créer la demande de boost
+                        boost_request = ProductBoostRequest.objects.create(
+                            vendor=profile,
+                            product=product,
+                            duration_days=int(boost_duration),
+                            boost_percentage=boost_percentage,
+                            price=total_price,
+                            payment_status=False,
+                            status=ProductBoostRequest.PENDING
+                        )
+                        
+                        messages.success(request, f'Votre demande de boost pour "{product.product_name}" a été enregistrée avec succès. Elle sera examinée par l\'administrateur pour validation et paiement.')
                         return redirect('supplier_dashboard:subscriptions')
                     except Product.DoesNotExist:
                         messages.error(request, 'Produit introuvable.')
+                    except Exception as e:
+                        messages.error(request, f'Une erreur est survenue lors de la création de la demande: {str(e)}')
                 else:
                     messages.error(request, 'Veuillez sélectionner un produit.')
         
@@ -1413,8 +1450,25 @@ def subscriptions(request):
         if fast_orders >= 7:  # 70% of orders completed within 1 day
             vendor_badges['fast_shipping'] = True
         
-        # Subscription status (simplified - would check actual subscription model)
-        subscription_active = False  # Would check actual subscription status
+        # Subscription status - vérifier l'abonnement premium actif
+        subscription_active = False
+        try:
+            from accounts.models import PremiumSubscription
+            premium_sub = PremiumSubscription.objects.filter(vendor=profile).first()
+            if premium_sub and premium_sub.is_active():
+                subscription_active = True
+        except:
+            pass
+        
+        # Récupérer les demandes de boost du vendeur
+        boost_requests = []
+        try:
+            from accounts.models import ProductBoostRequest
+            boost_requests = ProductBoostRequest.objects.filter(
+                vendor=profile
+            ).order_by('-created_date')[:10]  # Les 10 dernières demandes
+        except:
+            pass
         
         context = {
             'vendor': profile,
@@ -1425,6 +1479,7 @@ def subscriptions(request):
             'pending_commissions': int(pending_commissions),
             'vendor_badges': vendor_badges,
             'subscription_active': subscription_active,
+            'boost_requests': boost_requests,
         }
         
         return render(request, 'supplier-panel/page-subscriptions.html', context)

@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{%block body%}
+<style>
+    /* Styles pour la page de détails article entre particuliers */
+    .flavoriz-product-detail {
+        padding: 24px 0 60px 0;
+        background: #FAFAFA;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .flavoriz-product-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .flavoriz-breadcrumb {
+        margin-bottom: 24px;
+        font-size: 13px;
+        color: #6B7280;
+    }
+    
+    .flavoriz-breadcrumb a {
+        color: var(--color-orange);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .flavoriz-breadcrumb a:hover {
+        color: #E65A1F;
+    }
+    
+    .flavoriz-product-detail-main {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+    
+    .flavoriz-product-detail-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        padding: 24px;
+    }
+    
+    .flavoriz-product-gallery {
+        position: relative;
+    }
+    
+    .flavoriz-main-image {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #FAFAFA;
+        margin-bottom: 16px;
+        cursor: zoom-in;
+        position: relative;
+    }
+    
+    .flavoriz-main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .flavoriz-main-image:hover img {
+        transform: scale(1.05);
+    }
+    
+    .flavoriz-thumbnails {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    
+    .flavoriz-thumbnail {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        background: #FAFAFA;
+    }
+    
+    .flavoriz-thumbnail.active {
+        border-color: var(--color-orange);
+    }
+    
+    .flavoriz-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .flavoriz-product-info h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    
+    .flavoriz-product-price-section {
+        margin-bottom: 24px;
+    }
+    
+    .flavoriz-current-price {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-orange);
+    }
+    
+    .flavoriz-product-description {
+        color: #4B5563;
+        line-height: 1.8;
+        margin-bottom: 24px;
+        font-size: 14px;
+    }
+    
+    .flavoriz-peer-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%);
+        color: var(--color-orange);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+    }
+    
+    .flavoriz-seller-info {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .flavoriz-seller-info h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 12px;
+    }
+    
+    .flavoriz-seller-detail {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #4B5563;
+    }
+    
+    .flavoriz-seller-detail i {
+        color: var(--color-orange);
+        width: 20px;
+    }
+    
+    .flavoriz-contact-seller-btn {
+        width: 100%;
+        padding: 14px 28px;
+        background: var(--color-orange);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+        margin-top: 16px;
+    }
+    
+    .flavoriz-contact-seller-btn:hover {
+        background: #E65A1F;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
+    }
+    
+    .flavoriz-product-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 16px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .flavoriz-meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .flavoriz-meta-label {
+        font-size: 12px;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+    
+    .flavoriz-meta-value {
+        font-size: 15px;
+        color: #1F2937;
+        font-weight: 600;
+    }
+    
+    .flavoriz-related-products {
+        margin-top: 48px;
+    }
+    
+    .flavoriz-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 24px;
+    }
+    
+    @media (max-width: 968px) {
+        .flavoriz-product-detail-content {
+            grid-template-columns: 1fr;
+            gap: 24px;
+            padding: 20px;
+        }
+        
+        .flavoriz-product-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<main class="main">
+    <div class="flavoriz-product-detail">
+        <div class="flavoriz-product-detail-container">
+            <!-- Breadcrumb -->
+            <div class="flavoriz-breadcrumb">
+                <a href="{%url 'home:index'%}"><i class="fi-rs-home"></i> Accueil</a>
+                <span> / </span>
+                <a href="{% url 'categories:shop' %}">Boutique</a>
+                <span> / </span>
+                {% if peer_product.product_supercategory %}
+                <a href="{% url 'categories:super-category' peer_product.product_supercategory.slug%}">{{peer_product.product_supercategory}}</a>
+                <span> / </span>
+                {% endif %}
+                <span>{{peer_product.product_name|truncatechars:40}}</span>
+            </div>
+            
+            <!-- Messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="mt-20 alert align-middle alert-{{message.tags}}" style="padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;">
+                <span class="align-middle">{{message}}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            <!-- Main Product Detail Card -->
+            <div class="flavoriz-product-detail-main">
+                <div class="flavoriz-product-detail-content">
+                    <!-- Gallery -->
+                    <div class="flavoriz-product-gallery">
+                        <div class="flavoriz-main-image" id="main-image-container">
+                            {%if peer_product.product_image%}
+                            <img src="{{peer_product.product_image.url}}" alt="{{peer_product.product_name}}" id="main-product-image" />
+                            {%else%}
+                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{peer_product.product_name}}" id="main-product-image" />
+                            {%endif%}
+                        </div>
+                        
+                        {% if peer_product.additional_image_1 or peer_product.additional_image_2 or peer_product.additional_image_3 %}
+                        <div class="flavoriz-thumbnails">
+                            {% if peer_product.product_image %}
+                            <div class="flavoriz-thumbnail active" onclick="changeMainImage('{{peer_product.product_image.url}}', this)">
+                                <img src="{{peer_product.product_image.url}}" alt="Thumbnail 1" />
+                            </div>
+                            {% endif %}
+                            {% if peer_product.additional_image_1 %}
+                            <div class="flavoriz-thumbnail {% if not peer_product.product_image and forloop.first %}active{% endif %}" onclick="changeMainImage('{{peer_product.additional_image_1.url}}', this)">
+                                <img src="{{peer_product.additional_image_1.url}}" alt="Thumbnail 2" />
+                            </div>
+                            {% endif %}
+                            {% if peer_product.additional_image_2 %}
+                            <div class="flavoriz-thumbnail" onclick="changeMainImage('{{peer_product.additional_image_2.url}}', this)">
+                                <img src="{{peer_product.additional_image_2.url}}" alt="Thumbnail 3" />
+                            </div>
+                            {% endif %}
+                            {% if peer_product.additional_image_3 %}
+                            <div class="flavoriz-thumbnail" onclick="changeMainImage('{{peer_product.additional_image_3.url}}', this)">
+                                <img src="{{peer_product.additional_image_3.url}}" alt="Thumbnail 4" />
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="flavoriz-product-info">
+                        <span class="flavoriz-peer-badge">Article d'occasion</span>
+                        <h1>{{peer_product.product_name}}</h1>
+                        
+                        <div class="flavoriz-product-price-section">
+                            <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+                                <span class="flavoriz-current-price">{{peer_product.PRDPrice|format_price}} FCFA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flavoriz-product-description">
+                            {{peer_product.product_description|safe|linebreaks}}
+                        </div>
+                        
+                        <!-- Seller Info -->
+                        <div class="flavoriz-seller-info">
+                            <h3>Informations du vendeur</h3>
+                            <div class="flavoriz-seller-detail">
+                                <i class="fi-rs-user"></i>
+                                <span><strong>Vendeur:</strong> {{peer_product.seller.username}}</span>
+                            </div>
+                            <div class="flavoriz-seller-detail">
+                                <i class="fi-rs-phone"></i>
+                                <span><strong>Téléphone:</strong> {{peer_product.seller_phone}}</span>
+                            </div>
+                            <div class="flavoriz-seller-detail">
+                                <i class="fi-rs-marker"></i>
+                                <span><strong>Ville:</strong> {{peer_product.seller_city}}</span>
+                            </div>
+                            <div class="flavoriz-seller-detail">
+                                <i class="fi-rs-home"></i>
+                                <span><strong>Adresse:</strong> {{peer_product.seller_address}}</span>
+                            </div>
+                            <button class="flavoriz-contact-seller-btn" onclick="alert('Fonctionnalité de contact à venir. Vous pouvez contacter le vendeur au {{peer_product.seller_phone}}')">
+                                <i class="fi-rs-phone-call"></i>
+                                <span>Contacter le vendeur</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flavoriz-product-meta">
+                            <div class="flavoriz-meta-item">
+                                <span class="flavoriz-meta-label">Catégorie</span>
+                                <span class="flavoriz-meta-value">{{peer_product.product_supercategory|default:"N/A"}}</span>
+                            </div>
+                            <div class="flavoriz-meta-item">
+                                <span class="flavoriz-meta-label">Sous-catégorie</span>
+                                <span class="flavoriz-meta-value">{{peer_product.product_subcategory|default:"N/A"}}</span>
+                            </div>
+                            <div class="flavoriz-meta-item">
+                                <span class="flavoriz-meta-label">Date de publication</span>
+                                <span class="flavoriz-meta-value">{{peer_product.date|date:"d/m/Y"}}</span>
+                            </div>
+                            <div class="flavoriz-meta-item">
+                                <span class="flavoriz-meta-label">Statut</span>
+                                <span class="flavoriz-meta-value" style="color: #10B981;">Approuvé</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Similar Products -->
+            {% if similar_products %}
+            <div class="flavoriz-related-products">
+                <h2 class="flavoriz-section-title">Articles similaires</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                    {% for similar in similar_products %}
+                    <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;" onclick="window.location.href='{% url 'accounts:peer-product-details' similar.PRDSlug %}'">
+                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
+                            <img src="{{similar.product_image.url}}" alt="{{similar.product_name}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+                        </div>
+                        <div style="padding: 14px;">
+                            <h3 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{similar.product_name}}</h3>
+                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
+                                <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{similar.PRDPrice|format_price}} FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+function changeMainImage(imageUrl, thumbnailElement) {
+    const mainImage = document.getElementById('main-product-image');
+    if (mainImage) {
+        mainImage.src = imageUrl;
+    }
+    
+    // Mettre à jour les thumbnails actifs
+    const thumbnails = document.querySelectorAll('.flavoriz-thumbnail');
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    if (thumbnailElement) {
+        thumbnailElement.classList.add('active');
+    }
+}
+</script>
+
+{%endblock body%}
+

@@ -45,10 +45,10 @@
                 <a href="{% url 'supplier_dashboard:supplier-panel' %}" class="sidebar-logo-link">
                     <div class="sidebar-logo-icon">
                         <span>G</span>
-                    </div>
+                </div>
                     <div class="sidebar-logo-text">
                         <div class="sidebar-logo-title">{{site_info.site_name|default:"GabomaZone"}}</div>
-                    </div>
+            </div>
                 </a>
             </div>
             <nav class="sidebar-nav">
@@ -119,16 +119,16 @@
                         <span></span>
                         <span></span>
                         <span></span>
-                    </div>
+                        </div>
                     <p class="loader-text">Chargement...</p>
                 </div>
-            </div>
+                            </div>
             <div class="dashboard-content-wrapper" id="dashboardContentWrapper">
                 <header class="dashboard-header">
                     <div class="header-left">
                         <h1 id="pageTitle">{% block page_title %}Tableau de bord{% endblock %}</h1>
                         <p id="pageSubtitle">{% block page_subtitle %}Bienvenue, {{ vendor }}{% endblock %}</p>
-                    </div>
+                            </div>
                     <div class="header-right">
                         <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button">
                             <i class="material-icons">menu</i>
@@ -166,16 +166,16 @@
                                 <li><a class="dropdown-item" href="{% url 'supplier_dashboard:payments' %}"><i class="material-icons">receipt</i> Facturation</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout'%}"><i class="material-icons">logout</i> Déconnexion</a></li>
-                            </ul>
+                    </ul>
                         </div>
-                    </div>
-                </header>
-                <div class="dashboard-content" id="dashboardContent">
-                    {%block section %}
-                    
-                    {%endblock section%}
                 </div>
-            </div>
+            </header>
+                <div class="dashboard-content" id="dashboardContent">
+            {%block section %}
+            
+            {%endblock section%}
+                    </div>
+                </div>
         </main>
         
         <style>

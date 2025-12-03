@@ -4,10 +4,97 @@ from .models import SubCategory, MainCategory, SuperCategory, MiniCategory
 from django.views.generic import View, TemplateView
 from products.models import Product
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
+from accounts.models import PeerToPeerProduct, ProductBoostRequest
+from django.db import OperationalError
+from django.utils import timezone
 # Create your views here.
+
+
+def get_active_boosted_product_ids():
+    """
+    Récupère les IDs des produits ayant un boost actif.
+    Un boost est actif si :
+    - Le statut est ACTIVE
+    - La date actuelle est entre start_date et end_date
+    """
+    try:
+        now = timezone.now()
+        active_boosts = ProductBoostRequest.objects.filter(
+            status=ProductBoostRequest.ACTIVE,
+            start_date__lte=now,
+            end_date__gte=now
+        ).select_related('product')
+        
+        # Retourner un set d'IDs pour une recherche rapide
+        return set(boost.product.id for boost in active_boosts if boost.product)
+    except (OperationalError, AttributeError):
+        # Si la table n'existe pas encore
+        return set()
+
+
+def add_boost_flag_to_products(products_list):
+    """Ajoute le flag is_boosted à chaque produit dans la liste"""
+    boosted_ids = get_active_boosted_product_ids()
+    for product_dict in products_list:
+        if not product_dict.get('is_peer_to_peer', False):
+            product_dict['is_boosted'] = product_dict.get('id', 0) in boosted_ids
+    return products_list
+
+
+def sort_products_with_boost_priority(products_list, order_by):
+    """Trie les produits en priorisant ceux qui sont boostés"""
+    boosted_ids = get_active_boosted_product_ids()
+    
+    if order_by == '-date':
+        products_list.sort(key=lambda x: (
+            x.get('id', 0) in boosted_ids if not x.get('is_peer_to_peer', False) else False,
+            x.get('view_count', 0) if not x.get('is_peer_to_peer', False) else 0
+        ), reverse=True)
+    elif order_by == '-PRDPrice':
+        products_list.sort(key=lambda x: (
+            x.get('id', 0) in boosted_ids if not x.get('is_peer_to_peer', False) else False,
+            x.get('PRDPrice', 0)
+        ), reverse=True)
+    elif order_by == 'PRDPrice':
+        products_list.sort(key=lambda x: (
+            not (x.get('id', 0) in boosted_ids if not x.get('is_peer_to_peer', False) else False),
+            x.get('PRDPrice', 0)
+        ))
+    else:
+        # Par défaut, trier par boost puis par date
+        products_list.sort(key=lambda x: (
+            x.get('id', 0) in boosted_ids if not x.get('is_peer_to_peer', False) else False,
+            x.get('view_count', 0) if not x.get('is_peer_to_peer', False) else 0
+        ), reverse=True)
+    
+    return products_list
+
+
+class PeerToPeerProductWrapper:
+    """Wrapper pour rendre un PeerToPeerProduct compatible avec le template Product"""
+    def __init__(self, peer_product):
+        self.id = f"peer_{peer_product.id}"
+        self.product_name = peer_product.product_name
+        self.PRDPrice = peer_product.PRDPrice
+        self.PRDDiscountPrice = 0
+        self.product_image = peer_product.product_image
+        self.PRDSlug = peer_product.PRDSlug
+        self.is_peer_to_peer = True
+        self._peer_product = peer_product
+    
+    def get_additional_images(self):
+        """Récupère les images supplémentaires"""
+        images = []
+        if self._peer_product.additional_image_1:
+            images.append(self._peer_product.additional_image_1)
+        if self._peer_product.additional_image_2:
+            images.append(self._peer_product.additional_image_2)
+        if self._peer_product.additional_image_3:
+            images.append(self._peer_product.additional_image_3)
+        return images
 
 
 def shop(request):
@@ -88,6 +175,97 @@ def category_list(request):
     return render(request, "categories/category-list.html", context)
 
 
+def get_main_categories(request):
+    """Endpoint AJAX pour récupérer les catégories principales d'une super catégorie"""
+    super_category_id = request.GET.get('super_category_id')
+    if not super_category_id:
+        return JsonResponse({'categories': []})
+    
+    try:
+        super_category = SuperCategory.objects.get(id=super_category_id)
+        main_categories = MainCategory.objects.filter(super_category=super_category).order_by('name')
+        categories_data = [{'id': cat.id, 'name': cat.name} for cat in main_categories]
+        return JsonResponse({'categories': categories_data})
+    except SuperCategory.DoesNotExist:
+        return JsonResponse({'categories': []})
+
+
+def get_sub_categories(request):
+    """Endpoint AJAX pour récupérer les sous-catégories d'une catégorie principale"""
+    main_category_id = request.GET.get('main_category_id')
+    if not main_category_id:
+        return JsonResponse({'categories': []})
+    
+    try:
+        main_category = MainCategory.objects.get(id=main_category_id)
+        sub_categories = SubCategory.objects.filter(main_category=main_category).order_by('name')
+        categories_data = [{'id': cat.id, 'name': cat.name} for cat in sub_categories]
+        return JsonResponse({'categories': categories_data})
+    except MainCategory.DoesNotExist:
+        return JsonResponse({'categories': []})
+
+
+def convert_peer_to_peer_to_dict(peer_product):
+    """Convertit un PeerToPeerProduct en dictionnaire compatible avec les produits normaux"""
+    product_images = [str(peer_product.product_image)] if peer_product.product_image else []
+    if peer_product.additional_image_1:
+        product_images.append(str(peer_product.additional_image_1))
+    if peer_product.additional_image_2:
+        product_images.append(str(peer_product.additional_image_2))
+    if peer_product.additional_image_3:
+        product_images.append(str(peer_product.additional_image_3))
+    
+    return {
+        'id': f"peer_{peer_product.id}",  # Préfixe pour distinguer
+        'product_name': peer_product.product_name,
+        'PRDPrice': peer_product.PRDPrice,
+        'PRDDiscountPrice': 0,  # Pas de prix réduit pour les articles entre particuliers
+        'product_image': str(peer_product.product_image),
+        'product_images': product_images,
+        'PRDSlug': peer_product.PRDSlug,
+        'view_count': 0,
+        'like_count': 0,
+        'is_peer_to_peer': True,  # Flag pour identifier les articles entre particuliers
+    }
+
+
+def get_peer_to_peer_products(cat_type, cat_id, order_by, lower, upper):
+    """Récupère les articles entre particuliers approuvés selon les filtres"""
+    try:
+        peer_products = PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED)
+        
+        # Appliquer les filtres de catégorie
+        if cat_type == "super" and cat_id:
+            peer_products = peer_products.filter(product_supercategory_id=int(cat_id))
+        elif cat_type == "main" and cat_id:
+            peer_products = peer_products.filter(product_maincategory_id=int(cat_id))
+        elif cat_type == "sub" and cat_id:
+            peer_products = peer_products.filter(product_subcategory_id=int(cat_id))
+        
+        # Trier selon order_by (convertir -date en -date pour PeerToPeerProduct)
+        if order_by == '-date':
+            peer_products = peer_products.order_by('-date')
+        elif order_by == 'date':
+            peer_products = peer_products.order_by('date')
+        elif order_by == '-PRDPrice':
+            peer_products = peer_products.order_by('-PRDPrice')
+        elif order_by == 'PRDPrice':
+            peer_products = peer_products.order_by('PRDPrice')
+        else:
+            peer_products = peer_products.order_by('-date')
+        
+        # Appliquer la pagination
+        peer_products = peer_products[lower:upper]
+        
+        # Convertir en dictionnaires
+        return [convert_peer_to_peer_to_dict(p) for p in peer_products]
+    except (OperationalError, AttributeError):
+        # Si la table n'existe pas encore ou erreur
+        return []
+
+
+# CategoryJsonListView supprimé - utilisation exclusive de HTMX (ProductListHTMXView)
+"""
 class CategoryJsonListView(View):
     def get(self, *args, **kwargs):
 
@@ -130,9 +308,29 @@ class CategoryJsonListView(View):
                     'PRDSlug': product.PRDSlug,
                     'view_count': getattr(product, 'view_count', 0),
                     'like_count': getattr(product, 'like_count', 0),
+                    'is_peer_to_peer': False,
                 }
                 products.append(product_dict)
-            products_size = len(Product.objects.all().filter(PRDISDeleted = False , PRDISactive = True ))
+            
+            # Ajouter les articles entre particuliers approuvés
+            peer_products = get_peer_to_peer_products("all", None, orderd_by, lower, upper)
+            products.extend(peer_products)
+            
+            # Ajouter le flag is_boosted et trier avec priorité aux boostés
+            products = add_boost_flag_to_products(products)
+            products = sort_products_with_boost_priority(products, orderd_by)
+            
+            # Calculer la taille totale
+            try:
+                products_size = len(Product.objects.all().filter(PRDISDeleted = False , PRDISactive = True ))
+                try:
+                    peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED))
+                    products_size += peer_size
+                except (OperationalError, AttributeError):
+                    pass
+            except:
+                products_size = len(products)
+            
             max_size = True if upper >= products_size else False
             return JsonResponse({"data": products,  "max": max_size, "products_size": products_size, }, safe=False)
 
@@ -170,10 +368,27 @@ class CategoryJsonListView(View):
                         'PRDSlug': product.PRDSlug,
                         'view_count': getattr(product, 'view_count', 0),
                         'like_count': getattr(product, 'like_count', 0),
+                        'is_peer_to_peer': False,
                     }
                     products.append(product_dict)
-                products_size = len(
-                    Product.objects.all().filter(product_supercategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                
+                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
+                products.extend(peer_products)
+                
+                # Ajouter le flag is_boosted et trier avec priorité aux boostés
+                products = add_boost_flag_to_products(products)
+                products = sort_products_with_boost_priority(products, orderd_by)
+                
+                try:
+                    products_size = len(Product.objects.all().filter(product_supercategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                    try:
+                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_supercategory_id=int(CAT_id)))
+                        products_size += peer_size
+                    except (OperationalError, AttributeError):
+                        pass
+                except:
+                    products_size = len(products)
             elif CAT_type == "main":
                 try:
                     products_queryset = Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
@@ -205,10 +420,27 @@ class CategoryJsonListView(View):
                         'PRDSlug': product.PRDSlug,
                         'view_count': getattr(product, 'view_count', 0),
                         'like_count': getattr(product, 'like_count', 0),
+                        'is_peer_to_peer': False,
                     }
                     products.append(product_dict)
-                products_size = len(
-                    Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                
+                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
+                products.extend(peer_products)
+                
+                # Ajouter le flag is_boosted et trier avec priorité aux boostés
+                products = add_boost_flag_to_products(products)
+                products = sort_products_with_boost_priority(products, orderd_by)
+                
+                try:
+                    products_size = len(Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                    try:
+                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_maincategory_id=int(CAT_id)))
+                        products_size += peer_size
+                    except (OperationalError, AttributeError):
+                        pass
+                except:
+                    products_size = len(products)
             elif CAT_type == "sub":
                 try:
                     products_queryset = Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
@@ -240,10 +472,27 @@ class CategoryJsonListView(View):
                         'PRDSlug': product.PRDSlug,
                         'view_count': getattr(product, 'view_count', 0),
                         'like_count': getattr(product, 'like_count', 0),
+                        'is_peer_to_peer': False,
                     }
                     products.append(product_dict)
-                products_size = len(
-                    Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                
+                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
+                products.extend(peer_products)
+                
+                # Ajouter le flag is_boosted et trier avec priorité aux boostés
+                products = add_boost_flag_to_products(products)
+                products = sort_products_with_boost_priority(products, orderd_by)
+                
+                try:
+                    products_size = len(Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                    try:
+                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_subcategory_id=int(CAT_id)))
+                        products_size += peer_size
+                    except (OperationalError, AttributeError):
+                        pass
+                except:
+                    products_size = len(products)
 
             else:
                 try:
@@ -276,13 +525,19 @@ class CategoryJsonListView(View):
                         'PRDSlug': product.PRDSlug,
                         'view_count': getattr(product, 'view_count', 0),
                         'like_count': getattr(product, 'like_count', 0),
+                        'is_peer_to_peer': False,
                     }
                     products.append(product_dict)
-                products_size = len(
-                    Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                
+                # Pour les mini catégories, on n'inclut pas les articles entre particuliers car ils n'ont pas de mini catégorie
+                try:
+                    products_size = len(Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
+                except:
+                    products_size = len(products)
 
             max_size = True if upper >= products_size else False
             return JsonResponse({"data": products, "max": max_size, "products_size": products_size, }, safe=False)
+"""
 
 
 class ProductListHTMXView(View):
@@ -317,6 +572,35 @@ class ProductListHTMXView(View):
         
         return queryset
     
+    def get_peer_to_peer_queryset(self, cat_type, cat_id, order_by):
+        """Construit le queryset pour les articles entre particuliers"""
+        try:
+            peer_products = PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED)
+            
+            # Appliquer les filtres de catégorie
+            if cat_type == "super" and cat_id:
+                peer_products = peer_products.filter(product_supercategory_id=int(cat_id))
+            elif cat_type == "main" and cat_id:
+                peer_products = peer_products.filter(product_maincategory_id=int(cat_id))
+            elif cat_type == "sub" and cat_id:
+                peer_products = peer_products.filter(product_subcategory_id=int(cat_id))
+            
+            # Trier selon order_by
+            if order_by == '-date':
+                peer_products = peer_products.order_by('-date')
+            elif order_by == 'date':
+                peer_products = peer_products.order_by('date')
+            elif order_by == '-PRDPrice':
+                peer_products = peer_products.order_by('-PRDPrice')
+            elif order_by == 'PRDPrice':
+                peer_products = peer_products.order_by('PRDPrice')
+            else:
+                peer_products = peer_products.order_by('-date')
+            
+            return peer_products
+        except (OperationalError, AttributeError):
+            return PeerToPeerProduct.objects.none()
+    
     def get(self, request, *args, **kwargs):
         # Récupérer les paramètres
         page = int(request.GET.get('page', 1))
@@ -341,58 +625,118 @@ class ProductListHTMXView(View):
         else:
             queryset = self.get_queryset(cat_type, cat_id, order_by)
         
-        # Pagination
-        paginator = Paginator(queryset, self.PAGE_SIZE)
-        page_obj = paginator.get_page(page)
+        # Récupérer les articles entre particuliers
+        try:
+            peer_queryset = self.get_peer_to_peer_queryset(cat_type, cat_id, order_by)
+        except:
+            peer_queryset = PeerToPeerProduct.objects.none()
+        
+        # Combiner les deux querysets en listes pour la pagination
+        all_products = list(queryset) + [PeerToPeerProductWrapper(p) for p in peer_queryset]
+        
+        # Récupérer les IDs des produits boostés pour le tri
+        boosted_ids = get_active_boosted_product_ids()
+        
+        # Trier tous les produits ensemble avec priorité aux boostés
+        if order_by == '-date':
+            all_products.sort(key=lambda x: (
+                getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False,
+                getattr(x, 'date', getattr(x, '_peer_product', None) and getattr(x._peer_product, 'date', None) or None)
+            ), reverse=True)
+        elif order_by == '-PRDPrice':
+            all_products.sort(key=lambda x: (
+                getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False,
+                getattr(x, 'PRDPrice', 0)
+            ), reverse=True)
+        elif order_by == 'PRDPrice':
+            all_products.sort(key=lambda x: (
+                not (getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False),
+                getattr(x, 'PRDPrice', 0)
+            ))
+        else:
+            # Par défaut, trier par boost puis par date
+            all_products.sort(key=lambda x: (
+                getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False,
+                getattr(x, 'date', getattr(x, '_peer_product', None) and getattr(x._peer_product, 'date', None) or None)
+            ), reverse=True)
+        
+        # Pagination manuelle
+        total_count = len(all_products)
+        start = (page - 1) * self.PAGE_SIZE
+        end = start + self.PAGE_SIZE
+        page_products = all_products[start:end]
+        has_next = end < total_count
+        next_page = page + 1 if has_next else None
         
         # Préparer les produits avec leurs images
         import json
         products_data = []
-        for product in page_obj:
+        for product in page_products:
             # Collecter toutes les images avec le préfixe /media/
             product_images = []
-            if product.product_image:
-                img_path = str(product.product_image)
-                if not img_path.startswith('/media/'):
-                    img_path = '/media/' + img_path
-                product_images.append(img_path)
-            if product.additional_image_1:
-                img_path = str(product.additional_image_1)
-                if not img_path.startswith('/media/'):
-                    img_path = '/media/' + img_path
-                product_images.append(img_path)
-            if product.additional_image_2:
-                img_path = str(product.additional_image_2)
-                if not img_path.startswith('/media/'):
-                    img_path = '/media/' + img_path
-                product_images.append(img_path)
-            if product.additional_image_3:
-                img_path = str(product.additional_image_3)
-                if not img_path.startswith('/media/'):
-                    img_path = '/media/' + img_path
-                product_images.append(img_path)
-            if product.additional_image_4:
-                img_path = str(product.additional_image_4)
-                if not img_path.startswith('/media/'):
-                    img_path = '/media/' + img_path
-                product_images.append(img_path)
+            if hasattr(product, 'is_peer_to_peer') and product.is_peer_to_peer:
+                # Article entre particuliers
+                if product.product_image:
+                    img_path = str(product.product_image)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+                for img in product.get_additional_images():
+                    img_path = str(img)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+            else:
+                # Produit normal
+                if product.product_image:
+                    img_path = str(product.product_image)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+                if product.additional_image_1:
+                    img_path = str(product.additional_image_1)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+                if product.additional_image_2:
+                    img_path = str(product.additional_image_2)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+                if product.additional_image_3:
+                    img_path = str(product.additional_image_3)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+                if product.additional_image_4:
+                    img_path = str(product.additional_image_4)
+                    if not img_path.startswith('/media/'):
+                        img_path = '/media/' + img_path
+                    product_images.append(img_path)
+            
+            # Vérifier si le produit est boosté
+            is_boosted = False
+            if not getattr(product, 'is_peer_to_peer', False):
+                is_boosted = getattr(product, 'id', 0) in boosted_ids
             
             products_data.append({
                 'product': product,
                 'product_images': json.dumps(product_images),  # JSON stringifié pour le template
                 'like_count': getattr(product, 'like_count', 0),
+                'is_peer_to_peer': getattr(product, 'is_peer_to_peer', False),
+                'is_boosted': is_boosted,
             })
         
         # Contexte pour le template
         context = {
             'products_data': products_data,
-            'page_obj': page_obj,
-            'has_next': page_obj.has_next(),
-            'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+            'page_obj': type('Page', (), {'has_next': lambda: has_next, 'next_page_number': lambda: next_page})(),
+            'has_next': has_next,
+            'next_page': next_page,
             'order_by': order_by,
             'cat_type': cat_type,
             'cat_id': cat_id,
-            'total_products': queryset.count(),  # Total de produits pour le compteur
+            'total_products': total_count,  # Total de produits pour le compteur
         }
         
         # Rendre le template partiel

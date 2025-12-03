@@ -27,11 +27,71 @@ class VendorsJsonListView(View):
 
 
 def vendor_details(request, slug):
-    vendor_detail = Profile.objects.filter( slug=slug).first()
-    vendor_social_links = SocialLink.objects.filter( vendor_profile=vendor_detail).first()
+    from home.models import HomeAdDealTime, VendorDetailsAdImage, ShopAdSidebar
+    from django.db.models import Count
+    
+    vendor_detail = Profile.objects.filter(slug=slug, status="vendor", admission=True).first()
+    
+    if not vendor_detail:
+        from django.http import Http404
+        raise Http404("Vendeur introuvable")
+    
+    # Récupérer les liens sociaux (optionnel, peut ne pas exister)
+    vendor_social_links = None
+    try:
+        from accounts.models import SocialLink
+        vendor_social_links = SocialLink.objects.filter(vendor_profile=vendor_detail).first()
+    except:
+        pass
+    
+    # Vérifier si le vendeur a un abonnement premium actif
+    is_premium = False
+    try:
+        from accounts.models import PremiumSubscription
+        premium_sub = PremiumSubscription.objects.filter(vendor=vendor_detail).first()
+        if premium_sub and premium_sub.is_active():
+            is_premium = True
+    except:
+        pass
+    
+    # Récupérer les produits du vendeur
+    vendor_products = Product.objects.filter(
+        product_vendor=vendor_detail,
+        PRDISDeleted=False,
+        PRDISactive=True
+    ).order_by('-date')[:8]
+    
+    # Récupérer les nouveaux produits (pour la sidebar)
+    new_products = Product.objects.filter(
+        PRDISDeleted=False,
+        PRDISactive=True
+    ).order_by('-date')[:5]
+    
+    # Récupérer les publicités
+    try:
+        home_ads_deal_time_obj = HomeAdDealTime.objects.filter(supplier=vendor_detail).order_by("?")[:4]
+    except:
+        home_ads_deal_time_obj = []
+    
+    try:
+        vendor_page_ad_image = VendorDetailsAdImage.objects.all().order_by("?")[:1]
+    except:
+        vendor_page_ad_image = []
+    
+    try:
+        shop_page_ad = ShopAdSidebar.objects.filter(supplier=vendor_detail).order_by("?")[:1]
+    except:
+        shop_page_ad = []
+    
     context = {
         "vendor_detail": vendor_detail,
-        "vendor_social_links":vendor_social_links,
+        "vendor_social_links": vendor_social_links,
+        "vendor_products": vendor_products,
+        "new_products": new_products,
+        "home_ads_deal_time_obj": home_ads_deal_time_obj,
+        "vendor_page_ad_image": vendor_page_ad_image,
+        "shop_page_ad": shop_page_ad,
+        "is_premium": is_premium,
     }
     return render(request, 'suppliers/vendor-details.html', context)
 
@@ -44,7 +104,9 @@ class VendorDetailsJsonListView(View):
         product_vendor = int(self.request.GET.get("vendor_slug"))
         lower = upper - 10
         products = list(Product.objects.all(
-        ).filter(product_vendor=product_vendor , PRDISDeleted = False , PRDISactive = True).values().order_by(order_by)[lower:upper])
+        ).filter(product_vendor=product_vendor , PRDISDeleted = False , PRDISactive = True).values(
+            'id', 'product_name', 'PRDPrice', 'PRDDiscountPrice', 'product_image', 'PRDSlug', 'view_count'
+        ).order_by(order_by)[lower:upper])
         products_size = len(
             Product.objects.all().filter(product_vendor=product_vendor ,PRDISDeleted = False , PRDISactive = True))
 

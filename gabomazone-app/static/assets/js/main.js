@@ -6,7 +6,11 @@
         $("body").css({
             overflow: "visible"
         });
-        $("#onloadModal").modal("show");
+        // Ne pas appeler .modal() si l'élément n'existe pas ou si Bootstrap modal n'est pas disponible
+        // L'élément #onloadModal n'existe probablement pas dans le template
+        // if (typeof $.fn.modal !== 'undefined' && $("#onloadModal").length) {
+        //     $("#onloadModal").modal("show");
+        // }
     });
     /*-----------------
         Menu Stick

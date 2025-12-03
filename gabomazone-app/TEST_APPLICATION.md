@@ -71,7 +71,7 @@ python manage.py runserver 8000
 ### Client App (White/Orange)
 - [ ] Vérifier que le thème orange/blanc s'affiche
 - [ ] Tester la navigation mobile (bottom nav)
-- [ ] Vérifier les prix en XOF
+- [ ] Vérifier les prix en FCFA
 - [ ] Tester la recherche
 - [ ] Vérifier le panier
 
@@ -86,9 +86,9 @@ python manage.py runserver 8000
 - [ ] Pas de langue switcher visible
 - [ ] Tous les boutons en français
 
-### Currency XOF
-- [ ] Tous les prix affichés en XOF
-- [ ] Format: `{{price|floatformat:0}} XOF`
+### Currency FCFA
+- [ ] Tous les prix affichés en FCFA
+- [ ] Format: `{{price|floatformat:0}} FCFA`
 
 ## 🐛 Problèmes courants
 
@@ -112,6 +112,6 @@ python manage.py migrate
 
 - Le projet utilise SQLite par défaut (pas besoin de MySQL)
 - Tous les textes doivent être en français
-- Tous les prix en XOF
+- Tous les prix en FCFA
 - Design mobile-first avec bottom navigation
 

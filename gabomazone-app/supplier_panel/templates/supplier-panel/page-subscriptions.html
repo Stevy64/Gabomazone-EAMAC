@@ -1,5 +1,6 @@
 {% extends 'supplier-panel/supplier-base.html' %}
 {%load static%}
+{% load cart_template_tags %}
 
 {%block section %}
 
@@ -179,7 +180,7 @@
                                             data-boost-percentage="{{ product_data.boost_percentage }}"
                                             data-boost-price="{{ product_data.boost_price_per_week }}"
                                             data-category="{{ product_data.super_category|default:product_data.main_category|default:'Autre' }}">
-                                        {{ product_data.name }} - {{ product_data.price|floatformat:0 }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
+                                        {{ product_data.name }} - {{ product_data.price|format_price }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
                                     </option>
                                     {% endfor %}
                                 </select>
@@ -197,7 +198,7 @@
                                              data-boost-percentage="{{ product_data.boost_percentage }}"
                                              data-boost-price="{{ product_data.boost_price_per_week }}"
                                              data-category="{{ product_data.super_category|default:product_data.main_category|default:'Autre' }}">
-                                            {{ product_data.name }} - {{ product_data.price|floatformat:0 }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
+                                            {{ product_data.name }} - {{ product_data.price|format_price }} FCFA ({{ product_data.boost_percentage|floatformat:1 }}%)
                                         </div>
                                         {% endfor %}
                                     </div>
@@ -265,6 +266,101 @@
                         </button>
                     </form>
                 </div>
+                
+                <!-- Historique des demandes de boost -->
+                {% if boost_requests %}
+                <div class="boost-requests-section" style="margin-top: 32px;">
+                    <div class="form-section-header-inline">
+                        <div style="width: 3px; height: 20px; background: var(--color-orange); border-radius: 2px;"></div>
+                        <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Mes demandes de boost</h4>
+                    </div>
+                    <p style="font-size: 14px; color: #6B7280; margin: 12px 0 20px 0;">Suivez l'état de vos demandes de boost</p>
+                    
+                    <div class="boost-requests-list" style="display: flex; flex-direction: column; gap: 16px;">
+                        {% for request in boost_requests %}
+                        <div class="boost-request-card" style="background: white; border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <div style="flex: 1;">
+                                    <h5 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">{{ request.product.product_name }}</h5>
+                                    <p style="font-size: 13px; color: #6B7280; margin: 0;">
+                                        <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">schedule</i>
+                                        Durée: {{ request.duration_days }} jour{{ request.duration_days|pluralize }}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    {% if request.status == 'PENDING' %}
+                                        <span style="display: inline-block; padding: 6px 12px; background: #FEF3C7; color: #D97706; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">hourglass_empty</i>
+                                            En attente
+                                        </span>
+                                    {% elif request.status == 'APPROVED' %}
+                                        <span style="display: inline-block; padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">check_circle</i>
+                                            Approuvé
+                                        </span>
+                                    {% elif request.status == 'ACTIVE' %}
+                                        <span style="display: inline-block; padding: 6px 12px; background: #DBEAFE; color: #2563EB; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">rocket_launch</i>
+                                            Actif
+                                        </span>
+                                    {% elif request.status == 'REJECTED' %}
+                                        <span style="display: inline-block; padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">cancel</i>
+                                            Rejeté
+                                        </span>
+                                    {% elif request.status == 'EXPIRED' %}
+                                        <span style="display: inline-block; padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">schedule</i>
+                                            Expiré
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                                <div>
+                                    <p style="font-size: 12px; color: #6B7280; margin: 0 0 4px 0;">Prix du boost</p>
+                                    <p style="font-size: 16px; font-weight: 700; color: var(--color-orange); margin: 0;">{{ request.price|format_price }} FCFA</p>
+                                </div>
+                                <div>
+                                    <p style="font-size: 12px; color: #6B7280; margin: 0 0 4px 0;">Paiement</p>
+                                    <p style="font-size: 14px; font-weight: 600; margin: 0;">
+                                        {% if request.payment_status %}
+                                            <span style="color: #059669;">
+                                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">check_circle</i>
+                                                Payé
+                                            </span>
+                                        {% else %}
+                                            <span style="color: #D97706;">
+                                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">pending</i>
+                                                En attente
+                                            </span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p style="font-size: 12px; color: #6B7280; margin: 0 0 4px 0;">Date de création</p>
+                                    <p style="font-size: 13px; color: #1F2937; margin: 0;">{{ request.created_date|date:"d/m/Y H:i" }}</p>
+                                </div>
+                                {% if request.approved_date %}
+                                <div>
+                                    <p style="font-size: 12px; color: #6B7280; margin: 0 0 4px 0;">Date d'approbation</p>
+                                    <p style="font-size: 13px; color: #1F2937; margin: 0;">{{ request.approved_date|date:"d/m/Y H:i" }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if request.admin_notes %}
+                            <div style="margin-top: 12px; padding: 12px; background: #F9FAFB; border-radius: 8px; border-left: 3px solid var(--color-orange);">
+                                <p style="font-size: 12px; color: #6B7280; margin: 0 0 4px 0; font-weight: 600;">Note de l'administrateur:</p>
+                                <p style="font-size: 13px; color: #1F2937; margin: 0;">{{ request.admin_notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
                 
                 <hr class="settings-divider" />
                 

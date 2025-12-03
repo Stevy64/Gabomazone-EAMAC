@@ -1,4 +1,5 @@
 {%load static%}
+{% load cart_template_tags %}
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -117,14 +118,14 @@
                                                             <small>SKU: {{item.product.PRDSKU}}</small>
                                                         </div>
                                                     </td>
-                                                    <td class="text-center currency-xof">{{item.price|floatformat:0}} XOF</td>
+                                                    <td class="text-center currency-xof">{{item.price|format_price}} FCFA</td>
                                                     <td class="text-center">{{item.quantity}}</td>
-                                                    <td class="text-right currency-xof">{% widthratio item.price 1 item.quantity|floatformat:0 %} XOF</td>
+                                                    <td class="text-right currency-xof">{{ item.price|multiply_and_format:item.quantity }} FCFA</td>
                                                 </tr>
                                                 {%endfor%}
                                                 <tr>
                                                     <td colspan="3" class="text-end f-w-600">SubTotal</td>
-                                                    <td class="text-right currency-xof">{{order_success.sub_total|floatformat:0}} XOF</td>
+                                                    <td class="text-right currency-xof">{{order_success.sub_total|format_price}} FCFA</td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="3" class="text-end f-w-600">Items</td>
@@ -133,7 +134,7 @@
                                                 {% if order_success.coupon%}
                                                 <tr>
                                                     <td colspan="3" class="text-end f-w-600">Coupon({{order_success.coupon}})</td>
-                                                    <td class="text-right currency-xof">-{{order_success.discount|floatformat:0}} XOF</td>
+                                                    <td class="text-right currency-xof">-{{order_success.discount|format_price}} FCFA</td>
                                                 </tr>
                                                 {%endif%}
 
@@ -144,7 +145,7 @@
                                                 {%if order_success.shipping%}
                                                 <tr>
                                                     <td colspan="3" class="text-end f-w-600">Shipping</td>
-                                                    <td class="text-right currency-xof">+{{order_success.shipping|floatformat:0}} XOF</td>
+                                                    <td class="text-right currency-xof">+{{order_success.shipping|format_price}} FCFA</td>
                                                 </tr>
                                                 {%endif%}
                                                 {% comment %} <tr>
@@ -154,7 +155,7 @@
 
                                                 <tr>
                                                     <td colspan="3" class="text-end f-w-600">Grand Total</td>
-                                                    <td class="text-right f-w-600 currency-xof">{{order_success.amount|floatformat:0}} XOF</td>
+                                                    <td class="text-right f-w-600 currency-xof">{{order_success.amount|format_price}} FCFA</td>
                                                 </tr>
                                             </tbody>
                                         </table>

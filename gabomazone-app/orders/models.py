@@ -103,7 +103,7 @@ class OrderDetails(models.Model):
         User, on_delete=models.SET_NULL, related_name='user_supplier', blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
     size = models.CharField(max_length=10,  blank=True, null=True)
     weight = models.DecimalField(
@@ -267,7 +267,7 @@ class OrderDetailsSupplier(models.Model):
         OrderSupplier, on_delete=models.CASCADE,   blank=True, null=True)
     order_details = models.ForeignKey(
         OrderDetails, on_delete=models.CASCADE, blank=True, null=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
     size = models.CharField(max_length=10,  blank=True, null=True)
     weight = models.DecimalField(

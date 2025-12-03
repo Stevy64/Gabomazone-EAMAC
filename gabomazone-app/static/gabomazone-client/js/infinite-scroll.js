@@ -6,20 +6,31 @@
 (function() {
     'use strict';
     
+    // DÉSACTIVÉ : Ce fichier est désactivé car HTMX gère maintenant le scroll infini
+    // Toutes les fonctionnalités sont gérées par HTMX via product_list_partial.html
+    // Ce fichier est conservé uniquement pour le lazy loading des images
+    
+    // Vérifier si on est sur une page avec products-list (shop page)
+    const productsContainer = document.getElementById('products-list');
+    if (!productsContainer) {
+        // Si pas de products-list, on peut quand même activer le lazy loading des images
+        // mais on sort pour éviter d'exécuter le reste du code
+        return;
+    }
+    
+    // DÉSACTIVER TOUTES LES FONCTIONNALITÉS DE SCROLL INFINI
+    // HTMX gère maintenant tout cela
     let isLoading = false;
-    let hasMore = true;
+    let hasMore = false; // Désactivé
     let currentPage = 1;
     let productsPerPage = 10;
     let orderBy = '-date';
     
-    const productsContainer = document.getElementById('products-list');
     const spinnerBox = document.getElementById('spinner-box');
     const emptyBox = document.getElementById('empty-box');
     const loadingBox = document.getElementById('loading-box');
     const productNum = document.getElementById('product-num');
     const sortSelect = document.getElementById('mySelect');
-    
-    if (!productsContainer) return;
     
     // Observer pour le lazy loading des images
     const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -47,27 +58,25 @@
         rootMargin: '100px'
     });
     
-    // Observer pour le infinite scroll
-    const scrollObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && hasMore && !isLoading) {
-                loadMoreProducts();
-            }
-        });
-    }, {
-        rootMargin: '200px'
-    });
+    // Observer pour le infinite scroll - DÉSACTIVÉ car HTMX gère maintenant le scroll infini
+    // Le scrollObserver n'est plus nécessaire car HTMX utilise hx-trigger="revealed" dans le template
+    const scrollObserver = null; // Désactivé
     
-    // Créer un élément sentinelle pour détecter le scroll
-    const sentinel = document.createElement('div');
-    sentinel.id = 'scroll-sentinel';
-    sentinel.style.height = '1px';
-    sentinel.style.width = '100%';
+    // Créer un élément sentinelle pour détecter le scroll - DÉSACTIVÉ
+    // HTMX gère maintenant le scroll infini via hx-trigger="revealed" dans product_list_partial.html
+    const sentinel = null; // Désactivé
     
     // Fonction pour créer une carte produit avec lazy loading
+    // Fonction pour formater un prix avec des espaces
+    function formatPrice(priceValue) {
+        const price = parseFloat(priceValue || 0);
+        const intPrice = Math.floor(price);
+        return intPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
     function createProductCard(product) {
-        const price = parseFloat(product.PRDPrice || 0).toFixed(0);
-        const discountPrice = product.PRDDiscountPrice > 0 ? parseFloat(product.PRDDiscountPrice).toFixed(0) : null;
+        const price = formatPrice(product.PRDPrice || 0);
+        const discountPrice = product.PRDDiscountPrice > 0 ? formatPrice(product.PRDDiscountPrice) : null;
         const viewCount = product.view_count || 0;
         const productName = product.product_name || 'Produit sans nom';
         const productSlug = product.PRDSlug || '';
@@ -92,17 +101,24 @@
         const buttonFontSize = isMobile ? '9px' : '12px';
         const viewsSize = isMobile ? '8px' : '11px';
         
+        // Formatage du nombre de vues
+        const formattedViews = viewCount > 0 ? viewCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '0';
+        
         card.innerHTML = `
-            <img data-src="/media/${productImage}" src="${placeholder}" alt="${productName}" class="flavoriz-product-image lazy-load" style="height: ${imageHeight}; background: #F3F4F6; object-fit: cover; width: 100%;" />
-            <div class="flavoriz-product-body" style="padding: ${bodyPadding};">
-                <div class="flavoriz-product-views" style="font-size: ${viewsSize}; margin-bottom: ${isMobile ? '4px' : '6px'};">
-                    <i class="fi-rs-eye" style="font-size: ${isMobile ? '10px' : '12px'};"></i>
-                    <span>${viewCount}+ vues</span>
+            <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; height: ${imageHeight};">
+                <img data-src="/media/${productImage}" src="${placeholder}" alt="${productName}" class="flavoriz-product-image lazy-load" style="height: 100%; width: 100%; object-fit: cover;" />
+                ${viewCount > 0 ? `
+                <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: ${viewsSize}; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
+                    <i class="fi-rs-eye" style="font-size: ${isMobile ? '10px' : '11px'};"></i>
+                    <span>${formattedViews}</span>
                 </div>
+                ` : ''}
+            </div>
+            <div class="flavoriz-product-body" style="padding: ${bodyPadding};">
                 <h3 class="flavoriz-product-title" style="font-size: ${titleSize}; font-weight: 700; margin-bottom: ${isMobile ? '6px' : '8px'}; line-height: 1.2; min-height: ${titleMinHeight}; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${productName}</h3>
                 <div style="display: flex; align-items: center; gap: 4px; margin-bottom: ${isMobile ? '8px' : '10px'}; flex-wrap: wrap;">
-                    <span style="font-size: ${priceSize}; font-weight: 700; color: #FF7B2C;">${price} XOF</span>
-                    ${discountPrice ? `<span style="font-size: ${isMobile ? '10px' : '12px'}; color: #9CA3AF; text-decoration: line-through;">${discountPrice} XOF</span>` : ''}
+                    <span style="font-size: ${priceSize}; font-weight: 700; color: #FF7B2C;">${price} FCFA</span>
+                    ${discountPrice ? `<span style="font-size: ${isMobile ? '10px' : '12px'}; color: #9CA3AF; text-decoration: line-through;">${discountPrice} FCFA</span>` : ''}
                 </div>
                 <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${productSlug}'" style="padding: ${buttonPadding}; font-size: ${buttonFontSize}; margin-top: 0; width: 100%; background: #1A1A1A; color: white; border: none; border-radius: ${isMobile ? '10px' : '12px'}; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 3px;">
                     <i class="fi-rs-eye" style="font-size: ${isMobile ? '11px' : '13px'};"></i>
@@ -121,7 +137,16 @@
     }
     
     // Fonction pour charger plus de produits
+    // DÉSACTIVÉ COMPLÈTEMENT : Le scroll infini est maintenant géré par HTMX
     function loadMoreProducts() {
+        // HTMX gère maintenant le scroll infini via product_list_partial.html
+        // Cette fonction est complètement désactivée pour éviter les conflits
+        // Ne rien faire - retourner immédiatement
+        return;
+    }
+    
+    /* ANCIEN CODE COMPLÈTEMENT DÉSACTIVÉ - CONSERVÉ POUR RÉFÉRENCE UNIQUEMENT
+    function loadMoreProductsOld() {
         if (isLoading || !hasMore) return;
         
         isLoading = true;
@@ -150,12 +175,14 @@
                         hasMore = !data.max;
                         
                         // Réajouter le sentinel à la fin
-                        if (sentinel.parentNode) {
+                        if (sentinel && sentinel.parentNode) {
                             sentinel.parentNode.removeChild(sentinel);
                         }
-                        productsContainer.appendChild(sentinel);
+                        if (sentinel) {
+                            productsContainer.appendChild(sentinel);
+                        }
                         
-                        if (hasMore) {
+                        if (hasMore && scrollObserver) {
                             scrollObserver.observe(sentinel);
                         } else {
                             if (emptyBox) {
@@ -181,9 +208,16 @@
                 if (loadingBox) loadingBox.classList.remove('not-visible');
             });
     }
+    */
     
     // Initialiser le chargement
+    // DÉSACTIVÉ : HTMX gère maintenant le chargement initial
     function init() {
+        // HTMX charge les produits automatiquement via hx-trigger="load"
+        // Plus besoin d'appeler loadMoreProducts() ici
+        return;
+        
+        /* ANCIEN CODE DÉSACTIVÉ
         // Charger les premiers produits
         loadMoreProducts();
         
@@ -202,12 +236,17 @@
                 loadMoreProducts();
             });
         }
+        // FIN DU COMMENTAIRE */
     }
     
+    // DÉSACTIVÉ : HTMX gère maintenant l'initialisation
+    // Plus besoin d'appeler init() car HTMX charge automatiquement les produits
+    /*
     // Attendre que le DOM soit prêt
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
+    */
 })();

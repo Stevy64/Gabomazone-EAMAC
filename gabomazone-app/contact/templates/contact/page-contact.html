@@ -195,7 +195,7 @@
                             <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 14px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);" />
                             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
                                 <h6 style="font-size: 15px; font-weight: 600; color: var(--color-black); margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{new_product.product_name}}</h6>
-                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|floatformat:0}} XOF</p>
+                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|format_price}} FCFA</p>
                             </div>
                         </a>
                         {% endfor %}

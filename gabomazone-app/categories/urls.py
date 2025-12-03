@@ -13,12 +13,16 @@ urlpatterns = [
     path('shop/main/<str:slug>', views.main_category, name='main-category'),
     path('shop/sub/<str:slug>', views.sub_category, name='sub-category'),
 
-    path('shop-ajax/', views.CategoryJsonListView.as_view(),
-         name='shop-ajax'),
+    # CategoryJsonListView supprimé - utilisation exclusive de HTMX
+    # path('shop-ajax/', views.CategoryJsonListView.as_view(), name='shop-ajax'),
     
     # Vue HTMX pour scroll infini
     path('shop-htmx/', views.ProductListHTMXView.as_view(),
          name='shop-htmx'),
+    
+    # Endpoints AJAX pour les catégories
+    path('get-main-categories/', views.get_main_categories, name='get-main-categories'),
+    path('get-sub-categories/', views.get_sub_categories, name='get-sub-categories'),
 
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

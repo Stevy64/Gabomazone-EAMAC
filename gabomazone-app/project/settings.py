@@ -153,7 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 ###DEFAULT_CURRENCY##
-DEFAULT_CURRENCY = 'XOF'
+DEFAULT_CURRENCY = 'FCFA'
 
 # Internationalization - French only
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

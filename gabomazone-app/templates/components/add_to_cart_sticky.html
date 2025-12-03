@@ -1,12 +1,13 @@
 {% load static %}
+{% load cart_template_tags %}
 <div class="sticky-add-cart d-lg-none">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-6">
                 <div class="product-price">
-                    <span class="currency-xof">{{ product.PRDPrice|floatformat:0 }} XOF</span>
+                    <span class="currency-xof">{{ product.PRDPrice|format_price }} FCFA</span>
                     {% if product.PRDDiscountPrice %}
-                    <span class="old-price ms-2">{{ product.PRDDiscountPrice|floatformat:0 }} XOF</span>
+                    <span class="old-price ms-2">{{ product.PRDDiscountPrice|format_price }} FCFA</span>
                     {% endif %}
                 </div>
             </div>
