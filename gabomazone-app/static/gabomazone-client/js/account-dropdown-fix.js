@@ -81,13 +81,13 @@
                     accountMenuMobile.classList.add('show');
                     accountMenuMobile.style.display = 'block';
                     
-                    // FORCER le positionnement en bas sur mobile
+                    // Positionner le menu juste en dessous du bouton sur mobile
                     if (window.innerWidth <= 768) {
-                        accountMenuMobile.style.position = 'fixed';
-                        accountMenuMobile.style.top = 'auto';
-                        accountMenuMobile.style.bottom = '80px';
-                        accountMenuMobile.style.right = '16px';
+                        accountMenuMobile.style.position = 'absolute';
+                        accountMenuMobile.style.top = 'calc(100% + 8px)';
+                        accountMenuMobile.style.right = '0';
                         accountMenuMobile.style.left = 'auto';
+                        accountMenuMobile.style.bottom = 'auto';
                         accountMenuMobile.style.transform = 'none';
                         accountMenuMobile.style.margin = '0';
                     }

@@ -288,7 +288,7 @@
                     }
                     markerLayer.clearLayers(); // remove this line to allow multi-markers on click
                     L.marker(result.latlng, { icon: markerIcon }).addTo(markerLayer).bindPopup(result.address.Match_addr, { closeButton: false }).openPopup();
-                    alert(`You've clicked on the following address: ${result.address.Match_addr}`);
+                    alert(`Vous avez cliqué sur l'adresse suivante : ${result.address.Match_addr}`);
                 });
             });
         }

@@ -124,6 +124,8 @@
         {% if favorites_count > 0 %}
         <div class="flavoriz-wishlist-grid">
             {% for favorite in favorites %}
+            {% if not favorite.is_peer_to_peer %}
+            {# Produit normal #}
             <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
                 <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
                     <img src="{{ favorite.product.product_image.url }}" alt="{{ favorite.product.product_name }}" 
@@ -134,6 +136,12 @@
                             style="position: absolute; top: 8px; right: 8px; background: rgba(254, 226, 226, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #EF4444; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
                         <i class="fi-rs-heart" style="font-size: 12px; color: #EF4444;"></i>
                     </button>
+                    {% if favorite.product.view_count and favorite.product.view_count > 0 %}
+                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
+                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
+                        <span>{{ favorite.product.view_count|default:0 }}</span>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
                     <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ favorite.product.product_name }}</h3>
@@ -154,6 +162,46 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+            {# Article d'occasion (PeerToPeerProductFavorite) #}
+            <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
+                <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
+                    <img src="{{ favorite.product.product_image.url }}" alt="{{ favorite.product.product_name }}" 
+                         onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'"
+                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer;" />
+                    <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fi-rs-users" style="font-size: 12px;"></i>
+                        <span>Occasion</span>
+                    </div>
+                    <button class="flavoriz-favorite-btn" data-product-id="peer_{{ favorite.product.id }}" 
+                            onclick="event.stopPropagation(); toggleFavorite('peer_{{ favorite.product.id }}', this);" 
+                            style="position: absolute; top: 8px; right: 8px; background: rgba(254, 226, 226, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #EF4444; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
+                        <i class="fi-rs-heart" style="font-size: 12px; color: #EF4444;"></i>
+                    </button>
+                    {% if favorite.product.view_count and favorite.product.view_count > 0 %}
+                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
+                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
+                        <span>{{ favorite.product.view_count|default:0 }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
+                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ favorite.product.product_name }}</h3>
+                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
+                        <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{ favorite.product.PRDPrice|format_price }} FCFA</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: auto;">
+                        <button class="flavoriz-product-card-btn" onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+                            <i class="fi-rs-eye" style="font-size: 13px;"></i>
+                            <span>Voir</span>
+                        </button>
+                        <button class="flavoriz-propose-offer-btn" data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" style="padding: 10px 14px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.3); min-width: 48px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(255, 123, 44, 0.3)'">
+                            <i class="fi-rs-tag" style="font-size: 15px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             {% endfor %}
         </div>
         {% else %}
@@ -168,6 +216,18 @@
 </main>
 
 <script>
+    // Fonction pour proposer une offre au vendeur (articles peer-to-peer)
+    function proposeOfferToSeller(productId, productSlug, productPrice) {
+        {% if not user.is_authenticated %}
+        // Rediriger vers la page de connexion
+        window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+        return;
+        {% endif %}
+        
+        // Ouvrir la messagerie avec une proposition d'offre
+        window.location.href = '{% url "accounts:my-messages" %}?product_id=' + productId + '&action=propose_offer';
+    }
+    
     // S'assurer que les fonctions sont disponibles
     if (typeof toggleFavorite === 'undefined' && typeof window.toggleFavorite !== 'undefined') {
         window.toggleFavorite = window.toggleFavorite;

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<style>
+    .c2c-orders-container {
+        max-width: 1000px;
+        margin: 100px auto 60px;
+        padding: 0 20px;
+    }
+    
+    .c2c-order-item {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+    
+    .c2c-order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    @media (max-width: 768px) {
+        .c2c-orders-container {
+            margin-top: 80px;
+            padding: 0 16px;
+        }
+    }
+</style>
+
+<main class="c2c-orders-container">
+    <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 32px 0;">
+        <i class="fi-rs-shopping-bag" style="color: var(--color-orange);"></i>
+        Mes commandes C2C
+    </h1>
+    
+    {% if orders %}
+    {% for order in orders %}
+    <div class="c2c-order-item">
+        <div class="c2c-order-header">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">
+                    Commande #{{ order.id }} - {{ order.product.product_name }}
+                </h3>
+                <p style="color: #6B7280; margin: 0; font-size: 14px;">
+                    {{ order.created_at|date:"d/m/Y à H:i" }}
+                </p>
+            </div>
+            <span style="padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #F3F4F6; color: #6B7280;">
+                {{ order.get_status_display }}
+            </span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+            <div>
+                <p style="margin: 0; color: #6B7280; font-size: 14px;">Total payé</p>
+                <p style="margin: 4px 0 0 0; font-size: 20px; font-weight: 700; color: var(--color-orange);">
+                    {{ order.buyer_total|floatformat:0 }} FCFA
+                </p>
+            </div>
+            <a href="{% url 'c2c:order-detail' order.id %}" style="padding: 10px 20px; background: var(--color-orange); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Voir détails
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px;">
+        <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
+        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune commande</h3>
+        <p style="color: #9CA3AF; margin: 0;">Vous n'avez pas encore passé de commande C2C.</p>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+

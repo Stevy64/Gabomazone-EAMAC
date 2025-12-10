@@ -4,6 +4,21 @@
 
 {%block body%}
 <style>
+/* Styles desktop pour le parcours de vente */
+.sales-journey-toggle {
+    display: none !important;
+}
+
+.sales-journey-title-desktop {
+    display: flex !important;
+}
+
+.sales-journey-content {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
 /* Styles responsive pour mobile */
 @media (max-width: 768px) {
     .main.pages {
@@ -15,16 +30,16 @@
         padding: 0 16px !important;
     }
     
-    /* Sidebar - masquer sur mobile ou rendre collapsible */
+    /* Sidebar - mettre en haut sur mobile */
     .col-md-3 {
         flex: 0 0 100% !important;
         max-width: 100% !important;
         margin-bottom: 20px;
-        order: 2; /* Mettre la sidebar après le contenu principal */
+        order: 1; /* Mettre la sidebar en premier (en haut) */
     }
     
     .col-md-9 {
-        order: 1; /* Mettre le contenu principal en premier */
+        order: 2; /* Mettre le contenu principal après la sidebar */
     }
     
     .flavoriz-dashboard-menu {
@@ -95,14 +110,44 @@
         font-size: 13px !important;
     }
     
-    /* Parcours visuel - empiler verticalement */
+    /* Parcours visuel - liste déroulante sur mobile */
     .sales-journey {
-        padding: 20px 16px !important;
+        padding: 16px !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .sales-journey-toggle {
+        display: flex !important;
+    }
+    
+    .sales-journey-title-desktop {
+        display: none !important;
+    }
+    
+    .sales-journey-content {
+        max-height: 0 !important;
+        overflow: hidden !important;
+        transition: max-height 0.3s ease-out !important;
+    }
+    
+    .sales-journey-content.expanded {
+        max-height: 2000px !important;
+        transition: max-height 0.5s ease-in !important;
+    }
+    
+    .sales-journey-icon {
+        transform: rotate(0deg) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .sales-journey-icon.rotated {
+        transform: rotate(180deg) !important;
     }
     
     .sales-journey-steps {
         flex-direction: column !important;
-        gap: 24px !important;
+        gap: 16px !important;
+        padding-top: 16px !important;
     }
     
     .sales-journey-steps .journey-line {
@@ -263,26 +308,52 @@ select,
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236B7280' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF7B2C' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
-    background-size: 14px;
-    padding-right: 45px;
+    background-size: 16px;
+    padding-right: 48px;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    color: #1F2937;
+    background-color: white;
 }
 
 select:hover,
 .custom-select:hover {
-    border-color: #D1D5DB !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.2) !important;
+    transform: translateY(-1px);
+    background-color: #FFF9F5;
 }
 
 select:focus,
 .custom-select:focus {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF7B2C' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
-    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF7B2C' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.15), 0 4px 12px rgba(255, 123, 44, 0.2) !important;
+    background-color: #FFF9F5;
+    outline: none;
+}
+
+.custom-select option {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1F2937;
+    background: white;
+}
+
+.custom-select option:hover {
+    background: rgba(255, 123, 44, 0.1);
+}
+
+.custom-select option:checked {
+    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+    color: white;
+    font-weight: 700;
 }
 
 /* Amélioration des inputs de fichiers */
@@ -387,6 +458,21 @@ input[type="file"]:active {
                             </a>
                         </li>
                         <li>
+                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mes articles publiés</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500; position: relative;">
+                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Ma messagerie</span>
+                                {% if messages_count and messages_count > 0 %}
+                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
                             <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
                                 <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
                                 <span>Mot de passe</span>
@@ -409,7 +495,7 @@ input[type="file"]:active {
                     <div class="main-content-header" style="margin-bottom: 32px;">
                         <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
                             <i class="fi-rs-shopping-cart-add" style="color: var(--color-orange); font-size: 32px;"></i>
-                            Vendre un article entre particuliers
+                            Vendre un article en occasion
                         </h1>
                         <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
                             Ajoutez votre article à vendre. Le paiement se fera uniquement à la livraison avec un code de confirmation.
@@ -419,10 +505,18 @@ input[type="file"]:active {
 
                     <!-- Parcours visuel des étapes -->
                     <div class="sales-journey" style="margin-bottom: 40px; padding: 24px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 16px; border: 2px solid #E5E7EB;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
+                        <button type="button" class="sales-journey-toggle" onclick="toggleSalesJourney()" style="width: 100%; display: none; align-items: center; justify-content: space-between; background: none; border: none; padding: 0; margin: 0 0 16px 0; cursor: pointer; text-align: left;">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-list-check" style="color: var(--color-orange);"></i>
+                                Parcours de vente
+                            </h3>
+                            <i class="fi-rs-angle-down sales-journey-icon" style="font-size: 20px; color: var(--color-orange); transition: transform 0.3s ease;"></i>
+                        </button>
+                        <h3 class="sales-journey-title-desktop" style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
                             <i class="fi-rs-list-check" style="color: var(--color-orange);"></i>
                             Parcours de vente
                         </h3>
+                        <div class="sales-journey-content" style="display: block;">
                         <div class="sales-journey-steps" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; position: relative;">
                             <!-- Ligne de connexion -->
                             <div class="journey-line" style="position: absolute; top: 30px; left: 60px; right: 60px; height: 3px; background: linear-gradient(90deg, var(--color-orange) 0%, #E5E7EB 100%); z-index: 0; border-radius: 2px;"></div>
@@ -466,11 +560,12 @@ input[type="file"]:active {
                             <!-- Étape 5 -->
                             <div class="journey-step" style="flex: 1; min-width: 140px; text-align: center; position: relative; z-index: 1;">
                                 <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
-                                    <i class="fi-rs-truck" style="color: white; font-size: 24px;"></i>
+                                    <i class="fi-rs-shopping-cart-check" style="color: white; font-size: 24px;"></i>
                                 </div>
                                 <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">5. Livraison</h4>
                                 <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Livraison et paiement</p>
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -487,8 +582,20 @@ input[type="file"]:active {
                     {% endif %}
 
                     <!-- Formulaire -->
-                    <form method="post" action="{% url 'accounts:sell-product' %}" enctype="multipart/form-data" id="addProductForm">
+                    <form method="post" action="{% if is_edit %}{% url 'accounts:edit-peer-product' product.id %}{% else %}{% url 'accounts:sell-product' %}{% endif %}" enctype="multipart/form-data" id="addProductForm">
                         {% csrf_token %}
+                        
+                        {% if is_edit %}
+                        <div style="margin-bottom: 24px; padding: 16px; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; border: 2px solid #F59E0B;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i class="fi-rs-edit" style="font-size: 24px; color: #92400E;"></i>
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 700; color: #92400E; margin: 0 0 4px 0;">Mode édition</h4>
+                                    <p style="font-size: 13px; color: #78350F; margin: 0;">Vous modifiez l'article "{{ product.product_name }}". Les modifications nécessiteront une nouvelle validation.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         
                         <!-- Informations de base -->
                         <div class="form-section" style="margin-bottom: 32px;">
@@ -502,14 +609,14 @@ input[type="file"]:active {
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Nom du produit <span style="color: #EF4444;">*</span>
                                     </label>
-                                    <input type="text" name="product_name" required maxlength="150" placeholder="Ex: iPhone 13 Pro Max" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                    <input type="text" name="product_name" required maxlength="150" placeholder="Ex: iPhone 13 Pro Max" value="{% if is_edit %}{{ product.product_name }}{% endif %}" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                 </div>
                                 
                                 <div>
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Prix (FCFA) <span style="color: #EF4444;">*</span>
                                     </label>
-                                    <input type="number" name="PRDPrice" required min="1" step="0.01" placeholder="Ex: 200000" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                    <input type="number" name="PRDPrice" required min="1" step="0.01" placeholder="Ex: 200000" value="{% if is_edit %}{{ product.PRDPrice }}{% endif %}" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                     <p style="font-size: 12px; color: #6B7280; margin: 6px 0 0 0;">
                                         Commission: 20% | Vous recevrez: 80%
                                     </p>
@@ -520,7 +627,7 @@ input[type="file"]:active {
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                     Description <span style="color: #EF4444;">*</span>
                                 </label>
-                                <textarea name="product_description" required rows="4" placeholder="Décrivez votre article en détail..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'"></textarea>
+                                <textarea name="product_description" required rows="4" placeholder="Décrivez votre article en détail..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">{% if is_edit %}{{ product.product_description }}{% endif %}</textarea>
                             </div>
                         </div>
 
@@ -539,7 +646,7 @@ input[type="file"]:active {
                                     <select name="product_supercategory" id="super_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onchange="loadMainCategories(this.value)" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                         <option value="">Sélectionner...</option>
                                         {% for cat in super_categories %}
-                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                        <option value="{{ cat.id }}" {% if is_edit and selected_super == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -626,14 +733,14 @@ input[type="file"]:active {
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Téléphone <span style="color: #EF4444;">*</span>
                                     </label>
-                                    <input type="tel" name="seller_phone" required placeholder="Ex: +241 01 23 45 67" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                    <input type="tel" name="seller_phone" required placeholder="Ex: +241 01 23 45 67" value="{% if is_edit %}{{ product.seller_phone }}{% endif %}" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                 </div>
                                 
                                 <div>
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Ville <span style="color: #EF4444;">*</span>
                                     </label>
-                                    <input type="text" name="seller_city" required placeholder="Ex: Libreville" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                    <input type="text" name="seller_city" required placeholder="Ex: Libreville" value="{% if is_edit %}{{ product.seller_city }}{% endif %}" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                 </div>
                             </div>
                             
@@ -641,49 +748,85 @@ input[type="file"]:active {
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                     Adresse complète <span style="color: #EF4444;">*</span>
                                 </label>
-                                <textarea name="seller_address" required rows="3" placeholder="Votre adresse complète pour la livraison..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'"></textarea>
+                                <textarea name="seller_address" required rows="3" placeholder="Votre adresse complète pour la livraison..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">{% if is_edit %}{{ product.seller_address }}{% endif %}</textarea>
                             </div>
                         </div>
 
                         <!-- Bouton de soumission -->
                         <div class="form-buttons" style="display: flex; justify-content: flex-end; gap: 16px; padding-top: 24px; border-top: 2px solid #F3F4F6;">
+                            {% if is_edit %}
+                            <a href="{% url 'accounts:sell-product' %}" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-arrow-left"></i>
+                                Annuler
+                            </a>
+                            {% else %}
                             <button type="reset" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
                                 Réinitialiser
                             </button>
+                            {% endif %}
                             <button type="submit" style="padding: 14px 32px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                                 <i class="fi-rs-check"></i>
-                                Publier l'article
+                                {% if is_edit %}Enregistrer les modifications{% else %}Publier l'article{% endif %}
                             </button>
                         </div>
                     </form>
+
 
                     <!-- Mes articles -->
                     {% if user_products %}
                     <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid #F3F4F6;">
                         <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-list" style="color: var(--color-orange);"></i>
-                            Mes articles publiés
+                            Mes articles publiés ({{ user_products|length }})
                         </h3>
-                        <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                        <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
                             {% for product in user_products %}
-                            <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                                <div style="margin-bottom: 12px;">
-                                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
-                                </div>
-                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">{{ product.product_name }}</h4>
-                                <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                    {% if product.status == 'PENDING' %}
-                                    <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600;">En attente</span>
-                                    {% elif product.status == 'APPROVED' %}
-                                    <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600;">Approuvé</span>
-                                    {% elif product.status == 'REJECTED' %}
-                                    <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600;">Rejeté</span>
-                                    {% elif product.status == 'SOLD' %}
-                                    <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600;">Vendu</span>
+                            <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                                <div style="margin-bottom: 12px; position: relative;">
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                                    {% if product.status == 'APPROVED' %}
+                                    <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); padding: 6px 10px; border-radius: 6px; color: var(--color-orange); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                        <i class="fi-rs-eye"></i> Voir
+                                    </a>
                                     {% endif %}
                                 </div>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0;">Publié le {{ product.date|date:"d/m/Y" }}</p>
+                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4;">{{ product.product_name|truncatechars:50 }}</h4>
+                                <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                                    {% if product.status == 'PENDING' %}
+                                    <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-clock" style="font-size: 12px;"></i> En attente
+                                    </span>
+                                    {% elif product.status == 'APPROVED' %}
+                                    <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-check" style="font-size: 12px;"></i> Approuvé
+                                    </span>
+                                    {% elif product.status == 'REJECTED' %}
+                                    <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-cross" style="font-size: 12px;"></i> Rejeté
+                                    </span>
+                                    {% elif product.status == 'SOLD' %}
+                                    <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-shopping-bag" style="font-size: 12px;"></i> Vendu
+                                    </span>
+                                    {% endif %}
+                                    {% if product.view_count > 0 %}
+                                    <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-eye" style="font-size: 12px;"></i> {{ product.view_count }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p style="font-size: 12px; color: #6B7280; margin: 0 0 16px 0;">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
+                                
+                                <!-- Actions CRUD -->
+                                <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
+                                    </a>
+                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
+                                        <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                                    </button>
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
@@ -696,6 +839,17 @@ input[type="file"]:active {
 </main>
 
 <script>
+// Fonction pour toggle le parcours de vente sur mobile
+function toggleSalesJourney() {
+    const content = document.querySelector('.sales-journey-content');
+    const icon = document.querySelector('.sales-journey-icon');
+    
+    if (content && icon) {
+        content.classList.toggle('expanded');
+        icon.classList.toggle('rotated');
+    }
+}
+
 function previewImage(input, previewId) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -724,9 +878,21 @@ function loadMainCategories(superCategoryId) {
                 const option = document.createElement('option');
                 option.value = cat.id;
                 option.textContent = cat.name;
+                {% if is_edit and selected_main %}
+                if (cat.id == {{ selected_main }}) {
+                    option.selected = true;
+                }
+                {% endif %}
                 select.appendChild(option);
             });
             document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+            
+            // Si une catégorie principale est sélectionnée, charger les sous-catégories
+            {% if is_edit and selected_main %}
+            if ({{ selected_main }}) {
+                loadSubCategories({{ selected_main }});
+            }
+            {% endif %}
         })
         .catch(error => console.error('Error:', error));
 }
@@ -746,11 +912,85 @@ function loadSubCategories(mainCategoryId) {
                 const option = document.createElement('option');
                 option.value = cat.id;
                 option.textContent = cat.name;
+                {% if is_edit and selected_sub %}
+                if (cat.id == {{ selected_sub }}) {
+                    option.selected = true;
+                }
+                {% endif %}
                 select.appendChild(option);
             });
         })
         .catch(error => console.error('Error:', error));
 }
+
+// URL de base pour la suppression (générée par Django)
+const DELETE_PRODUCT_URL_BASE = '{% url "accounts:delete-peer-product" 0 %}'.replace('0', '');
+
+// Fonction pour confirmer la suppression
+function confirmDelete(productId, productName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
+        // Créer un formulaire pour la suppression
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = DELETE_PRODUCT_URL_BASE + productId + '/';
+        
+        // Ajouter le token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        } else {
+            // Récupérer le token depuis les cookies
+            const cookies = document.cookie.split(';');
+            let csrfValue = null;
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    csrfValue = value;
+                    break;
+                }
+            }
+            if (csrfValue) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfValue;
+                form.appendChild(csrfInput);
+            }
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Charger les catégories principales si une super catégorie est déjà sélectionnée (mode édition)
+{% if is_edit and selected_super %}
+window.addEventListener('DOMContentLoaded', function() {
+    const superSelect = document.getElementById('super_category');
+    if (superSelect && superSelect.value == {{ selected_super }}) {
+        loadMainCategories(superSelect.value);
+    }
+});
+{% endif %}
 </script>
+
+<!-- Modal de confirmation de suppression -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">Confirmer la suppression</h3>
+        <p style="font-size: 15px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.6;">Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.</p>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button onclick="document.getElementById('deleteModal').style.display='none'" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="padding: 12px 24px; background: #DC2626; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 

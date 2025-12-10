@@ -670,110 +670,121 @@
     
     .modal-container {
         background: white;
-        border-radius: 20px;
+        border-radius: 24px;
         width: 100%;
-        max-width: 480px;
-        max-height: 85vh;
+        max-width: 600px;
+        max-height: 90vh;
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.3s ease;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+        animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .review-details-modal {
-        max-width: 480px;
+        max-width: 600px;
     }
     
     @keyframes slideUp {
         from {
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
             opacity: 0;
         }
         to {
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
             opacity: 1;
         }
     }
     
     .modal-header {
-        padding: 16px 20px;
-        border-bottom: 2px solid #F3F4F6;
+        padding: 24px 28px;
+        border-bottom: 1px solid #E5E7EB;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
         flex-shrink: 0;
+        color: white;
     }
     
     .modal-header h2 {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 700;
-        color: #1F2937;
+        color: white;
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
     }
     
     .modal-header h2 i {
-        color: #6B46C1;
+        color: #FCD34D;
+        font-size: 24px;
     }
     
     .modal-close-btn {
         width: 40px;
         height: 40px;
         border: none;
-        background: #F3F4F6;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
         font-size: 20px;
-        color: #6B7280;
+        color: white;
+        backdrop-filter: blur(10px);
     }
     
     .modal-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
         background: #E5E7EB;
         color: #1F2937;
     }
     
     .modal-body {
-        padding: 16px;
+        padding: 28px;
         overflow-y: auto;
         flex: 1;
+        background: linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 100%);
     }
     
     /* Review Details Card in Modal */
     .review-details-card {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 20px;
     }
     
     .review-details-header {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #F3F4F6;
+        gap: 16px;
+        padding: 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid #E5E7EB;
     }
     
     .review-details-avatar {
-        width: 44px;
-        height: 44px;
+        width: 56px;
+        height: 56px;
         background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
-        border-radius: 10px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
     }
     
     .review-details-avatar i {
-        font-size: 22px;
+        font-size: 28px;
         color: white;
     }
     
@@ -783,67 +794,70 @@
     }
     
     .review-details-user-name {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 700;
         color: #1F2937;
-        margin: 0 0 4px 0;
+        margin: 0 0 6px 0;
     }
     
     .review-details-date {
-        font-size: 12px;
+        font-size: 13px;
         color: #6B7280;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         margin: 0;
     }
     
     .review-details-date i {
-        font-size: 14px;
+        font-size: 16px;
+        color: #9CA3AF;
     }
     
     /* Rating Section - Mise en valeur */
     .review-details-rating-section {
         background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        border-radius: 10px;
-        padding: 12px 14px;
+        border-radius: 16px;
+        padding: 20px;
         border: 2px solid #FCD34D;
         margin: 0;
+        box-shadow: 0 4px 16px rgba(252, 211, 77, 0.2);
     }
     
     .review-details-rating-label {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         color: #92400E;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin: 0 0 6px 0;
+        letter-spacing: 0.8px;
+        margin: 0 0 12px 0;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
     
     .review-details-rating-label i {
-        font-size: 14px;
+        font-size: 16px;
+        color: #F59E0B;
     }
     
     .review-details-rating {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 16px;
         flex-wrap: wrap;
     }
     
     .stars-container-large {
         position: relative;
         display: inline-flex;
-        font-size: 18px;
+        font-size: 24px;
         line-height: 1;
     }
     
     .stars-background-large {
         display: flex;
-        gap: 3px;
+        gap: 4px;
         color: #E5E7EB;
     }
     
@@ -852,44 +866,54 @@
         top: 0;
         left: 0;
         display: flex;
-        gap: 3px;
+        gap: 4px;
         overflow: hidden;
         color: #F59E0B;
     }
     
     .stars-background-large i,
     .stars-fill-large i {
-        font-size: 18px;
+        font-size: 24px;
+        filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
     }
     
     .rating-value-large {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 700;
         color: #92400E;
         background: white;
-        padding: 3px 8px;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 8px 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid #FCD34D;
     }
     
     .review-details-product {
-        padding: 12px;
-        background: #F9FAFB;
-        border-radius: 10px;
-        border: 2px solid #F3F4F6;
+        padding: 20px;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
     
     .review-details-product-header {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
+        gap: 16px;
     }
     
     .review-details-product-header i {
-        font-size: 20px;
+        font-size: 24px;
         color: #6B46C1;
         margin-top: 2px;
         flex-shrink: 0;
+        background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .review-details-product-content {
@@ -901,115 +925,124 @@
         font-size: 11px;
         color: #6B7280;
         text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        margin: 0 0 6px 0;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        margin: 0 0 8px 0;
     }
     
     .review-details-product-name {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 700;
         color: #1F2937;
-        margin: 0 0 8px 0;
-        line-height: 1.4;
+        margin: 0 0 12px 0;
+        line-height: 1.5;
     }
     
     .review-details-product-image {
         width: 100%;
-        max-width: 160px;
-        height: 90px;
+        max-width: 200px;
+        height: 120px;
         object-fit: cover;
-        border-radius: 6px;
-        margin-bottom: 6px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        border: 2px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     
     .review-details-product-link {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 7px 14px;
-        background: white;
-        border: 2px solid #6B46C1;
-        border-radius: 8px;
-        color: #6B46C1;
-        font-size: 12px;
+        gap: 8px;
+        padding: 10px 18px;
+        background: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 13px;
         font-weight: 600;
         text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .review-details-product-link:hover {
-        background: #6B46C1;
-        color: white;
-        transform: translateY(-2px);
+        transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
     }
     
+    .review-details-product-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+        background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%);
+    }
+    
     .review-details-product-link i {
-        font-size: 16px;
+        font-size: 18px;
     }
     
     /* Comment Section - Mise en valeur */
     .review-details-comment {
-        padding: 12px;
+        padding: 20px;
         background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-        border-radius: 10px;
+        border-radius: 16px;
         border: 2px solid #818CF8;
-        box-shadow: 0 4px 12px rgba(129, 140, 248, 0.15);
+        box-shadow: 0 4px 16px rgba(129, 140, 248, 0.2);
     }
     
     .review-details-comment-label {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         color: #4C1D95;
-        margin: 0 0 8px 0;
+        margin: 0 0 12px 0;
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 8px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
     }
     
     .review-details-comment-label i {
-        font-size: 14px;
+        font-size: 18px;
         color: #6B46C1;
     }
     
     .review-details-comment-text {
-        font-size: 13px;
-        line-height: 1.6;
+        font-size: 14px;
+        line-height: 1.7;
         color: #1E293B;
         margin: 0;
         font-weight: 500;
-        padding: 10px;
+        padding: 16px;
         background: white;
-        border-radius: 6px;
+        border-radius: 12px;
         border-left: 4px solid #6B46C1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
     
     .review-details-comment-empty {
-        font-size: 13px;
+        font-size: 14px;
         color: #64748B;
         font-style: italic;
         margin: 0;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 8px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
         text-align: center;
+        border: 1px dashed #CBD5E1;
     }
     
     .review-details-footer {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         align-items: center;
-        padding-top: 10px;
-        border-top: 2px solid #F3F4F6;
+        padding-top: 16px;
+        margin-top: 8px;
+        border-top: 1px solid #E5E7EB;
     }
     
     .review-details-id {
-        font-size: 11px;
+        font-size: 12px;
         color: #9CA3AF;
-        font-weight: 500;
+        font-weight: 600;
+        font-family: monospace;
+        background: #F3F4F6;
+        padding: 6px 12px;
+        border-radius: 8px;
     }
     
     /* Responsive */
@@ -1039,69 +1072,114 @@
         
         .modal-container {
             max-width: 95%;
-            max-height: 90vh;
+            max-height: 95vh;
+            border-radius: 20px;
         }
         
         .modal-header {
-            padding: 12px 16px;
+            padding: 20px;
         }
         
         .modal-header h2 {
-            font-size: 16px;
+            font-size: 18px;
+        }
+        
+        .modal-header h2 i {
+            font-size: 20px;
         }
         
         .modal-body {
-            padding: 12px;
+            padding: 20px;
+        }
+        
+        .review-details-card {
+            gap: 16px;
         }
         
         .review-details-header {
             flex-direction: column;
             text-align: center;
             gap: 12px;
+            padding: 16px;
+        }
+        
+        .review-details-avatar {
+            width: 64px;
+            height: 64px;
+        }
+        
+        .review-details-avatar i {
+            font-size: 32px;
+        }
+        
+        .review-details-user-name {
+            font-size: 16px;
         }
         
         .review-details-rating-section {
-            padding: 12px;
+            padding: 16px;
         }
         
         .review-details-rating {
             justify-content: center;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
         .stars-container-large {
-            font-size: 18px;
+            font-size: 20px;
         }
         
         .stars-background-large i,
         .stars-fill-large i {
-            font-size: 18px;
+            font-size: 20px;
         }
         
         .rating-value-large {
             font-size: 16px;
+            padding: 6px 14px;
         }
         
-        .review-details-comment {
-            padding: 14px;
-        }
-        
-        .review-details-comment-text {
-            font-size: 13px;
-        }
-        
-        .review-details-product-image {
-            max-width: 100%;
+        .review-details-product {
+            padding: 16px;
         }
         
         .review-details-product-header {
             flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .review-details-product-header i {
+            width: 48px;
+            height: 48px;
+            font-size: 24px;
         }
         
         .review-details-product-content {
             width: 100%;
+        }
+        
+        .review-details-product-image {
+            max-width: 100%;
+            height: auto;
+            min-height: 120px;
+        }
+        
+        .review-details-comment {
+            padding: 16px;
+        }
+        
+        .review-details-comment-text {
+            font-size: 13px;
+            padding: 12px;
+        }
+        
+        .review-details-footer {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
         
         .pagination-list {
@@ -1222,7 +1300,7 @@
                     <div class="review-details-product-header">
                         <i class="material-icons">inventory_2</i>
                         <div class="review-details-product-content">
-                            <p class="review-details-product-label">Produit</p>
+                            <p class="review-details-product-label">Produit évalué</p>
                             <h4 class="review-details-product-name">${productName}</h4>
                             ${productImageHTML}
                             <a href="${productLink}" target="_blank" class="review-details-product-link">
@@ -1236,13 +1314,13 @@
                 <div class="review-details-comment">
                     <h4 class="review-details-comment-label">
                         <i class="material-icons">comment</i>
-                        Commentaire
+                        Commentaire du client
                     </h4>
                     ${commentHTML}
                 </div>
                 
                 <div class="review-details-footer">
-                    <span class="review-details-id">ID: #${reviewId}</span>
+                    <span class="review-details-id">ID Avis: #${reviewId}</span>
                 </div>
             </div>
         `;

@@ -117,6 +117,9 @@ class PeerToPeerProduct(models.Model):
     PRDSlug = models.SlugField(
         max_length=150, blank=True, null=True, allow_unicode=True, unique=True, verbose_name=_("Slug"))
     
+    # Compteur de vues
+    view_count = models.PositiveIntegerField(default=0, verbose_name=_("Nombre de vues"))
+    
     class Meta:
         ordering = ('-date',)
         verbose_name = _("Article entre particuliers")
@@ -197,21 +200,122 @@ class DeliveryCode(models.Model):
     # def save(self, *args, **kwargs):
     #     return super().save(*args, **kwargs)
 
-    def get_recommended_profiles(self):
-        qs = Profile.objects.all()
-        my_recs = []
-        for profile in qs:
-            if profile.recommended_by == self.user:
-                my_recs.append(profile)
-        return my_recs
 
-    def save(self, *args, **kwargs):
-        if not self.slug or self.slug is None or self.slug == "":
-            self.slug = slugify(self.user.username, allow_unicode=True)
-            qs_exists = Profile.objects.filter(
-                slug=self.slug).exists()
-            if qs_exists:
-                self.slug = create_shortcode(self)
+class PeerToPeerOrderNotification(models.Model):
+    """Modèle pour les notifications de commande peer-to-peer"""
+    order = models.ForeignKey(
+        'orders.Order', on_delete=models.CASCADE, related_name='peer_notifications', verbose_name=_("Commande"))
+    order_detail = models.ForeignKey(
+        'orders.OrderDetails', on_delete=models.CASCADE, related_name='peer_notifications', verbose_name=_("Détail de commande"))
+    peer_product = models.ForeignKey(
+        PeerToPeerProduct, on_delete=models.CASCADE, related_name='order_notifications', verbose_name=_("Article"))
+    seller = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='peer_order_notifications', verbose_name=_("Vendeur"))
+    buyer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='peer_orders_made', verbose_name=_("Acheteur"))
+    
+    # Statut de la notification
+    PENDING = 'PENDING'
+    ACCEPTED = 'ACCEPTED'
+    REJECTED = 'REJECTED'
+    CANCELLED = 'CANCELLED'
+    
+    Status_select = [
+        (PENDING, 'En attente'),
+        (ACCEPTED, 'Acceptée'),
+        (REJECTED, 'Refusée'),
+        (CANCELLED, 'Annulée'),
+    ]
+    status = models.CharField(
+        max_length=13,
+        choices=Status_select,
+        default=PENDING,
+        verbose_name=_("Statut")
+    )
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))
+    responded_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de réponse"))
+    
+    # Message du vendeur (optionnel)
+    seller_message = models.TextField(blank=True, null=True, verbose_name=_("Message du vendeur"))
+    
+    # Indicateur de lecture
+    is_read = models.BooleanField(default=False, verbose_name=_("Lu"))
+    
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Notification de commande peer-to-peer")
+        verbose_name_plural = _("Notifications de commande peer-to-peer")
+    
+    def __str__(self):
+        return f"Commande #{self.order.id} - {self.peer_product.product_name}"
+
+
+class ProductConversation(models.Model):
+    """Modèle pour les conversations entre vendeur et acheteur pour un article"""
+    product = models.ForeignKey(
+        PeerToPeerProduct, on_delete=models.CASCADE, related_name='conversations', verbose_name=_("Article"))
+    seller = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='seller_conversations', verbose_name=_("Vendeur"))
+    buyer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='buyer_conversations', verbose_name=_("Acheteur"))
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))
+    
+    # Indicateur de dernière activité
+    last_message_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Dernier message"))
+    
+    class Meta:
+        ordering = ('-last_message_at',)
+        unique_together = ('product', 'buyer')
+        verbose_name = _("Conversation")
+        verbose_name_plural = _("Conversations")
+    
+    def __str__(self):
+        return f"Conversation - {self.product.product_name} - {self.buyer.username}"
+    
+    def get_unread_count_for_seller(self):
+        """Retourne le nombre de messages non lus pour le vendeur"""
+        return self.messages.filter(is_read=False, sender=self.buyer).count()
+    
+    def get_unread_count_for_buyer(self):
+        """Retourne le nombre de messages non lus pour l'acheteur"""
+        return self.messages.filter(is_read=False, sender=self.seller).count()
+
+
+class ProductMessage(models.Model):
+    """Modèle pour les messages dans une conversation"""
+    conversation = models.ForeignKey(
+        ProductConversation, on_delete=models.CASCADE, related_name='messages', verbose_name=_("Conversation"))
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sent_messages', verbose_name=_("Expéditeur"))
+    message = models.TextField(verbose_name=_("Message"))
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    
+    # Indicateur de lecture
+    is_read = models.BooleanField(default=False, verbose_name=_("Lu"))
+    read_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de lecture"))
+    
+    class Meta:
+        ordering = ('created_at',)
+        verbose_name = _("Message")
+        verbose_name_plural = _("Messages")
+    
+    def __str__(self):
+        return f"Message de {self.sender.username} - {self.created_at}"
+    
+    def mark_as_read(self):
+        """Marque le message comme lu"""
+        from django.utils import timezone
+        self.is_read = True
+        self.read_at = timezone.now()
+        self.save()
 
         if self.code is None or self.code == "":
             # code = generate_ref_code()
@@ -368,3 +472,24 @@ class ProductBoostRequest(models.Model):
         if self.status == self.ACTIVE and self.end_date and self.end_date > timezone.now():
             return True
         return False
+
+
+class PeerToPeerProductFavorite(models.Model):
+    """Modèle pour gérer les favoris/likes des articles entre particuliers"""
+    product = models.ForeignKey(
+        PeerToPeerProduct, on_delete=models.CASCADE, verbose_name=_("Article entre particuliers"), related_name='favorites')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name=_("User"), blank=True, null=True, related_name='peer_to_peer_product_favorites')
+    session_key = models.CharField(
+        max_length=40, blank=True, null=True, verbose_name=_("Session Key"), help_text=_("Pour les utilisateurs non authentifiés"))
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    class Meta:
+        unique_together = [['product', 'user'], ['product', 'session_key']]
+        verbose_name = _("Favori Article entre particuliers")
+        verbose_name_plural = _("Favoris Articles entre particuliers")
+
+    def __str__(self):
+        if self.user:
+            return f"{self.user.username} - {self.product.product_name}"
+        return f"Session {self.session_key} - {self.product.product_name}"

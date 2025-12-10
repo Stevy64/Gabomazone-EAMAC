@@ -29,6 +29,7 @@ urlpatterns = [
     path('products/', include('products.urls', namespace='products')),
     path('', include('accounts.urls', namespace='accounts')),
     path('orders/', include('orders.urls', namespace='orders')),
+    path('payments/', include('payments.urls', namespace='payments')),
     path('', include('categories.urls', namespace='categories')),
     path('', include('suppliers.urls', namespace='suppliers')),
     path('', include('supplier_panel.urls', namespace='supplier_dashboard')),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('', include('contact.urls', namespace='contact')),
     path('', include('pages.urls', namespace='pages')),
     path('currencies/', include('currencies.urls')),
+    path('c2c/', include('c2c.urls', namespace='c2c')),
 
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

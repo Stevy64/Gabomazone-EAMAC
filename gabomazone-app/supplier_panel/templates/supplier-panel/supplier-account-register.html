@@ -73,8 +73,8 @@
                                 <p style="font-size: 15px; color: #6B7280; margin: 0;">Espace vendeur - Rejoignez-nous dès aujourd'hui</p>
                             </div>
 
-                            {% if messages %}
-                            {% for message in messages %}
+                        {% if messages %}
+                    {% for message in messages %}
                             <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 12px 14px; border-radius: 12px; margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %};">
                                 {{message}}
                             </div>
@@ -94,26 +94,26 @@
                                             <i class="fi-rs-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
                                         </div>
                                         <small style="display: block; font-size: 11px; color: #9CA3AF; margin-top: 4px;">Les noms d'utilisateur ne peuvent pas contenir d'espaces, uniquement des lettres, chiffres et @/./+/-/_</small>
-                                    </div>
-
+                    </div>
+      
                                     <!-- Email Field -->
                                     <div style="position: relative;">
                                         <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Email</label>
                                         <div style="position: relative;">
                                             <input type="email" name="email" placeholder="Votre adresse email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
                                             <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
-                                        </div>
-                                    </div>
-
+                    </div> 
+                </div>
+                
                                     <!-- Phone Field -->
                                     <div style="position: relative;">
                                         <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Téléphone</label>
                                         <div style="position: relative;">
                                             <input type="tel" name="phone" placeholder="Votre numéro de téléphone" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
                                             <i class="fi-rs-phone" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
-                                        </div>
-                                    </div>
-
+                            </div>
+                            </div>
+                            
                                     <!-- Password Field -->
                                     <div style="position: relative;">
                                         <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Créer un mot de passe</label>
@@ -123,15 +123,15 @@
                                             <button type="button" onclick="togglePasswordRegister()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle-register"></i>
                                             </button>
-                                        </div>
-                                    </div>
+                                </div>
+                            </div>
 
                                     <!-- Terms and Conditions -->
                                     <div style="margin-top: var(--spacing-xs);">
                                         <p style="font-size: 12px; color: #6B7280; text-align: center; line-height: 1.5; margin: 0;">
                                             En vous inscrivant, vous confirmez avoir lu et accepté notre <a href="#" style="color: #FF7B2C; text-decoration: none; font-weight: 600;">Politique de confidentialité</a> et nos <a href="#" style="color: #FF7B2C; text-decoration: none; font-weight: 600;">Conditions d'utilisation</a>.
                                         </p>
-                                    </div>
+                            </div>
 
                                     <!-- Submit Button -->
                                     <button type="submit" style="width: 100%; padding: 14px; background: #FF7B2C; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: inherit; margin-top: var(--spacing-md);" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
@@ -144,7 +144,7 @@
                                     Vous avez déjà un compte ? <a href="{% url 'supplier_dashboard:supplier-login' %}" style="color: #FF7B2C; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Se connecter</a>
                                 </p>
                             </div>
-                        </div>
+                            </div>
                     </div>
                 </div>
             </section>

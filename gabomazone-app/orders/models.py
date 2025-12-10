@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from products.models import Product
 from django.core.validators import MinValueValidator, MaxValueValidator
-from accounts.models import Profile
+from accounts.models import Profile, PeerToPeerProduct
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
@@ -101,7 +101,9 @@ class Order(models.Model):
 class OrderDetails(models.Model):
     supplier = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='user_supplier', blank=True, null=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    peer_product = models.ForeignKey(
+        PeerToPeerProduct, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Article entre particuliers"))
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
@@ -110,15 +112,43 @@ class OrderDetails(models.Model):
         default=0,  max_digits=10, decimal_places=3,  verbose_name=_("WEIGHT"))
 
     def __str__(self):
-        return f"Order Details ID:{self.id}-user:{self.order.user}-product id:{self.product.id}-order id:{self.order.id}"
+        if self.peer_product:
+            return f"Order Details ID:{self.id}-user:{self.order.user}-peer_product id:{self.peer_product.id}-order id:{self.order.id}"
+        if self.product:
+            return f"Order Details ID:{self.id}-user:{self.order.user}-product id:{self.product.id}-order id:{self.order.id}"
+        return f"Order Details ID:{self.id}-user:{self.order.user}-order id:{self.order.id}"
 
     class Meta:
         ordering = ('-id',)
 
     def order_photo(self):
-        return mark_safe('<img src="{}" width="100" />'.format(self.product.PRDImage.url))
+        if self.peer_product:
+            return mark_safe('<img src="{}" width="100" />'.format(self.peer_product.product_image.url))
+        if self.product:
+            return mark_safe('<img src="{}" width="100" />'.format(self.product.PRDImage.url))
+        return mark_safe('<img src="/static/assets/imgs/shop/product-1-1.jpg" width="100" />')
     order_photo.short_description = "image"
     order_photo.allow_tags = True
+    
+    def get_product_name(self):
+        """Retourne le nom du produit (normal ou entre particuliers)"""
+        if self.peer_product:
+            return self.peer_product.product_name
+        if self.product:
+            return self.product.product_name
+        return "Produit supprimé"
+    
+    def get_product_slug(self):
+        """Retourne le slug du produit (normal ou entre particuliers)"""
+        if self.peer_product:
+            return self.peer_product.PRDSlug
+        if self.product:
+            return self.product.PRDSlug
+        return ""
+    
+    def is_peer_to_peer(self):
+        """Vérifie si c'est un article entre particuliers"""
+        return self.peer_product is not None
 
     # def save(self, *args, **kwargs):
 

@@ -77,28 +77,40 @@
                     <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); display: flex; gap: 16px; transition: all 0.3s ease; border: 1px solid #F3F4F6;">
                         <!-- Product Image -->
                         <div style="flex-shrink: 0;">
-                            <a href="{% url 'products:product-details' item.product.PRDSlug %}">
-                                <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
-                            </a>
-    </div>
+                            {% if item.peer_product %}
+                                <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}">
+                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
+                                </a>
+                            {% else %}
+                                <a href="{% url 'products:product-details' item.product.PRDSlug %}">
+                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
+                                </a>
+                            {% endif %}
+                        </div>
                         
                         <!-- Product Details -->
                         <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
                             <div>
                                 <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.4;">
-                                    <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease;">{{item.product}}</a>
+                                    {% if item.peer_product %}
+                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease;">{{item.peer_product.product_name}}</a>
+                                    {% else %}
+                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease;">{{item.product.product_name}}</a>
+                                    {% endif %}
                                 </h3>
-                                {% if item.product.feedbak_average > 0 %}
+                                {% if item.product and item.product.feedbak_average > 0 %}
                                 <div style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #6B7280; margin-bottom: 8px;">
                                     <span style="color: #FBBF24;">★★★★★</span>
                                     <span style="margin-left: 4px;">({{item.product.feedbak_number}} avis)</span>
-                </div>
+                                </div>
                                 {% endif %}
                                 <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px; flex-wrap: wrap;">
+                                    {% if item.weight > 0 %}
                                     <span style="display: flex; align-items: center; gap: 4px;"><i class="fi-rs-weight" style="font-size: 13px;"></i>{{item.weight}} KG</span>
+                                    {% endif %}
                                     <span style="display: flex; align-items: center; gap: 4px;"><i class="fi-rs-shopping-cart" style="font-size: 13px;"></i>Qté: {{item.quantity}}</span>
-            </div>
-        </div>
+                                </div>
+                            </div>
                             
                             <!-- Price & Actions -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6;">
@@ -109,13 +121,13 @@
                                     <div style="font-size: 12px; color: #9CA3AF; margin-top: 2px;">
                                         {{item.price|format_price}} FCFA × {{item.quantity}}
                                     </div>
-                </div>
+                                </div>
                                 <a href="{% url 'orders:remove-item' productdeatails_id=item.id %}" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #FEE2E2; color: #DC2626; border-radius: 8px; text-decoration: none; transition: all 0.2s ease; cursor: pointer;" title="Retirer du panier">
                                     <i class="fi-rs-trash" style="font-size: 16px;"></i>
                                 </a>
-                                            </div>
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
                                         </div>
 
@@ -125,13 +137,22 @@
                         <div style="flex: 1; min-width: 200px;">
                             <h4 style="font-size: 18px; font-weight: 700; color: white; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
                                 <i class="fi-rs-ticket" style="font-size: 20px;"></i> Code promo
+                                {% if has_peer_products %}
+                                <i class="fi-rs-lock" style="font-size: 14px; margin-left: 4px;" title="Code promo non disponible pour les articles d'occasion"></i>
+                                {% endif %}
                             </h4>
-                            <p style="font-size: 13px; color: rgba(255,255,255,0.9); margin: 0;">Entrez votre code pour bénéficier d'une réduction</p>
+                            <p style="font-size: 13px; color: rgba(255,255,255,0.9); margin: 0;">
+                                {% if has_peer_products %}
+                                Le code promo n'est disponible que pour les articles des vendeurs professionnels
+                                {% else %}
+                                Entrez votre code pour bénéficier d'une réduction
+                                {% endif %}
+                            </p>
                 </div>
-                        <form method="post" style="display: flex; gap: 8px; flex: 1; max-width: 350px; min-width: 200px;">
+                        <form method="post" style="display: flex; gap: 8px; flex: 1; max-width: 350px; min-width: 200px; {% if has_peer_products %}opacity: 0.6;{% endif %}">
                             {% csrf_token %}
-                            <input name="code" type="text" placeholder="Code promo..." required style="flex: 1; padding: 11px 14px; border: none; border-radius: 8px; font-size: 13px; outline: none; background: white; font-family: var(--font-secondary); min-width: 0;" />
-                            <button type="submit" style="padding: 11px 20px; background: #1F2937; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; font-family: var(--font-primary);">
+                            <input name="code" type="text" placeholder="Code promo..." {% if has_peer_products %}disabled{% else %}required{% endif %} style="flex: 1; padding: 11px 14px; border: none; border-radius: 8px; font-size: 13px; outline: none; background: {% if has_peer_products %}#E5E7EB{% else %}white{% endif %}; font-family: var(--font-secondary); min-width: 0; {% if has_peer_products %}cursor: not-allowed;{% endif %};" />
+                            <button type="submit" {% if has_peer_products %}disabled{% endif %} style="padding: 11px 20px; background: {% if has_peer_products %}#9CA3AF{% else %}#1F2937{% endif %}; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: {% if has_peer_products %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s ease; white-space: nowrap; font-family: var(--font-primary);">
                                 Appliquer
                             </button>
                         </form>
@@ -141,14 +162,14 @@
                 <!-- Delivery Form Card -->
                 <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #F3F4F6;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fi-rs-truck" style="font-size: 20px; color: var(--color-orange);"></i>
-                            </div>
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fi-rs-package" style="font-size: 20px; color: var(--color-orange); display: block; line-height: 1;"></i>
+                        </div>
                         <div>
                             <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0;">Détails de livraison</h4>
                             <p style="font-size: 13px; color: #6B7280; margin: 2px 0 0 0;">Remplissez vos informations pour la livraison</p>
-                            </div>
                         </div>
+                    </div>
                         
                     <form method="post" action="{% url 'orders:payment' %}">
                         {% csrf_token %}

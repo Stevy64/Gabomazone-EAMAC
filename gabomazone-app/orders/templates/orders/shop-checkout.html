@@ -4,10 +4,6 @@
 
 {% block headextra%}
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <!-- Polyfill.io supprimé car le domaine n'est plus accessible - fetch est supporté nativement par tous les navigateurs modernes -->
-    <!-- <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script> -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <style>
         /* Masquer le preloader immédiatement pour cette page */
@@ -184,11 +180,23 @@
                         {% for item in order_details %}
                         <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
                             <div style="flex-shrink: 0;">
-                                <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                {% if item.peer_product %}
+                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                {% elif item.product %}
+                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                {% else %}
+                                    <img src="{% static 'assets/imgs/shop/thumbnail-1.jpg'%}" alt="Produit" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                {% endif %}
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <h4 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                    <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.product.product_name|truncatechars:40}}</a>
+                                    {% if item.peer_product and item.peer_product.PRDSlug|length > 0 %}
+                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.peer_product.product_name|truncatechars:40}}</a>
+                                    {% elif item.product and item.product.PRDSlug|length > 0 %}
+                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.product.product_name|truncatechars:40}}</a>
+                                    {% else %}
+                                        <span style="color: #1F2937;">{% if item.peer_product %}{{item.peer_product.product_name|truncatechars:40}}{% elif item.product %}{{item.product.product_name|truncatechars:40}}{% else %}Produit{% endif %}</span>
+                                    {% endif %}
                                 </h4>
                                 <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px;">
                                     <span>Qté: <strong style="color: #1F2937;">{{item.quantity}}</strong></span>
@@ -249,51 +257,35 @@
                         {% csrf_token %}
                         <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
                             <!-- Cash on Delivery -->
-                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('exampleRadios4').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" checked style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-cash').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-cash" value="cash" checked style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
                                 <div style="flex: 1;">
                                     <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Paiement à la livraison</div>
-                                    <div style="font-size: 13px; color: #6B7280;">Payez en espèces à la réception</div>
+                                    <div style="font-size: 13px; color: #6B7280;">Payez en espèces à la réception de votre commande</div>
                                 </div>
                                 <i class="fi-rs-money" style="font-size: 24px; color: var(--color-orange);"></i>
                             </label>
 
-                            <!-- PayPal -->
-                            {% if paypal_client_id %}
-                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="paypal-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('paypal-input').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="paypal-input" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                            <!-- SingPay Mobile Money -->
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="singpay-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-singpay').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">PayPal</div>
-                                    <div style="font-size: 13px; color: #6B7280;">Paiement sécurisé via PayPal</div>
+                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Mobile Money via SingPay</div>
+                                    <div style="font-size: 13px; color: #6B7280;">AirtelMoney, MoovMoney, PayPal et autres</div>
                                 </div>
-                                <img src="{% static 'assets/imgs/theme/icons/payment-paypal.svg'%}" alt="PayPal" style="width: 60px; height: auto;" />
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <span style="padding: 6px 10px; background: #10B981; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">Airtel</span>
+                                    <span style="padding: 6px 10px; background: #3B82F6; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">Moov</span>
+                                    <span style="padding: 6px 10px; background: #8B5CF6; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">PayPal</span>
+                                </div>
                             </label>
-                        {% endif %}
-
-                            <!-- Stripe (Credit Card) -->
-                            {% if PUBLIC_KEY %}
-                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="stripe-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('exampleRadios5').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
-                                <div style="flex: 1;">
-                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Carte bancaire</div>
-                                    <div style="font-size: 13px; color: #6B7280;">Visa, Mastercard, etc.</div>
                         </div>
-                                <div style="display: flex; gap: 8px;">
-                                    <img src="{% static 'assets/imgs/theme/icons/payment-visa.svg'%}" alt="Visa" style="width: 40px; height: auto;" />
-                                    <img src="{% static 'assets/imgs/theme/icons/payment-master.svg'%}" alt="Mastercard" style="width: 40px; height: auto;" />
-                    </div>
-                            </label>
-                            {% endif %}
-                </div>
-
-                        <!-- PayPal Button Container -->
-                        <div id="paypal-button-container" class="not-visible" style="margin-bottom: 20px;"></div>
 
                         <!-- Place Order Button -->
-                        <a id="checkout-button" type="click" href="{% url 'orders:payment-cash' %}" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                        <button id="checkout-button" type="button" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             <span>Passer la commande</span>
                             <i class="fi-rs-arrow-right" style="font-size: 18px;"></i>
-                        </a>
+                        </button>
             </form>
                 </div>
             </div>
@@ -350,31 +342,27 @@ input[type="radio"]:checked ~ label {
 
 {%block script%}
 {{ block.super }}
-      <!-- Include the PayPal JavaScript SDK -->
-{% if paypal_client_id %}
-      <script src="https://www.paypal.com/sdk/js?client-id={{paypal_client_id}}&currency={{paypal_currency}}"></script>
-{% endif %}
-
       <script>
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            var stripeSelected = false;
-            var razorPayeSelected = false;
-           
-            // A reference to Stripe.js initialized with your real test publishable API key.
-    {% if PUBLIC_KEY %}
-            var stripe = Stripe("{{ PUBLIC_KEY }}");
-    {% endif %}
-
             var checkoutButton = document.getElementById("checkout-button");
-    const cash = document.getElementById('exampleRadios4');
-    const blance = document.getElementById('flexRadioDefault2');
-    const stripeBtn = document.getElementById('exampleRadios5');
-    const razorPayeBtn = document.getElementById('exampleRadios3');
-    const payMob = document.getElementById('paymob');
-    const myfatoorah = document.getElementById('myfatoorah');
-    const paypalInput = document.getElementById("paypal-input");
-    const paypalButtonContainer = document.getElementById("paypal-button-container");
-    const checkout = document.getElementById('checkout-button');
+            const cash = document.getElementById('payment-cash');
+            const singpay = document.getElementById('payment-singpay');
+            const checkout = document.getElementById('checkout-button');
+            
+            // Fonction pour mettre à jour les styles des labels
+            function updatePaymentLabelStyles() {
+                const labels = document.querySelectorAll('label[id$="-label"]');
+                labels.forEach(label => {
+                    const radio = label.querySelector('input[type="radio"]');
+                    if (radio && radio.checked) {
+                        label.style.background = 'linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%)';
+                        label.style.borderColor = 'var(--color-orange)';
+                    } else {
+                        label.style.background = '#FAFAFA';
+                        label.style.borderColor = '#E5E7EB';
+                    }
+                });
+            }
 
     // Razorpay options
     {% if RAZORPAY_KEY_ID %}
@@ -425,197 +413,104 @@ input[type="radio"]:checked ~ label {
             var rzp1 = new Razorpay(options);
     {% endif %}
 
-    // Cash payment
-    if (cash) {
-        cash.addEventListener('change', () => {
-            console.log("cash");
-            stripeSelected = false;
-            razorPayeSelected = false;
-            checkout.classList.remove("not-visible");
-            paypalButtonContainer.classList.add("not-visible");
-            checkout.setAttribute("href", "{% url 'orders:payment-cash' %}");
-            updatePaymentLabelStyles();
-        });
-    }
-
-    // Balance payment
-            if(blance){
-        blance.addEventListener('change', () => {
-            console.log("blance");
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-            checkout.setAttribute("href", "{% url 'orders:payment-blance' %}");
-            updatePaymentLabelStyles();
-        });
-            }
-
-    // PayMob payment
-            if(payMob){
-        payMob.addEventListener('change', () => {
-            console.log("payMob");
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-                    checkout.setAttribute("href", "{% url 'orders:checkout-paymob' order.id %}");
-            updatePaymentLabelStyles();
-        });
-            }
-
-    // MyFatoorah payment
-            if(myfatoorah){
-        myfatoorah.addEventListener('change', () => {
-            console.log("myfatoorah");
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.remove("not-visible");
-                    paypalButtonContainer.classList.add("not-visible");
-                    checkout.setAttribute("href", "{% url 'orders:checkout-fatoorah' order.id %}");
-            updatePaymentLabelStyles();
-        });
-            }
-
-    // Stripe payment
-            if (stripeBtn){
-        stripeBtn.addEventListener('change', () => {
-            console.log("stripeBtn");
-                stripeSelected = true;
-                razorPayeSelected = false;
-                checkout.classList.remove("not-visible");
-                paypalButtonContainer.classList.add("not-visible");
-                checkout.removeAttribute("href");
-            updatePaymentLabelStyles();
-        });
-
-        checkoutButton.addEventListener("click", function (e) {
-                    if(stripeSelected){  
-                e.preventDefault();
-                        fetch("{% url 'orders:create_checkout_session' %}", {
-                            method: "POST",
-                            headers: {
-                                'X-CSRFToken': csrftoken
-                            }
-                        })
-                        .then(function (response) {
-                        return response.json();
-                        })
-                        .then(function (session) {
-                        return stripe.redirectToCheckout({ sessionId: session.id });
-                        })
-                        .then(function (result) {
-                        if (result.error) {
-                            alert(result.error.message);
-                        }
-                        })
-                        .catch(function (error) {
-                        console.error("Error:", error);
-                        });
-                    }
-                }); 
-            }
-
-    // Razorpay payment
-            if (razorPayeBtn){
-        razorPayeBtn.addEventListener('change', () => {
-            console.log("razorPayeBtn");
-                stripeSelected = false;
-                razorPayeSelected = true;
-                checkout.classList.remove("not-visible");
-                paypalButtonContainer.classList.add("not-visible");
-                checkout.removeAttribute("href");
-            updatePaymentLabelStyles();
-        });
-        
-        checkoutButton.addEventListener("click", function (e) {
-                    if(razorPayeSelected){ 
-                e.preventDefault();
-                        rzp1.on('payment.failed', function (response){
-                    console.error('Payment failed:', response);
-                        });
-                        rzp1.open();
-                    }    
+            // Paiement à la livraison
+            if (cash) {
+                cash.addEventListener('change', () => {
+                    console.log("Paiement à la livraison sélectionné");
+                    checkoutButton.onclick = null;
+                    checkoutButton.type = 'button';
+                    checkoutButton.style.cursor = 'pointer';
+                    updatePaymentLabelStyles();
                 });
             }
 
-    // PayPal payment
-            if(paypalInput){
-        paypalInput.addEventListener('change', () => {
-            console.log("paypalInput");
-                    stripeSelected = false;
-                    razorPayeSelected = false;
-                    checkout.classList.add("not-visible");
-                    paypalButtonContainer.classList.remove("not-visible");
-            updatePaymentLabelStyles();
-        });
-    }
-
-    // Function to update payment label styles
-    function updatePaymentLabelStyles() {
-        const labels = document.querySelectorAll('label[id$="-label"]');
-        labels.forEach(label => {
-            const radio = label.querySelector('input[type="radio"]');
-            if (radio && radio.checked) {
-                label.style.background = 'linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%)';
-                label.style.borderColor = 'var(--color-orange)';
-            } else {
-                label.style.background = '#FAFAFA';
-                label.style.borderColor = '#E5E7EB';
+            // Paiement SingPay
+            if (singpay) {
+                singpay.addEventListener('change', () => {
+                    console.log("SingPay sélectionné");
+                    checkoutButton.onclick = null;
+                    checkoutButton.type = 'button';
+                    checkoutButton.style.cursor = 'pointer';
+                    updatePaymentLabelStyles();
+                });
             }
-        });
-    }
 
-    // Initialize label styles
-    document.addEventListener('DOMContentLoaded', function() {
-        updatePaymentLabelStyles();
-        
-        // Add change listeners to all radio buttons
-        const radios = document.querySelectorAll('input[name="payment_option"]');
-        radios.forEach(radio => {
-            radio.addEventListener('change', updatePaymentLabelStyles);
-        });
-    });
-
-    // PayPal Buttons
-    {% if paypal_client_id %}
-            paypal.Buttons({
-                createOrder: function(data, actions) {
-                    return actions.order.create({
-                        purchase_units: [{
-                            amount: {
-                                value: '{{order.amount}}'
-                            }
-                        }]
+            // Gestion du clic sur le bouton de commande
+            checkoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const selectedPayment = document.querySelector('input[name="payment_option"]:checked');
+                if (!selectedPayment) {
+                    swal({
+                        title: "Erreur",
+                        text: "Veuillez sélectionner une méthode de paiement",
+                        icon: "error",
+                        button: "OK",
                     });
-                },
-                onApprove: function(data, actions) {
-                    return actions.order.capture().then(function(orderData) {
-                        console.log('Capture result', orderData.id, JSON.stringify(orderData, null, 2));
-                        var transaction = orderData.purchase_units[0].payments.captures[0];
-                        if( transaction.status == "COMPLETED"){
-                            $.ajax({
-                                type: "POST",
-                                url: `{% url 'orders:verify-payment-paypal'%}`,
-                                data: {
-                            'csrfmiddlewaretoken': csrftoken,
-                                    "paypal_order_id":orderData.id,
-                                    "transaction_paypal_id": transaction.id,
-                                    "transaction_paypap_status": transaction.status,
-                                    "order_id": "{{order.id}}"
-                                },
-                                success: function (success_response) {
-                                    console.log(success_response.data)
-                                    location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-                                },
-                                error: function (error) {
-                                    console.log(error.statusText)
-                                }
-                            })
-                        }    
+                    return;
+                }
+
+                if (selectedPayment.value === 'cash') {
+                    // Paiement à la livraison - redirection directe
+                    window.location.href = "{% url 'orders:payment-cash' %}";
+                } else if (selectedPayment.value === 'singpay') {
+                    // Paiement SingPay - initialiser le paiement
+                    checkoutButton.disabled = true;
+                    checkoutButton.innerHTML = '<span>Initialisation...</span><i class="fi-rs-spinner" style="font-size: 18px; animation: spin 1s linear infinite;"></i>';
+                    
+                    fetch("{% url 'payments:init-singpay' %}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.payment_url) {
+                            // Rediriger vers la page de paiement SingPay
+                            window.location.href = data.payment_url;
+                        } else {
+                            checkoutButton.disabled = false;
+                            checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
+                            swal({
+                                title: "Erreur",
+                                text: data.error || "Erreur lors de l'initialisation du paiement",
+                                icon: "error",
+                                button: "OK",
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        checkoutButton.disabled = false;
+                        checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
+                        swal({
+                            title: "Erreur",
+                            text: "Une erreur est survenue. Veuillez réessayer.",
+                            icon: "error",
+                            button: "OK",
+                        });
                     });
                 }
-            }).render('#paypal-button-container');
-    {% endif %}
+            });
+
+            // Initialiser les styles au chargement
+            document.addEventListener('DOMContentLoaded', function() {
+                updatePaymentLabelStyles();
+                
+                // Ajouter les listeners sur tous les radio buttons
+                const radios = document.querySelectorAll('input[name="payment_option"]');
+                radios.forEach(radio => {
+                    radio.addEventListener('change', updatePaymentLabelStyles);
+                });
+            });
         </script>
+        
+        <style>
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        </style>
 {% endblock script %}

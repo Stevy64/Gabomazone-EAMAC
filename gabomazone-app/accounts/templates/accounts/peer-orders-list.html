@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{%block body%}
+<style>
+/* Styles responsive pour mobile */
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 90px !important;
+        padding-bottom: 40px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px;
+        order: 1;
+    }
+    
+    .col-md-9 {
+        order: 2;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: relative !important;
+        top: 0 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+    }
+    
+    .flavoriz-dashboard-menu ul {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu li a {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+    
+    .notifications-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Commandes reçues</span>
+        </nav>
+
+        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+            <!-- Sidebar Menu -->
+            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+                <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
+                            Mon compte
+                        </h3>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <li>
+                            <a href="{% url 'accounts:dashboard_customer'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mes commandes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:sell-product' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Vendre un article</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mes articles publiés</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500; position: relative;">
+                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Ma messagerie</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:peer-orders-list' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-orange); text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2); position: relative;">
+                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center; color: var(--color-orange);"></i>
+                                <span>Commandes reçues</span>
+                                {% if unread_count > 0 %}
+                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ unread_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mot de passe</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:account_details'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Paramètres</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9" style="flex: 1; min-width: 0;">
+                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <!-- Header -->
+                    <div style="margin-bottom: 32px;">
+                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <i class="fi-rs-shopping-bag" style="color: var(--color-orange); font-size: 32px;"></i>
+                            Commandes reçues
+                            {% if unread_count > 0 %}
+                            <span style="background: #EF4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 16px; font-weight: 700; margin-left: 12px;">
+                                {{ unread_count }} non lu{{ unread_count|pluralize }}
+                            </span>
+                            {% endif %}
+                        </h1>
+                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
+                            Gérez toutes les commandes reçues pour vos articles en occasion.
+                        </p>
+                    </div>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div style="margin-bottom: 24px;">
+                        {% for message in messages %}
+                        <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; {% if message.tags == 'success' %}background: #D1FAE5; color: #065F46; border: 1px solid #10B981;{% elif message.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444;{% else %}background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B;{% endif %}">
+                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %}" style="font-size: 20px;"></i>
+                            <span style="font-weight: 500;">{{message}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Liste des notifications -->
+                    {% if notifications %}
+                    <div class="notifications-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                        {% for notification in notifications %}
+                        <div style="background: {% if not notification.is_read %}#FFF9E6{% else %}white{% endif %}; border-radius: 12px; padding: 20px; border: 2px solid {% if not notification.is_read %}var(--color-orange){% else %}#E5E7EB{% endif %}; transition: all 0.3s;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">Commande #{{ notification.order.id }}</h4>
+                                    <p style="font-size: 12px; color: #6B7280; margin: 0;">{{ notification.created_at|date:"d/m/Y à H:i" }}</p>
+                                </div>
+                                {% if not notification.is_read %}
+                                <span style="width: 12px; height: 12px; background: var(--color-orange); border-radius: 50%; display: block;"></span>
+                                {% endif %}
+                            </div>
+                            <p style="font-size: 14px; color: #374151; margin: 0 0 12px 0;">
+                                <strong>{{ notification.buyer.get_full_name|default:notification.buyer.username }}</strong> souhaite acheter <strong>{{ notification.peer_product.product_name|truncatechars:30 }}</strong>
+                            </p>
+                            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                                {% if notification.status == 'PENDING' %}
+                                <a href="{% url 'accounts:accept-peer-order' notification.id %}" style="flex: 1; padding: 10px; background: #10B981; color: white; border-radius: 8px; text-align: center; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                    <i class="fi-rs-check"></i> Accepter
+                                </a>
+                                <a href="{% url 'accounts:reject-peer-order' notification.id %}" style="flex: 1; padding: 10px; background: #EF4444; color: white; border-radius: 8px; text-align: center; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
+                                    <i class="fi-rs-cross"></i> Refuser
+                                </a>
+                                {% elif notification.status == 'ACCEPTED' %}
+                                <span style="flex: 1; padding: 10px; background: #D1FAE5; color: #065F46; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600;">
+                                    <i class="fi-rs-check"></i> Acceptée
+                                </span>
+                                {% elif notification.status == 'REJECTED' %}
+                                <span style="flex: 1; padding: 10px; background: #FEE2E2; color: #991B1B; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600;">
+                                    <i class="fi-rs-cross"></i> Refusée
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fi-rs-inbox" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune commande</h3>
+                        <p style="font-size: 15px; color: #9CA3AF; margin: 0;">Vous n'avez pas encore reçu de commandes pour vos articles.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

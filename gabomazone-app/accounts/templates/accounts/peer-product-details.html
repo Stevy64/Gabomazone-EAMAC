@@ -275,11 +275,11 @@
                 <div class="flavoriz-product-detail-content">
                     <!-- Gallery -->
                     <div class="flavoriz-product-gallery">
-                        <div class="flavoriz-main-image" id="main-image-container">
+                        <div class="flavoriz-main-image" id="main-image-container" style="cursor: zoom-in;">
                             {%if peer_product.product_image%}
-                            <img src="{{peer_product.product_image.url}}" alt="{{peer_product.product_name}}" id="main-product-image" />
+                            <img src="{{peer_product.product_image.url}}" alt="{{peer_product.product_name}}" id="main-product-image" onclick="openPeerProductImagePreview()" />
                             {%else%}
-                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{peer_product.product_name}}" id="main-product-image" />
+                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{peer_product.product_name}}" id="main-product-image" onclick="openPeerProductImagePreview()" />
                             {%endif%}
                         </div>
                         
@@ -332,10 +332,6 @@
                                 <span><strong>Vendeur:</strong> {{peer_product.seller.username}}</span>
                             </div>
                             <div class="flavoriz-seller-detail">
-                                <i class="fi-rs-phone"></i>
-                                <span><strong>Téléphone:</strong> {{peer_product.seller_phone}}</span>
-                            </div>
-                            <div class="flavoriz-seller-detail">
                                 <i class="fi-rs-marker"></i>
                                 <span><strong>Ville:</strong> {{peer_product.seller_city}}</span>
                             </div>
@@ -343,9 +339,9 @@
                                 <i class="fi-rs-home"></i>
                                 <span><strong>Adresse:</strong> {{peer_product.seller_address}}</span>
                             </div>
-                            <button class="flavoriz-contact-seller-btn" onclick="alert('Fonctionnalité de contact à venir. Vous pouvez contacter le vendeur au {{peer_product.seller_phone}}')">
-                                <i class="fi-rs-phone-call"></i>
-                                <span>Contacter le vendeur</span>
+                            <button class="flavoriz-contact-seller-btn" id="peer-propose-offer-btn" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})">
+                                <i class="fi-rs-tag"></i>
+                                <span>Proposer une offre</span>
                             </button>
                         </div>
                         
@@ -397,10 +393,23 @@
 </main>
 
 <script>
+// Construire la liste des images pour le zoom
+const peerProductImages = [
+    {% if peer_product.product_image %}'{{peer_product.product_image.url}}'{% endif %}
+    {% if peer_product.additional_image_1 %}{% if peer_product.product_image %},{% endif %}'{{peer_product.additional_image_1.url}}'{% endif %}
+    {% if peer_product.additional_image_2 %},'{{peer_product.additional_image_2.url}}'{% endif %}
+    {% if peer_product.additional_image_3 %},'{{peer_product.additional_image_3.url}}'{% endif %}
+].filter(img => img); // Filtrer les valeurs vides
+
+let currentImageIndex = 0;
+
 function changeMainImage(imageUrl, thumbnailElement) {
     const mainImage = document.getElementById('main-product-image');
     if (mainImage) {
         mainImage.src = imageUrl;
+        // Mettre à jour l'index de l'image actuelle
+        currentImageIndex = peerProductImages.indexOf(imageUrl);
+        if (currentImageIndex === -1) currentImageIndex = 0;
     }
     
     // Mettre à jour les thumbnails actifs
@@ -410,6 +419,157 @@ function changeMainImage(imageUrl, thumbnailElement) {
         thumbnailElement.classList.add('active');
     }
 }
+
+// Fonction pour ouvrir le zoom d'image
+function openPeerProductImagePreview() {
+    if (typeof openImagePreview === 'function' && peerProductImages.length > 0) {
+        openImagePreview(peerProductImages, currentImageIndex, '{{peer_product.product_name|escapejs}}');
+    } else {
+        // Fallback si openImagePreview n'est pas disponible
+        const mainImage = document.getElementById('main-product-image');
+        if (mainImage) {
+            window.open(mainImage.src, '_blank');
+        }
+    }
+}
+
+// Fonction pour ajouter le produit peer-to-peer au panier
+function addPeerProductToCart() {
+    const productId = 'peer_{{peer_product.id}}';
+    // Le prix doit être un nombre, pas une chaîne
+    const productPrice = {{peer_product.PRDPrice|floatformat:0}};
+    const qty = 1;
+    
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('qyt', qty);
+    formData.append('product_Price', productPrice);
+    
+    // Récupérer le token CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrfToken = getCookie('csrftoken');
+    if (!csrfToken) {
+        alert('Erreur: Token de sécurité non trouvé. Veuillez recharger la page.');
+        return;
+    }
+    formData.append('csrfmiddlewaretoken', csrfToken);
+    
+    const addBtn = document.getElementById('peer-add-to-cart-btn');
+    if (addBtn) {
+        addBtn.disabled = true;
+        addBtn.style.opacity = '0.6';
+    }
+    
+    fetch('{% url "orders:add-to-cart" %}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        // Vérifier le type de contenu avant de parser
+        const contentType = response.headers.get('content-type');
+        
+        // Si ce n'est pas du JSON, c'est probablement une redirection HTML
+        if (!contentType || !contentType.includes('application/json')) {
+            // Si le statut est OK mais pas JSON, rediriger vers le panier
+            if (response.ok) {
+                window.location.href = '{% url "orders:cart" %}';
+                return null;
+            } else {
+                // Si erreur HTTP, essayer de lire le texte pour voir l'erreur
+                return response.text().then(text => {
+                    throw new Error('Réponse non-JSON: ' + text.substring(0, 200));
+                });
+            }
+        }
+        
+        // Vérifier si la réponse est OK
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Erreur HTTP: ' + response.status);
+            }).catch(() => {
+                throw new Error('Erreur HTTP: ' + response.status);
+            });
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        if (!data) return; // Déjà redirigé
+        
+        if (data.success) {
+            // Rediriger vers le panier
+            window.location.href = '{% url "orders:cart" %}';
+        } else {
+            if (data.requires_login) {
+                window.location.href = '{% url "accounts:login" %}';
+            } else {
+                alert(data.error || 'Erreur lors de l\'ajout au panier');
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.style.opacity = '1';
+                }
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Erreur détaillée:', error);
+        const errorMessage = error.message || 'Erreur lors de l\'ajout au panier. Veuillez réessayer.';
+        alert(errorMessage);
+        if (addBtn) {
+            addBtn.disabled = false;
+            addBtn.style.opacity = '1';
+        }
+    });
+}
+
+// Fonction pour proposer une offre au vendeur (remplace addPeerProductToCart)
+function proposeOfferToSeller(productId, productSlug, productPrice) {
+    {% if not user.is_authenticated %}
+    // Rediriger vers la page de connexion
+    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+    return;
+    {% endif %}
+    
+    {% if user.is_authenticated %}
+    // Vérifier si l'utilisateur n'est pas le vendeur
+    {% if user.id == peer_product.seller.id %}
+    alert('Vous ne pouvez pas proposer une offre pour votre propre article.');
+    return;
+    {% endif %}
+    {% endif %}
+    
+    // Rediriger vers la création d'intention d'achat C2C
+    const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
+    window.location.href = createIntentUrl;
+}
+
+// Initialiser l'index de l'image actuelle au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const mainImage = document.getElementById('main-product-image');
+    if (mainImage && peerProductImages.length > 0) {
+        currentImageIndex = peerProductImages.indexOf(mainImage.src);
+        if (currentImageIndex === -1) currentImageIndex = 0;
+    }
+});
 </script>
 
 {%endblock body%}

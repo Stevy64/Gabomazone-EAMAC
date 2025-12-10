@@ -1,0 +1,669 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{%block body%}
+<style>
+/* Styles responsive pour mobile */
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 90px !important;
+        padding-bottom: 40px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    /* Sidebar - mettre en haut sur mobile */
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px;
+        order: 1;
+    }
+    
+    .col-md-9 {
+        order: 2;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: relative !important;
+        top: 0 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+    }
+    
+    .flavoriz-dashboard-menu ul {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu li a {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+    
+    /* Main content - pleine largeur sur mobile */
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .main-content-wrapper {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+    }
+    
+    /* Breadcrumb responsive */
+    nav {
+        font-size: 12px !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
+    
+    nav a span {
+        display: none !important;
+    }
+    
+    nav span:not(:last-child) {
+        display: none !important;
+    }
+    
+    /* Header */
+    .main-content-header h1 {
+        font-size: 22px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    
+    .main-content-header h1 i {
+        font-size: 24px !important;
+    }
+    
+    .main-content-header p {
+        font-size: 13px !important;
+    }
+    
+    /* Grid responsive */
+    .user-products-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+}
+</style>
+
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Mes articles publiés</span>
+        </nav>
+
+        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+            <!-- Sidebar Menu -->
+            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+                <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
+                            Mon compte
+                        </h3>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+                        <li>
+                            <a href="{% url 'accounts:dashboard_customer'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mes commandes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:sell-product' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Vendre un article</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-orange); text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);">
+                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center; color: var(--color-orange);"></i>
+                                <span>Mes articles publiés</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500; position: relative;">
+                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Ma messagerie</span>
+                                {% if messages_count and messages_count > 0 %}
+                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Mot de passe</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:account_details'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center;"></i>
+                                <span>Paramètres</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9" style="flex: 1; min-width: 0;">
+                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <!-- Header -->
+                    <div class="main-content-header" style="margin-bottom: 32px;">
+                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <i class="fi-rs-list" style="color: var(--color-orange); font-size: 32px;"></i>
+                            Mes articles publiés
+                        </h1>
+                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
+                            Gérez tous vos articles publiés en occasion. Vous pouvez modifier, supprimer ou voir les détails de chaque article.
+                        </p>
+                    </div>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div style="margin-bottom: 24px;">
+                        {% for message in messages %}
+                        <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; {% if message.tags == 'success' %}background: #D1FAE5; color: #065F46; border: 1px solid #10B981;{% elif message.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444;{% else %}background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B;{% endif %}">
+                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %}" style="font-size: 20px;"></i>
+                            <span style="font-weight: 500;">{{message}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Liste des articles -->
+                    {% if user_products %}
+                    <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                        {% for product in user_products %}
+                        <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                            <div style="margin-bottom: 12px; position: relative;">
+                                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                                {% if product.status == 'APPROVED' %}
+                                <button type="button" onclick="openChatbot({{ product.id }})" class="chatbot-trigger-btn" data-product-id="{{ product.id }}" style="position: absolute; top: 8px; right: 8px; background: {% if product.unread_messages_count > 0 %}rgba(255, 123, 44, 0.95){% else %}rgba(255, 255, 255, 0.95){% endif %}; padding: 8px; border: none; border-radius: 50%; color: {% if product.unread_messages_count > 0 %}white{% else %}#9CA3AF{% endif %}; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.3s; position: relative;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
+                                    <i class="fi-rs-comment" style="font-size: 18px;"></i>
+                                    {% if product.unread_messages_count > 0 %}
+                                    <span class="message-badge" style="position: absolute; top: -4px; right: -4px; background: #EF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border: 2px solid white;">{{ product.unread_messages_count }}</span>
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            </div>
+                            <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4;">{{ product.product_name|truncatechars:50 }}</h4>
+                            <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                                {% if product.status == 'PENDING' %}
+                                <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fi-rs-clock" style="font-size: 12px;"></i> En attente
+                                </span>
+                                {% elif product.status == 'APPROVED' %}
+                                <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fi-rs-check" style="font-size: 12px;"></i> Approuvé
+                                </span>
+                                {% elif product.status == 'REJECTED' %}
+                                <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fi-rs-cross" style="font-size: 12px;"></i> Rejeté
+                                </span>
+                                {% elif product.status == 'SOLD' %}
+                                <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fi-rs-shopping-bag" style="font-size: 12px;"></i> Vendu
+                                </span>
+                                {% endif %}
+                                {% if product.view_count > 0 %}
+                                <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fi-rs-eye" style="font-size: 12px;"></i> {{ product.view_count }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p style="font-size: 12px; color: #6B7280; margin: 0 0 16px 0;">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
+                            
+                            <!-- Actions CRUD -->
+                            <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                                <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
+                                </a>
+                                <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
+                                    <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fi-rs-inbox" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucun article publié</h3>
+                        <p style="font-size: 15px; color: #9CA3AF; margin: 0 0 24px 0;">Vous n'avez pas encore publié d'article en occasion.</p>
+                        <a href="{% url 'accounts:sell-product' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            <i class="fi-rs-shopping-cart-add"></i>
+                            Publier mon premier article
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Chatbot Popup -->
+<div id="chatbotPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); height: 600px; max-height: calc(100vh - 40px); background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; flex-direction: column; overflow: hidden;">
+    <!-- Chatbot Header -->
+    <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; border-radius: 20px 20px 0 0;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fi-rs-comment" style="font-size: 24px;"></i>
+            <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Messages</h3>
+                <p id="chatbotProductName" style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;"></p>
+            </div>
+        </div>
+        <button onclick="closeChatbot()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+            <i class="fi-rs-cross" style="font-size: 16px;"></i>
+        </button>
+    </div>
+    
+    <!-- Conversations List -->
+    <div id="conversationsList" style="flex: 1; overflow-y: auto; padding: 16px; background: #F9FAFB; display: flex; flex-direction: column;">
+        <div id="conversationsLoading" style="text-align: center; padding: 40px; color: #6B7280;">
+            <i class="fi-rs-spinner" style="font-size: 32px; animation: spin 1s linear infinite;"></i>
+            <p style="margin: 12px 0 0 0; font-size: 14px;">Chargement des conversations...</p>
+        </div>
+        <div id="conversationsContent" style="display: none;">
+            <!-- Les conversations seront injectées ici -->
+        </div>
+        <div id="noConversations" style="display: none; text-align: center; padding: 60px 20px; color: #9CA3AF;">
+            <i class="fi-rs-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+            <p style="margin: 0; font-size: 14px;">Aucune conversation pour cet article</p>
+        </div>
+    </div>
+    
+    <!-- Active Conversation View -->
+    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white;">
+        <!-- Conversation Header -->
+        <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB;">
+            <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fi-rs-arrow-left" style="font-size: 18px;"></i>
+            </button>
+            <div style="flex: 1;">
+                <h4 id="activeConversationBuyer" style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937;"></h4>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">Acheteur</p>
+            </div>
+        </div>
+        
+        <!-- Messages Container -->
+        <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 16px; background: #F9FAFB;">
+            <!-- Les messages seront injectés ici -->
+        </div>
+        
+        <!-- Message Input -->
+        <div style="padding: 16px; border-top: 1px solid #E5E7EB; background: white;">
+            <form id="messageForm" onsubmit="sendMessage(event)" style="display: flex; gap: 8px;">
+                <input type="text" id="messageInput" placeholder="Tapez votre message..." style="flex: 1; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                <button type="submit" style="padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fi-rs-paper-plane" style="font-size: 16px;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.chatbot-trigger-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+.conversation-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid #E5E7EB;
+}
+
+.conversation-item:hover {
+    border-color: var(--color-orange);
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.15);
+    transform: translateY(-2px);
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    word-wrap: break-word;
+}
+
+.message-sent {
+    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.message-received {
+    background: white;
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    #chatbotPopup {
+        width: calc(100vw - 20px);
+        height: calc(100vh - 20px);
+        bottom: 10px;
+        right: 10px;
+        border-radius: 16px;
+    }
+}
+</style>
+
+<script>
+let currentProductId = null;
+let currentConversationId = null;
+let conversationsData = [];
+
+function openChatbot(productId) {
+    currentProductId = productId;
+    const popup = document.getElementById('chatbotPopup');
+    popup.style.display = 'flex';
+    
+    // Charger les conversations
+    loadConversations(productId);
+    
+    // Afficher la liste des conversations
+    showConversationsList();
+}
+
+function closeChatbot() {
+    const popup = document.getElementById('chatbotPopup');
+    popup.style.display = 'none';
+    currentProductId = null;
+    currentConversationId = null;
+    conversationsData = [];
+}
+
+function showConversationsList() {
+    document.getElementById('conversationsList').style.display = 'flex';
+    document.getElementById('activeConversation').style.display = 'none';
+    currentConversationId = null;
+}
+
+function showActiveConversation(conversationId) {
+    document.getElementById('conversationsList').style.display = 'none';
+    document.getElementById('activeConversation').style.display = 'flex';
+    
+    const conversation = conversationsData.find(c => c.id === conversationId);
+    if (!conversation) return;
+    
+    currentConversationId = conversationId;
+    document.getElementById('activeConversationBuyer').textContent = conversation.buyer_name;
+    
+    // Afficher les messages
+    displayMessages(conversation.messages);
+    
+    // Marquer comme lu
+    markConversationAsRead(conversationId);
+}
+
+function loadConversations(productId) {
+    const loadingDiv = document.getElementById('conversationsLoading');
+    const contentDiv = document.getElementById('conversationsContent');
+    const noConversationsDiv = document.getElementById('noConversations');
+    
+    loadingDiv.style.display = 'block';
+    contentDiv.style.display = 'none';
+    noConversationsDiv.style.display = 'none';
+    
+    fetch(`/accounts/product-conversations/${productId}/`)
+        .then(response => response.json())
+        .then(data => {
+            loadingDiv.style.display = 'none';
+            conversationsData = data.conversations || [];
+            
+            if (conversationsData.length === 0) {
+                noConversationsDiv.style.display = 'block';
+            } else {
+                contentDiv.style.display = 'block';
+                displayConversationsList(conversationsData);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading conversations:', error);
+            loadingDiv.style.display = 'none';
+            noConversationsDiv.style.display = 'block';
+        });
+}
+
+function displayConversationsList(conversations) {
+    const container = document.getElementById('conversationsContent');
+    container.innerHTML = '';
+    
+    conversations.forEach(conv => {
+        const item = document.createElement('div');
+        item.className = 'conversation-item';
+        item.onclick = () => showActiveConversation(conv.id);
+        
+        const unreadBadge = conv.unread_count > 0 
+            ? `<span style="background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700; margin-left: auto;">${conv.unread_count}</span>`
+            : '';
+        
+        const lastMessage = conv.messages.length > 0 
+            ? conv.messages[conv.messages.length - 1].message.substring(0, 50) + (conv.messages[conv.messages.length - 1].message.length > 50 ? '...' : '')
+            : 'Aucun message';
+        
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
+                    ${conv.buyer_name.charAt(0).toUpperCase()}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1F2937;">${conv.buyer_name}</h4>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${escapeHtml(lastMessage)}
+                    </p>
+                </div>
+                ${unreadBadge}
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
+}
+
+function displayMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    container.innerHTML = '';
+    
+    messages.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-bubble ${msg.is_sender ? 'message-sent' : 'message-received'}`;
+        messageDiv.style.display = 'flex';
+        messageDiv.style.flexDirection = 'column';
+        
+        messageDiv.innerHTML = `
+            <div style="font-size: 14px; line-height: 1.5;">${escapeHtml(msg.message)}</div>
+            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px; text-align: ${msg.is_sender ? 'right' : 'left'};">
+                ${msg.created_at}
+            </div>
+        `;
+        
+        container.appendChild(messageDiv);
+    });
+    
+    // Scroll vers le bas
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage(event) {
+    event.preventDefault();
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message || !currentProductId || !currentConversationId) return;
+    
+    const conversation = conversationsData.find(c => c.id === currentConversationId);
+    if (!conversation) return;
+    
+    // Envoyer le message
+    fetch(`/accounts/send-product-message/${currentProductId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            buyer_id: conversation.buyer_id,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            // Recharger les conversations
+            loadConversations(currentProductId);
+            // Réafficher la conversation active
+            setTimeout(() => showActiveConversation(currentConversationId), 300);
+        }
+    })
+    .catch(error => {
+        console.error('Error sending message:', error);
+        alert('Erreur lors de l\'envoi du message');
+    });
+}
+
+function markConversationAsRead(conversationId) {
+    fetch(`/accounts/mark-conversation-read/${conversationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour le badge
+            updateMessageBadges();
+        }
+    });
+}
+
+function updateMessageBadges() {
+    // Recharger la page pour mettre à jour les badges
+    if (currentProductId) {
+        location.reload();
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<script>
+// URL de base pour la suppression (générée par Django)
+const DELETE_PRODUCT_URL_BASE = '{% url "accounts:delete-peer-product" 0 %}'.replace('0', '');
+
+function confirmDelete(productId, productName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = DELETE_PRODUCT_URL_BASE + productId + '/';
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        } else {
+            const cookies = document.cookie.split(';');
+            let csrfValue = null;
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    csrfValue = value;
+                    break;
+                }
+            }
+            if (csrfValue) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfValue;
+                form.appendChild(csrfInput);
+            }
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+<!-- Modal de confirmation de suppression -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">Confirmer la suppression</h3>
+        <p style="font-size: 15px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.6;">Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.</p>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button onclick="document.getElementById('deleteModal').style.display='none'" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" style="padding: 12px 24px; background: #DC2626; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

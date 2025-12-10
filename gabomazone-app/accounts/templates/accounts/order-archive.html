@@ -1,192 +1,438 @@
 {% extends 'base.html' %}
 {% load static %}
-
-
+{% load cart_template_tags %}
 
 {%block body%}
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+        <!-- Breadcrumb -->
+        <nav style="margin-bottom: 32px; font-size: 14px; color: #6B7280; display: flex; align-items: center; gap: 8px;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                <i class="fi-rs-home"></i> <span>Accueil</span>
+            </a>
+            <span style="color: #9CA3AF;">/</span>
+            <a href="{% url 'accounts:dashboard_customer' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; transition: all 0.2s ease;">Mes commandes</a>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #6B7280; font-weight: 500;">Commande #{{order.id}}</span>
+        </nav>
 
-<main class="main">
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="{% url 'home:index' %" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Shop
-                <span></span> Cart
-            </div>
-        </div>
-    </div>
-    <div class="container mb-80 mt-50">
-        <div class="row">
-            <div class="col-lg-8 mb-40">
-                <h1 class="heading-2 mb-10">Order.id #{{order.id}}</h1>
-                <div class="d-flex justify-content-between">
-                    <h6 class="text-body">There are <span class="text-brand">{{order_details.count}}</span> Items in your Order</h6>
-                  
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-8">
-                {% if messages %}
-                {% for message in messages %}
-  
-                <div    class="mt-30 alert align-middle alert-{{message.tags}}">
-                   
-                    <span class="align-middle"> {{message}}</span>
-                </div>
-  
-                {% endfor %}
-                {% endif %}
-                <div class="table-responsive shopping-summery">
-                    <table class="table table-wishlist">
-                        <thead>
-                            <tr class="main-heading">
-                                {% comment %} <th class="custome-checkbox start pl-30">
-                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                    <label class="form-check-label" for="exampleCheckbox11"></label>
-                                </th> {% endcomment %}
-                                <th scope="col" class="pl-30" colspan="2">Product Details</th>
-                                <th scope="col">WEIGHT</th>
-                                <th scope="col">Unit Price</th>
-                                <th scope="col">Quantity</th>
-                                <th scope="col">Subtotal</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in order_details%}
-                            <tr class="pt-30">
-                                {% if item.product.product_image %}
-                                <td class="pl-30 image product-thumbnail"><img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}"></td>
-                                {%else%}
-                                <td class="pl-30 image product-thumbnail"><img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="{{item.product.product_name}}"></td>
-                                {%endif%}
-                                <td class="product-des product-name">
-                                    <h6 class="mb-5"><a class="product-name mb-10 text-heading" href="{% url 'products:product-details' item.product.PRDSlug %}">{{item.product}}</a></h6>
-                                    {%if item.product.feedbak_average > 0%}
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width:{{item.product.feedbak_average}}%">
-                                            </div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> ({{item.product.feedbak_number}})</span>
-                                    </div>
-                                    {%endif%}
-                                </td>
-                                <td class="price" data-title="Weight">
-                                    <h4 class="text-brand">{{item.weight }}KG</h4>
-                                </td>
-                                <td class="price" data-title="Price">
-                                    <h4 class="text-body">${{item.price }} </h4>
-                                </td>
-                                <td class="text-center detail-info" data-title="Stock">
-                                    
-                                    <h4 class="text-body">{{item.quantity }}</h4>
-                                </td>
-                                <td class="price" data-title="Price">
-                                    <h4 class="text-brand">${% widthratio item.price 1 item.quantity %} </h4>
-                                </td>
-                                
-                            </tr>
-                         {%endfor%}   
-                          
-                        </tbody>
-                    </table>
-                </div>
-                <div class="divider-2 mb-30"></div>
-                <div class="cart-action d-flex justify-content-between">
-                    {% comment %} <a class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a> {% endcomment %}
-                    {% comment %} <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-refresh mr-10"></i>Update Cart</a> {% endcomment %}
-                    
-                </div>
-                
-   
-                
-            </div>
-            <div class="col-lg-4">
-                <div class="border p-md-4 cart-totals ml-30">
-                    <div class="table-responsive">
-                        <table class="table no-border">
-                            <tbody>
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Subtotal</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">${{order.sub_total}}</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Items</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">{{order_details.count}}</h4>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td scope="col" colspan="2">
-                                        <div class="divider-2 mt-10 mb-10"></div>
-                                    </td>
-                                </tr>
-
-                                {% if order.coupon%}
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Coupon ({{order.coupon}})</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end"> <span> %{{order.coupon.discount}} </h4</td> </tr> <tr>
-                                    <td scope="col" colspan="2">
-                                        <div class="divider-2 mt-10 mb-10"></div>
-                                    </td>
-                                </tr>
-                                {%endif%}
-                                <tr>
-                                    <td class="cart_total_label">
-                                        <h6 class="text-muted">Total</h6>
-                                    </td>
-                                    <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">${{order.amount|floatformat:"2"}}</h4>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+        <!-- Header de la commande -->
+        <div style="background: linear-gradient(135deg, #1F2937 0%, #111827 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); color: white;">
+            <!-- Header compact avec titre, date et statut -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                <div style="flex: 1; min-width: 200px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                        <i class="fi-rs-shopping-bag" style="font-size: 24px; color: var(--color-orange);"></i>
+                        <h1 style="font-size: 24px; font-weight: 700; color: white; margin: 0;">Commande #{{order.id}}</h1>
                     </div>
-                    <a class="btn mb-20 w-100">{{order.status}}</a>
+                    <p style="font-size: 13px; color: rgba(255, 255, 255, 0.75); margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <i class="fi-rs-calendar" style="font-size: 12px;"></i>
+                        {{order.order_date|date:"d F Y à H:i"}}
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    {% if order.status == 'PENDING' %}
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(254, 243, 199, 0.2); border: 1px solid rgba(254, 243, 199, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
+                        <i class="fi-rs-clock" style="color: #FCD34D; font-size: 14px;"></i>
+                        <span>{{status_display}}</span>
+                    </span>
+                    {% elif order.status == 'Underway' %}
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(219, 234, 254, 0.2); border: 1px solid rgba(219, 234, 254, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
+                        <i class="fi-rs-truck" style="color: #60A5FA; font-size: 14px;"></i>
+                        <span>{{status_display}}</span>
+                    </span>
+                    {% elif order.status == 'COMPLETE' %}
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(209, 250, 229, 0.2); border: 1px solid rgba(209, 250, 229, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
+                        <i class="fi-rs-check" style="color: #34D399; font-size: 14px;"></i>
+                        <span>{{status_display}}</span>
+                    </span>
+                    {% else %}
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(254, 226, 226, 0.2); border: 1px solid rgba(254, 226, 226, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
+                        <i class="fi-rs-cross-circle" style="color: #F87171; font-size: 14px;"></i>
+                        <span>{{status_display}}</span>
+                    </span>
+                    {% endif %}
+                    {% if transaction %}
+                    <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; color: white; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px); white-space: nowrap;">
+                        <i class="fi-rs-credit-card" style="font-size: 14px;"></i>
+                        <span>Paiement</span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Informations rapides - Layout compact -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        <i class="fi-rs-shopping-cart"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Articles</div>
+                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap;">{{order_details.count}}</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        <i class="fi-rs-money"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Total</div>
+                        <div style="font-size: 15px; font-weight: 700; color: var(--color-orange); white-space: nowrap;">{{order.amount|floatformat:0}} FCFA</div>
+                    </div>
+                </div>
+                {% if payment_info %}
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        <i class="fi-rs-credit-card"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Paiement</div>
+                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{payment_info.payment_method|default:"Non spécifié"}}</div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if order.tracking_no %}
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        <i class="fi-rs-truck"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Suivi</div>
+                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{order.tracking_no}}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 400px; gap: 32px; align-items: start;">
+            <!-- Liste des articles -->
+            <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fi-rs-shopping-bag" style="color: var(--color-orange);"></i>
+                    Articles commandés ({{order_details.count}})
+                </h2>
+                
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    {% for item in order_details %}
+                    <div style="display: flex; gap: 20px; padding: 20px; background: #F9FAFB; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.15)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                        <!-- Image du produit -->
+                        <div style="flex-shrink: 0;">
+                            {% if item.peer_product %}
+                                <img src="{{item.peer_product.product_image.url}}" alt="{{item.peer_product.product_name}}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                            {% elif item.product %}
+                                {% if item.product.product_image %}
+                                <img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                {% else %}
+                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                {% endif %}
+                            {% else %}
+                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Détails du produit -->
+                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">
+                                    {% if item.peer_product %}
+                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
+                                            {{item.peer_product.product_name}}
+                                        </a>
+                                    {% elif item.product %}
+                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
+                                            {{item.product.product_name}}
+                                        </a>
+                                    {% else %}
+                                        Produit supprimé
+                                    {% endif %}
+                                </h3>
+                                
+                                <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 14px; color: #6B7280;">
+                                    {% if item.size %}
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fi-rs-ruler" style="font-size: 14px;"></i>
+                                        <span>Taille: <strong>{{item.size}}</strong></span>
+                                    </div>
+                                    {% endif %}
+                                    {% if item.weight %}
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fi-rs-weight" style="font-size: 14px;"></i>
+                                        <span>Poids: <strong>{{item.weight}} kg</strong></span>
+                                    </div>
+                                    {% endif %}
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <i class="fi-rs-shopping-cart-add" style="font-size: 14px;"></i>
+                                        <span>Quantité: <strong>{{item.quantity}}</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                                <div>
+                                    <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Prix unitaire</div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #6B7280;">{{item.price|floatformat:0}} FCFA</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Sous-total</div>
+                                    <div style="font-size: 20px; font-weight: 700; color: var(--color-orange);">{% widthratio item.price 1 item.quantity %} FCFA</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px; color: #6B7280;">Aucun article dans cette commande</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Sidebar avec résumé et informations -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Résumé de la commande -->
+                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fi-rs-receipt" style="color: var(--color-orange);"></i>
+                        Résumé de la commande
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                            <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
+                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.sub_total|default:total|floatformat:0}} FCFA</span>
+                        </div>
+                        
+                        {% if order.shipping %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                            <span style="font-size: 14px; color: #6B7280;">Livraison</span>
+                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.shipping}} FCFA</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.coupon %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                            <span style="font-size: 14px; color: #6B7280;">Réduction ({{order.coupon.code}})</span>
+                            <span style="font-size: 16px; font-weight: 600; color: #10B981;">-{{order.discount|default:"0"}} FCFA</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px solid #E5E7EB; margin-top: 8px;">
+                            <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
+                            <span style="font-size: 24px; font-weight: 700; color: var(--color-orange);">{{order.amount|floatformat:0}} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteneur pour Adresse de livraison et Informations de paiement (côte à côte en desktop) -->
+                <div class="info-cards-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Informations de livraison -->
+                    {% if payment_info %}
+                    <div style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 18px;"></i>
+                            Adresse de livraison
+                        </h3>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #374151; line-height: 1.5;">
+                            <div style="display: flex; align-items: start; gap: 8px;">
+                                <i class="fi-rs-user" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
+                                <span><strong>{{payment_info.first_name}} {{payment_info.last_name}}</strong></span>
+                            </div>
+                            <div style="display: flex; align-items: start; gap: 8px;">
+                                <i class="fi-rs-map-pin" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
+                                <span>{{payment_info.street_address}}<br>
+                                {% if payment_info.City %}{{payment_info.City}}{% endif %}
+                                {% if payment_info.state %}, {{payment_info.state}}{% endif %}
+                                {% if payment_info.post_code %}{{payment_info.post_code}}{% endif %}
+                                {% if payment_info.country %}, {{payment_info.country}}{% endif %}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-phone" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
+                                <span>{{payment_info.phone}}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-envelope" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
+                                <span>{{payment_info.Email_Address}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Informations de paiement -->
+                    {% if transaction %}
+                    <div style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-credit-card" style="color: var(--color-orange); font-size: 18px;"></i>
+                            Informations de paiement
+                        </h3>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
+                                <span style="font-size: 13px; color: #6B7280;">Méthode</span>
+                                <span style="font-size: 13px; font-weight: 600; color: #1F2937; text-align: right;">{{transaction.payment_method|default:"Non spécifié"}}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
+                                <span style="font-size: 13px; color: #6B7280;">Transaction ID</span>
+                                <span style="font-size: 11px; font-weight: 600; color: #1F2937; font-family: monospace; text-align: right; word-break: break-all;">{{transaction.transaction_id}}</span>
+                            </div>
+                            {% if transaction.paid_at %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
+                                <span style="font-size: 13px; color: #6B7280;">Date de paiement</span>
+                                <span style="font-size: 13px; font-weight: 600; color: #1F2937; text-align: right;">{{transaction.paid_at|date:"d/m/Y à H:i"}}</span>
+                            </div>
+                            {% endif %}
+                            <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin-top: 4px;">
+                                <i class="fi-rs-eye" style="margin-right: 6px;"></i>
+                                Voir les étapes
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <a href="{% url 'accounts:dashboard_customer' %}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #F3F4F6; color: #374151; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease;">
+                            <i class="fi-rs-arrow-left"></i>
+                            Retour aux commandes
+                        </a>
+                        <button onclick="window.print()" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: var(--color-orange); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
+                            <i class="fi-rs-print"></i>
+                            Imprimer le reçu
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
+<!-- Modal pour afficher les détails de transaction -->
+<div id="transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); position: relative;">
+        <button onclick="document.getElementById('transaction-modal').style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; border: none; color: #6B7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
+            <i class="fi-rs-cross" style="font-size: 18px;"></i>
+        </button>
+        <div id="transaction-steps" style="padding: 40px 24px 24px 24px;">
+            <!-- Le contenu sera chargé dynamiquement -->
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    div[style*="grid-template-columns: 1fr 400px"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    div[style*="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .info-cards-container {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 40px !important;
+    }
+    
+    .container {
+        padding: 0 12px !important;
+    }
+    
+    div[style*="grid-template-columns: 1fr 400px"] {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+    
+    div[style*="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+    
+    .info-cards-container {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    div[style*="padding: 24px"] {
+        padding: 20px 16px !important;
+    }
+    
+    h1[style*="font-size: 24px"] {
+        font-size: 20px !important;
+    }
+    
+    div[style*="display: flex; gap: 20px"] {
+        flex-direction: column !important;
+    }
+    
+    img[style*="width: 120px"] {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    
+    div[style*="margin-bottom: 20px"] {
+        margin-bottom: 16px !important;
+    }
+    
+    div[style*="padding-top: 20px"] {
+        padding-top: 16px !important;
+    }
+    
+    #transaction-modal > div {
+        max-width: 95% !important;
+        margin: 10px !important;
+        max-height: 85vh !important;
+    }
+}
+
+@media print {
+    .main.pages {
+        background: white !important;
+        padding: 20px !important;
+    }
+    
+    button[onclick*="print"],
+    button[onclick*="showTransaction"],
+    a[href*="dashboard_customer"] {
+        display: none !important;
+    }
+}
+</style>
+
 {%endblock body%}
 
 {%block script%}
-    <!-- Vendor JS-->
-    <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
-    <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery-ui.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
-    <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
-    <!-- Template  JS -->
-    <script src="{% static 'assets/js/main.js'%}"></script>
-    <script src="{% static 'assets/js/shop.js'%}"></script>
-
-
+{{ block.super }}
+<script src="{% static 'assets/js/orders.js'%}"></script>
 {%endblock script%}

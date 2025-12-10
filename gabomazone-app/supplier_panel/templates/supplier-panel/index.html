@@ -8,7 +8,7 @@
     {% if messages %}
         {% for message in messages %}
         <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 14px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; display: flex; align-items: center; gap: 10px;">
-            <i class="fi-rs-{% if message.tags == 'error' %}info{% elif message.tags == 'warning' %}alert{% else %}check{% endif %}" style="font-size: 18px;"></i>
+            <i class="fi-rs-{% if message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}exclamation{% else %}check-circle{% endif %}" style="font-size: 18px;"></i>
             <span>{{message}}</span>
         </div>
         {% endfor %}

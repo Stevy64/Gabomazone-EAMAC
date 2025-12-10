@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{% block body %}
+<style>
+    .c2c-purchase-intent-container {
+        max-width: 800px;
+        margin: 100px auto 60px;
+        padding: 0 20px;
+    }
+    
+    .c2c-purchase-intent-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+    
+    .c2c-product-preview {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: #F9FAFB;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .c2c-product-preview img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+    
+    .c2c-product-info h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+    }
+    
+    .c2c-product-info .price {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-orange);
+        margin: 8px 0;
+    }
+    
+    .c2c-info-box {
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%);
+        border: 2px solid rgba(255, 123, 44, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .c2c-info-box i {
+        color: var(--color-orange);
+        font-size: 24px;
+        margin-right: 12px;
+    }
+    
+    .c2c-info-box p {
+        margin: 0;
+        color: #6B7280;
+        line-height: 1.6;
+    }
+    
+    .c2c-action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+    
+    .c2c-btn {
+        flex: 1;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .c2c-btn-primary {
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+    }
+    
+    .c2c-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
+    }
+    
+    .c2c-btn-secondary {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .c2c-btn-secondary:hover {
+        background: #E5E7EB;
+    }
+    
+    @media (max-width: 768px) {
+        .c2c-purchase-intent-container {
+            margin-top: 80px;
+            padding: 0 16px;
+        }
+        
+        .c2c-purchase-intent-card {
+            padding: 24px 16px;
+        }
+        
+        .c2c-product-preview {
+            flex-direction: column;
+        }
+        
+        .c2c-product-preview img {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .c2c-action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<main class="c2c-purchase-intent-container">
+    <div class="c2c-purchase-intent-card">
+        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 12px;">
+            <i class="fi-rs-tag" style="color: var(--color-orange);"></i>
+            Négocier l'achat
+        </h1>
+        
+        <!-- Aperçu du produit -->
+        <div class="c2c-product-preview">
+            {% if product.product_image %}
+            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+            {% else %}
+            <img src="{% static 'assets/imgs/theme/no-image.png' %}" alt="Pas d'image">
+            {% endif %}
+            <div class="c2c-product-info">
+                <h3>{{ product.product_name }}</h3>
+                <p style="color: #6B7280; margin: 8px 0;">Vendeur: <strong>{{ product.seller.get_full_name|default:product.seller.username }}</strong></p>
+                <div class="price">{{ initial_price|floatformat:0 }} FCFA</div>
+            </div>
+        </div>
+        
+        <!-- Information sur le processus -->
+        <div class="c2c-info-box">
+            <div style="display: flex; align-items: start;">
+                <i class="fi-rs-info"></i>
+                <div>
+                    <p style="font-weight: 600; color: #1F2937; margin-bottom: 8px;">Comment ça fonctionne ?</p>
+                    <p>1. Cliquez sur "Créer une intention d'achat" pour ouvrir une conversation avec le vendeur</p>
+                    <p>2. Négociez le prix directement dans la messagerie</p>
+                    <p>3. Une fois le prix accepté, vous serez redirigé vers le paiement</p>
+                    <p>4. Le paiement est sécurisé via SingPay</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boutons d'action -->
+        <form method="POST" id="purchaseIntentForm">
+            {% csrf_token %}
+            <div class="c2c-action-buttons">
+                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" class="c2c-btn c2c-btn-secondary" style="text-decoration: none;">
+                    <i class="fi-rs-arrow-left"></i>
+                    Retour
+                </a>
+                <button type="submit" class="c2c-btn c2c-btn-primary">
+                    <i class="fi-rs-comment"></i>
+                    Créer une intention d'achat
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+document.getElementById('purchaseIntentForm').addEventListener('submit', function(e) {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fi-rs-spinner"></i> Création en cours...';
+});
+</script>
+{% endblock %}
+

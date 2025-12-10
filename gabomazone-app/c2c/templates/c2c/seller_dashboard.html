@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<style>
+    .c2c-dashboard-container {
+        max-width: 1200px;
+        margin: 100px auto 60px;
+        padding: 0 20px;
+    }
+    
+    .c2c-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+    
+    .c2c-stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .c2c-stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--color-orange);
+        margin: 8px 0;
+    }
+    
+    .c2c-stat-label {
+        font-size: 14px;
+        color: #6B7280;
+    }
+    
+    .c2c-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+    
+    .c2c-section h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 16px 0;
+    }
+    
+    @media (max-width: 768px) {
+        .c2c-dashboard-container {
+            margin-top: 80px;
+            padding: 0 16px;
+        }
+        
+        .c2c-stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<main class="c2c-dashboard-container">
+    <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 32px 0;">
+        <i class="fi-rs-user" style="color: var(--color-orange);"></i>
+        Dashboard Vendeur C2C
+    </h1>
+    
+    <!-- Statistiques -->
+    <div class="c2c-stats-grid">
+        <div class="c2c-stat-card">
+            <div class="c2c-stat-label">Total commandes</div>
+            <div class="c2c-stat-value">{{ total_orders }}</div>
+        </div>
+        <div class="c2c-stat-card">
+            <div class="c2c-stat-label">En attente</div>
+            <div class="c2c-stat-value">{{ pending_orders }}</div>
+        </div>
+        <div class="c2c-stat-card">
+            <div class="c2c-stat-label">Terminées</div>
+            <div class="c2c-stat-value">{{ completed_orders }}</div>
+        </div>
+        <div class="c2c-stat-card">
+            <div class="c2c-stat-label">Revenus totaux</div>
+            <div class="c2c-stat-value">{{ total_revenue|floatformat:0 }} FCFA</div>
+        </div>
+    </div>
+    
+    <!-- Intentions d'achat en attente -->
+    <div class="c2c-section">
+        <h2><i class="fi-rs-shopping-cart"></i> Intentions d'achat récentes</h2>
+        {% if pending_intents %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for intent in pending_intents %}
+            <div style="padding: 16px; background: #F9FAFB; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>{{ intent.product.product_name }}</strong>
+                        <p style="margin: 4px 0; color: #6B7280; font-size: 14px;">
+                            Acheteur: {{ intent.buyer.get_full_name|default:intent.buyer.username }}
+                        </p>
+                        <p style="margin: 0; color: #6B7280; font-size: 13px;">
+                            Prix initial: {{ intent.initial_price|floatformat:0 }} FCFA
+                        </p>
+                    </div>
+                    <a href="{% url 'accounts:my-messages' %}?product_id={{ intent.product.id }}" class="c2c-btn c2c-btn-primary" style="text-decoration: none;">
+                        <i class="fi-rs-comment"></i> Voir
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #6B7280; text-align: center; padding: 40px;">Aucune intention d'achat en attente</p>
+        {% endif %}
+    </div>
+    
+    <!-- Liens rapides -->
+    <div class="c2c-section">
+        <h2><i class="fi-rs-apps"></i> Actions rapides</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <a href="{% url 'c2c:seller-orders' %}" style="padding: 16px; background: #F9FAFB; border-radius: 8px; text-decoration: none; color: #1F2937; text-align: center;">
+                <i class="fi-rs-shopping-bag" style="font-size: 24px; color: var(--color-orange); display: block; margin-bottom: 8px;"></i>
+                Mes commandes
+            </a>
+            <a href="{% url 'c2c:seller-intents' %}" style="padding: 16px; background: #F9FAFB; border-radius: 8px; text-decoration: none; color: #1F2937; text-align: center;">
+                <i class="fi-rs-shopping-cart" style="font-size: 24px; color: var(--color-orange); display: block; margin-bottom: 8px;"></i>
+                Intentions d'achat
+            </a>
+            <a href="{% url 'accounts:sell-product' %}" style="padding: 16px; background: #F9FAFB; border-radius: 8px; text-decoration: none; color: #1F2937; text-align: center;">
+                <i class="fi-rs-plus" style="font-size: 24px; color: var(--color-orange); display: block; margin-bottom: 8px;"></i>
+                Vendre un article
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

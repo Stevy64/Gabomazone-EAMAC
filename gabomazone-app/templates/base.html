@@ -291,10 +291,22 @@
 										{% for order in order_details_context%}
 										<li>
 											<div class="shopping-cart-img">
-												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+												{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
+													<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
+												{% elif order.product and order.product.PRDSlug|length > 0 %}
+													<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+												{% else %}
+													<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
+												{% endif %}
 											</div>
 											<div class="shopping-cart-title">
-												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+												{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
+													<h4><a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}">{{order.peer_product.product_name|truncatechars:17}}</a></h4>
+												{% elif order.product and order.product.PRDSlug|length > 0 %}
+													<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+												{% else %}
+													<h4>Produit</h4>
+												{% endif %}
 												<h4><span>{{order.quantity}} × </span>{{order.price|format_price}} FCFA</h4>
 											</div>
 											<div class="shopping-cart-delete">
@@ -512,10 +524,22 @@
 									{% for order in order_details_context%}
 									<li>
 										<div class="shopping-cart-img">
-											<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+											{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
+												<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
+											{% elif order.product and order.product.PRDSlug|length > 0 %}
+												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+											{% else %}
+												<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
+											{% endif %}
 										</div>
 										<div class="shopping-cart-title">
-											<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+											{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
+												<h4><a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}">{{order.peer_product.product_name|truncatechars:17}}</a></h4>
+											{% elif order.product and order.product.PRDSlug|length > 0 %}
+												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+											{% else %}
+												<h4>Produit</h4>
+											{% endif %}
 											<h3><span>{{order.quantity}} × </span>{{order.price|format_price}} FCFA</h3>
 										</div>
 										<div class="shopping-cart-delete">
@@ -669,7 +693,7 @@
         {% for message in messages %}
         <div class="flavoriz-alert-toast flavoriz-alert-{{message.tags}}" data-alert-id="{{ forloop.counter }}" style="background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); display: flex; align-items: center; gap: 14px; min-width: 320px; pointer-events: auto; animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-left: 4px solid {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% elif message.tags == 'warning' %}#F59E0B{% else %}#3B82F6{% endif %};">
             <div style="flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1){% elif message.tags == 'error' %}rgba(239, 68, 68, 0.1){% elif message.tags == 'warning' %}rgba(245, 158, 11, 0.1){% else %}rgba(59, 130, 246, 0.1){% endif %}; display: flex; align-items: center; justify-content: center;">
-                <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}info{% else %}info{% endif %}" style="color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% elif message.tags == 'warning' %}#F59E0B{% else %}#3B82F6{% endif %}; font-size: 16px;"></i>
+                <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}exclamation{% else %}info{% endif %}" style="color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% elif message.tags == 'warning' %}#F59E0B{% else %}#3B82F6{% endif %}; font-size: 16px;"></i>
             </div>
             <div style="flex: 1; min-width: 0;">
                 <p style="margin: 0; font-size: 14px; font-weight: 500; color: #1F2937; line-height: 1.5;">{{ message }}</p>
@@ -1086,9 +1110,9 @@
                 <i class="fi-rs-apps"></i>
                 <span>Catégories</span>
             </a>
-            <a href="{% url 'products:product-search' %}" class="flavoriz-bottom-nav-item {% if 'search' in request.path %}active{% endif %}">
-                <i class="fi-rs-search"></i>
-                <span>Recherche</span>
+            <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
+                <i class="fi-rs-comment"></i>
+                <span>Messages</span>
             </a>
             <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
                 <i class="fi-rs-shopping-bag"></i>

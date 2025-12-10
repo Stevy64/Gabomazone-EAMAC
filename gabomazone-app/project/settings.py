@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'contact',
     'pages',
     'payments',
+    'c2c',  # Module C2C - Vente entre particuliers
 ]
 
 MIDDLEWARE = [
@@ -91,6 +92,7 @@ TEMPLATES = [
                 'products.context_processors.new_products_obj',
                 'orders.context_processors.orders_cart_obj',
                 'products.context_processors.wishlist_count',
+                'products.context_processors.messages_count',
                 'home.context_processors.DealTime_obj',
                 'home.context_processors.vendor_details_ad_image',
                 'home.context_processors.shop_ad_sidebar',

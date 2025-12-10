@@ -92,21 +92,22 @@ def add_to_cart(request):
             # Vérifier si c'est un article entre particuliers
             is_peer_to_peer = str(product_id).startswith('peer_')
             
+            # Initialiser les variables
+            product = None
+            peer_product = None
+            
             if is_peer_to_peer:
                 # Extraire l'ID réel (après "peer_")
                 from accounts.models import PeerToPeerProduct
                 try:
-                    peer_id = int(str(product_id).replace('peer_', ''))
-                    product = PeerToPeerProduct.objects.get(id=peer_id, status=PeerToPeerProduct.APPROVED)
-                    # Pour les articles entre particuliers, on ne peut pas les ajouter directement au panier
-                    # car ils nécessitent un processus spécial (paiement à la livraison)
-                    if is_ajax:
-                        return JsonResponse({
-                            'success': False, 
-                            'error': 'Les articles entre particuliers ne peuvent pas être ajoutés au panier de cette manière. Veuillez contacter le vendeur directement.'
-                        }, status=400)
-                    messages.warning(request, 'Les articles entre particuliers nécessitent un processus de commande spécial. Veuillez contacter le vendeur.')
-                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                    # Gérer le cas où product_id pourrait déjà avoir "peer_" ou être juste un ID
+                    # Enlever tous les préfixes "peer_" possibles (gérer les cas "peer_1", "peer_peer_1", etc.)
+                    peer_id_str = str(product_id)
+                    while peer_id_str.startswith('peer_'):
+                        peer_id_str = peer_id_str.replace('peer_', '', 1)
+                    peer_id = int(peer_id_str)
+                    peer_product = PeerToPeerProduct.objects.get(id=peer_id, status=PeerToPeerProduct.APPROVED)
+                    product = None  # S'assurer que product est None pour les articles entre particuliers
                 except (ValueError, PeerToPeerProduct.DoesNotExist):
                     if is_ajax:
                         return JsonResponse({'success': False, 'error': 'Article entre particuliers introuvable ou non approuvé.'}, status=404)
@@ -125,29 +126,36 @@ def add_to_cart(request):
                 product = Product.objects.get(id=product_id_int)
 
             # Vérifier que le produit a un prix valide
-            if product.PRDPrice is None or product.PRDPrice <= 0:
+            product_price = peer_product.PRDPrice if peer_product else (product.PRDPrice if product else None)
+            if product_price is None or product_price <= 0:
                 if is_ajax:
                     return JsonResponse({'success': False, 'error': 'Ce produit n\'a pas de prix valide !'}, status=400)
                 messages.warning(request, 'Ce produit n\'a pas de prix valide !')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-            if qyt <= 0 and product.available == 0:
-                if is_ajax:
-                    return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
-                messages.warning(request, 'Ce produit est en rupture de stock !')
-                return redirect('orders:cart')
+            # Pour les articles entre particuliers, on ne vérifie pas le stock (disponibilité = 1 par défaut)
+            if not is_peer_to_peer:
+                if qyt <= 0 and product.available == 0:
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
+                    messages.warning(request, 'Ce produit est en rupture de stock !')
+                    return redirect('orders:cart')
 
-            if product.available < qyt and product.available == 0:
-                if is_ajax:
-                    return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
-                messages.warning(request, 'Ce produit est en rupture de stock !')
-                return redirect('orders:cart')
+                if product.available < qyt and product.available == 0:
+                    if is_ajax:
+                        return JsonResponse({'success': False, 'error': 'Ce produit est en rupture de stock !'}, status=400)
+                    messages.warning(request, 'Ce produit est en rupture de stock !')
+                    return redirect('orders:cart')
 
-            if qyt <= 0 and product.available != 0:
-                qyt = 1
+                if qyt <= 0 and product.available != 0:
+                    qyt = 1
 
-            if product.available < qyt and product.available != 0:
-                qyt = product.available
+                if product.available < qyt and product.available != 0:
+                    qyt = product.available
+            else:
+                # Pour les articles entre particuliers, quantité minimum = 1
+                if qyt <= 0:
+                    qyt = 1
 
             try:
                 if request.user.is_authenticated and not request.user.is_anonymous:
@@ -165,7 +173,8 @@ def add_to_cart(request):
                 print(f"Erreur lors de la récupération de la commande: {e}")
                 order = None
 
-            if not Product.objects.all().filter(id=product_id).exists():
+            # Vérifier que le produit existe (normal ou entre particuliers)
+            if not is_peer_to_peer and not Product.objects.all().filter(id=product_id).exists():
                 if is_ajax:
                     return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
                 return HttpResponse(f"this product not found !")
@@ -191,12 +200,16 @@ def add_to_cart(request):
                 # old_orde_supplier = OrderSupplier.objects.get(
                 #     user=request.user, is_finished=False, order=old_orde)
                 # print("old_orde_supplier:", old_orde_supplier)
-                if OrderDetails.objects.all().filter(order=old_orde, product=product).exists():
-                    item = OrderDetails.objects.get(
-                        order=old_orde, product=product)
+                # Chercher l'item dans OrderDetails (produit normal ou entre particuliers)
+                if is_peer_to_peer:
+                    item = OrderDetails.objects.filter(order=old_orde, peer_product=peer_product).first()
+                else:
+                    item = OrderDetails.objects.filter(order=old_orde, product=product).first()
+                
+                if item:
                     # Vérifier si OrderDetailsSupplier existe, sinon le créer
-                    # Seulement si le produit a un vendeur (product_vendor)
-                    if product.product_vendor:
+                    # Seulement si le produit a un vendeur (product_vendor) - pas pour les articles entre particuliers
+                    if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                         if OrderDetailsSupplier.objects.all().filter(order=old_orde, product=product).exists():
                             item_supplier = OrderDetailsSupplier.objects.get(
                                 order=old_orde, product=product)
@@ -224,10 +237,11 @@ def add_to_cart(request):
                                 weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
                             )
                     else:
-                        # Si le produit n'a pas de vendeur, on ne crée pas OrderDetailsSupplier
+                        # Si le produit n'a pas de vendeur ou c'est un article entre particuliers, on ne crée pas OrderDetailsSupplier
                         item_supplier = None
                     # for i in items:
-                    if item.quantity >= product.available:
+                    # Vérifier le stock seulement pour les produits normaux
+                    if not is_peer_to_peer and product and item.quantity >= product.available:
                         qyt = item.quantity
                         # i.quantity = int(qyt)
                         # i.save()
@@ -237,10 +251,13 @@ def add_to_cart(request):
                             request, f"You can't add more from this product, available only : {qyt}")
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-                    elif qyt < product.available:
-                        qyt = qyt + item.quantity
-                        if qyt > product.available:
-                            qyt = product.available
+                    elif is_peer_to_peer or (product and qyt < product.available):
+                        if not is_peer_to_peer and product:
+                            qyt = qyt + item.quantity
+                            if qyt > product.available:
+                                qyt = product.available
+                        else:
+                            qyt = qyt + item.quantity
 
                         item.quantity = int(qyt)
                         item.save()
@@ -266,8 +283,8 @@ def add_to_cart(request):
                         old_orde.amount = str(total)
                         old_orde.save()
 
-                        # code for total amount supplier order - seulement si le produit a un vendeur
-                        if product.product_vendor:
+                        # code for total amount supplier order - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                        if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                             try:
                                 old_order_supplier = OrderSupplier.objects.get(
                                     is_finished=False, order=old_orde, vendor=product.product_vendor)
@@ -340,8 +357,8 @@ def add_to_cart(request):
                         item.quantity = int(qyt)
                         # i.supplier = product.product_vendor.user
                         item.save()
-                        # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur
-                        if product.product_vendor:
+                        # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                        if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                             try:
                                 item_supplier = OrderDetailsSupplier.objects.get(
                                     order=old_orde, product=product)
@@ -460,17 +477,32 @@ def add_to_cart(request):
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
                 else:
-                    # Vérifier si le produit a un vendeur avant de créer OrderDetails
-                    supplier_user = product.product_vendor.user if product.product_vendor else None
-                    order_details = OrderDetails.objects.create(
-                        supplier=supplier_user,
-                        product=product,
-                        order=old_orde,
-                        price=safe_decimal_price(product.PRDPrice),
-                        quantity=qyt,
-                        size=size,
-                        weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
-                    )
+                    # Créer un nouvel OrderDetails
+                    if is_peer_to_peer:
+                        # Pour les articles entre particuliers, pas de supplier
+                        order_details = OrderDetails.objects.create(
+                            supplier=None,
+                            product=None,
+                            peer_product=peer_product,
+                            order=old_orde,
+                            price=safe_decimal_price(peer_product.PRDPrice),
+                            quantity=qyt,
+                            size=size,
+                            weight=Decimal('0')  # Pas de poids pour les articles entre particuliers
+                        )
+                    else:
+                        # Pour les produits normaux
+                        supplier_user = product.product_vendor.user if (hasattr(product, 'product_vendor') and product.product_vendor) else None
+                        order_details = OrderDetails.objects.create(
+                            supplier=supplier_user,
+                            product=product,
+                            peer_product=None,
+                            order=old_orde,
+                            price=safe_decimal_price(product.PRDPrice),
+                            quantity=qyt,
+                            size=size,
+                            weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                        )
                     # code for total amount main order
 
                     order_details_main = OrderDetails.objects.all().filter(order=old_orde)
@@ -489,8 +521,8 @@ def add_to_cart(request):
                     old_orde.weight = float(weight)
                     old_orde.amount = str(total)
                     old_orde.save()
-                    # add product for old order supplier - seulement si le produit a un vendeur
-                    if product.product_vendor:
+                    # add product for old order supplier - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                    if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                         if OrderSupplier.objects.all().filter(
                                 order=old_orde, is_finished=False, vendor=product.product_vendor).exists():
                             old_order_supplier = OrderSupplier.objects.get(
@@ -546,21 +578,22 @@ def add_to_cart(request):
                                 weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
                             )
 
-                        order_supplier = OrderDetailsSupplier.objects.all().filter(
-                            order_supplier=new_order_supplier)
-                        weight = Decimal('0')
-                        f_total = Decimal('0')
-                        w_total = Decimal('0')
-                        for sub in order_supplier:
-                            if sub.price and sub.quantity:
-                                f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
-                            if sub.weight and sub.quantity:
-                                w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
-                        total = f_total
-                        weight = w_total
-                        new_order_supplier.weight = float(weight)
-                        new_order_supplier.amount = str(total)
-                        new_order_supplier.save()
+                            # code for total amount supplier order
+                            order_supplier = OrderDetailsSupplier.objects.all().filter(
+                                order_supplier=new_order_supplier)
+                            weight = Decimal('0')
+                            f_total = Decimal('0')
+                            w_total = Decimal('0')
+                            for sub in order_supplier:
+                                if sub.price and sub.quantity:
+                                    f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                if sub.weight and sub.quantity:
+                                    w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                            total = f_total
+                            weight = w_total
+                            new_order_supplier.weight = float(weight)
+                            new_order_supplier.amount = str(total)
+                            new_order_supplier.save()
 
                 messages.success(request, 'Produit ajouté au panier avec succès !')
                 # return redirect('orders:cart')
@@ -585,8 +618,8 @@ def add_to_cart(request):
                 # new_order.supplier = product.product_vendor.user
                 # new_order.vendors.add(product.product_vendor)
 
-                # order for supllier - seulement si le produit a un vendeur
-                if product.product_vendor:
+                # order for supllier - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                     new_order_supplier = OrderSupplier()
                     if request.user.is_authenticated and not request.user.is_anonymous:
                         new_order_supplier.user = request.user
@@ -596,18 +629,32 @@ def add_to_cart(request):
                     new_order_supplier.order = new_order
                     new_order_supplier.save()
 
-                order_details = OrderDetails.objects.create(
-                    supplier=product.product_vendor.user if product.product_vendor else None,
-                    product=product,
-                    order=new_order,
-                    price=safe_decimal_price(product.PRDPrice),
-                    quantity=qyt,
-                    size=size,
-                    weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
-                )
+                # Créer OrderDetails
+                if is_peer_to_peer:
+                    order_details = OrderDetails.objects.create(
+                        supplier=None,
+                        product=None,
+                        peer_product=peer_product,
+                        order=new_order,
+                        price=safe_decimal_price(peer_product.PRDPrice),
+                        quantity=qyt,
+                        size=size,
+                        weight=Decimal('0')  # Pas de poids pour les articles entre particuliers
+                    )
+                else:
+                    order_details = OrderDetails.objects.create(
+                        supplier=product.product_vendor.user if (hasattr(product, 'product_vendor') and product.product_vendor) else None,
+                        product=product,
+                        peer_product=None,
+                        order=new_order,
+                        price=safe_decimal_price(product.PRDPrice),
+                        quantity=qyt,
+                        size=size,
+                        weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
+                    )
 
-                # Créer OrderDetailsSupplier seulement si le produit a un vendeur
-                if product.product_vendor:
+                # Créer OrderDetailsSupplier seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                     order_details_supplier = OrderDetailsSupplier.objects.create(
                         supplier=product.product_vendor.user,
                         product=product,
@@ -637,22 +684,23 @@ def add_to_cart(request):
                 new_order.weight = float(weight)
                 new_order.amount = str(total)
                 new_order.save()
-                # code for total amount supplier order
-                order_details__supplier = OrderDetailsSupplier.objects.all().filter(
-                    order_supplier=new_order_supplier)
-                f_total = Decimal('0')
-                w_total = Decimal('0')
-                weight = Decimal('0')
-                for sub in order_details__supplier:
-                    if sub.price and sub.quantity:
-                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
-                    if sub.weight and sub.quantity:
-                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
-                total = f_total
-                weight = w_total
-                new_order_supplier.weight = float(weight)
-                new_order_supplier.amount = str(total)
-                new_order_supplier.save()
+                # code for total amount supplier order - seulement si new_order_supplier existe (produits avec vendeur)
+                if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor and 'new_order_supplier' in locals():
+                    order_details__supplier = OrderDetailsSupplier.objects.all().filter(
+                        order_supplier=new_order_supplier)
+                    f_total = Decimal('0')
+                    w_total = Decimal('0')
+                    weight = Decimal('0')
+                    for sub in order_details__supplier:
+                        if sub.price and sub.quantity:
+                            f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                        if sub.weight and sub.quantity:
+                            w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                    total = f_total
+                    weight = w_total
+                    new_order_supplier.weight = float(weight)
+                    new_order_supplier.amount = str(total)
+                    new_order_supplier.save()
                 request.session['cart_id'] = new_order.id
                 messages.success(request, 'Produit ajouté au panier avec succès !')
                 # return redirect('orders:cart')
@@ -753,6 +801,9 @@ def cart(request):
 
         order_details = OrderDetails.objects.all().filter(order=order)
 
+        # Vérifier s'il y a des articles peer-to-peer dans le panier
+        has_peer_products = order_details.filter(peer_product__isnull=False).exists()
+
         coupon_id = None
         value = None
         total = None
@@ -840,6 +891,7 @@ def cart(request):
             # "states": states,
             "weight": weight,
             "profile": profile,
+            "has_peer_products": has_peer_products,
         }
     else:
         # Panier vide - définir un contexte minimal
@@ -856,6 +908,7 @@ def cart(request):
             "provinces": provinces,
             "PUBLIC_KEY": PUBLIC_KEY,
             "profile": profile,
+            "has_peer_products": False,
         }
     return render(request, "orders/shop-cart.html", context)
 
@@ -949,68 +1002,84 @@ def remove_item(request, productdeatails_id):
                 messages.warning(request, 'Commande supprimée')
                 return redirect('orders:cart')
             else:
+                # Recalculer les totaux avant de supprimer l'article
+                all_orders = OrderDetails.objects.filter(order_id=item_id.order_id)
+                f_total = Decimal('0')
+                w_total = Decimal('0')
+                weight = Decimal('0')
+                for sub in all_orders:
+                    if sub.price and sub.quantity:
+                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                    if sub.weight and sub.quantity:
+                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                total = f_total
+                weight = w_total
 
-                all_orders = Order.objects.all().filter(id=cart_id, is_finished=False)
-                for x in all_orders:
+                old_orde = Order.objects.get(id=cart_id, is_finished=False)
+                old_orde.sub_total = str(f_total)
+                old_orde.weight = float(weight)
+                old_orde.amount = str(total)
+                old_orde.save()
 
-                    order = Order.objects.get(id=x.id)
-
-                    # if OrderDetails.objects.all().filter(order=order) == item_id.id and OrderDetails.objects.all().filter(order=order).exists():
-                    if OrderDetails.objects.all().filter(order=order).exists():
-                        old_orde = Order.objects.get(
-                            id=cart_id, is_finished=False)
-
-                        item_supplier = OrderDetailsSupplier.objects.get(
-                            order_details=item_id)
-
+                # Vérifier si c'est un article entre particuliers (pas de product_vendor)
+                if item_id.peer_product:
+                    # Pour les articles entre particuliers, pas de OrderDetailsSupplier
+                    item_id.delete()
+                    messages.warning(request, 'Produit supprimé du panier')
+                    return redirect('orders:cart')
+                elif item_id.product and hasattr(item_id.product, 'product_vendor') and item_id.product.product_vendor:
+                    # Pour les produits normaux avec vendeur, gérer OrderDetailsSupplier
+                    try:
+                        item_supplier = OrderDetailsSupplier.objects.get(order_details=item_id)
                         obj_order_supplier = OrderSupplier.objects.get(
-                            is_finished=False, order=old_orde, vendor=item_supplier.product.product_vendor)
+                            is_finished=False, order=old_orde, vendor=item_id.product.product_vendor)
 
-                        item_supplier = OrderDetailsSupplier.objects.all().filter(
+                        item_supplier_count = OrderDetailsSupplier.objects.filter(
                             order_supplier=obj_order_supplier).count()
 
-                        if item_supplier-1 == 0:
-
+                        if item_supplier_count == 1:
+                            # C'est le dernier article de ce vendeur
                             obj_order_supplier.delete()
                             item_id.delete()
-
-                            messages.warning(
-                                request, ' Order has been deleted ')
+                            messages.warning(request, 'Produit supprimé du panier')
                             return redirect('orders:cart')
-
                         else:
+                            # Il reste d'autres articles de ce vendeur
                             item_id.delete()
-                            # code for total order supplier
-                            order_details__supplier = OrderDetailsSupplier.objects.all().filter(
+                            # Recalculer les totaux du vendeur
+                            order_details__supplier = OrderDetailsSupplier.objects.filter(
                                 order_supplier=obj_order_supplier)
-                            f_total = 0
-                            w_total = 0
-                            weight = 0
+                            f_total_supplier = Decimal('0')
+                            w_total_supplier = Decimal('0')
                             for sub in order_details__supplier:
-                                f_total += sub.price * sub.quantity
-                                w_total += sub.weight * sub.quantity
-                                total = f_total
-                                weight = w_total
-                            obj_order_supplier.weight = weight
-                            obj_order_supplier.amount = total
+                                if sub.price and sub.quantity:
+                                    f_total_supplier += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                                if sub.weight and sub.quantity:
+                                    w_total_supplier += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                            obj_order_supplier.weight = float(w_total_supplier)
+                            obj_order_supplier.amount = str(f_total_supplier)
                             obj_order_supplier.save()
-                            messages.warning(
-                                request, ' product has been deleted ')
-                            # Logically the product is already deleted because of the relationship
-                            # item_supplier = OrderDetailsSupplier.objects.get(
-                            #     order_details=item_id)
-                            # item_supplier.delete()
+                            messages.warning(request, 'Produit supprimé du panier')
                             return redirect('orders:cart')
-                    else:
-                        messages.warning(
-                            request, "product You can't delete it !")
-                        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                    except OrderDetailsSupplier.DoesNotExist:
+                        # Pas de OrderDetailsSupplier, supprimer directement
+                        item_id.delete()
+                        messages.warning(request, 'Produit supprimé du panier')
+                        return redirect('orders:cart')
+                else:
+                    # Produit sans vendeur, supprimer directement
+                    item_id.delete()
+                    messages.warning(request, 'Produit supprimé du panier')
+                    return redirect('orders:cart')
     except:
         messages.warning(request, "Vous ne pouvez pas supprimer ce produit !")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def payment(request):
+    """
+    Page de paiement - Uniquement SingPay et paiement à la livraison
+    """
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
@@ -1019,42 +1088,6 @@ def payment(request):
         shipping = SiteSetting.objects.all().first().shipping
     except:
         shipping = 0
-
-    if settings.STRIPE_PUBLIC_KEY == "" or settings.STRIPE_PUBLIC_KEY == None:
-        PUBLIC_KEY = False
-    else:
-        PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
-
-    if settings.RAZORPAY_KEY_ID == "" or settings.RAZORPAY_KEY_ID == None:
-        RAZORPAY_KEY_ID = False
-    else:
-        RAZORPAY_KEY_ID = settings.RAZORPAY_KEY_ID
-
-    if settings.API_KEY == "" or settings.API_KEY == None:
-        api_key_paymob = False
-    else:
-        api_key_paymob = settings.API_KEY
-
-    if settings.FATOORAH_API_KEY == "" or settings.FATOORAH_API_KEY == None:
-        fatoorah_api_key = False
-        
-    else:
-        fatoorah_api_key = settings.FATOORAH_API_KEY
-
-
-    if settings.PAYPAL_CLIENT_ID == "" or settings.PAYPAL_CLIENT_ID == None:
-
-        paypal_client_id = False
-        paypal_currency = False
-    else:
-        paypal_client_id = settings.PAYPAL_CLIENT_ID
-        paypal_currency = settings.PAYPAL_CURRENCY
-    try:
-        logo = SiteSetting.objects.first().login_image.url
-        # host = request.META.get("HTTP_HOST")
-        image = request.scheme+settings.YOUR_DOMAIN+logo
-    except:
-        image = ""
 
     # if "vodafone_cash" in request.POST and "pubg_username" in request.POST and "pubg_id" in request.POST and "notes" in request.POST and request.user.is_authenticated and not request.user.is_anonymous:
     if request.method == 'POST':
@@ -1176,7 +1209,6 @@ def payment(request):
             except:
                 pass
             order_payment = Payment.objects.create(
-
                 order=old_orde,
                 first_name=first_name,
                 last_name=last_name,
@@ -1185,10 +1217,10 @@ def payment(request):
                 state=state_obj,
                 province=province_obj,
                 street_address=street_address,
-                # by_blance=notes,
                 City=city,
                 Email_Address=email_address,
                 phone=phone,
+                payment_method='Cash on Delivery',  # Par défaut, sera mis à jour si SingPay est sélectionné
             )
             # old_orde.is_finished = True
             # old_orde.status = "جارى التنفيذ"
@@ -1197,90 +1229,13 @@ def payment(request):
             if "coupon_id" in request.session.keys():
                 del request.session["coupon_id"]
 
-            try:
-                blance = float(Profile.objects.get(user=request.user).blance)
-            except:
-                blance = 0
-            order_amount = float(old_orde.amount)
             if Payment.objects.all().filter(order=old_orde):
                 payment_info = Payment.objects.get(order=old_orde)
-            payment = None
-            if RAZORPAY_KEY_ID:
-                try:
-                    client = razorpay.Client(
-                        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-                    # Razorpay exige un montant entier (en paise pour INR)
-                    amount_in_fcfa = float(old_orde.amount)
-                    
-                    # Taux de conversion FCFA vers INR (ajustez selon le taux réel)
-                    # 1 FCFA ≈ 0.13 INR (taux approximatif, à ajuster selon le taux réel)
-                    FCFA_TO_INR_RATE = 0.13
-                    amount_in_inr = amount_in_fcfa * FCFA_TO_INR_RATE
-                    amount_in_paise = int(round(amount_in_inr * 100))  # Conversion INR vers paise
-                    
-                    # Limite Razorpay: généralement 100,000 INR (10,000,000 paise) pour les comptes de test
-                    # Pour les comptes en production, la limite peut être plus élevée (jusqu'à 10,000,000 INR)
-                    max_amount_paise = 1000000000  # 10,000,000 INR (limite production)
-                    min_amount_paise = 100  # 1 INR minimum
-                    
-                    if amount_in_paise < min_amount_paise:
-                        messages.error(
-                            request, 
-                            f'Le montant de la commande est trop faible pour le paiement.'
-                        )
-                        return redirect('orders:cart')
-                    
-                    if amount_in_paise > max_amount_paise:
-                        messages.error(
-                            request, 
-                            f'Le montant de la commande ({amount_in_fcfa:.0f} FCFA ≈ {amount_in_inr:.2f} INR) dépasse la limite autorisée pour le paiement Razorpay ({max_amount_paise/100:.0f} INR). Veuillez contacter le support.'
-                        )
-                        return redirect('orders:cart')
-                    
-                    data = {
-                        "amount": amount_in_paise,
-                        "currency": "INR",
-                        "receipt": f"order_{old_orde.id}",
-                    }
-                    payment = client.order.create(data=data)['id']
-                except razorpay.errors.BadRequestError as e:
-                    error_msg = str(e)
-                    if "maximum amount" in error_msg.lower():
-                        messages.error(
-                            request, 
-                            f'Le montant de la commande dépasse la limite autorisée par Razorpay. Veuillez contacter le support ou utiliser un autre mode de paiement.'
-                        )
-                    else:
-                        messages.error(
-                            request, 
-                            f'Erreur lors de la création de la commande de paiement: {error_msg}. Veuillez réessayer ou contacter le support.'
-                        )
-                    return redirect('orders:cart')
-                except Exception as e:
-                    import traceback
-                    print(f"Erreur Razorpay: {str(e)}")
-                    print(traceback.format_exc())
-                    messages.error(
-                        request, 
-                        f'Erreur lors de l\'initialisation du paiement. Veuillez réessayer ou contacter le support.'
-                    )
-                    return redirect('orders:cart')
 
             context = {
                 "order": old_orde,
                 "payment_info": payment_info,
                 "order_details": order_details,
-                "PUBLIC_KEY": PUBLIC_KEY,
-                "blance": blance,
-                "order_amount": order_amount,
-                "RAZORPAY_KEY_ID": RAZORPAY_KEY_ID,
-                'RAZORPAY_order_id': payment,
-                "image": image,
-                "api_key_paymob": api_key_paymob,
-                "fatoorah_api_key":fatoorah_api_key,
-                "paypal_client_id": paypal_client_id,
-                "paypal_currency": paypal_currency,
-
             }
             messages.success(
                 request, 'Vos informations de facturation ont été enregistrées')

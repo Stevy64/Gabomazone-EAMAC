@@ -372,11 +372,11 @@ main.main.pages .col-12 {
     #account-dropdown-menu-mobile,
     div.flavoriz-account-menu-mobile,
     div#account-dropdown-menu-mobile {
-        position: fixed !important;
-        top: auto !important;
-        bottom: 80px !important;
-        right: 16px !important;
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
         left: auto !important;
+        bottom: auto !important;
         transform: none !important;
         margin: 0 !important;
         margin-top: 0 !important;

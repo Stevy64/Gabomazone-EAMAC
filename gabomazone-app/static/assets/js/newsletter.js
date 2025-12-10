@@ -35,8 +35,8 @@ window.onload = function () {
                                 
                                 boxMessage.classList.remove("not-visible")
                                 boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
-                                                    <i class="fi-rs-cross message-icon"></i>
-                                                    Ops ... some thing went wrong !
+                                                    <i class="fi-rs-cross-circle message-icon"></i>
+                                                    Oups... Une erreur est survenue !
                                                     <span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
                                                 </div>`
                             setTimeout(()=>{
@@ -81,8 +81,8 @@ window.onload = function () {
                                 
                                 boxMessage.classList.remove("not-visible")
                                 boxMessage.innerHTML=`<div class="alert alert-danger alert-dismissible">	
-                                                    <i class="fi-rs-cross message-icon"></i>
-                                                    Ops ... some thing went wrong !
+                                                    <i class="fi-rs-cross-circle message-icon"></i>
+                                                    Oups... Une erreur est survenue !
                                                     <span class="btn-close" data-bs-dismiss="alert" aria-label="close"></span>
                                                 </div>`
                             setTimeout(()=>{

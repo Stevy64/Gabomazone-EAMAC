@@ -409,63 +409,120 @@ def toggle_favorite(request):
             is_peer_to_peer = str(product_id).startswith('peer_')
             
             if is_peer_to_peer:
-                # Les articles entre particuliers ne supportent pas les favoris pour l'instant
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Les favoris ne sont pas disponibles pour les articles entre particuliers.',
-                    'like_count': 0
-                }, status=400)
-            
-            try:
-                product_id_int = int(product_id)
-            except (ValueError, TypeError):
-                return JsonResponse({
-                    'success': False,
-                    'error': 'ID de produit invalide.',
-                    'like_count': 0
-                }, status=400)
-            
-            product = get_object_or_404(Product, id=product_id_int)
-            
-            if request.user.is_authenticated:
-                favorite, created = ProductFavorite.objects.get_or_create(
-                    product=product,
-                    user=request.user
-                )
-                if not created:
-                    favorite.delete()
-                    is_favorited = False
-                else:
-                    is_favorited = True
-            else:
-                # Pour les utilisateurs non authentifiés, utiliser la session
-                session_key = request.session.session_key
-                if not session_key:
-                    request.session.create()
-                    session_key = request.session.session_key
+                # Gérer les favoris pour les articles entre particuliers
+                from accounts.models import PeerToPeerProduct, PeerToPeerProductFavorite
+                try:
+                    # Gérer le cas où product_id pourrait déjà avoir "peer_" ou être juste un ID
+                    # Enlever tous les préfixes "peer_" possibles (gérer les cas "peer_1", "peer_peer_1", etc.)
+                    peer_id_str = str(product_id)
+                    while peer_id_str.startswith('peer_'):
+                        peer_id_str = peer_id_str.replace('peer_', '', 1)
+                    peer_id = int(peer_id_str)
+                    peer_product = get_object_or_404(PeerToPeerProduct, id=peer_id, status=PeerToPeerProduct.APPROVED)
+                except (ValueError, TypeError):
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'ID d\'article entre particuliers invalide.',
+                        'like_count': 0
+                    }, status=400)
                 
-                favorite, created = ProductFavorite.objects.get_or_create(
-                    product=product,
-                    session_key=session_key
-                )
-                if not created:
-                    favorite.delete()
-                    is_favorited = False
+                if request.user.is_authenticated:
+                    favorite, created = PeerToPeerProductFavorite.objects.get_or_create(
+                        product=peer_product,
+                        user=request.user
+                    )
+                    if not created:
+                        favorite.delete()
+                        is_favorited = False
+                    else:
+                        is_favorited = True
                 else:
-                    is_favorited = True
-            
-            # Compter le nombre total de likes
-            like_count = ProductFavorite.objects.filter(product=product).count()
-            
-            # Compter le nombre total de favoris de l'utilisateur/session
-            if request.user.is_authenticated:
-                wishlist_count = ProductFavorite.objects.filter(user=request.user).count()
+                    # Pour les utilisateurs non authentifiés, utiliser la session
+                    session_key = request.session.session_key
+                    if not session_key:
+                        request.session.create()
+                        session_key = request.session.session_key
+                    
+                    favorite, created = PeerToPeerProductFavorite.objects.get_or_create(
+                        product=peer_product,
+                        session_key=session_key
+                    )
+                    if not created:
+                        favorite.delete()
+                        is_favorited = False
+                    else:
+                        is_favorited = True
+                
+                # Compter le nombre total de likes
+                like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
+                
+                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + entre particuliers)
+                if request.user.is_authenticated:
+                    wishlist_count = ProductFavorite.objects.filter(user=request.user).count() + \
+                                   PeerToPeerProductFavorite.objects.filter(user=request.user).count()
+                else:
+                    session_key = request.session.session_key
+                    if session_key:
+                        wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count() + \
+                                       PeerToPeerProductFavorite.objects.filter(session_key=session_key).count()
+                    else:
+                        wishlist_count = 0
             else:
-                session_key = request.session.session_key
-                if session_key:
-                    wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count()
+                # Produit normal
+                try:
+                    product_id_int = int(product_id)
+                except (ValueError, TypeError):
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'ID de produit invalide.',
+                        'like_count': 0
+                    }, status=400)
+                
+                product = get_object_or_404(Product, id=product_id_int)
+                
+                if request.user.is_authenticated:
+                    favorite, created = ProductFavorite.objects.get_or_create(
+                        product=product,
+                        user=request.user
+                    )
+                    if not created:
+                        favorite.delete()
+                        is_favorited = False
+                    else:
+                        is_favorited = True
                 else:
-                    wishlist_count = 0
+                    # Pour les utilisateurs non authentifiés, utiliser la session
+                    session_key = request.session.session_key
+                    if not session_key:
+                        request.session.create()
+                        session_key = request.session.session_key
+                    
+                    favorite, created = ProductFavorite.objects.get_or_create(
+                        product=product,
+                        session_key=session_key
+                    )
+                    if not created:
+                        favorite.delete()
+                        is_favorited = False
+                    else:
+                        is_favorited = True
+                
+                # Compter le nombre total de likes
+                like_count = ProductFavorite.objects.filter(product=product).count()
+                
+                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + entre particuliers)
+                if request.user.is_authenticated:
+                    from accounts.models import PeerToPeerProductFavorite
+                    wishlist_count = ProductFavorite.objects.filter(user=request.user).count() + \
+                                   PeerToPeerProductFavorite.objects.filter(user=request.user).count()
+                else:
+                    session_key = request.session.session_key
+                    if session_key:
+                        from accounts.models import PeerToPeerProductFavorite
+                        wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count() + \
+                                       PeerToPeerProductFavorite.objects.filter(session_key=session_key).count()
+                    else:
+                        wishlist_count = 0
             
             return JsonResponse({
                 'success': True,
@@ -485,9 +542,11 @@ def toggle_favorite(request):
 
 @require_http_methods(["GET"])
 def get_wishlist_count(request):
-    """Vue AJAX pour obtenir le nombre d'articles dans la liste à souhaits"""
+    """Vue AJAX pour obtenir le nombre d'articles dans la liste à souhaits (produits normaux + articles entre particuliers)"""
     try:
         from django.db import connection
+        from accounts.models import PeerToPeerProductFavorite
+        
         table_name = ProductFavorite._meta.db_table
         with connection.cursor() as cursor:
             cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
@@ -497,11 +556,13 @@ def get_wishlist_count(request):
             return JsonResponse({'wishlist_count': 0})
         
         if request.user.is_authenticated:
-            wishlist_count = ProductFavorite.objects.filter(user=request.user).count()
+            wishlist_count = ProductFavorite.objects.filter(user=request.user).count() + \
+                           PeerToPeerProductFavorite.objects.filter(user=request.user).count()
         else:
             session_key = request.session.session_key
             if session_key:
-                wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count()
+                wishlist_count = ProductFavorite.objects.filter(session_key=session_key).count() + \
+                               PeerToPeerProductFavorite.objects.filter(session_key=session_key).count()
             else:
                 wishlist_count = 0
         
@@ -511,32 +572,56 @@ def get_wishlist_count(request):
 
 
 def wishlist(request):
-    """Afficher la liste à souhaits de l'utilisateur"""
+    """Afficher la liste à souhaits de l'utilisateur (produits normaux + articles d'occasion)"""
     try:
         from django.db import connection
-        table_name = ProductFavorite._meta.db_table
+        from accounts.models import PeerToPeerProductFavorite
+        
+        # Vérifier si les tables existent
+        product_fav_table_name = ProductFavorite._meta.db_table
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
-            table_exists = cursor.fetchone() is not None
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{product_fav_table_name}'")
+            product_fav_table_exists = cursor.fetchone() is not None
         
-        if not table_exists:
-            context = {
-                'favorites': [],
-                'favorites_count': 0,
-                'error': 'La fonctionnalité de favoris n\'est pas encore disponible. Veuillez exécuter les migrations.'
-            }
-            return render(request, 'products/wishlist.html', context)
+        peer_fav_table_name = PeerToPeerProductFavorite._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{peer_fav_table_name}'")
+            peer_fav_table_exists = cursor.fetchone() is not None
         
+        favorites = []
         if request.user.is_authenticated:
-            favorites = ProductFavorite.objects.filter(user=request.user).select_related('product')
+            if product_fav_table_exists:
+                product_favorites = ProductFavorite.objects.filter(user=request.user).select_related('product')
+                # Ajouter un attribut pour distinguer les types
+                for fav in product_favorites:
+                    fav.is_peer_to_peer = False
+                favorites.extend(product_favorites)
+            if peer_fav_table_exists:
+                peer_favorites = PeerToPeerProductFavorite.objects.filter(user=request.user).select_related('product')
+                # Ajouter un attribut pour distinguer les types
+                for fav in peer_favorites:
+                    fav.is_peer_to_peer = True
+                favorites.extend(peer_favorites)
         else:
             session_key = request.session.session_key
             if session_key:
-                favorites = ProductFavorite.objects.filter(session_key=session_key).select_related('product')
-            else:
-                favorites = ProductFavorite.objects.none()
+                if product_fav_table_exists:
+                    product_favorites = ProductFavorite.objects.filter(session_key=session_key).select_related('product')
+                    # Ajouter un attribut pour distinguer les types
+                    for fav in product_favorites:
+                        fav.is_peer_to_peer = False
+                    favorites.extend(product_favorites)
+                if peer_fav_table_exists:
+                    peer_favorites = PeerToPeerProductFavorite.objects.filter(session_key=session_key).select_related('product')
+                    # Ajouter un attribut pour distinguer les types
+                    for fav in peer_favorites:
+                        fav.is_peer_to_peer = True
+                    favorites.extend(peer_favorites)
         
-        favorites_count = favorites.count()
+        # Trier par date (plus récent en premier)
+        favorites.sort(key=lambda x: x.date if hasattr(x, 'date') and x.date else None, reverse=True)
+        
+        favorites_count = len(favorites)
         
         context = {
             'favorites': favorites,

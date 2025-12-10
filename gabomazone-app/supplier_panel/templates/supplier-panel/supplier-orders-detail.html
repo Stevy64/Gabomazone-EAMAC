@@ -274,6 +274,12 @@
         flex-shrink: 0;
     }
     
+    .flavoriz-info-icon i {
+        font-size: 20px !important;
+        line-height: 1 !important;
+        display: inline-block !important;
+    }
+    
     .flavoriz-info-content h6 {
         font-size: 12px;
         font-weight: 600;
@@ -343,6 +349,12 @@
         justify-content: center;
     }
     
+    .flavoriz-print-btn i {
+        font-size: 24px !important;
+        line-height: 1 !important;
+        display: inline-block !important;
+    }
+    
     .flavoriz-print-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 123, 44, 0.5);
@@ -352,6 +364,11 @@
         .flavoriz-order-content {
             grid-template-columns: 1fr;
         }
+    }
+    
+    /* Affichage en grille pour mobile */
+    .flavoriz-products-grid {
+        display: none;
     }
     
     @media (max-width: 768px) {
@@ -375,18 +392,108 @@
             grid-template-columns: 1fr;
         }
         
-        .flavoriz-order-table {
+        /* Masquer le tableau sur mobile */
+        .flavoriz-order-table-wrapper {
+            display: none;
+        }
+        
+        /* Afficher la grille sur mobile */
+        .flavoriz-products-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .flavoriz-product-card-mobile {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #E5E7EB;
+        }
+        
+        .flavoriz-product-card-mobile-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .flavoriz-product-card-mobile-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        
+        .flavoriz-product-card-mobile-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .flavoriz-product-card-mobile-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin: 0 0 4px 0;
+            line-height: 1.4;
+        }
+        
+        .flavoriz-product-card-mobile-ref {
             font-size: 12px;
+            color: #6B7280;
+            margin: 0;
         }
         
-        .flavoriz-order-table th,
-        .flavoriz-order-table td {
-            padding: 12px 8px;
+        .flavoriz-product-card-mobile-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E5E7EB;
         }
         
-        .flavoriz-product-image {
-            width: 60px;
-            height: 60px;
+        .flavoriz-product-card-mobile-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .flavoriz-product-card-mobile-detail-label {
+            font-size: 11px;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        
+        .flavoriz-product-card-mobile-detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .flavoriz-product-card-mobile-total {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            margin-top: 12px;
+            border-top: 2px solid #E5E7EB;
+        }
+        
+        .flavoriz-product-card-mobile-total-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        
+        .flavoriz-product-card-mobile-total-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-orange);
         }
         
         .flavoriz-print-btn {
@@ -395,6 +502,12 @@
             width: 48px;
             height: 48px;
             font-size: 20px;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        .flavoriz-products-grid {
+            display: none !important;
         }
     }
 </style>
@@ -411,7 +524,7 @@
                 <p>Commande #{{order_supplier.id}} • {{order_supplier.date_update|date:"d/m/Y à H:i"}}</p>
             </div>
             <div class="flavoriz-order-status-badge">
-                <i class="fi-rs-check-circle"></i>
+                <i class="fi-rs-check"></i>
                 <span>{{order_supplier.status}}</span>
             </div>
         </div>
@@ -432,19 +545,19 @@
                 <div class="flavoriz-order-meta-content">
                     <h6>Email</h6>
                     <p>{{order_supplier.user.email}}</p>
-                </div>
-            </div>
+        </div>
+    </div>
             <div class="flavoriz-order-meta-item">
                 <div class="flavoriz-order-meta-icon">
-                    <i class="fi-rs-phone"></i>
+                    <i class="fi-rs-smartphone"></i>
                 </div>
                 <div class="flavoriz-order-meta-content">
                     <h6>Téléphone</h6>
                     <p>{{payment_info.phone|default:"Non renseigné"}}</p>
                 </div>
             </div>
-        </div>
-    </div>
+                </div>
+            </div>
     
     <!-- Informations de livraison et commande -->
     <div class="flavoriz-info-grid">
@@ -461,13 +574,13 @@
                         {{payment_info.country|default:""}} {{payment_info.post_code|default:""}}
                     </p>
                 </div>
-            </div>
-        </div>
+                        </div>
+                </div>
         
         <div class="flavoriz-info-section">
             <div class="flavoriz-info-card">
                 <div class="flavoriz-info-icon">
-                    <i class="fi-rs-truck"></i>
+                    <i class="fi-rs-package"></i>
                 </div>
                 <div class="flavoriz-info-content">
                     <h6>Informations de livraison</h6>
@@ -489,28 +602,29 @@
                 <i class="fi-rs-box" style="margin-right: 8px; color: var(--color-orange);"></i>
                 Produits commandés
             </h2>
-            <div style="overflow-x: auto;">
+            <!-- Tableau desktop -->
+            <div class="flavoriz-order-table-wrapper" style="overflow-x: auto;">
                 <table class="flavoriz-order-table">
-                    <thead>
-                        <tr>
+                            <thead>
+                                <tr>
                             <th>Produit</th>
                             <th>Prix unitaire</th>
                             <th>Quantité</th>
                             <th>Taille</th>
                             <th style="text-align: right;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                                </tr>
+                            </thead>
+                            <tbody>
                         {% for order_detail in order_details_supplier %}
-                        <tr>
-                            <td>
+                                <tr>
+                                    <td>
                                 <div class="flavoriz-product-info">
                                     <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-image" />
                                     <div class="flavoriz-product-details">
                                         <h6>{{order_detail.product.product_name}}</h6>
                                         <p>Réf: #{{order_detail.product.id}}</p>
                                     </div>
-                                </div>
+                                            </div>
                             </td>
                             <td>
                                 <span class="flavoriz-price-cell">{{order_detail.product.PRDPrice|format_price}} FCFA</span>
@@ -520,14 +634,47 @@
                             </td>
                             <td>
                                 <span style="font-size: 14px; color: #6B7280; font-weight: 500;">{{order_detail.size|default:"-"}}</span>
-                            </td>
+                                    </td>
                             <td style="text-align: right;">
                                 <span class="flavoriz-price-cell">{{order_detail.product.PRDPrice|multiply_and_format:order_detail.quantity}} FCFA</span>
-                            </td>
-                        </tr>
+                                    </td>
+                                </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                            </tbody>
+                        </table>
+                    </div>
+            
+            <!-- Grille mobile -->
+            <div class="flavoriz-products-grid">
+                {% for order_detail in order_details_supplier %}
+                <div class="flavoriz-product-card-mobile">
+                    <div class="flavoriz-product-card-mobile-header">
+                        <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-card-mobile-image" />
+                        <div class="flavoriz-product-card-mobile-info">
+                            <h6 class="flavoriz-product-card-mobile-title">{{order_detail.product.product_name}}</h6>
+                            <p class="flavoriz-product-card-mobile-ref">Réf: #{{order_detail.product.id}}</p>
+                        </div>
+                    </div>
+                    <div class="flavoriz-product-card-mobile-details">
+                        <div class="flavoriz-product-card-mobile-detail-item">
+                            <span class="flavoriz-product-card-mobile-detail-label">Prix unitaire</span>
+                            <span class="flavoriz-product-card-mobile-detail-value">{{order_detail.product.PRDPrice|format_price}} FCFA</span>
+                        </div>
+                        <div class="flavoriz-product-card-mobile-detail-item">
+                            <span class="flavoriz-product-card-mobile-detail-label">Quantité</span>
+                            <span class="flavoriz-product-card-mobile-detail-value">{{order_detail.quantity}}</span>
+                        </div>
+                        <div class="flavoriz-product-card-mobile-detail-item">
+                            <span class="flavoriz-product-card-mobile-detail-label">Taille</span>
+                            <span class="flavoriz-product-card-mobile-detail-value">{{order_detail.size|default:"-"}}</span>
+                        </div>
+                        <div class="flavoriz-product-card-mobile-total">
+                            <span class="flavoriz-product-card-mobile-total-label">Total</span>
+                            <span class="flavoriz-product-card-mobile-total-value">{{order_detail.product.PRDPrice|multiply_and_format:order_detail.quantity}} FCFA</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
         
@@ -545,7 +692,7 @@
                 <div class="flavoriz-summary-item">
                     <span class="flavoriz-summary-label">Statut du paiement</span>
                     <span class="flavoriz-summary-value" style="color: #059669;">
-                        <i class="fi-rs-check-circle" style="margin-right: 4px;"></i>
+                        <i class="fi-rs-check" style="margin-right: 4px;"></i>
                         Payé
                     </span>
                 </div>
@@ -569,16 +716,16 @@
                     <div class="flavoriz-payment-item">
                         <i class="fi-rs-user" style="font-size: 16px;"></i>
                         <span>{{payment_info.first_name}} {{payment_info.last_name}}</span>
-                    </div>
+                </div>
                     <div class="flavoriz-payment-item">
-                        <i class="fi-rs-phone" style="font-size: 16px;"></i>
+                        <i class="fi-rs-smartphone" style="font-size: 16px;"></i>
                         <span>{{payment_info.phone|default:"Non renseigné"}}</span>
                     </div>
+                        </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Bouton d'impression flottant -->
 <button class="flavoriz-print-btn" onclick="window.print()" title="Imprimer">

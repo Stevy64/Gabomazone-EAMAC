@@ -38,6 +38,21 @@
                             </a>
                                     </li>
                         <li>
+                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: 500;">
+                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center; color: #9CA3AF;"></i>
+                                <span>Mes articles publiés</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: 500; position: relative;">
+                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center; color: #9CA3AF;"></i>
+                                <span>Ma messagerie</span>
+                                {% if messages_count and messages_count > 0 %}
+                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li>
                             <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: 500;">
                                 <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center; color: #9CA3AF;"></i>
                                 <span>Mot de passe</span>
@@ -66,7 +81,7 @@
                     <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                             <div>
-                                <h2 style="font-size: 28px; font-weight: 700; color: var(--text-dark); margin: 0 0 6px 0; font-family: var(--font-primary); line-height: 1.2;">
+                                <h2 id="order-number" style="font-size: 28px; font-weight: 700; color: var(--text-dark); margin: 0 0 6px 0; font-family: var(--font-primary); line-height: 1.2;">
                                     Mes commandes
                                 </h2>
                                 <p style="font-size: 14px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px;">
@@ -95,7 +110,7 @@
                                                 </table>
                         
                         <!-- Empty State -->
-                        <div id="empty" class="not-visible" style="text-align: center; padding: 60px 20px;">
+                        <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px;">
                             <div style="width: 120px; height: 120px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                 <i class="fi-rs-shopping-bag" style="font-size: 48px; color: var(--color-orange);"></i>
                                                           </div>
@@ -224,53 +239,156 @@
 }
 
 @media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
     .flavoriz-dashboard-card {
-        padding: 24px !important;
+        padding: 20px 16px !important;
         border-radius: 16px !important;
+        margin: 0 !important;
     }
     
     h2 {
-        font-size: 24px !important;
+        font-size: 22px !important;
+        margin-bottom: 12px !important;
     }
     
     .container {
-        padding: 0 16px !important;
+        padding: 0 12px !important;
+        max-width: 100% !important;
     }
     
+    .row {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: static !important;
+        margin-bottom: 16px !important;
+        padding: 20px !important;
+    }
+    
+    .flavoriz-dashboard-menu ul {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu li a {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu li a i {
+        font-size: 18px !important;
+    }
+    
+    /* Table responsive pour mobile */
     .flavoriz-orders-table {
         display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        width: 100%;
     }
     
     .flavoriz-orders-table thead {
-        display: none;
+        display: none !important;
+    }
+    
+    .flavoriz-orders-table tbody {
+        display: block;
+        width: 100%;
     }
     
     .flavoriz-orders-table tbody tr {
         display: block;
+        width: 100%;
         margin-bottom: 16px;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 16px;
-        background: white;
+        border: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    
+    .flavoriz-orders-table tbody tr.mobile-order-card {
+        display: block !important;
+    }
+    
+    .flavoriz-orders-table tbody tr:not(.mobile-order-card) {
+        display: none !important;
     }
     
     .flavoriz-orders-table tbody td {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0 !important;
-        border: none;
+        display: block !important;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
     }
     
-    .flavoriz-orders-table tbody td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #6B7280;
-        margin-right: 12px;
+    .order-card-mobile {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .order-card-mobile button,
+    .order-card-mobile a {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(255, 123, 44, 0.2);
+        min-height: 44px; /* Taille minimale pour le tactile */
+    }
+    
+    /* Empty state mobile */
+    #empty-box {
+        padding: 40px 20px !important;
+    }
+    
+    #empty-box h3 {
+        font-size: 20px !important;
+    }
+    
+    #empty-box p {
+        font-size: 14px !important;
+    }
+    
+    /* Modal mobile */
+    #transaction-modal > div {
+        max-width: 95% !important;
+        margin: 10px !important;
+        max-height: 85vh !important;
+    }
+    
+    #transaction-steps {
+        padding: 24px 16px !important;
     }
 }
 </style>
+
+<!-- Modal pour afficher les détails de transaction -->
+<div id="transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); position: relative;">
+        <button onclick="document.getElementById('transaction-modal').style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; border: none; color: #6B7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
+            <i class="fi-rs-cross" style="font-size: 18px;"></i>
+        </button>
+        <div id="transaction-steps" style="padding: 40px 24px 24px 24px;">
+            <!-- Le contenu sera chargé dynamiquement -->
+        </div>
+    </div>
+</div>
 {%endblock body%}
 
 {%block script%}

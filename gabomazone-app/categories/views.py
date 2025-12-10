@@ -76,12 +76,15 @@ def sort_products_with_boost_priority(products_list, order_by):
 class PeerToPeerProductWrapper:
     """Wrapper pour rendre un PeerToPeerProduct compatible avec le template Product"""
     def __init__(self, peer_product):
-        self.id = f"peer_{peer_product.id}"
+        from accounts.models import PeerToPeerProductFavorite
+        self.id = peer_product.id  # ID sans préfixe (le préfixe sera ajouté dans le template)
         self.product_name = peer_product.product_name
         self.PRDPrice = peer_product.PRDPrice
         self.PRDDiscountPrice = 0
         self.product_image = peer_product.product_image
         self.PRDSlug = peer_product.PRDSlug
+        self.view_count = getattr(peer_product, 'view_count', 0) or 0
+        self.like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
         self.is_peer_to_peer = True
         self._peer_product = peer_product
     
@@ -207,6 +210,8 @@ def get_sub_categories(request):
 
 def convert_peer_to_peer_to_dict(peer_product):
     """Convertit un PeerToPeerProduct en dictionnaire compatible avec les produits normaux"""
+    from accounts.models import PeerToPeerProductFavorite
+    
     product_images = [str(peer_product.product_image)] if peer_product.product_image else []
     if peer_product.additional_image_1:
         product_images.append(str(peer_product.additional_image_1))
@@ -215,16 +220,19 @@ def convert_peer_to_peer_to_dict(peer_product):
     if peer_product.additional_image_3:
         product_images.append(str(peer_product.additional_image_3))
     
+    # Compter les favoris pour cet article entre particuliers
+    like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
+    
     return {
-        'id': f"peer_{peer_product.id}",  # Préfixe pour distinguer
+        'id': peer_product.id,  # ID sans préfixe (le préfixe sera ajouté dans le template)
         'product_name': peer_product.product_name,
         'PRDPrice': peer_product.PRDPrice,
         'PRDDiscountPrice': 0,  # Pas de prix réduit pour les articles entre particuliers
         'product_image': str(peer_product.product_image),
         'product_images': product_images,
         'PRDSlug': peer_product.PRDSlug,
-        'view_count': 0,
-        'like_count': 0,
+        'view_count': peer_product.view_count or 0,  # Utiliser le compteur de vues réel
+        'like_count': like_count,
         'is_peer_to_peer': True,  # Flag pour identifier les articles entre particuliers
     }
 
@@ -607,32 +615,45 @@ class ProductListHTMXView(View):
         order_by = request.GET.get('order_by', '-date')
         cat_type = request.GET.get('cat_type', 'all')
         cat_id = request.GET.get('cat_id', '')
+        product_type = request.GET.get('product_type', 'all')  # 'all', 'shop', 'peer'
         
-        # Construire le queryset
-        if cat_type == "all":
-            try:
-                queryset = Product.objects.filter(
-                    PRDISDeleted=False, 
-                    PRDISactive=True
-                ).annotate(
-                    like_count=Count('favorites')
-                ).order_by(order_by)
-            except:
-                queryset = Product.objects.filter(
-                    PRDISDeleted=False, 
-                    PRDISactive=True
-                ).order_by(order_by)
+        # Construire le queryset pour les produits de magasin
+        shop_queryset = None
+        if product_type in ['all', 'shop']:
+            if cat_type == "all":
+                try:
+                    shop_queryset = Product.objects.filter(
+                        PRDISDeleted=False, 
+                        PRDISactive=True
+                    ).annotate(
+                        like_count=Count('favorites')
+                    ).order_by(order_by)
+                except:
+                    shop_queryset = Product.objects.filter(
+                        PRDISDeleted=False, 
+                        PRDISactive=True
+                    ).order_by(order_by)
+            else:
+                shop_queryset = self.get_queryset(cat_type, cat_id, order_by)
         else:
-            queryset = self.get_queryset(cat_type, cat_id, order_by)
+            shop_queryset = Product.objects.none()
         
         # Récupérer les articles entre particuliers
-        try:
-            peer_queryset = self.get_peer_to_peer_queryset(cat_type, cat_id, order_by)
-        except:
+        peer_queryset = None
+        if product_type in ['all', 'peer']:
+            try:
+                peer_queryset = self.get_peer_to_peer_queryset(cat_type, cat_id, order_by)
+            except:
+                peer_queryset = PeerToPeerProduct.objects.none()
+        else:
             peer_queryset = PeerToPeerProduct.objects.none()
         
         # Combiner les deux querysets en listes pour la pagination
-        all_products = list(queryset) + [PeerToPeerProductWrapper(p) for p in peer_queryset]
+        all_products = []
+        if shop_queryset is not None:
+            all_products.extend(list(shop_queryset))
+        if peer_queryset is not None:
+            all_products.extend([PeerToPeerProductWrapper(p) for p in peer_queryset])
         
         # Récupérer les IDs des produits boostés pour le tri
         boosted_ids = get_active_boosted_product_ids()
@@ -736,6 +757,7 @@ class ProductListHTMXView(View):
             'order_by': order_by,
             'cat_type': cat_type,
             'cat_id': cat_id,
+            'product_type': product_type,
             'total_products': total_count,  # Total de produits pour le compteur
         }
         

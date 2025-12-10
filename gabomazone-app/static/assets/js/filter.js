@@ -554,7 +554,7 @@ function getCookie(name) {
 
 // Fonction pour mettre à jour le compteur de la liste à souhaits - Version globale
 window.updateWishlistCount = function(count) {
-    if (count === undefined) {
+    if (count === undefined || count === null) {
         // Si count n'est pas fourni, le récupérer depuis le serveur
         fetch('/products/api/wishlist-count/', {
             method: 'GET',
@@ -567,28 +567,43 @@ window.updateWishlistCount = function(count) {
             return response.json();
         })
         .then(data => {
-            count = data.wishlist_count || 0;
-            updateWishlistBadges(count);
+            const wishlistCount = data.wishlist_count || 0;
+            updateWishlistBadges(wishlistCount);
         })
         .catch(error => {
             console.error('Erreur lors de la mise à jour du compteur de la liste à souhaits:', error);
             updateWishlistBadges(0);
         });
     } else {
-        updateWishlistBadges(count);
+        // Convertir en nombre pour s'assurer que c'est un entier
+        const wishlistCount = parseInt(count, 10) || 0;
+        updateWishlistBadges(wishlistCount);
     }
 };
 
 function updateWishlistBadges(count) {
+    // S'assurer que count est un nombre valide
+    const wishlistCount = parseInt(count, 10) || 0;
+    
     const wishlistBadges = document.querySelectorAll('.flavoriz-wishlist-badge, .flavoriz-wishlist-badge-mobile');
+    
+    if (wishlistBadges.length === 0) {
+        console.warn('Aucun badge de wishlist trouvé dans le DOM');
+        return;
+    }
+    
     wishlistBadges.forEach(badge => {
-        if (count > 0) {
-            badge.textContent = count;
+        if (!badge) return;
+        
+        if (wishlistCount > 0) {
+            badge.textContent = wishlistCount;
             badge.style.display = 'flex';
         } else {
             badge.style.display = 'none';
         }
     });
+    
+    console.log('Compteur de wishlist mis à jour:', wishlistCount);
 }
 
 // Fonction pour mettre à jour le compteur du panier - Version globale

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest
+from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage
 from django.utils import timezone
 # Register your models here.
 
@@ -161,3 +161,37 @@ class ProductBoostRequestAdmin(admin.ModelAdmin):
     mark_as_paid.short_description = 'Marquer comme payé'
 
 admin.site.register(ProductBoostRequest, ProductBoostRequestAdmin)
+
+
+class ProductMessageInline(admin.TabularInline):
+    model = ProductMessage
+    extra = 0
+    readonly_fields = ('created_at', 'read_at')
+    fields = ('sender', 'message', 'is_read', 'created_at', 'read_at')
+
+
+class ProductConversationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'seller', 'buyer', 'last_message_at', 'unread_count_display')
+    list_filter = ('last_message_at',)
+    list_display_links = ('id', 'product')
+    search_fields = ('product__product_name', 'seller__username', 'buyer__username')
+    readonly_fields = ('created_at', 'updated_at', 'last_message_at')
+    inlines = [ProductMessageInline]
+    list_per_page = 20
+    
+    def unread_count_display(self, obj):
+        """Affiche le nombre de messages non lus pour le vendeur"""
+        return obj.get_unread_count_for_seller()
+    unread_count_display.short_description = 'Messages non lus (vendeur)'
+
+
+class ProductMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'conversation', 'sender', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    list_display_links = ('id',)
+    search_fields = ('message', 'sender__username', 'conversation__product__product_name')
+    readonly_fields = ('created_at', 'read_at')
+    list_per_page = 50
+
+admin.site.register(ProductConversation, ProductConversationAdmin)
+admin.site.register(ProductMessage, ProductMessageAdmin)

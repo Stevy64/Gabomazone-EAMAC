@@ -74,13 +74,13 @@
                                 <p style="font-size: 15px; color: #6B7280; margin: 0;">Espace vendeur - Connectez-vous à votre compte</p>
                             </div>
 
-                            {% if messages %}
-                            {% for message in messages %}
+                        {% if messages %}
+                    {% for message in messages %}
                             <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 12px 14px; border-radius: 12px; margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %};">
                                 {{message}}
-                            </div>
-                            {% endfor %}
-                            {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
 
                             <!-- Login Form -->
                             <div id="login-form-container" class="form-container active" style="display: flex; flex-direction: column;">
@@ -93,8 +93,8 @@
                                         <div style="position: relative;">
                                             <input type="text" name="username" placeholder="Entrez votre email ou nom d'utilisateur" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
                                             <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
-                                        </div>
-                                    </div>
+                    </div> 
+                </div>
 
                                     <!-- Password Field -->
                                     <div style="position: relative;">
@@ -105,24 +105,24 @@
                                             <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle"></i>
                                             </button>
-                                        </div>
-                                    </div>
+                            </div>
+                            </div>
 
                                     <!-- Remember Me & Forgot Password -->
                                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                                         <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #1F2937; cursor: pointer;">
                                             <input type="checkbox" name="checkbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: #FF7B2C;" />
                                             <span>Se souvenir de moi</span>
-                                        </label>
+                                </label>
                                         <a href="{% url 'accounts:password_reset' %}" style="color: #FF7B2C; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s ease; white-space: nowrap;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Mot de passe oublié ?</a>
-                                    </div>
+                            </div>
 
                                     <!-- Login Button -->
                                     <button type="submit" name="login" style="width: 100%; padding: 14px; background: #FF7B2C; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: inherit; margin-top: var(--spacing-xs);" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                                         Se connecter
                                     </button>
-                                </form>
-                                
+                        </form>
+
                                 <!-- Sign Up Link -->
                                 <p style="text-align: center; margin-top: var(--spacing-lg); font-size: 14px; color: #6B7280;">
                                     Pas encore de compte ? <a href="{% url 'supplier_dashboard:supplier-register'%}" style="color: #FF7B2C; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">S'inscrire</a>
@@ -235,13 +235,13 @@
              </style>
              <footer class="main-footer text-center" style="flex-shrink: 0; margin-top: auto; padding: var(--spacing-md) 0;">
                  <p class="font-xs" style="margin: 0; font-size: 13px; color: #6B7280;">
-                     <script>
-                         document.write(new Date().getFullYear());
-                     </script>
+                    <script>
+                        document.write(new Date().getFullYear());
+                    </script>
                      &copy; {{site_info.site_name}} - Tous droits réservés.
-                 </p>
-             </footer>
-         </main>
+                </p>
+            </footer>
+        </main>
         <script src="{% static 'assets-supplier/js/vendors/jquery-3.6.0.min.js'%}"></script>
         <script src="{% static 'assets-supplier/js/vendors/bootstrap.bundle.min.js'%}"></script>
         <script src="{% static 'assets-supplier/js/vendors/jquery.fullscreen.min.js'%}"></script>

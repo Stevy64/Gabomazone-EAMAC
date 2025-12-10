@@ -39,7 +39,7 @@
                 <div style="margin-bottom: var(--spacing-xl);">
                     {% for message in messages %}
                     <div style="background: {% if message.tags == 'success' %}linear-gradient(135deg, #10B981 0%, #059669 100%){% elif message.tags == 'error' or message.tags == 'danger' %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% else %}linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%){% endif %}; color: white; padding: var(--spacing-lg); border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 12px;">
-                        <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}alert-circle{% else %}info{% endif %}" style="font-size: 24px;"></i>
+                        <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}cross-circle{% else %}info{% endif %}" style="font-size: 24px;"></i>
                         <span style="font-size: 16px; font-weight: 600;">{{message}}</span>
                     </div>
                     {% endfor %}

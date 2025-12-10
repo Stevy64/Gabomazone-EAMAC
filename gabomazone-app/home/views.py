@@ -29,15 +29,64 @@ def home_page(request):
     home_ads_deal_time = HomeAdDealTime.objects.all().order_by("?")
     index = str(HomePageTheme.objects.all().filter(active=True).first())
     
-    # Récupérer les produits les plus populaires (par nombre de favoris)
+    # Récupérer les produits les plus populaires (priorisant les boostés, puis par vues et commandes)
+    from django.db.models import Q, F, Case, When, IntegerField
+    from django.utils import timezone
+    from orders.models import OrderDetails
+    
     try:
+        # Récupérer les IDs des produits boostés actifs
+        from accounts.models import ProductBoostRequest
+        now = timezone.now()
+        active_boosted_product_ids = list(
+            ProductBoostRequest.objects.filter(
+                status=ProductBoostRequest.ACTIVE,
+                start_date__lte=now,
+                end_date__gte=now,
+                payment_status=True
+            ).values_list('product_id', flat=True)
+        )
+        
+        # Annoter avec le nombre de commandes (via OrderDetails)
+        # Filtrer les OrderDetails avec des commandes terminées
+        from django.db.models import Coalesce, Value
         popular_products_queryset = Product.objects.filter(
             PRDISactive=True, 
             PRDISDeleted=False
         ).annotate(
-            like_count=Count('favorites')
-        ).order_by('-like_count', '-date')[:12]
-    except:
+            like_count=Count('favorites', distinct=True),
+            # Compter les commandes terminées via OrderDetails
+            order_count=Count(
+                'orderdetails',
+                filter=Q(orderdetails__order__is_finished=True),
+                distinct=True
+            ),
+            # Flag pour indiquer si le produit est boosté
+            is_boosted=Case(
+                When(id__in=active_boosted_product_ids if active_boosted_product_ids else [], then=1),
+                default=0,
+                output_field=IntegerField()
+            ),
+            # Gérer les valeurs None pour view_count
+            view_count_safe=Coalesce('view_count', Value(0))
+        )
+        
+        # Calculer le score de popularité après annotation
+        # Score = vues + (commandes * 10) pour donner plus de poids aux commandes
+        popular_products_queryset = popular_products_queryset.annotate(
+            popularity_score=F('view_count_safe') + (F('order_count') * 10)
+        ).order_by(
+            '-is_boosted',  # Prioriser les produits boostés
+            '-popularity_score',  # Puis par score de popularité
+            '-view_count_safe',  # Puis par nombre de vues
+            '-order_count',  # Puis par nombre de commandes
+            '-date'  # Enfin par date
+        )[:12]
+    except Exception as e:
+        # Fallback en cas d'erreur
+        import traceback
+        print(f"Erreur dans la récupération des produits populaires: {e}")
+        print(traceback.format_exc())
         popular_products_queryset = Product.objects.filter(
             PRDISactive=True, 
             PRDISDeleted=False
@@ -91,10 +140,18 @@ def home_page(request):
             except:
                 like_count = 0
         
+        # Récupérer les statistiques du produit
+        order_count = getattr(product, 'order_count', 0) or 0
+        view_count = getattr(product, 'view_count', 0) or 0
+        is_boosted = getattr(product, 'is_boosted', 0) == 1
+        
         popular_products_data.append({
             'product': product,
             'product_images': json.dumps(product_images),
             'like_count': like_count,
+            'order_count': order_count,
+            'view_count': view_count,
+            'is_boosted': is_boosted,
         })
     
     # Préparer les données des nouveaux produits avec images multiples

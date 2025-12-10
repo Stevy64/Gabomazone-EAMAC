@@ -168,6 +168,12 @@
         background: white;
     }
     
+    .flavoriz-qty-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
     .flavoriz-qty-btn {
         width: 40px;
         height: 48px;
@@ -179,6 +185,8 @@
         justify-content: center;
         transition: all 0.2s ease;
         color: #1F2937;
+        font-size: 20px;
+        font-weight: 600;
     }
     
     .flavoriz-qty-btn:hover {
@@ -247,6 +255,16 @@
         color: #EF4444;
     }
     
+    /* Masquer le bouton wishlist mobile en desktop */
+    .flavoriz-favorite-btn-mobile {
+        display: none;
+    }
+    
+    /* Masquer le bouton wishlist desktop en mobile */
+    .flavoriz-favorite-btn-desktop {
+        display: flex;
+    }
+    
     .flavoriz-product-meta {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -311,6 +329,74 @@
         line-height: 1.8;
     }
     
+    /* Tableau d'informations supplémentaires - Design moderne */
+    .flavoriz-info-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    
+    .flavoriz-info-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 20px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #F3F4F6;
+        transition: background-color 0.2s ease;
+    }
+    
+    .flavoriz-info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .flavoriz-info-row:hover {
+        background-color: #F9FAFB;
+    }
+    
+    .flavoriz-info-label {
+        font-weight: 600;
+        color: #1F2937;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .flavoriz-info-value {
+        color: #4B5563;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .flavoriz-info-price {
+        color: var(--color-orange);
+        font-weight: 700;
+        font-size: 16px;
+    }
+    
+    @media (max-width: 768px) {
+        .flavoriz-info-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 14px 16px;
+        }
+        
+        .flavoriz-info-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+        
+        .flavoriz-info-value {
+            font-size: 14px;
+        }
+    }
+    
     .flavoriz-related-products {
         margin-top: 48px;
     }
@@ -331,6 +417,26 @@
         
         .flavoriz-product-actions {
             flex-direction: column;
+            gap: 12px;
+        }
+        
+        .flavoriz-qty-wrapper {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .flavoriz-qty-selector {
+            flex: 1;
+        }
+        
+        .flavoriz-favorite-btn-mobile {
+            display: flex !important;
+            width: 48px;
+            height: 48px;
+        }
+        
+        .flavoriz-favorite-btn-desktop {
+            display: none !important;
         }
         
         .flavoriz-add-cart-btn-large {
@@ -420,24 +526,24 @@
                 <div class="flavoriz-product-detail-content">
                     <!-- Gallery -->
                     <div class="flavoriz-product-gallery">
-                        <div class="flavoriz-main-image" id="main-image-container">
+                        <div class="flavoriz-main-image" id="main-image-container" style="cursor: zoom-in;">
                             {%if product_detail.product_image%}
-                            <img src="{{product_detail.product_image.url}}" alt="{{product_detail.product_name}}" id="main-product-image" />
+                            <img src="{{product_detail.product_image.url}}" alt="{{product_detail.product_name}}" id="main-product-image" onclick="openProductImagePreview()" />
                             {%else%}
-                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{product_detail.product_name}}" id="main-product-image" />
-                                            {%endif%}
-                                        </div>
+                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{product_detail.product_name}}" id="main-product-image" onclick="openProductImagePreview()" />
+                            {%endif%}
+                        </div>
                         
                         {% if product_images|length > 1 %}
                         <div class="flavoriz-thumbnails">
                             {% for img in product_images %}
                             <div class="flavoriz-thumbnail {% if forloop.first %}active{% endif %}" onclick="changeMainImage('{{img.url}}', this)">
                                 <img src="{{img.url}}" alt="Thumbnail {{forloop.counter}}" />
-                                    </div>
+                            </div>
                             {% endfor %}
-                                </div>
+                        </div>
                         {% endif %}
-                                                </div>
+                    </div>
                     
                     <!-- Product Info -->
                     <div class="flavoriz-product-info">
@@ -483,10 +589,16 @@
                                                     {% endif %}
                                                
                         <div class="flavoriz-product-actions">
-                            <div class="flavoriz-qty-selector">
-                                <button class="flavoriz-qty-btn" onclick="decreaseQty()"><i class="fi-rs-angle-small-down"></i></button>
-                                <span class="flavoriz-qty-value" id="product-qty">1</span>
-                                <button class="flavoriz-qty-btn" onclick="increaseQty()"><i class="fi-rs-angle-small-up"></i></button>
+                            <div class="flavoriz-qty-wrapper">
+                                <div class="flavoriz-qty-selector">
+                                    <button class="flavoriz-qty-btn" onclick="decreaseQty()">−</button>
+                                    <span class="flavoriz-qty-value" id="product-qty">1</span>
+                                    <button class="flavoriz-qty-btn" onclick="increaseQty()">+</button>
+                                </div>
+                                
+                                <button class="flavoriz-favorite-btn-large flavoriz-favorite-btn-mobile {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn" data-product-id="{{product_detail.id}}">
+                                    <i class="fi-rs-heart" style="font-size: 20px;"></i>
+                                </button>
                             </div>
                             
                             <button class="flavoriz-add-cart-btn-large" id="detail-add-cart-btn">
@@ -494,7 +606,7 @@
                                 <span>Ajouter au panier</span>
                             </button>
                             
-                            <button class="flavoriz-favorite-btn-large {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn" data-product-id="{{product_detail.id}}">
+                            <button class="flavoriz-favorite-btn-large flavoriz-favorite-btn-desktop {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn-desktop" data-product-id="{{product_detail.id}}">
                                 <i class="fi-rs-heart" style="font-size: 20px;"></i>
                             </button>
                                         </div> 
@@ -539,48 +651,53 @@
                                         </div> 
                     
                     <div class="flavoriz-tab-content" id="tab-additional" style="display: none;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                                                <tbody>
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937; width: 200px;">Prix</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.PRDPrice|format_price}} FCFA</td>
-                                                    </tr>
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Disponibilité</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.available}} en stock</td>
-                                                    </tr>
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Pièces par set</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.pieces|default:"N/A"}} pièces</td>
-                                                    </tr>
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Super Catégorie</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.product_supercategory|default:"N/A"}}</td>
-                                                    </tr>
-                                {% if product_detail.product_maincategory %}
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Catégorie principale</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.product_maincategory}}</td>
-                                                    </tr>
-                                {% endif %}
-                                {% if product_detail.product_subcategory %}
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Sous-catégorie</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.product_subcategory}}</td>
-                                                    </tr>
-                                {% endif %}
-                                {% if product_detail.product_minicategor %}
-                                <tr style="border-bottom: 1px solid #E5E7EB;">
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">Mini catégorie</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.product_minicategor}}</td>
-                                                    </tr>
-                                {% endif %}
-                                <tr>
-                                    <td style="padding: 12px 0; font-weight: 600; color: #1F2937;">SKU</td>
-                                    <td style="padding: 12px 0; color: #4B5563;">{{product_detail.PRDSKU|default:"N/A"}}</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                        <div class="flavoriz-info-table">
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Prix</div>
+                                <div class="flavoriz-info-value flavoriz-info-price">{{product_detail.PRDPrice|format_price}} FCFA</div>
+                            </div>
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Disponibilité</div>
+                                <div class="flavoriz-info-value" style="color: {% if product_detail.available > 0 %}#10B981{% else %}#EF4444{% endif %};">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fi-rs-check" style="font-size: 14px;"></i>
+                                        {{product_detail.available}} en stock
+                                    </span>
+                                </div>
+                            </div>
+                            {% if product_detail.pieces %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Pièces par set</div>
+                                <div class="flavoriz-info-value">{{product_detail.pieces}} pièces</div>
+                            </div>
+                            {% endif %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Super Catégorie</div>
+                                <div class="flavoriz-info-value">{{product_detail.product_supercategory|default:"N/A"}}</div>
+                            </div>
+                            {% if product_detail.product_maincategory %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Catégorie principale</div>
+                                <div class="flavoriz-info-value">{{product_detail.product_maincategory}}</div>
+                            </div>
+                            {% endif %}
+                            {% if product_detail.product_subcategory %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Sous-catégorie</div>
+                                <div class="flavoriz-info-value">{{product_detail.product_subcategory}}</div>
+                            </div>
+                            {% endif %}
+                            {% if product_detail.product_minicategor %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Mini catégorie</div>
+                                <div class="flavoriz-info-value">{{product_detail.product_minicategor}}</div>
+                            </div>
+                            {% endif %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">SKU</div>
+                                <div class="flavoriz-info-value">{{product_detail.PRDSKU|default:"N/A"}}</div>
+                            </div>
+                        </div>
                                         </div>
                     
                     <div class="flavoriz-tab-content" id="tab-reviews" style="display: none;">
@@ -736,24 +853,44 @@
     const productImages = [
         {% for img in product_images %}
         '{{img.url}}'{% if not forloop.last %},{% endif %}
-                                        {% endfor %}
+        {% endfor %}
     ];
     
-    // Gérer le clic sur l'image principale
-    const mainImageContainer = document.getElementById('main-image-container');
-    if (mainImageContainer && typeof openImagePreview === 'function') {
-        mainImageContainer.onclick = function() {
-            openImagePreview(productImages, 0, '{{product_detail.product_name|escapejs}}');
-        };
-    }
+    // Fonction pour ouvrir le zoom d'image
+    window.openProductImagePreview = function() {
+        const mainImage = document.getElementById('main-product-image');
+        if (!mainImage) return;
+        
+        // Trouver l'index de l'image actuelle
+        let currentIndex = 0;
+        const currentSrc = mainImage.src;
+        for (let i = 0; i < productImages.length; i++) {
+            if (productImages[i] === currentSrc || currentSrc.includes(productImages[i].split('/').pop())) {
+                currentIndex = i;
+                break;
+            }
+        }
+        
+        if (typeof openImagePreview === 'function' && productImages.length > 0) {
+            openImagePreview(productImages, currentIndex, '{{product_detail.product_name|escapejs}}');
+        } else {
+            // Fallback si openImagePreview n'est pas disponible
+            window.open(mainImage.src, '_blank');
+        }
+    };
     
     // Fonction pour changer l'image principale
     function changeMainImage(imageSrc, thumbnailElement) {
-        document.getElementById('main-product-image').src = imageSrc;
+        const mainImage = document.getElementById('main-product-image');
+        if (mainImage) {
+            mainImage.src = imageSrc;
+        }
         document.querySelectorAll('.flavoriz-thumbnail').forEach(thumb => {
             thumb.classList.remove('active');
         });
-        thumbnailElement.classList.add('active');
+        if (thumbnailElement) {
+            thumbnailElement.classList.add('active');
+        }
     }
     
     // Fonction pour augmenter la quantité
@@ -923,6 +1060,35 @@
                 if (countElement) {
                     countElement.textContent = data.like_count || 0;
                 }
+                
+                // Mettre à jour le compteur de la liste à souhaits dans le header
+                if (data.wishlist_count !== undefined) {
+                    // Fonction helper pour mettre à jour les badges
+                    const updateBadges = (count) => {
+                        const wishlistBadges = document.querySelectorAll('.flavoriz-wishlist-badge, .flavoriz-wishlist-badge-mobile');
+                        wishlistBadges.forEach(badge => {
+                            if (count > 0) {
+                                badge.textContent = count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        });
+                    };
+                    
+                    // Essayer d'utiliser la fonction globale si elle existe
+                    if (typeof window.updateWishlistCount === 'function') {
+                        try {
+                            window.updateWishlistCount(data.wishlist_count);
+                        } catch (e) {
+                            console.warn('Erreur lors de l\'appel à updateWishlistCount, utilisation du fallback:', e);
+                            updateBadges(data.wishlist_count);
+                        }
+                    } else {
+                        // Fallback: mettre à jour directement les badges
+                        updateBadges(data.wishlist_count);
+                    }
+                }
             } else {
                 if (data.error) {
                     alert('Erreur: ' + data.error);
@@ -985,6 +1151,39 @@
                 const productId = parseInt(this.getAttribute('data-product-id'));
                 if (productId && typeof window.toggleFavoriteDetail === 'function') {
                     window.toggleFavoriteDetail(productId, this);
+                    // Synchroniser l'état avec le bouton desktop
+                    const desktopBtn = document.getElementById('detail-favorite-btn-desktop');
+                    if (desktopBtn) {
+                        desktopBtn.classList.toggle('liked', this.classList.contains('liked'));
+                        const desktopIcon = desktopBtn.querySelector('i');
+                        if (desktopIcon) {
+                            desktopIcon.style.color = this.classList.contains('liked') ? '#EF4444' : '#6B7280';
+                        }
+                        desktopBtn.style.background = this.classList.contains('liked') ? '#FEE2E2' : 'white';
+                    }
+                } else {
+                    console.error('toggleFavoriteDetail n\'est pas définie');
+                }
+            });
+        }
+        
+        const detailFavoriteBtnDesktop = document.getElementById('detail-favorite-btn-desktop');
+        if (detailFavoriteBtnDesktop) {
+            detailFavoriteBtnDesktop.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = parseInt(this.getAttribute('data-product-id'));
+                if (productId && typeof window.toggleFavoriteDetail === 'function') {
+                    window.toggleFavoriteDetail(productId, this);
+                    // Synchroniser l'état avec le bouton mobile
+                    const mobileBtn = document.getElementById('detail-favorite-btn');
+                    if (mobileBtn) {
+                        mobileBtn.classList.toggle('liked', this.classList.contains('liked'));
+                        const mobileIcon = mobileBtn.querySelector('i');
+                        if (mobileIcon) {
+                            mobileIcon.style.color = this.classList.contains('liked') ? '#EF4444' : '#6B7280';
+                        }
+                        mobileBtn.style.background = this.classList.contains('liked') ? '#FEE2E2' : 'white';
+                    }
                 } else {
                     console.error('toggleFavoriteDetail n\'est pas définie');
                 }
@@ -997,14 +1196,38 @@
     if (ratingForm) {
         let productRate = 5; // Par défaut
         
-        // Gestion des étoiles
-        document.querySelectorAll('input[name="star"]').forEach(radio => {
+        // S'assurer qu'il n'y a que 5 étoiles dans le formulaire
+        const rateContainer = document.querySelector('.rate');
+        if (rateContainer) {
+            const allInputs = rateContainer.querySelectorAll('input[name="star"]');
+            const allLabels = rateContainer.querySelectorAll('label');
+            
+            // Supprimer les étoiles en trop (garder seulement les 5 premières)
+            if (allInputs.length > 5) {
+                for (let i = 5; i < allInputs.length; i++) {
+                    const input = allInputs[i];
+                    const label = allLabels[i];
+                    if (input && input.parentElement) {
+                        input.parentElement.remove();
+                    } else if (label && label.parentElement) {
+                        label.parentElement.remove();
+                    }
+                }
+            }
+        }
+        
+        // Gestion des étoiles (limiter à 5)
+        document.querySelectorAll('input[name="star"]').forEach((radio, index) => {
+            // Limiter à 5 étoiles
+            if (index >= 5) return;
+            
             radio.addEventListener('change', function() {
-                productRate = this.value;
-                // Mettre à jour l'affichage visuel des étoiles
+                productRate = parseInt(this.value);
+                // Mettre à jour l'affichage visuel des étoiles (seulement les 5 premières)
                 const labels = document.querySelectorAll('.rate label');
-                labels.forEach((label, index) => {
-                    if (index < productRate) {
+                labels.forEach((label, idx) => {
+                    if (idx >= 5) return; // Ignorer les étoiles en trop
+                    if (idx < productRate) {
                         label.style.color = '#FCD34D';
                     } else {
                         label.style.color = '#D1D5DB';
@@ -1013,10 +1236,19 @@
             });
         });
         
-        // Initialiser l'affichage des étoiles
+        // Initialiser l'affichage des étoiles (seulement 5 étoiles)
         document.querySelectorAll('.rate label').forEach((label, index) => {
+            if (index >= 5) {
+                // Supprimer les étoiles en trop
+                if (label.parentElement) {
+                    label.parentElement.remove();
+                }
+                return;
+            }
             if (index < 5) {
                 label.style.color = '#FCD34D';
+            } else {
+                label.style.color = '#D1D5DB';
             }
         });
         
@@ -1026,7 +1258,7 @@
             const clientMessage = document.getElementById('detail-client-message').value;
             
             if (!productRate) {
-                messageElement.innerHTML = '<div class="alert alert-danger" style="padding: 12px; border-radius: 8px; margin-top: 12px;">Vous devez sélectionner une note !</div>';
+                messageElement.innerHTML = '<div class="alert alert-danger" style="padding: 12px; border-radius: 8px; margin-top: 12px; display: flex; align-items: center; gap: 8px;"><i class="fi-rs-info" style="font-size: 16px; color: #EF4444;"></i>Vous devez sélectionner une note !</div>';
                 setTimeout(() => {
                     messageElement.innerHTML = '';
                 }, 3000);
@@ -1043,14 +1275,14 @@
                     'client_message': clientMessage,
                 },
                 success: function(response) {
-                    messageElement.innerHTML = '<div class="alert alert-success" style="padding: 12px; border-radius: 8px; margin-top: 12px;">Votre avis a été ajouté avec succès !</div>';
+                    messageElement.innerHTML = '<div class="alert alert-success" style="padding: 12px; border-radius: 8px; margin-top: 12px; display: flex; align-items: center; gap: 8px;"><i class="fi-rs-check" style="font-size: 16px; color: #10B981;"></i>Votre avis a été ajouté avec succès !</div>';
                     document.getElementById('detail-client-message').value = '';
                     setTimeout(() => {
                         location.reload();
                     }, 2000);
                 },
                 error: function(error) {
-                    messageElement.innerHTML = '<div class="alert alert-warning" style="padding: 12px; border-radius: 8px; margin-top: 12px;">Une erreur est survenue. Veuillez réessayer.</div>';
+                    messageElement.innerHTML = '<div class="alert alert-warning" style="padding: 12px; border-radius: 8px; margin-top: 12px; display: flex; align-items: center; gap: 8px;"><i class="fi-rs-info" style="font-size: 16px; color: #F59E0B;"></i>Une erreur est survenue. Veuillez réessayer.</div>';
                     setTimeout(() => {
                         messageElement.innerHTML = '';
                     }, 3000);
