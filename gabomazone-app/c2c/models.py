@@ -10,6 +10,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 import secrets
 import string
+from django.db.models import Avg, Count, Q
 
 
 def generate_verification_code(length=6):
@@ -557,4 +558,216 @@ class SellerBadge(models.Model):
     
     def __str__(self):
         return f"{self.get_badge_type_display()} - {self.seller.username}"
+
+
+class SellerReview(models.Model):
+    """
+    Avis et notes des vendeurs C2C
+    Permet aux acheteurs de noter et commenter les vendeurs après une transaction
+    """
+    # Relations
+    order = models.OneToOneField(
+        C2COrder, on_delete=models.CASCADE, related_name='review',
+        verbose_name=_("Commande"), unique=True)
+    seller = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='seller_reviews',
+        verbose_name=_("Vendeur"))
+    reviewer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews_given',
+        verbose_name=_("Auteur de l'avis"))
+    product = models.ForeignKey(
+        'accounts.PeerToPeerProduct', on_delete=models.CASCADE,
+        related_name='reviews', verbose_name=_("Article"))
+    
+    # Note (1 à 5 étoiles)
+    rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("Note"), help_text=_("Note de 1 à 5 étoiles"))
+    
+    # Commentaire
+    comment = models.TextField(
+        blank=True, null=True, verbose_name=_("Commentaire"),
+        help_text=_("Commentaire optionnel sur la transaction"))
+    
+    # Statut
+    is_visible = models.BooleanField(
+        default=True, verbose_name=_("Visible"),
+        help_text=_("Si False, l'avis est masqué (modération)"))
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))
+    
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Avis vendeur")
+        verbose_name_plural = _("Avis vendeurs")
+        indexes = [
+            models.Index(fields=['seller', 'is_visible']),
+            models.Index(fields=['rating']),
+        ]
+        # Un seul avis par commande
+        unique_together = ('order', 'reviewer')
+    
+    def __str__(self):
+        return f"Avis de {self.reviewer.username} pour {self.seller.username} - {self.rating}/5"
+    
+    @classmethod
+    def get_seller_stats(cls, seller):
+        """
+        Calcule les statistiques d'un vendeur
+        Retourne: moyenne, nombre total d'avis, répartition par note
+        """
+        reviews = cls.objects.filter(seller=seller, is_visible=True)
+        
+        stats = reviews.aggregate(
+            average_rating=Avg('rating'),
+            total_reviews=Count('id')
+        )
+        
+        # Répartition par note
+        rating_distribution = {}
+        for i in range(1, 6):
+            rating_distribution[i] = reviews.filter(rating=i).count()
+        
+        return {
+            'average_rating': stats['average_rating'] or 0,
+            'total_reviews': stats['total_reviews'] or 0,
+            'rating_distribution': rating_distribution,
+        }
+    
+    @classmethod
+    def can_review(cls, order, user):
+        """
+        Vérifie si un utilisateur peut noter une commande
+        Conditions:
+        - La commande doit être COMPLETED
+        - L'utilisateur doit être l'acheteur
+        - Il ne doit pas avoir déjà noté cette commande
+        - La vérification de livraison doit être complète
+        """
+        if order.status != C2COrder.COMPLETED:
+            return False, "La transaction doit être terminée pour pouvoir noter"
+        
+        # Vérifier que les deux codes ont été validés
+        try:
+            verification = order.delivery_verification
+            if not (verification.seller_code_verified and verification.buyer_code_verified):
+                return False, "Les deux codes de vérification doivent être validés avant de noter"
+        except:
+            return False, "La vérification de livraison n'est pas complète"
+        
+        if user != order.buyer:
+            return False, "Seul l'acheteur peut noter le vendeur"
+        
+        if cls.objects.filter(order=order, reviewer=user).exists():
+            return False, "Vous avez déjà noté cette transaction"
+        
+        return True, None
+
+
+class BuyerReview(models.Model):
+    """
+    Avis et notes des acheteurs C2C
+    Permet aux vendeurs de noter et commenter les acheteurs après une transaction
+    """
+    # Relations
+    order = models.OneToOneField(
+        C2COrder, on_delete=models.CASCADE, related_name='buyer_review',
+        verbose_name=_("Commande"), unique=True)
+    buyer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='buyer_reviews',
+        verbose_name=_("Acheteur"))
+    reviewer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='buyer_reviews_given',
+        verbose_name=_("Auteur de l'avis"))
+    product = models.ForeignKey(
+        'accounts.PeerToPeerProduct', on_delete=models.CASCADE,
+        related_name='buyer_reviews', verbose_name=_("Article"))
+    
+    # Note (1 à 5 étoiles)
+    rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name=_("Note"), help_text=_("Note de 1 à 5 étoiles"))
+    
+    # Commentaire
+    comment = models.TextField(
+        blank=True, null=True, verbose_name=_("Commentaire"),
+        help_text=_("Commentaire optionnel sur la transaction"))
+    
+    # Statut
+    is_visible = models.BooleanField(
+        default=True, verbose_name=_("Visible"),
+        help_text=_("Si False, l'avis est masqué (modération)"))
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))
+    
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Avis acheteur")
+        verbose_name_plural = _("Avis acheteurs")
+        indexes = [
+            models.Index(fields=['buyer', 'is_visible']),
+            models.Index(fields=['rating']),
+        ]
+        # Un seul avis par commande
+        unique_together = ('order', 'reviewer')
+    
+    def __str__(self):
+        return f"Avis de {self.reviewer.username} pour {self.buyer.username} - {self.rating}/5"
+    
+    @classmethod
+    def get_buyer_stats(cls, buyer):
+        """
+        Calcule les statistiques d'un acheteur
+        Retourne: moyenne, nombre total d'avis, répartition par note
+        """
+        reviews = cls.objects.filter(buyer=buyer, is_visible=True)
+        
+        stats = reviews.aggregate(
+            average_rating=Avg('rating'),
+            total_reviews=Count('id')
+        )
+        
+        # Répartition par note
+        rating_distribution = {}
+        for i in range(1, 6):
+            rating_distribution[i] = reviews.filter(rating=i).count()
+        
+        return {
+            'average_rating': stats['average_rating'] or 0,
+            'total_reviews': stats['total_reviews'] or 0,
+            'rating_distribution': rating_distribution,
+        }
+    
+    @classmethod
+    def can_review(cls, order, user):
+        """
+        Vérifie si un utilisateur peut noter une commande
+        Conditions:
+        - La commande doit être COMPLETED
+        - L'utilisateur doit être le vendeur
+        - Il ne doit pas avoir déjà noté cette commande
+        - La vérification de livraison doit être complète
+        """
+        if order.status != C2COrder.COMPLETED:
+            return False, "La transaction doit être terminée pour pouvoir noter"
+        
+        # Vérifier que les deux codes ont été validés
+        try:
+            verification = order.delivery_verification
+            if not (verification.seller_code_verified and verification.buyer_code_verified):
+                return False, "Les deux codes de vérification doivent être validés avant de noter"
+        except:
+            return False, "La vérification de livraison n'est pas complète"
+        
+        if user != order.seller:
+            return False, "Seul le vendeur peut noter l'acheteur"
+        
+        if cls.objects.filter(order=order, reviewer=user).exists():
+            return False, "Vous avez déjà noté cette transaction"
+        
+        return True, None
 

@@ -89,7 +89,7 @@ def add_to_cart(request):
             except:
                 size = None
 
-            # Vérifier si c'est un article entre particuliers
+            # Vérifier si c'est un article C2C
             is_peer_to_peer = str(product_id).startswith('peer_')
             
             # Initialiser les variables
@@ -107,11 +107,11 @@ def add_to_cart(request):
                         peer_id_str = peer_id_str.replace('peer_', '', 1)
                     peer_id = int(peer_id_str)
                     peer_product = PeerToPeerProduct.objects.get(id=peer_id, status=PeerToPeerProduct.APPROVED)
-                    product = None  # S'assurer que product est None pour les articles entre particuliers
+                    product = None  # S'assurer que product est None pour les articles C2C
                 except (ValueError, PeerToPeerProduct.DoesNotExist):
                     if is_ajax:
-                        return JsonResponse({'success': False, 'error': 'Article entre particuliers introuvable ou non approuvé.'}, status=404)
-                    messages.error(request, 'Article entre particuliers introuvable ou non approuvé.')
+                        return JsonResponse({'success': False, 'error': 'Article C2C introuvable ou non approuvé.'}, status=404)
+                    messages.error(request, 'Article C2C introuvable ou non approuvé.')
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
             else:
                 # Produit normal
@@ -133,7 +133,7 @@ def add_to_cart(request):
                 messages.warning(request, 'Ce produit n\'a pas de prix valide !')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-            # Pour les articles entre particuliers, on ne vérifie pas le stock (disponibilité = 1 par défaut)
+            # Pour les articles C2C, on ne vérifie pas le stock (disponibilité = 1 par défaut)
             if not is_peer_to_peer:
                 if qyt <= 0 and product.available == 0:
                     if is_ajax:
@@ -153,7 +153,7 @@ def add_to_cart(request):
                 if product.available < qyt and product.available != 0:
                     qyt = product.available
             else:
-                # Pour les articles entre particuliers, quantité minimum = 1
+                # Pour les articles C2C, quantité minimum = 1
                 if qyt <= 0:
                     qyt = 1
 
@@ -173,7 +173,7 @@ def add_to_cart(request):
                 print(f"Erreur lors de la récupération de la commande: {e}")
                 order = None
 
-            # Vérifier que le produit existe (normal ou entre particuliers)
+            # Vérifier que le produit existe (normal ou C2C)
             if not is_peer_to_peer and not Product.objects.all().filter(id=product_id).exists():
                 if is_ajax:
                     return JsonResponse({'success': False, 'error': 'Produit non trouvé !'}, status=404)
@@ -200,7 +200,7 @@ def add_to_cart(request):
                 # old_orde_supplier = OrderSupplier.objects.get(
                 #     user=request.user, is_finished=False, order=old_orde)
                 # print("old_orde_supplier:", old_orde_supplier)
-                # Chercher l'item dans OrderDetails (produit normal ou entre particuliers)
+                # Chercher l'item dans OrderDetails (produit normal ou C2C)
                 if is_peer_to_peer:
                     item = OrderDetails.objects.filter(order=old_orde, peer_product=peer_product).first()
                 else:
@@ -208,7 +208,7 @@ def add_to_cart(request):
                 
                 if item:
                     # Vérifier si OrderDetailsSupplier existe, sinon le créer
-                    # Seulement si le produit a un vendeur (product_vendor) - pas pour les articles entre particuliers
+                    # Seulement si le produit a un vendeur (product_vendor) - pas pour les articles C2C
                     if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                         if OrderDetailsSupplier.objects.all().filter(order=old_orde, product=product).exists():
                             item_supplier = OrderDetailsSupplier.objects.get(
@@ -237,7 +237,7 @@ def add_to_cart(request):
                                 weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
                             )
                     else:
-                        # Si le produit n'a pas de vendeur ou c'est un article entre particuliers, on ne crée pas OrderDetailsSupplier
+                        # Si le produit n'a pas de vendeur ou c'est un article C2C, on ne crée pas OrderDetailsSupplier
                         item_supplier = None
                     # for i in items:
                     # Vérifier le stock seulement pour les produits normaux
@@ -283,7 +283,7 @@ def add_to_cart(request):
                         old_orde.amount = str(total)
                         old_orde.save()
 
-                        # code for total amount supplier order - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                        # code for total amount supplier order - seulement si le produit a un vendeur (pas pour les articles C2C)
                         if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                             try:
                                 old_order_supplier = OrderSupplier.objects.get(
@@ -357,7 +357,7 @@ def add_to_cart(request):
                         item.quantity = int(qyt)
                         # i.supplier = product.product_vendor.user
                         item.save()
-                        # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                        # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur (pas pour les articles C2C)
                         if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                             try:
                                 item_supplier = OrderDetailsSupplier.objects.get(
@@ -479,7 +479,7 @@ def add_to_cart(request):
                 else:
                     # Créer un nouvel OrderDetails
                     if is_peer_to_peer:
-                        # Pour les articles entre particuliers, pas de supplier
+                        # Pour les articles C2C, pas de supplier
                         order_details = OrderDetails.objects.create(
                             supplier=None,
                             product=None,
@@ -488,7 +488,7 @@ def add_to_cart(request):
                             price=safe_decimal_price(peer_product.PRDPrice),
                             quantity=qyt,
                             size=size,
-                            weight=Decimal('0')  # Pas de poids pour les articles entre particuliers
+                            weight=Decimal('0')  # Pas de poids pour les articles C2C
                         )
                     else:
                         # Pour les produits normaux
@@ -521,7 +521,7 @@ def add_to_cart(request):
                     old_orde.weight = float(weight)
                     old_orde.amount = str(total)
                     old_orde.save()
-                    # add product for old order supplier - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                    # add product for old order supplier - seulement si le produit a un vendeur (pas pour les articles C2C)
                     if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                         if OrderSupplier.objects.all().filter(
                                 order=old_orde, is_finished=False, vendor=product.product_vendor).exists():
@@ -618,7 +618,7 @@ def add_to_cart(request):
                 # new_order.supplier = product.product_vendor.user
                 # new_order.vendors.add(product.product_vendor)
 
-                # order for supllier - seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                # order for supllier - seulement si le produit a un vendeur (pas pour les articles C2C)
                 if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                     new_order_supplier = OrderSupplier()
                     if request.user.is_authenticated and not request.user.is_anonymous:
@@ -639,7 +639,7 @@ def add_to_cart(request):
                         price=safe_decimal_price(peer_product.PRDPrice),
                         quantity=qyt,
                         size=size,
-                        weight=Decimal('0')  # Pas de poids pour les articles entre particuliers
+                        weight=Decimal('0')  # Pas de poids pour les articles C2C
                     )
                 else:
                     order_details = OrderDetails.objects.create(
@@ -653,7 +653,7 @@ def add_to_cart(request):
                         weight=safe_decimal_price(getattr(product, 'PRDWeight', 0))
                     )
 
-                # Créer OrderDetailsSupplier seulement si le produit a un vendeur (pas pour les articles entre particuliers)
+                # Créer OrderDetailsSupplier seulement si le produit a un vendeur (pas pour les articles C2C)
                 if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
                     order_details_supplier = OrderDetailsSupplier.objects.create(
                         supplier=product.product_vendor.user,
@@ -1021,9 +1021,9 @@ def remove_item(request, productdeatails_id):
                 old_orde.amount = str(total)
                 old_orde.save()
 
-                # Vérifier si c'est un article entre particuliers (pas de product_vendor)
+                # Vérifier si c'est un article C2C (pas de product_vendor)
                 if item_id.peer_product:
-                    # Pour les articles entre particuliers, pas de OrderDetailsSupplier
+                    # Pour les articles C2C, pas de OrderDetailsSupplier
                     item_id.delete()
                     messages.warning(request, 'Produit supprimé du panier')
                     return redirect('orders:cart')

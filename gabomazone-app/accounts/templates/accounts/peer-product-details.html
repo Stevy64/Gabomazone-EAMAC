@@ -4,7 +4,7 @@
 
 {%block body%}
 <style>
-    /* Styles pour la page de détails article entre particuliers */
+    /* Styles pour la page de détails article C2C */
     .flavoriz-product-detail {
         padding: 24px 0 60px 0;
         background: #FAFAFA;
@@ -329,7 +329,18 @@
                             <h3>Informations du vendeur</h3>
                             <div class="flavoriz-seller-detail">
                                 <i class="fi-rs-user"></i>
-                                <span><strong>Vendeur:</strong> {{peer_product.seller.username}}</span>
+                                <span><strong>Vendeur:</strong> 
+                                    <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">
+                                        {{peer_product.seller.username}}
+                                    </a>
+                                    {% if seller_stats %}
+                                    <span style="margin-left: 8px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fi-rs-star" style="color: #FFD700; font-size: 14px;"></i>
+                                        <span style="font-weight: 600; color: #1F2937;">{{ seller_stats.average_rating|floatformat:1 }}</span>
+                                        <span style="color: #6B7280; font-size: 12px;">({{ seller_stats.total_reviews }})</span>
+                                    </span>
+                                    {% endif %}
+                                </span>
                             </div>
                             <div class="flavoriz-seller-detail">
                                 <i class="fi-rs-marker"></i>
@@ -339,10 +350,16 @@
                                 <i class="fi-rs-home"></i>
                                 <span><strong>Adresse:</strong> {{peer_product.seller_address}}</span>
                             </div>
-                            <button class="flavoriz-contact-seller-btn" id="peer-propose-offer-btn" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})">
-                                <i class="fi-rs-tag"></i>
-                                <span>Proposer une offre</span>
-                            </button>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" style="flex: 1; min-width: 0; padding: 14px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 123, 44, 0.3)'">
+                                    <i class="fi-rs-user-check" style="font-size: 16px;"></i>
+                                    <span>Voir le profil</span>
+                                </a>
+                                <button id="peer-propose-offer-btn" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" style="flex: 1; min-width: 0; padding: 14px 20px; background: white; border: 2px solid #1F2937; color: #1F2937; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" onmouseover="this.style.background='#1F2937'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'" onmouseout="this.style.background='white'; this.style.color='#1F2937'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)'">
+                                    <i class="fi-rs-comment" style="font-size: 16px;"></i>
+                                    <span>Proposer une offre</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="flavoriz-product-meta">

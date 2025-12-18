@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<style>
+    .review-form-container {
+        max-width: 600px;
+        margin: 100px auto;
+        padding: 0 20px;
+    }
+    
+    .review-form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rating-input {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 24px 0;
+    }
+    
+    .star-input {
+        font-size: 40px;
+        color: #E5E7EB;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .star-input:hover,
+    .star-input.active {
+        color: #FFD700;
+        transform: scale(1.1);
+    }
+    
+    .star-input.selected {
+        color: #FFD700;
+    }
+    
+    textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.3s;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: var(--color-orange);
+    }
+</style>
+
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="review-form-container">
+        <div class="review-form-card">
+            <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; text-align: center;">
+                Noter {% if review_type == 'seller' %}le vendeur{% else %}l'acheteur{% endif %}
+            </h1>
+            <p style="text-align: center; color: #6B7280; margin: 0 0 32px 0;">
+                Partagez votre expérience avec {{ reviewed_user.username }} ({{ reviewed_user_type }})
+            </p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Product Info -->
+                <div style="background: #FAFAFA; border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid #E5E7EB;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="{{ order.product.product_image.url }}" alt="{{ order.product.product_name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">{{ order.product.product_name }}</div>
+                            <div style="font-size: 14px; color: #6B7280;">Prix: {{ order.final_price|floatformat:0 }} FCFA</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rating -->
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px; text-align: center;">
+                        Votre note
+                    </label>
+                    <div class="rating-input">
+                        {% for i in "12345" %}
+                        <i class="fi-rs-star star-input" data-rating="{{ forloop.counter }}" onclick="selectRating({{ forloop.counter }})"></i>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="rating-input" value="{% if existing_review %}{{ existing_review.rating }}{% else %}0{% endif %}" required>
+                </div>
+                
+                <!-- Comment -->
+                <div style="margin-bottom: 24px;">
+                    <label for="comment" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 8px;">
+                        Commentaire (optionnel)
+                    </label>
+                    <textarea name="comment" id="comment" placeholder="Décrivez votre expérience avec {% if review_type == 'seller' %}ce vendeur{% else %}cet acheteur{% endif %}...">{% if existing_review %}{{ existing_review.comment }}{% endif %}</textarea>
+                </div>
+                
+                <!-- Buttons -->
+                <div style="display: flex; gap: 12px;">
+                    <a href="{% if review_type == 'seller' %}{% url 'c2c:seller-profile' order.seller.id %}{% else %}{% url 'accounts:my-messages' %}{% endif %}" style="flex: 1; padding: 14px 24px; background: #F3F4F6; color: #6B7280; border-radius: 10px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s;">
+                        Annuler
+                    </a>
+                    <button type="submit" id="submit-btn" style="flex: 1; padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s;" disabled>
+                        {% if existing_review %}Mettre à jour{% else %}Publier l'avis{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    let selectedRating = {% if existing_review %}{{ existing_review.rating }}{% else %}0{% endif %};
+    
+    function selectRating(rating) {
+        selectedRating = rating;
+        document.getElementById('rating-input').value = rating;
+        
+        // Update star display
+        const stars = document.querySelectorAll('.star-input');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('selected', 'active');
+            } else {
+                star.classList.remove('selected', 'active');
+            }
+        });
+        
+        // Enable submit button
+        document.getElementById('submit-btn').disabled = false;
+        document.getElementById('submit-btn').style.opacity = '1';
+    }
+    
+    // Initialize stars if existing review
+    if (selectedRating > 0) {
+        selectRating(selectedRating);
+    } else {
+        document.getElementById('submit-btn').style.opacity = '0.5';
+    }
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (selectedRating === 0) {
+            e.preventDefault();
+            alert('Veuillez sélectionner une note avant de soumettre.');
+        }
+    });
+</script>
+{% endblock %}
+

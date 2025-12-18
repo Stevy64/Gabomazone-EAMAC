@@ -412,7 +412,7 @@ def order(request, order_id):
 @login_required(login_url='accounts:login')
 def sell_product(request):
     """
-    Vue pour ajouter un article à vendre entre particuliers.
+    Vue pour ajouter un article C2C.
     Remplace l'ancienne page de téléchargement.
     """
     from categories.models import SuperCategory, MainCategory, SubCategory
@@ -437,6 +437,21 @@ def sell_product(request):
         
         if table_exists:
             user_products = PeerToPeerProduct.objects.filter(seller=request.user).order_by('-date')
+            # Vérifier si les produits sont boostés
+            from c2c.models import ProductBoost
+            from django.utils import timezone
+            now = timezone.now()
+            for product in user_products:
+                try:
+                    active_boost = ProductBoost.objects.filter(
+                        product=product,
+                        status=ProductBoost.ACTIVE,
+                        start_date__lte=now,
+                        end_date__gte=now
+                    ).first()
+                    product.is_boosted = active_boost is not None
+                except:
+                    product.is_boosted = False
     except Exception as e:
         # Si la table n'existe pas encore (migrations non appliquées)
         user_products = []
@@ -546,8 +561,46 @@ def sell_product(request):
             )
             
             # Calculer la commission (fait automatiquement dans save())
+            
+            # Créer manuellement une notification admin si le signal n'a pas fonctionné
+            try:
+                from .models import AdminNotification
+                from django.db import connection
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_adminnotification'")
+                    if cursor.fetchone():
+                        # Vérifier si une notification existe déjà
+                        existing = AdminNotification.objects.filter(
+                            notification_type=AdminNotification.PRODUCT_APPROVAL,
+                            related_object_id=product.id,
+                            related_object_type='PeerToPeerProduct',
+                            is_resolved=False
+                        ).first()
+                        
+                        if not existing:
+                            from django.urls import reverse
+                            try:
+                                related_url = reverse('admin:accounts_peertopeerproduct_change', args=[product.id])
+                            except:
+                                related_url = f'/admin/accounts/peertopeerproduct/{product.id}/change/'
+                            
+                            AdminNotification.objects.create(
+                                notification_type=AdminNotification.PRODUCT_APPROVAL,
+                                title=f"Produit C2C en attente d'approbation - {product.product_name}",
+                                message=f"Le produit '{product.product_name}' de {product.seller.username} est en attente d'approbation.",
+                                related_object_id=product.id,
+                                related_object_type='PeerToPeerProduct',
+                                related_url=related_url
+                            )
+            except Exception as e:
+                # Ignorer les erreurs de notification
+                pass
+            
             messages.success(request, f'Votre article "{product_name}" a été soumis avec succès. Il sera examiné par notre équipe avant publication.')
-            return redirect('accounts:sell-product')
+            
+            # Rediriger vers "Mes articles publiés" avec une proposition de boost
+            # Une fois approuvé, l'utilisateur pourra booster son article
+            return redirect('accounts:my-published-products')
             
         except Exception as e:
             messages.error(request, f'Une erreur est survenue lors de la création de l\'article: {str(e)}')
@@ -733,8 +786,12 @@ def my_published_products(request):
         
         if table_exists:
             user_products = PeerToPeerProduct.objects.filter(seller=request.user).order_by('-date')
-            # Calculer le nombre de messages non lus pour chaque produit
+            # Calculer le nombre de messages non lus et vérifier si le produit est boosté
             from .models import ProductConversation
+            from c2c.models import ProductBoost
+            from django.utils import timezone
+            now = timezone.now()
+            
             for product in user_products:
                 try:
                     conversations = ProductConversation.objects.filter(product=product, seller=request.user)
@@ -744,6 +801,20 @@ def my_published_products(request):
                     product.unread_messages_count = unread_count
                 except:
                     product.unread_messages_count = 0
+                
+                # Vérifier si le produit a un boost actif
+                try:
+                    active_boost = ProductBoost.objects.filter(
+                        product=product,
+                        status=ProductBoost.ACTIVE,
+                        start_date__lte=now,
+                        end_date__gte=now
+                    ).first()
+                    product.is_boosted = active_boost is not None
+                    if active_boost:
+                        product.boost_end_date = active_boost.end_date
+                except:
+                    product.is_boosted = False
         else:
             user_products = []
     except Exception as e:
@@ -917,6 +988,7 @@ def get_product_conversations(request, product_id):
 def send_product_message(request, product_id):
     """
     Vue pour envoyer un message dans une conversation (API JSON)
+    Accepte conversation_id pour permettre l'envoi même si le produit a été supprimé
     """
     from django.http import JsonResponse
     from .models import ProductConversation, ProductMessage
@@ -926,11 +998,6 @@ def send_product_message(request, product_id):
     
     if request.method != 'POST':
         return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
-    
-    try:
-        product = PeerToPeerProduct.objects.get(id=product_id)
-    except PeerToPeerProduct.DoesNotExist:
-        return JsonResponse({'error': 'Article introuvable'}, status=404)
     
     data = json.loads(request.body)
     conversation_id = data.get('conversation_id')
@@ -942,9 +1009,16 @@ def send_product_message(request, product_id):
     # Récupérer la conversation
     try:
         if conversation_id:
+            # Si conversation_id fourni, l'utiliser directement (même si le produit a été supprimé)
             conversation = ProductConversation.objects.get(id=conversation_id)
         else:
-            # Si pas de conversation_id, utiliser buyer_id (ancien système)
+            # Si pas de conversation_id, on a besoin du produit
+            try:
+                product = PeerToPeerProduct.objects.get(id=product_id)
+            except PeerToPeerProduct.DoesNotExist:
+                return JsonResponse({'error': 'Article introuvable. Utilisez conversation_id.'}, status=404)
+            
+            # Utiliser buyer_id (ancien système)
             buyer_id = data.get('buyer_id')
             if not buyer_id:
                 return JsonResponse({'error': 'conversation_id ou buyer_id requis'}, status=400)
@@ -960,6 +1034,24 @@ def send_product_message(request, product_id):
         # Vérifier que l'utilisateur peut envoyer un message dans cette conversation
         if request.user not in [conversation.seller, conversation.buyer]:
             return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+        
+        # Vérifier si une commande C2C existe et si elle est terminée (bloquer le chat)
+        try:
+            from c2c.models import C2COrder
+            c2c_order = C2COrder.objects.filter(
+                product=conversation.product,
+                buyer=conversation.buyer,
+                seller=conversation.seller,
+                status=C2COrder.COMPLETED
+            ).first()
+            
+            if c2c_order:
+                return JsonResponse({
+                    'error': 'Cette transaction est terminée. Le chat est désactivé.'
+                }, status=403)
+        except Exception:
+            # Si erreur lors de la vérification C2C, continuer quand même
+            pass
         
     except ProductConversation.DoesNotExist:
         return JsonResponse({'error': 'Conversation introuvable'}, status=404)
@@ -1014,6 +1106,50 @@ def delete_product_message(request, message_id):
 
 
 @login_required(login_url='accounts:login')
+@require_POST
+def archive_conversation(request, conversation_id):
+    """
+    Archive une conversation pour l'utilisateur courant
+    """
+    from django.http import JsonResponse
+    from .models import ProductConversation
+    
+    try:
+        conversation = ProductConversation.objects.get(id=conversation_id)
+    except ProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+    
+    # Vérifier que l'utilisateur fait partie de la conversation
+    if request.user not in [conversation.seller, conversation.buyer]:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+    
+    conversation.archive_for_user(request.user)
+    return JsonResponse({'success': True, 'message': 'Conversation archivée'})
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def unarchive_conversation(request, conversation_id):
+    """
+    Désarchive une conversation pour l'utilisateur courant
+    """
+    from django.http import JsonResponse
+    from .models import ProductConversation
+    
+    try:
+        conversation = ProductConversation.objects.get(id=conversation_id)
+    except ProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+    
+    # Vérifier que l'utilisateur fait partie de la conversation
+    if request.user not in [conversation.seller, conversation.buyer]:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+    
+    conversation.unarchive_for_user(request.user)
+    return JsonResponse({'success': True, 'message': 'Conversation désarchivée'})
+
+
+@login_required(login_url='accounts:login')
 def mark_conversation_messages_read(request, conversation_id):
     """
     Vue pour marquer les messages d'une conversation comme lus (API JSON)
@@ -1064,16 +1200,17 @@ def my_messages(request):
     except Exception:
         table_exists = False
     
-    # Vérifier si c'est une proposition d'offre (seulement si la table existe)
+    # Vérifier si c'est une proposition d'offre ou un retour après paiement (seulement si la table existe)
     if table_exists:
         product_id = request.GET.get('product_id')
         action = request.GET.get('action')
         
-        if product_id and action == 'propose_offer':
+        if product_id:
             try:
-                product = PeerToPeerProduct.objects.get(id=product_id, status=PeerToPeerProduct.APPROVED)
-                # Vérifier que l'utilisateur n'est pas le vendeur
-                if product.seller != request.user:
+                product = PeerToPeerProduct.objects.get(id=product_id)
+                
+                # Si c'est une proposition d'offre (nouvel acheteur)
+                if action == 'propose_offer' and product.seller != request.user and product.status == PeerToPeerProduct.APPROVED:
                     # Créer ou récupérer la conversation
                     conversation, created = ProductConversation.objects.get_or_create(
                         product=product,
@@ -1089,6 +1226,17 @@ def my_messages(request):
                     
                     auto_open_product_id = product.id
                     auto_open_conversation_id = conversation.id
+                else:
+                    # Sinon, essayer de trouver une conversation existante (retour après paiement)
+                    conversation = ProductConversation.objects.filter(
+                        product=product,
+                    ).filter(
+                        Q(seller=request.user) | Q(buyer=request.user)
+                    ).first()
+                    
+                    if conversation:
+                        auto_open_product_id = product.id
+                        auto_open_conversation_id = conversation.id
             except (PeerToPeerProduct.DoesNotExist, ValueError, Exception):
                 pass  # Ignorer les erreurs et continuer normalement
     
@@ -1146,24 +1294,44 @@ def my_messages(request):
             total_unread += conv.get_unread_count_for_buyer()
         
         # Ajouter le nombre de messages non lus à chaque conversation et précharger le dernier message
+        active_conversations = []
+        archived_conversations = []
+        
         for conv in seller_conversations:
             conv.unread_count = conv.get_unread_count_for_seller()
             conv.other_user = conv.buyer
             conv.user_role = 'seller'
-            # Précharger le dernier message
             conv.last_message = conv.messages.order_by('-created_at').first()
+            # Ajouter les infos C2C
+            conv.c2c_order = conv.get_c2c_order()
+            conv.purchase_intent = conv.get_purchase_intent()
+            conv.is_archived = conv.is_archived_by_seller
+            
+            if conv.is_archived_by_seller:
+                archived_conversations.append(conv)
+            else:
+                active_conversations.append(conv)
         
         for conv in buyer_conversations:
             conv.unread_count = conv.get_unread_count_for_buyer()
             conv.other_user = conv.seller
             conv.user_role = 'buyer'
-            # Précharger le dernier message
             conv.last_message = conv.messages.order_by('-created_at').first()
+            # Ajouter les infos C2C
+            conv.c2c_order = conv.get_c2c_order()
+            conv.purchase_intent = conv.get_purchase_intent()
+            conv.is_archived = conv.is_archived_by_buyer
+            
+            if conv.is_archived_by_buyer:
+                archived_conversations.append(conv)
+            else:
+                active_conversations.append(conv)
         
-        # Combiner toutes les conversations
-        all_conversations = list(seller_conversations) + list(buyer_conversations)
+        # Combiner toutes les conversations actives
+        all_conversations = active_conversations
         # Trier par date du dernier message
         all_conversations.sort(key=lambda x: x.last_message_at, reverse=True)
+        archived_conversations.sort(key=lambda x: x.last_message_at, reverse=True)
         
         # Récupérer les notifications de commandes
         try:
@@ -1220,8 +1388,15 @@ def my_messages(request):
             peer_notifications = []
             orders_unread_count = 0
     
+    # Définir archived_conversations si non défini
+    try:
+        archived_conversations
+    except NameError:
+        archived_conversations = []
+    
     context = {
         'conversations': all_conversations,
+        'archived_conversations': archived_conversations,
         'total_unread': total_unread,
         'peer_notifications': peer_notifications,
         'orders_unread_count': orders_unread_count,
@@ -1234,7 +1409,7 @@ def my_messages(request):
 
 
 def peer_product_details(request, slug):
-    """Affiche les détails d'un article entre particuliers"""
+    """Affiche les détails d'un article C2C"""
     from django.shortcuts import get_object_or_404
     
     try:
@@ -1259,9 +1434,22 @@ def peer_product_details(request, slug):
     except:
         pass
     
+    # Récupérer les statistiques du vendeur (avec gestion d'erreur si la table n'existe pas)
+    seller_stats = None
+    try:
+        from c2c.models import SellerReview
+        seller_stats = SellerReview.get_seller_stats(peer_product.seller)
+    except Exception as e:
+        # Si la table n'existe pas encore (migrations non appliquées)
+        seller_stats = {
+            'average_rating': 0,
+            'total_reviews': 0,
+        }
+    
     context = {
         'peer_product': peer_product,
         'similar_products': similar_products,
+        'seller_stats': seller_stats,
     }
     return render(request, 'accounts/peer-product-details.html', context)
 

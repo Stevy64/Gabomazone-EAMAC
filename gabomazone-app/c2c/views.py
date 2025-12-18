@@ -10,8 +10,13 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.utils import timezone
+from django.urls import reverse
+from django.conf import settings
 from decimal import Decimal
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .models import (
     PurchaseIntent, Negotiation, C2COrder, DeliveryVerification,
@@ -66,14 +71,47 @@ def get_purchase_intent_for_conversation(request):
             accepted_neg = negotiations_qs.filter(status=Negotiation.ACCEPTED).order_by('-created_at').first()
             can_accept_final_price = accepted_neg is not None
             
-            # Récupérer l'ID de commande C2C si déjà créée
+            # Récupérer les infos de commande C2C si déjà créée
             order_id = None
+            order_status = None
+            order_data = None
+            verification_data = None
+            
             try:
-                existing_order = intent.c2corder_set.first()
-                if existing_order:
-                    order_id = existing_order.id
+                existing_order = intent.c2c_order
+                order_id = existing_order.id
+                order_status = existing_order.status
+                order_data = {
+                    'id': existing_order.id,
+                    'status': existing_order.status,
+                    'final_price': str(existing_order.final_price),
+                    'buyer_commission': str(existing_order.buyer_commission),
+                    'seller_commission': str(existing_order.seller_commission),
+                    'buyer_total': str(existing_order.buyer_total),
+                    'seller_net': str(existing_order.seller_net),
+                    'paid_at': existing_order.paid_at.strftime('%d/%m/%Y à %H:%M') if existing_order.paid_at else None,
+                    'completed_at': existing_order.completed_at.strftime('%d/%m/%Y à %H:%M') if existing_order.completed_at else None,
+                }
+                
+                # Récupérer les infos de vérification si la commande est payée
+                if existing_order.status in [C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED, C2COrder.VERIFIED, C2COrder.COMPLETED]:
+                    try:
+                        verification = existing_order.delivery_verification
+                        # Chaque utilisateur voit SON PROPRE code à donner et peut saisir celui de l'autre
+                        verification_data = {
+                            'status': verification.status,
+                            # L'acheteur voit son buyer_code (A-CODE) à donner au vendeur
+                            # Le vendeur voit son seller_code (V-CODE) à donner à l'acheteur
+                            'seller_code': verification.seller_code,  # V-CODE du vendeur
+                            'buyer_code': verification.buyer_code,    # A-CODE de l'acheteur
+                            'seller_code_verified': verification.seller_code_verified,
+                            'buyer_code_verified': verification.buyer_code_verified,
+                            'is_completed': verification.is_completed(),
+                        }
+                    except Exception:
+                        pass
             except Exception:
-                order_id = None
+                pass
             
             return JsonResponse({
                 'success': True,
@@ -86,7 +124,10 @@ def get_purchase_intent_for_conversation(request):
                 'seller_id': intent.seller.id,
                 'negotiations': negotiations_data,
                 'can_accept_final_price': can_accept_final_price,
-                'order_id': order_id
+                'order_id': order_id,
+                'order_status': order_status,
+                'order': order_data,
+                'verification': verification_data,
             })
         else:
             return JsonResponse({'success': False, 'purchase_intent_id': None})
@@ -618,12 +659,14 @@ def init_c2c_payment(request, order_id):
     
     # Si GET, afficher la page de paiement
     if request.method == 'GET':
+        from django.conf import settings as django_settings
         # Récupérer les taux de commission pour l'affichage
-        settings = PlatformSettings.get_active_settings()
+        platform_settings = PlatformSettings.get_active_settings()
         context = {
             'order': order,
-            'commission_rate_buyer': settings.c2c_buyer_commission_rate,
-            'commission_rate_seller': settings.c2c_seller_commission_rate,
+            'commission_rate_buyer': platform_settings.c2c_buyer_commission_rate,
+            'commission_rate_seller': platform_settings.c2c_seller_commission_rate,
+            'debug': django_settings.DEBUG,
         }
         return render(request, 'c2c/payment.html', context)
     
@@ -647,6 +690,88 @@ def init_c2c_payment(request, order_id):
 
 @login_required
 @require_POST
+def simulate_payment(request, order_id):
+    """
+    Simule un paiement réussi pour le mode test/sandbox
+    """
+    from django.conf import settings
+    
+    order = get_object_or_404(C2COrder, id=order_id)
+    
+    # Vérifier que c'est l'acheteur
+    if request.user != order.buyer:
+        messages.error(request, "Seul l'acheteur peut effectuer le paiement.")
+        return redirect('c2c:order-detail', order_id=order_id)
+    
+    # Vérifier que la commande est en attente de paiement
+    if order.status != C2COrder.PENDING_PAYMENT:
+        messages.info(request, "Cette commande a déjà été payée ou traitée.")
+        return redirect('c2c:payment-success', order_id=order_id)
+    
+    # Simuler le paiement réussi
+    order.status = C2COrder.PAID
+    order.paid_at = timezone.now()
+    order.save()
+    
+    # Mettre à jour la transaction si elle existe
+    if order.payment_transaction:
+        order.payment_transaction.status = 'success'
+        order.payment_transaction.paid_at = timezone.now()
+        order.payment_transaction.save()
+    
+    messages.success(request, "Paiement simulé avec succès ! (Mode test)")
+    return redirect('c2c:payment-success', order_id=order_id)
+
+
+@login_required
+def payment_success(request, order_id):
+    """
+    Page de succès de paiement C2C - Redirige vers la messagerie
+    """
+    order = get_object_or_404(C2COrder, id=order_id)
+    
+    # Vérifier que c'est l'acheteur ou le vendeur
+    if request.user not in [order.buyer, order.seller]:
+        messages.error(request, "Vous n'avez pas accès à cette commande.")
+        return redirect('accounts:my-messages')
+    
+    # Si le paiement est en attente, vérifier et mettre à jour le statut
+    if order.status == C2COrder.PENDING_PAYMENT:
+        # Vérifier le statut de la transaction
+        if order.payment_transaction and order.payment_transaction.status == 'success':
+            order.status = C2COrder.PAID
+            order.paid_at = timezone.now()
+            order.save()
+    
+    # Récupérer les codes de vérification
+    verification = None
+    try:
+        verification = order.delivery_verification
+    except DeliveryVerification.DoesNotExist:
+        # Créer la vérification si elle n'existe pas
+        verification = DeliveryVerification.objects.create(c2c_order=order)
+    
+    # Préparer le message avec les codes
+    if request.user == order.buyer:
+        messages.success(
+            request, 
+            f"🎉 Paiement réussi ! Votre code de vérification (A-CODE) est : {verification.buyer_code}. "
+            f"Communiquez ce code au vendeur lors de la remise de l'article."
+        )
+    else:
+        messages.success(
+            request, 
+            f"🎉 Paiement reçu ! Votre code de vérification (V-CODE) est : {verification.seller_code}. "
+            f"Communiquez ce code à l'acheteur après lui avoir remis l'article."
+        )
+    
+    # Rediriger vers la messagerie avec le produit concerné
+    from django.urls import reverse
+    return redirect(f"{reverse('accounts:my-messages')}?product_id={order.product.id}")
+
+
+@login_required
+@require_POST
 def verify_seller_code(request, order_id):
     """
     Vérifie le code vendeur (V-CODE)
@@ -662,9 +787,25 @@ def verify_seller_code(request, order_id):
         code = data.get('code', '').strip()
         
         if DeliveryVerificationService.verify_seller_code(order, code):
+            # Vérifier si le vendeur peut noter l'acheteur
+            can_review = False
+            review_url = None
+            try:
+                from .models import BuyerReview
+                # Vérifier si les deux codes sont validés
+                verification = order.delivery_verification
+                if verification.buyer_code_verified and verification.seller_code_verified:
+                    can_review, _ = BuyerReview.can_review(order, order.seller)
+                    if can_review:
+                        review_url = reverse('c2c:create-review', args=[order.id])
+            except:
+                pass
+            
             return JsonResponse({
                 'success': True,
-                'message': 'Code vendeur vérifié avec succès'
+                'message': 'Code vendeur vérifié avec succès',
+                'can_review': can_review,
+                'review_url': review_url
             })
         else:
             return JsonResponse({
@@ -693,9 +834,22 @@ def verify_buyer_code(request, order_id):
         code = data.get('code', '').strip()
         
         if DeliveryVerificationService.verify_buyer_code(order, code):
+            # Vérifier si l'acheteur peut noter le vendeur
+            can_review = False
+            review_url = None
+            try:
+                from .models import SellerReview
+                can_review, _ = SellerReview.can_review(order, order.buyer)
+                if can_review:
+                    review_url = reverse('c2c:create-review', args=[order.id])
+            except:
+                pass
+            
             return JsonResponse({
                 'success': True,
-                'message': 'Code vendeur vérifié avec succès. La transaction est maintenant complète !'
+                'message': 'Code vendeur vérifié avec succès. La transaction est maintenant complète !',
+                'can_review': can_review,
+                'review_url': review_url
             })
         else:
             return JsonResponse({
@@ -733,7 +887,7 @@ def boost_product(request, product_id):
 @require_POST
 def purchase_boost(request, product_id):
     """
-    Achete un boost pour un produit
+    Achete un boost pour un produit - Initialise le paiement SingPay
     """
     product = get_object_or_404(PeerToPeerProduct, id=product_id)
     
@@ -748,23 +902,108 @@ def purchase_boost(request, product_id):
         if duration not in ['24h', '72h', '7d']:
             return JsonResponse({'error': 'Durée de boost invalide'}, status=400)
         
-        # TODO: Initialiser le paiement SingPay pour le boost
-        # Pour l'instant, on crée le boost directement (mode sandbox)
+        # Initialiser le paiement SingPay
+        singpay_transaction = SingPayService.init_boost_payment(
+            product=product,
+            user=request.user,
+            duration=duration,
+            request=request
+        )
+        
+        # En mode DEBUG, proposer la simulation
+        if settings.DEBUG:
+            return JsonResponse({
+                'success': True,
+                'boost_id': None,
+                'payment_url': f'/c2c/boost/{product_id}/simulate/?duration={duration}',
+                'message': 'Redirection vers le paiement...'
+            })
+        
+        # En production, utiliser l'URL de paiement SingPay
+        # Pour l'instant, on redirige vers la page de paiement SingPay
+        payment_url = singpay_transaction.payment_url or f'/payments/singpay/pay/{singpay_transaction.transaction_id}/'
+        
+        return JsonResponse({
+            'success': True,
+            'payment_url': payment_url,
+            'message': 'Redirection vers le paiement...'
+        })
+        
+    except Exception as e:
+        import traceback
+        logger.error(f"Erreur lors de l'achat du boost: {str(e)}\n{traceback.format_exc()}")
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def boost_success(request, product_id):
+    """
+    Page de succès après paiement du boost
+    """
+    product = get_object_or_404(PeerToPeerProduct, id=product_id)
+    
+    # Vérifier que c'est le vendeur
+    if request.user != product.seller:
+        messages.error(request, "Accès non autorisé.")
+        return redirect('accounts:my-published-products')
+    
+    # Récupérer le dernier boost actif pour ce produit
+    try:
+        boost = ProductBoost.objects.filter(
+            product=product,
+            buyer=request.user,
+            status=ProductBoost.ACTIVE
+        ).order_by('-created_at').first()
+        
+        if boost:
+            duration_display = dict(ProductBoost.DURATION_CHOICES).get(boost.duration, boost.duration)
+            messages.success(
+                request,
+                f"🎉 Boost activé avec succès ! Votre article sera mis en avant pendant {duration_display}."
+            )
+        else:
+            messages.info(request, "Le boost est en cours de traitement.")
+    except Exception:
+        pass
+    
+    return redirect('accounts:my-published-products')
+
+
+@login_required
+def simulate_boost_payment(request, product_id):
+    """
+    Simule le paiement d'un boost (uniquement en mode DEBUG)
+    """
+    if not settings.DEBUG:
+        return JsonResponse({'error': 'Non disponible en production'}, status=403)
+    
+    product = get_object_or_404(PeerToPeerProduct, id=product_id)
+    
+    if request.user != product.seller:
+        return JsonResponse({'error': 'Seul le vendeur peut booster son article'}, status=403)
+    
+    duration = request.GET.get('duration', '24h')
+    
+    if duration not in ['24h', '72h', '7d']:
+        return JsonResponse({'error': 'Durée invalide'}, status=400)
+    
+    try:
+        # Créer directement le boost (simulation)
         boost = BoostService.create_boost(
             product=product,
             buyer=request.user,
             duration=duration,
-            payment_transaction=None  # À remplacer par la transaction SingPay
+            payment_transaction=None
         )
         
-        return JsonResponse({
-            'success': True,
-            'boost_id': boost.id,
-            'message': f'Boost {duration} activé avec succès !'
-        })
-        
+        messages.success(
+            request,
+            f"🎉 Boost {duration} activé avec succès ! (Mode simulation)"
+        )
+        return redirect('accounts:my-published-products')
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        messages.error(request, f"Erreur: {str(e)}")
+        return redirect('accounts:my-published-products')
 
 
 @login_required

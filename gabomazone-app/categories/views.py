@@ -220,25 +220,25 @@ def convert_peer_to_peer_to_dict(peer_product):
     if peer_product.additional_image_3:
         product_images.append(str(peer_product.additional_image_3))
     
-    # Compter les favoris pour cet article entre particuliers
+    # Compter les favoris pour cet article C2C
     like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
     
     return {
         'id': peer_product.id,  # ID sans préfixe (le préfixe sera ajouté dans le template)
         'product_name': peer_product.product_name,
         'PRDPrice': peer_product.PRDPrice,
-        'PRDDiscountPrice': 0,  # Pas de prix réduit pour les articles entre particuliers
+        'PRDDiscountPrice': 0,  # Pas de prix réduit pour les articles C2C
         'product_image': str(peer_product.product_image),
         'product_images': product_images,
         'PRDSlug': peer_product.PRDSlug,
         'view_count': peer_product.view_count or 0,  # Utiliser le compteur de vues réel
         'like_count': like_count,
-        'is_peer_to_peer': True,  # Flag pour identifier les articles entre particuliers
+        'is_peer_to_peer': True,  # Flag pour identifier les articles C2C
     }
 
 
 def get_peer_to_peer_products(cat_type, cat_id, order_by, lower, upper):
-    """Récupère les articles entre particuliers approuvés selon les filtres"""
+    """Récupère les articles C2C approuvés selon les filtres"""
     try:
         peer_products = PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED)
         
@@ -320,7 +320,7 @@ class CategoryJsonListView(View):
                 }
                 products.append(product_dict)
             
-            # Ajouter les articles entre particuliers approuvés
+            # Ajouter les articles C2C approuvés
             peer_products = get_peer_to_peer_products("all", None, orderd_by, lower, upper)
             products.extend(peer_products)
             
@@ -380,7 +380,7 @@ class CategoryJsonListView(View):
                     }
                     products.append(product_dict)
                 
-                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                # Ajouter les articles C2C approuvés de cette catégorie
                 peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
                 products.extend(peer_products)
                 
@@ -432,7 +432,7 @@ class CategoryJsonListView(View):
                     }
                     products.append(product_dict)
                 
-                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                # Ajouter les articles C2C approuvés de cette catégorie
                 peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
                 products.extend(peer_products)
                 
@@ -484,7 +484,7 @@ class CategoryJsonListView(View):
                     }
                     products.append(product_dict)
                 
-                # Ajouter les articles entre particuliers approuvés de cette catégorie
+                # Ajouter les articles C2C approuvés de cette catégorie
                 peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
                 products.extend(peer_products)
                 
@@ -537,7 +537,7 @@ class CategoryJsonListView(View):
                     }
                     products.append(product_dict)
                 
-                # Pour les mini catégories, on n'inclut pas les articles entre particuliers car ils n'ont pas de mini catégorie
+                # Pour les mini catégories, on n'inclut pas les articles C2C car ils n'ont pas de mini catégorie
                 try:
                     products_size = len(Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
                 except:
@@ -581,7 +581,7 @@ class ProductListHTMXView(View):
         return queryset
     
     def get_peer_to_peer_queryset(self, cat_type, cat_id, order_by):
-        """Construit le queryset pour les articles entre particuliers"""
+        """Construit le queryset pour les articles C2C"""
         try:
             peer_products = PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED)
             
@@ -638,7 +638,7 @@ class ProductListHTMXView(View):
         else:
             shop_queryset = Product.objects.none()
         
-        # Récupérer les articles entre particuliers
+        # Récupérer les articles C2C
         peer_queryset = None
         if product_type in ['all', 'peer']:
             try:
@@ -696,7 +696,7 @@ class ProductListHTMXView(View):
             # Collecter toutes les images avec le préfixe /media/
             product_images = []
             if hasattr(product, 'is_peer_to_peer') and product.is_peer_to_peer:
-                # Article entre particuliers
+                # Article C2C
                 if product.product_image:
                     img_path = str(product.product_image)
                     if not img_path.startswith('/media/'):

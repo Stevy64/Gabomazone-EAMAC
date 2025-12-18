@@ -103,7 +103,7 @@ class OrderDetails(models.Model):
         User, on_delete=models.SET_NULL, related_name='user_supplier', blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
     peer_product = models.ForeignKey(
-        PeerToPeerProduct, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Article entre particuliers"))
+        PeerToPeerProduct, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Article C2C"))
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField()
@@ -131,7 +131,7 @@ class OrderDetails(models.Model):
     order_photo.allow_tags = True
     
     def get_product_name(self):
-        """Retourne le nom du produit (normal ou entre particuliers)"""
+        """Retourne le nom du produit (normal ou C2C)"""
         if self.peer_product:
             return self.peer_product.product_name
         if self.product:
@@ -139,7 +139,7 @@ class OrderDetails(models.Model):
         return "Produit supprimé"
     
     def get_product_slug(self):
-        """Retourne le slug du produit (normal ou entre particuliers)"""
+        """Retourne le slug du produit (normal ou C2C)"""
         if self.peer_product:
             return self.peer_product.PRDSlug
         if self.product:
@@ -147,7 +147,7 @@ class OrderDetails(models.Model):
         return ""
     
     def is_peer_to_peer(self):
-        """Vérifie si c'est un article entre particuliers"""
+        """Vérifie si c'est un article C2C"""
         return self.peer_product is not None
 
     # def save(self, *args, **kwargs):

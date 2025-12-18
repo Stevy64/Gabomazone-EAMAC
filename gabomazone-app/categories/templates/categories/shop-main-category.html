@@ -37,6 +37,13 @@
         opacity: 1 !important;
         transform: translateY(0) !important;
     }
+    
+    /* Correction affichage mobile - éviter que le contenu soit caché sous le header */
+    @media (max-width: 768px) {
+        .main.pages {
+            padding-top: 140px !important;
+        }
+    }
 </style>
 {%endblock head%}
 

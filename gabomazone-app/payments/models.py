@@ -41,7 +41,7 @@ class SingPayTransaction(models.Model):
         (ORDER_PAYMENT, _('Paiement de commande')),
         (BOOST_PAYMENT, _('Paiement boost produit')),
         (SUBSCRIPTION_PAYMENT, _('Paiement abonnement')),
-        (C2C_PAYMENT, _('Paiement entre particuliers')),
+        (C2C_PAYMENT, _('Paiement C2C')),
         (COMMISSION_PAYMENT, _('Paiement commission')),
     ]
     
@@ -83,7 +83,7 @@ class SingPayTransaction(models.Model):
         Product, on_delete=models.SET_NULL, blank=True, null=True, verbose_name=_("Produit"))
     peer_product = models.ForeignKey(
         PeerToPeerProduct, on_delete=models.SET_NULL, blank=True, null=True,
-        verbose_name=_("Article entre particuliers"))
+        verbose_name=_("Article C2C"))
     
     # Métadonnées
     description = models.TextField(blank=True, null=True, verbose_name=_("Description"))

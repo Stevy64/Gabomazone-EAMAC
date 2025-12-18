@@ -15,15 +15,15 @@
                     <a href="{% url 'home:index'%}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: var(--spacing-md); justify-content: center;">
                         <div style="width: 40px; height: 40px; background: var(--color-black); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                             <span style="color: white; font-size: 20px; font-weight: 800;">G</span>
-                        </div>
+            </div>
                         <div>
                             <span style="font-size: 24px; font-weight: 800; color: var(--color-black);">Gaboma</span>
                             <span style="font-size: 24px; font-weight: 800; color: var(--color-orange);">Zone</span>
-                        </div>
+        </div>
                     </a>
                     <h1 style="font-size: 32px; font-weight: 800; color: var(--color-black); margin: var(--spacing-sm) 0 var(--spacing-xs) 0; line-height: 1.2;">Bienvenue !</h1>
                     <p style="font-size: 15px; color: var(--text-gray); margin: 0;">Nous sommes heureux de vous revoir</p>
-                </div>
+    </div>
 
                 <!-- Tabs: Sign In / Sign Up -->
                 <div class="tab-switcher" style="display: flex; gap: var(--spacing-xs); margin-bottom: var(--spacing-lg); background: var(--color-beige); padding: 4px; border-radius: var(--radius-md); position: relative;">
@@ -33,10 +33,10 @@
                     <button type="button" class="tab-btn {% if active_tab == 'register' %}active{% endif %}" data-tab="register" style="flex: 1; padding: 10px 20px; text-align: center; border-radius: var(--radius-sm); {% if active_tab == 'register' %}background: var(--color-orange); color: white;{% else %}background: transparent; color: var(--text-gray);{% endif %} border: none; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: var(--font-primary); z-index: 2; position: relative;">
                         Inscription
                     </button>
-                </div>
+                        </div>
 
-                {% if messages %}
-                {% for message in messages %}
+                            {% if messages %}
+                            {% for message in messages %}
                 <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 12px 14px; border-radius: var(--radius-md); margin-bottom: var(--spacing-md); font-size: 13px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %};">
                     {{message}}
                 </div>
@@ -83,8 +83,8 @@
                             Se connecter
                         </button>
                     </form>
-                </div>
-
+                            </div>
+              
                 <!-- Register Form -->
                 <div id="register-form-container" class="form-container {% if active_tab == 'register' %}active{% endif %}" style="{% if active_tab == 'register' %}display: flex; flex-direction: column;{% else %}display: none;{% endif %}">
                     <form method="post" action="{% url 'accounts:register' %}" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
@@ -108,11 +108,11 @@
                             <div style="position: relative;">
                                 <input type="email" name="email" value="{% if register_form and register_form.email.value %}{{ register_form.email.value }}{% endif %}" placeholder="Entrez votre email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
-                            </div>
+                                    </div>
                             {% if register_form and register_form.email.errors %}
                             <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.email.errors.0 }}</div>
                             {% endif %}
-                        </div>
+                                            </div>
 
                         <!-- Password Field -->
                         <div style="position: relative;">
@@ -123,11 +123,11 @@
                                 <button type="button" onclick="toggleRegisterPassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">
                                     <i class="fi-rs-eye" id="register-password-toggle"></i>
                                 </button>
-                            </div>
+                                                </div>
                             {% if register_form and register_form.password1.errors %}
                             <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.password1.errors.0 }}</div>
                             {% endif %}
-                        </div>
+                                            </div>
 
                         <!-- Confirm Password Field -->
                         <div style="position: relative;">
@@ -135,21 +135,21 @@
                             <div style="position: relative;">
                                 <input type="password" name="password2" placeholder="Confirmez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-gray); font-size: 16px; pointer-events: none;"></i>
-                            </div>
+                                        </div>
                             {% if register_form and register_form.password2.errors %}
                             <div style="color: #dc2626; font-size: 12px; margin-top: 4px;">{{ register_form.password2.errors.0 }}</div>
                             {% endif %}
-                        </div>
+                                        </div>
 
                         <!-- Register Button -->
                         <button type="submit" name="register" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: var(--font-primary); margin-top: var(--spacing-xs);" onmouseover="this.style.background='var(--color-orange-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='var(--color-orange)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             Créer un compte
                         </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 </section>
 
 <script>

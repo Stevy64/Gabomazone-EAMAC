@@ -154,3 +154,4 @@ PlatformSettings.objects.create()
 - Les codes de vérification sont générés automatiquement
 - Les badges vendeurs sont attribués automatiquement selon les performances
 
+

@@ -89,11 +89,23 @@
 				<div class="flavoriz-account-dropdown" style="position: relative; display: inline-block;">
 					<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn" title="Compte" id="account-dropdown-trigger" style="position: relative;">
 						<i class="fi-rs-user"></i>
+						{% if user.is_authenticated and total_notifications_count and total_notifications_count > 0 %}
+						<span class="flavoriz-profile-badge" style="position: absolute; top: -6px; right: -6px; background: #EF4444; color: white; border-radius: 50%; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); border: 2px solid white; line-height: 1;">{{ total_notifications_count }}</span>
+						{% endif %}
 					</a>
 					{% if user.is_authenticated %}
 					<div class="flavoriz-account-menu" id="account-dropdown-menu">
-						<a href="{% url 'accounts:dashboard_customer' %}">
-							<i class="fi-rs-shopping-bag"></i> Mes commandes
+						<a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; justify-content: space-between;">
+							<span><i class="fi-rs-comment"></i> Messages</span>
+							{% if unread_messages_count and unread_messages_count > 0 %}
+							<span style="background: #EF4444; color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ unread_messages_count }}</span>
+							{% endif %}
+						</a>
+						<a href="{% url 'accounts:dashboard_customer' %}" style="display: flex; align-items: center; justify-content: space-between;">
+							<span><i class="fi-rs-shopping-bag"></i> Mes commandes</span>
+							{% if unread_orders_count and unread_orders_count > 0 %}
+							<span style="background: var(--color-orange); color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ unread_orders_count }}</span>
+							{% endif %}
 						</a>
 						<a href="{% url 'accounts:account_details' %}">
 							<i class="fi-rs-settings-sliders"></i> Paramètres
@@ -147,13 +159,25 @@
 				
 				<!-- Account Icon Mobile with Dropdown -->
 				<div class="flavoriz-account-dropdown-mobile">
-					<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte" id="account-dropdown-trigger-mobile">
+					<a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte" id="account-dropdown-trigger-mobile" style="position: relative;">
 						<i class="fi-rs-user"></i>
+						{% if user.is_authenticated and total_notifications_count and total_notifications_count > 0 %}
+						<span class="flavoriz-profile-badge-mobile" style="position: absolute; top: -6px; right: -6px; background: #EF4444; color: white; border-radius: 50%; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 0 5px; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); border: 2px solid white; line-height: 1;">{{ total_notifications_count }}</span>
+						{% endif %}
 					</a>
 					{% if user.is_authenticated %}
 					<div class="flavoriz-account-menu-mobile" id="account-dropdown-menu-mobile">
-						<a href="{% url 'accounts:dashboard_customer' %}">
-							<i class="fi-rs-shopping-bag"></i> Mes commandes
+						<a href="{% url 'accounts:my-messages' %}" style="position: relative; display: flex; align-items: center; justify-content: space-between;">
+							<span><i class="fi-rs-comment"></i> Messages</span>
+							{% if unread_messages_count and unread_messages_count > 0 %}
+							<span style="background: #EF4444; color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ unread_messages_count }}</span>
+							{% endif %}
+						</a>
+						<a href="{% url 'accounts:dashboard_customer' %}" style="position: relative; display: flex; align-items: center; justify-content: space-between;">
+							<span><i class="fi-rs-shopping-bag"></i> Mes commandes</span>
+							{% if unread_orders_count and unread_orders_count > 0 %}
+							<span style="background: var(--color-orange); color: white; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ unread_orders_count }}</span>
+							{% endif %}
 						</a>
 						<a href="{% url 'accounts:account_details' %}">
 							<i class="fi-rs-settings-sliders"></i> Paramètres
@@ -294,7 +318,7 @@
 												{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
 													<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
 												{% elif order.product and order.product.PRDSlug|length > 0 %}
-													<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
 												{% else %}
 													<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
 												{% endif %}
@@ -303,7 +327,7 @@
 												{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
 													<h4><a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}">{{order.peer_product.product_name|truncatechars:17}}</a></h4>
 												{% elif order.product and order.product.PRDSlug|length > 0 %}
-													<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
 												{% else %}
 													<h4>Produit</h4>
 												{% endif %}
@@ -527,7 +551,7 @@
 											{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
 												<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
 											{% elif order.product and order.product.PRDSlug|length > 0 %}
-												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+											<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
 											{% else %}
 												<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
 											{% endif %}
@@ -536,7 +560,7 @@
 											{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
 												<h4><a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}">{{order.peer_product.product_name|truncatechars:17}}</a></h4>
 											{% elif order.product and order.product.PRDSlug|length > 0 %}
-												<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
+											<h4><a href="{% url 'products:product-details' order.product.PRDSlug %}">{{order.product.product_name|truncatechars:17}}</a></h4>
 											{% else %}
 												<h4>Produit</h4>
 											{% endif %}
@@ -760,11 +784,11 @@
 				/* Mobile : ajuster le margin-top - header plus haut sur mobile */
 				@media (max-width: 768px) {
 					main.main {
-						margin-top: 90px !important;
+						margin-top: 140px !important;
 					}
 					
 					main.main.pages {
-						margin-top: 90px !important;
+						margin-top: 140px !important;
 						padding-top: 15px !important;
 					}
 					
@@ -1264,6 +1288,373 @@
 				width: 100% !important;
 			}
 		}
+		
+		/* ========== MINI MODALS ÉLÉGANTES ========== */
+		@keyframes modalFadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+		
+		@keyframes modalSlideIn {
+			from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+			to { opacity: 1; transform: scale(1) translateY(0); }
+		}
+		
+		@keyframes modalSlideOut {
+			from { opacity: 1; transform: scale(1) translateY(0); }
+			to { opacity: 0; transform: scale(0.9) translateY(-20px); }
+		}
+		
+		.gm-modal-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(0, 0, 0, 0.5);
+			backdrop-filter: blur(4px);
+			-webkit-backdrop-filter: blur(4px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 99999;
+			padding: 20px;
+			animation: modalFadeIn 0.2s ease-out;
+		}
+		
+		.gm-modal-overlay.closing {
+			animation: modalFadeIn 0.2s ease-out reverse;
+		}
+		
+		.gm-modal {
+			background: white;
+			border-radius: 20px;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+			max-width: 400px;
+			width: 100%;
+			overflow: hidden;
+			animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+		
+		.gm-modal.closing {
+			animation: modalSlideOut 0.2s ease-in;
+		}
+		
+		.gm-modal-header {
+			padding: 24px 24px 16px;
+			text-align: center;
+		}
+		
+		.gm-modal-icon {
+			width: 64px;
+			height: 64px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 16px;
+			font-size: 28px;
+		}
+		
+		.gm-modal-icon.success {
+			background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+			color: #059669;
+		}
+		
+		.gm-modal-icon.error {
+			background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+			color: #DC2626;
+		}
+		
+		.gm-modal-icon.warning {
+			background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+			color: #D97706;
+		}
+		
+		.gm-modal-icon.info {
+			background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+			color: #2563EB;
+		}
+		
+		.gm-modal-icon.confirm {
+			background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+			color: var(--color-orange);
+		}
+		
+		.gm-modal-title {
+			font-size: 20px;
+			font-weight: 700;
+			color: #1F2937;
+			margin: 0 0 8px;
+		}
+		
+		.gm-modal-body {
+			padding: 0 24px 24px;
+			text-align: center;
+		}
+		
+		.gm-modal-message {
+			font-size: 14px;
+			color: #6B7280;
+			line-height: 1.6;
+			margin: 0;
+		}
+		
+		.gm-modal-footer {
+			padding: 16px 24px 24px;
+			display: flex;
+			gap: 12px;
+			justify-content: center;
+		}
+		
+		.gm-modal-btn {
+			padding: 12px 24px;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			border: none;
+			min-width: 100px;
+		}
+		
+		.gm-modal-btn:hover {
+			transform: translateY(-2px);
+		}
+		
+		.gm-modal-btn:active {
+			transform: translateY(0);
+		}
+		
+		.gm-modal-btn.primary {
+			background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+			color: white;
+			box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+		}
+		
+		.gm-modal-btn.primary:hover {
+			box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
+		}
+		
+		.gm-modal-btn.success {
+			background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+			color: white;
+			box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+		}
+		
+		.gm-modal-btn.success:hover {
+			box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+		}
+		
+		.gm-modal-btn.danger {
+			background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+			color: white;
+			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+		}
+		
+		.gm-modal-btn.danger:hover {
+			box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+		}
+		
+		.gm-modal-btn.secondary {
+			background: #F3F4F6;
+			color: #6B7280;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		}
+		
+		.gm-modal-btn.secondary:hover {
+			background: #E5E7EB;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+		
+		@media (max-width: 480px) {
+			.gm-modal {
+				max-width: calc(100% - 32px);
+				border-radius: 16px;
+			}
+			
+			.gm-modal-header {
+				padding: 20px 20px 12px;
+			}
+			
+			.gm-modal-icon {
+				width: 56px;
+				height: 56px;
+				font-size: 24px;
+			}
+			
+			.gm-modal-title {
+				font-size: 18px;
+			}
+			
+			.gm-modal-body {
+				padding: 0 20px 20px;
+			}
+			
+			.gm-modal-footer {
+				padding: 12px 20px 20px;
+				flex-direction: column;
+			}
+			
+			.gm-modal-btn {
+				width: 100%;
+			}
+		}
 	</style>
+	
+	<!-- Container pour les modals -->
+	<div id="gm-modal-container"></div>
+	
+	<script>
+		// ========== SYSTÈME DE MINI MODALS ÉLÉGANTES ==========
+		const GMModal = {
+			// Afficher une modal
+			show: function(options) {
+				const defaults = {
+					type: 'info', // success, error, warning, info, confirm
+					title: 'Information',
+					message: '',
+					confirmText: 'OK',
+					cancelText: 'Annuler',
+					showCancel: false,
+					onConfirm: null,
+					onCancel: null,
+					autoClose: false,
+					autoCloseDelay: 3000
+				};
+				
+				const config = { ...defaults, ...options };
+				
+				// Icônes par type
+				const icons = {
+					success: 'fi-rs-check',
+					error: 'fi-rs-cross-small',
+					warning: 'fi-rs-exclamation',
+					info: 'fi-rs-info',
+					confirm: 'fi-rs-interrogation'
+				};
+				
+				// Créer la modal
+				const overlay = document.createElement('div');
+				overlay.className = 'gm-modal-overlay';
+				overlay.innerHTML = `
+					<div class="gm-modal">
+						<div class="gm-modal-header">
+							<div class="gm-modal-icon ${config.type}">
+								<i class="${icons[config.type] || icons.info}"></i>
+							</div>
+							<h3 class="gm-modal-title">${config.title}</h3>
+						</div>
+						<div class="gm-modal-body">
+							<p class="gm-modal-message">${config.message}</p>
+						</div>
+						<div class="gm-modal-footer">
+							${config.showCancel ? `<button class="gm-modal-btn secondary" data-action="cancel">${config.cancelText}</button>` : ''}
+							<button class="gm-modal-btn ${config.type === 'error' ? 'danger' : config.type === 'success' ? 'success' : 'primary'}" data-action="confirm">${config.confirmText}</button>
+						</div>
+					</div>
+				`;
+				
+				// Ajouter au DOM
+				document.getElementById('gm-modal-container').appendChild(overlay);
+				
+				// Fermer au clic sur l'overlay
+				overlay.addEventListener('click', function(e) {
+					if (e.target === overlay) {
+						GMModal.close(overlay, config.onCancel);
+					}
+				});
+				
+				// Boutons
+				overlay.querySelector('[data-action="confirm"]').addEventListener('click', function() {
+					GMModal.close(overlay, config.onConfirm);
+				});
+				
+				const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+				if (cancelBtn) {
+					cancelBtn.addEventListener('click', function() {
+						GMModal.close(overlay, config.onCancel);
+					});
+				}
+				
+				// Auto-close
+				if (config.autoClose) {
+					setTimeout(() => GMModal.close(overlay), config.autoCloseDelay);
+				}
+				
+				// Focus sur le bouton de confirmation
+				overlay.querySelector('[data-action="confirm"]').focus();
+				
+				return overlay;
+			},
+			
+			// Fermer une modal
+			close: function(overlay, callback) {
+				overlay.classList.add('closing');
+				overlay.querySelector('.gm-modal').classList.add('closing');
+				
+				setTimeout(() => {
+					overlay.remove();
+					if (callback && typeof callback === 'function') {
+						callback();
+					}
+				}, 200);
+			},
+			
+			// Raccourcis
+			success: function(title, message, onConfirm) {
+				return this.show({ type: 'success', title, message, onConfirm });
+			},
+			
+			error: function(title, message, onConfirm) {
+				return this.show({ type: 'error', title, message, onConfirm });
+			},
+			
+			warning: function(title, message, onConfirm) {
+				return this.show({ type: 'warning', title, message, onConfirm });
+			},
+			
+			info: function(title, message, onConfirm) {
+				return this.show({ type: 'info', title, message, onConfirm });
+			},
+			
+			confirm: function(title, message, onConfirm, onCancel) {
+				return this.show({
+					type: 'confirm',
+					title,
+					message,
+					showCancel: true,
+					confirmText: 'Confirmer',
+					cancelText: 'Annuler',
+					onConfirm,
+					onCancel
+				});
+			},
+			
+			// Confirmation de suppression
+			confirmDelete: function(itemName, onConfirm) {
+				return this.show({
+					type: 'warning',
+					title: 'Confirmer la suppression',
+					message: `Êtes-vous sûr de vouloir supprimer "${itemName}" ? Cette action est irréversible.`,
+					showCancel: true,
+					confirmText: 'Supprimer',
+					cancelText: 'Annuler',
+					onConfirm
+				});
+			}
+		};
+		
+		// Remplacer les alertes natives par les modals
+		window.gmAlert = function(message, title = 'Information') {
+			GMModal.info(title, message);
+		};
+		
+		window.gmConfirm = function(message, title = 'Confirmation') {
+			return new Promise((resolve) => {
+				GMModal.confirm(title, message, () => resolve(true), () => resolve(false));
+			});
+		};
+	</script>
     </body>
 </html>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage
+from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage, AdminNotification
 from django.utils import timezone
 # Register your models here.
 
@@ -195,3 +195,40 @@ class ProductMessageAdmin(admin.ModelAdmin):
 
 admin.site.register(ProductConversation, ProductConversationAdmin)
 admin.site.register(ProductMessage, ProductMessageAdmin)
+
+
+class AdminNotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'notification_type', 'title', 'is_read', 'is_resolved', 'created_at')
+    list_filter = ('notification_type', 'is_read', 'is_resolved', 'created_at')
+    list_display_links = ('id', 'title')
+    search_fields = ('title', 'message')
+    readonly_fields = ('created_at', 'read_at', 'resolved_at')
+    list_per_page = 50
+    
+    fieldsets = (
+        ('Informations', {
+            'fields': ('notification_type', 'title', 'message')
+        }),
+        ('Lien', {
+            'fields': ('related_object_type', 'related_object_id', 'related_url')
+        }),
+        ('Statut', {
+            'fields': ('is_read', 'is_resolved', 'created_at', 'read_at', 'resolved_at')
+        }),
+    )
+    
+    actions = ['mark_as_read', 'mark_as_resolved']
+    
+    def mark_as_read(self, request, queryset):
+        """Marquer les notifications sélectionnées comme lues"""
+        updated = queryset.update(is_read=True, read_at=timezone.now())
+        self.message_user(request, f'{updated} notification(s) marquée(s) comme lue(s).')
+    mark_as_read.short_description = "Marquer comme lues"
+    
+    def mark_as_resolved(self, request, queryset):
+        """Marquer les notifications sélectionnées comme résolues"""
+        updated = queryset.update(is_resolved=True, resolved_at=timezone.now())
+        self.message_user(request, f'{updated} notification(s) marquée(s) comme résolue(s).')
+    mark_as_resolved.short_description = "Marquer comme résolues"
+
+admin.site.register(AdminNotification, AdminNotificationAdmin)

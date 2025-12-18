@@ -1,8 +1,8 @@
-# Module C2C - Vente entre particuliers
+# Module C2C - Vente C2C
 
 ## 📋 Vue d'ensemble
 
-Le module C2C (Consumer-to-Consumer) est un système complet de vente entre particuliers pour Gabomazone, totalement séparé du système B2C (Business-to-Consumer) pour une meilleure maintenance.
+Le module C2C (Consumer-to-Consumer) est un système complet de vente C2C pour Gabomazone, totalement séparé du système B2C (Business-to-Consumer) pour une meilleure maintenance.
 
 ## 🎯 Fonctionnalités principales
 
@@ -282,4 +282,5 @@ pylint c2c/
 ## 📞 Support
 
 Pour toute question ou problème, contacter l'équipe de développement.
+
 

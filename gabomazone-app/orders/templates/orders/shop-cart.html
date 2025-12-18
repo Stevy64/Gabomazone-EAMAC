@@ -45,7 +45,20 @@
 {%block body%}
 {% if order_details%}
 <!-- ===== Modern Cart Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+<main class="main pages" style="padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+<style>
+    /* Desktop padding-top */
+    main.main.pages {
+        padding-top: 100px !important;
+    }
+    
+    /* Mobile padding-top */
+    @media (max-width: 768px) {
+        main.main.pages {
+            padding-top: 140px !important;
+        }
+    }
+</style>
     <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
         <!-- Breadcrumb -->
         <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">

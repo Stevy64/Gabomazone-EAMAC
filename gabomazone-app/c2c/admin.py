@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import (
     PlatformSettings, PurchaseIntent, Negotiation, C2COrder,
-    DeliveryVerification, ProductBoost, SellerBadge
+    DeliveryVerification, ProductBoost, SellerBadge, SellerReview, BuyerReview
 )
 
 
@@ -84,12 +84,21 @@ class NegotiationAdmin(admin.ModelAdmin):
 
 @admin.register(C2COrder)
 class C2COrderAdmin(admin.ModelAdmin):
-    """Administration des commandes C2C"""
+    """Administration des commandes C2C avec traçabilité complète"""
     list_display = ('id', 'product_link', 'buyer', 'seller', 'final_price',
-                   'buyer_total', 'platform_commission', 'status', 'created_at')
-    list_filter = ('status', 'created_at', 'paid_at')
-    search_fields = ('product__product_name', 'buyer__username', 'seller__username')
-    readonly_fields = ('created_at', 'paid_at', 'delivered_at', 'completed_at')
+                   'buyer_total', 'platform_commission', 'status', 'created_at', 'view_details')
+    list_filter = ('status', 'created_at', 'paid_at', 'buyer', 'seller')
+    search_fields = ('product__product_name', 'buyer__username', 'buyer__email', 
+                    'seller__username', 'seller__email', 'id')
+    date_hierarchy = 'created_at'
+    
+    def view_details(self, obj):
+        """Lien vers la page de détails"""
+        url = reverse('admin:c2c_c2corder_change', args=[obj.id])
+        return format_html('<a href="{}" class="button">Voir détails</a>', url)
+    view_details.short_description = 'Actions'
+    readonly_fields = ('created_at', 'paid_at', 'delivered_at', 'completed_at',
+                      'negotiations_history', 'conversation_history', 'verification_details')
     date_hierarchy = 'created_at'
     
     fieldsets = (
@@ -106,6 +115,18 @@ class C2COrderAdmin(admin.ModelAdmin):
         ('Livraison', {
             'fields': ('delivered_at', 'completed_at')
         }),
+        ('📊 Historique des négociations', {
+            'fields': ('negotiations_history',),
+            'classes': ('collapse',)
+        }),
+        ('💬 Historique des conversations', {
+            'fields': ('conversation_history',),
+            'classes': ('collapse',)
+        }),
+        ('🔐 Codes de vérification', {
+            'fields': ('verification_details',),
+            'classes': ('collapse',)
+        }),
         ('Dates', {
             'fields': ('created_at',)
         }),
@@ -118,6 +139,149 @@ class C2COrderAdmin(admin.ModelAdmin):
             return format_html('<a href="{}">{}</a>', url, obj.product.product_name)
         return '-'
     product_link.short_description = 'Article'
+    
+    def negotiations_history(self, obj):
+        """Affiche l'historique complet des négociations"""
+        if not obj.purchase_intent:
+            return format_html('<p style="color: #999;">Aucune intention d\'achat associée</p>')
+        
+        negotiations = obj.purchase_intent.negotiations.all().order_by('created_at')
+        if not negotiations.exists():
+            return format_html('<p style="color: #999;">Aucune négociation enregistrée</p>')
+        
+        html = '<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">'
+        html += '<h4 style="margin-top: 0;">Historique des négociations</h4>'
+        html += '<table style="width: 100%; border-collapse: collapse;">'
+        html += '<thead><tr style="background: #e0e0e0;"><th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Date</th>'
+        html += '<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Proposé par</th>'
+        html += '<th style="padding: 8px; text-align: right; border: 1px solid #ddd;">Prix proposé</th>'
+        html += '<th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Statut</th></tr></thead><tbody>'
+        
+        for neg in negotiations:
+            status_color = {
+                'pending': '#FFA500',
+                'accepted': '#10B981',
+                'rejected': '#EF4444'
+            }.get(neg.status, '#999')
+            
+            status_text = {
+                'pending': 'En attente',
+                'accepted': 'Accepté',
+                'rejected': 'Refusé'
+            }.get(neg.status, neg.status)
+            
+            html += f'<tr style="border-bottom: 1px solid #eee;">'
+            html += f'<td style="padding: 8px; border: 1px solid #ddd;">{neg.created_at.strftime("%d/%m/%Y %H:%M")}</td>'
+            html += f'<td style="padding: 8px; border: 1px solid #ddd;">{neg.proposer.get_full_name() or neg.proposer.username}</td>'
+            html += f'<td style="padding: 8px; text-align: right; border: 1px solid #ddd; font-weight: bold;">{neg.proposed_price:,.0f} FCFA</td>'
+            html += f'<td style="padding: 8px; text-align: center; border: 1px solid #ddd;"><span style="color: {status_color}; font-weight: bold;">{status_text}</span></td>'
+            html += '</tr>'
+            
+            if neg.message:
+                html += f'<tr><td colspan="4" style="padding: 4px 8px; font-style: italic; color: #666; border: 1px solid #ddd;">💬 {neg.message}</td></tr>'
+        
+        html += '</tbody></table>'
+        html += f'<p style="margin-top: 10px; font-size: 12px; color: #666;">Prix initial: <strong>{obj.purchase_intent.initial_price:,.0f} FCFA</strong> → Prix final: <strong>{obj.final_price:,.0f} FCFA</strong></p>'
+        html += '</div>'
+        return format_html(html)
+    negotiations_history.short_description = 'Historique des négociations'
+    
+    def conversation_history(self, obj):
+        """Affiche l'historique des conversations"""
+        from accounts.models import ProductConversation
+        
+        try:
+            conversation = ProductConversation.objects.filter(
+                product=obj.product,
+                buyer=obj.buyer,
+                seller=obj.seller
+            ).first()
+            
+            if not conversation:
+                return format_html('<p style="color: #999;">Aucune conversation trouvée</p>')
+            
+            messages = conversation.messages.all().order_by('created_at')
+            if not messages.exists():
+                return format_html('<p style="color: #999;">Aucun message dans cette conversation</p>')
+            
+            html = '<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">'
+            html += '<h4 style="margin-top: 0;">Messages échangés</h4>'
+            html += f'<p style="font-size: 12px; color: #666; margin-bottom: 15px;">Conversation #{conversation.id} - {messages.count()} message(s)</p>'
+            
+            for msg in messages:
+                is_sender = msg.sender == obj.buyer
+                bg_color = '#E3F2FD' if is_sender else '#F5F5F5'
+                align = 'right' if is_sender else 'left'
+                
+                html += f'<div style="margin-bottom: 10px; text-align: {align};">'
+                html += f'<div style="display: inline-block; max-width: 70%; background: {bg_color}; padding: 10px; border-radius: 8px; text-align: left;">'
+                html += f'<div style="font-size: 11px; color: #666; margin-bottom: 5px;">{msg.sender.get_full_name() or msg.sender.username} - {msg.created_at.strftime("%d/%m/%Y %H:%M")}</div>'
+                html += f'<div style="word-wrap: break-word;">{msg.message}</div>'
+                html += '</div></div>'
+            
+            html += '</div>'
+            return format_html(html)
+        except Exception as e:
+            return format_html(f'<p style="color: red;">Erreur: {str(e)}</p>')
+    conversation_history.short_description = 'Historique des conversations'
+    
+    def verification_details(self, obj):
+        """Affiche les détails de vérification avec les codes"""
+        try:
+            verification = obj.delivery_verification
+        except:
+            return format_html('<p style="color: #999;">Aucune vérification de livraison</p>')
+        
+        html = '<div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">'
+        html += '<h4 style="margin-top: 0;">🔐 Codes de vérification</h4>'
+        
+        html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">'
+        
+        # Code vendeur
+        html += '<div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #F59E0B;">'
+        html += '<h5 style="margin-top: 0; color: #92400E;">V-CODE (Vendeur)</h5>'
+        html += f'<div style="font-size: 24px; font-weight: bold; letter-spacing: 4px; text-align: center; color: #D97706; font-family: monospace; padding: 10px; background: #FEF3C7; border-radius: 5px;">{verification.seller_code}</div>'
+        html += f'<p style="font-size: 11px; color: #666; margin: 8px 0 0 0;">Vérifié: <strong>{"✓ Oui" if verification.seller_code_verified else "✗ Non"}</strong></p>'
+        if verification.seller_code_verified_at:
+            html += f'<p style="font-size: 11px; color: #666; margin: 4px 0 0 0;">Le: {verification.seller_code_verified_at.strftime("%d/%m/%Y %H:%M")}</p>'
+        html += '</div>'
+        
+        # Code acheteur
+        html += '<div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #3B82F6;">'
+        html += '<h5 style="margin-top: 0; color: #1E40AF;">A-CODE (Acheteur)</h5>'
+        html += f'<div style="font-size: 24px; font-weight: bold; letter-spacing: 4px; text-align: center; color: #2563EB; font-family: monospace; padding: 10px; background: #EFF6FF; border-radius: 5px;">{verification.buyer_code}</div>'
+        html += f'<p style="font-size: 11px; color: #666; margin: 8px 0 0 0;">Vérifié: <strong>{"✓ Oui" if verification.buyer_code_verified else "✗ Non"}</strong></p>'
+        if verification.buyer_code_verified_at:
+            html += f'<p style="font-size: 11px; color: #666; margin: 4px 0 0 0;">Le: {verification.buyer_code_verified_at.strftime("%d/%m/%Y %H:%M")}</p>'
+        html += '</div>'
+        
+        html += '</div>'
+        
+        # Statut global
+        status_colors = {
+            'pending': '#FFA500',
+            'seller_code_verified': '#3B82F6',
+            'buyer_code_verified': '#10B981',
+            'completed': '#059669',
+            'disputed': '#EF4444'
+        }
+        status_texts = {
+            'pending': 'En attente',
+            'seller_code_verified': 'Code vendeur vérifié',
+            'buyer_code_verified': 'Code acheteur vérifié',
+            'completed': 'Terminé',
+            'disputed': 'Litige'
+        }
+        
+        html += f'<div style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid {status_colors.get(verification.status, "#999")};">'
+        html += f'<strong>Statut:</strong> <span style="color: {status_colors.get(verification.status, "#999")}; font-weight: bold;">{status_texts.get(verification.status, verification.status)}</span>'
+        if verification.completed_at:
+            html += f'<br><small style="color: #666;">Terminé le: {verification.completed_at.strftime("%d/%m/%Y à %H:%M")}</small>'
+        html += '</div>'
+        
+        html += '</div>'
+        return format_html(html)
+    verification_details.short_description = 'Détails de vérification'
 
 
 @admin.register(DeliveryVerification)
@@ -210,4 +374,71 @@ class SellerBadgeAdmin(admin.ModelAdmin):
             'fields': ('assigned_at',)
         }),
     )
+
+
+@admin.register(SellerReview)
+class SellerReviewAdmin(admin.ModelAdmin):
+    """Administration des avis vendeurs"""
+    list_display = ('id', 'seller', 'reviewer', 'product_link', 'rating', 'is_visible', 'created_at')
+    list_filter = ('rating', 'is_visible', 'created_at', 'seller')
+    search_fields = ('seller__username', 'reviewer__username', 'product__product_name', 'comment')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Relations', {
+            'fields': ('order', 'seller', 'reviewer', 'product')
+        }),
+        ('Avis', {
+            'fields': ('rating', 'comment')
+        }),
+        ('Statut', {
+            'fields': ('is_visible',)
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+    
+    def product_link(self, obj):
+        """Lien vers le produit"""
+        if obj.product:
+            url = reverse('admin:accounts_peertopeerproduct_change', args=[obj.product.id])
+            return format_html('<a href="{}">{}</a>', url, obj.product.product_name)
+        return '-'
+    product_link.short_description = 'Article'
+
+
+@admin.register(BuyerReview)
+class BuyerReviewAdmin(admin.ModelAdmin):
+    """Administration des avis acheteurs"""
+    list_display = ('id', 'buyer', 'reviewer', 'product_link', 'rating', 'is_visible', 'created_at')
+    list_filter = ('rating', 'is_visible', 'created_at', 'buyer')
+    search_fields = ('buyer__username', 'reviewer__username', 'product__product_name', 'comment')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Relations', {
+            'fields': ('order', 'buyer', 'reviewer', 'product')
+        }),
+        ('Avis', {
+            'fields': ('rating', 'comment')
+        }),
+        ('Statut', {
+            'fields': ('is_visible',)
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+    
+    def product_link(self, obj):
+        """Lien vers le produit"""
+        if obj.product:
+            url = reverse('admin:accounts_peertopeerproduct_change', args=[obj.product.id])
+            return format_html('<a href="{}">{}</a>', url, obj.product.product_name)
+        return '-'
+    product_link.short_description = 'Article'
+
 

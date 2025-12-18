@@ -210,11 +210,28 @@ def singpay_callback(request):
             transaction.paid_at = timezone.now()
             transaction.payment_method = payload_data.get('payment_method', '')
             
-            # Mettre à jour la commande
+            # Mettre à jour la commande standard
             if transaction.order:
                 transaction.order.is_finished = True
                 transaction.order.status = Order.Underway
                 transaction.order.save()
+            
+            # Mettre à jour la commande C2C si applicable
+            if hasattr(transaction, 'c2c_orders') and transaction.c2c_orders.exists():
+                from c2c.services import SingPayService as C2CSingPayService
+                c2c_order = transaction.c2c_orders.first()
+                C2CSingPayService.handle_payment_success(transaction)
+                logger.info(f"Paiement C2C réussi pour la commande #{c2c_order.id}")
+            
+            # Gérer le paiement du boost produit C2C
+            if transaction.transaction_type == SingPayTransaction.BOOST_PAYMENT:
+                from c2c.services import SingPayService as C2CSingPayService
+                try:
+                    boost = C2CSingPayService.handle_boost_payment_success(transaction)
+                    if boost:
+                        logger.info(f"Boost activé avec succès pour le produit #{boost.product.id}")
+                except Exception as e:
+                    logger.error(f"Erreur lors de l'activation du boost: {str(e)}")
             
             webhook_log.processed = True
             webhook_log.save()

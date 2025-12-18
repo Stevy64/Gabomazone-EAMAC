@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{% block body %}
+<style>
+    .seller-profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 20px;
+        background: #FAFAFA;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .seller-profile-header {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .seller-profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);
+        border: 2px solid #FFE5D4;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--color-orange);
+        margin-bottom: 8px;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    .reviews-section {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .review-card {
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        background: #FAFAFA;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 12px;
+    }
+    
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .reviewer-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 18px;
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 4px;
+        color: #FFD700;
+    }
+    
+    .rating-stars .empty {
+        color: #E5E7EB;
+    }
+    
+    @media (max-width: 768px) {
+        .seller-profile-container {
+            padding: 16px;
+        }
+        
+        .seller-profile-header {
+            padding: 20px;
+        }
+        
+        .seller-profile-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .stat-card {
+            padding: 16px 12px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+        }
+        
+        .rating-stars {
+            font-size: 12px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .seller-profile-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .stat-card {
+            padding: 12px 8px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+        }
+    }
+</style>
+
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="seller-profile-container">
+        <!-- Header -->
+        <div class="seller-profile-header">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                        <div class="reviewer-avatar">{{ seller.username|first|upper }}</div>
+                        <span>{{ seller.username }}</span>
+                    </h1>
+                    <p style="color: #6B7280; margin: 0; font-size: 14px;">Vendeur d'articles d'Occasion</p>
+                </div>
+                {% if can_review and pending_review_order %}
+                <a href="{% url 'c2c:create-review' pending_review_order.id %}" style="padding: 12px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 10px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <i class="fi-rs-star"></i>
+                    Noter ce vendeur
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Stats -->
+            <div class="seller-profile-stats">
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {% if stats.average_rating %}{{ stats.average_rating|floatformat:1 }}{% else %}0.0{% endif %}
+                    </div>
+                    <div class="stat-label">Note moyenne</div>
+                    <div class="rating-stars" style="justify-content: center; margin-top: 8px;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= stats.average_rating|floatformat:0|add:0 %}
+                                <i class="fi-rs-star"></i>
+                            {% else %}
+                                <i class="fi-rs-star empty"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ stats.total_reviews }}</div>
+                    <div class="stat-label">Avis reçus</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ seller_products|length }}</div>
+                    <div class="stat-label">Articles publiés</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0;">
+                <i class="fi-rs-star" style="color: var(--color-orange); margin-right: 8px;"></i>
+                Avis clients ({{ stats.total_reviews }})
+            </h2>
+            
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar" style="width: 40px; height: 40px; font-size: 16px;">
+                                {{ review.reviewer.username|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">{{ review.reviewer.username }}</div>
+                                <div style="font-size: 12px; color: #6B7280;">{{ review.created_at|date:"d/m/Y à H:i" }}</div>
+                            </div>
+                        </div>
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fi-rs-star"></i>
+                                {% else %}
+                                    <i class="fi-rs-star empty"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if review.comment %}
+                    <p style="color: #4B5563; margin: 12px 0 0 0; line-height: 1.6;">{{ review.comment }}</p>
+                    {% endif %}
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+                        <a href="{% url 'accounts:peer-product-details' review.product.PRDSlug %}" style="color: var(--color-orange); text-decoration: none; font-size: 13px; font-weight: 500;">
+                            <i class="fi-rs-box"></i> {{ review.product.product_name|truncatechars:50 }}
+                        </a>
+                    </div>
+                    {% if review.reviewer == user %}
+                    <div style="margin-top: 12px;">
+                        <form method="POST" action="{% url 'c2c:delete-review' review.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre avis ?');" style="background: #FEE2E2; color: #DC2626; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                <i class="fi-rs-trash"></i> Supprimer
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if reviews.has_other_pages %}
+                <div style="margin-top: 24px; display: flex; justify-content: center; gap: 8px;">
+                    {% if reviews.has_previous %}
+                    <a href="?page={{ reviews.previous_page_number }}" style="padding: 8px 16px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; color: #6B7280; text-decoration: none; font-weight: 500;">
+                        Précédent
+                    </a>
+                    {% endif %}
+                    <span style="padding: 8px 16px; background: var(--color-orange); color: white; border-radius: 8px; font-weight: 600;">
+                        Page {{ reviews.number }} sur {{ reviews.paginator.num_pages }}
+                    </span>
+                    {% if reviews.has_next %}
+                    <a href="?page={{ reviews.next_page_number }}" style="padding: 8px 16px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; color: #6B7280; text-decoration: none; font-weight: 500;">
+                        Suivant
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fi-rs-star" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucun avis pour le moment</h3>
+                    <p style="font-size: 15px; color: #9CA3AF; margin: 0;">Ce vendeur n'a pas encore reçu d'avis.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Seller Products -->
+        {% if seller_products %}
+        <div class="reviews-section" style="margin-top: 24px;">
+            <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0;">
+                <i class="fi-rs-box" style="color: var(--color-orange); margin-right: 8px;"></i>
+                Autres articles de ce vendeur
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+                {% for product in seller_products %}
+                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" style="text-decoration: none; color: inherit;">
+                    <div style="background: #FAFAFA; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 150px; object-fit: cover;">
+                        <div style="padding: 12px;">
+                            <h4 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ product.product_name }}</h4>
+                            <p style="font-size: 16px; font-weight: 700; color: var(--color-orange); margin: 0;">{{ product.PRDPrice|format_price }} FCFA</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
+

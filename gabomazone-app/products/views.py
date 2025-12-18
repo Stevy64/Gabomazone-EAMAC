@@ -405,11 +405,11 @@ def toggle_favorite(request):
             
             product_id = request.POST.get('product_id')
             
-            # Vérifier si c'est un article entre particuliers
+            # Vérifier si c'est un article C2C
             is_peer_to_peer = str(product_id).startswith('peer_')
             
             if is_peer_to_peer:
-                # Gérer les favoris pour les articles entre particuliers
+                # Gérer les favoris pour les articles C2C
                 from accounts.models import PeerToPeerProduct, PeerToPeerProductFavorite
                 try:
                     # Gérer le cas où product_id pourrait déjà avoir "peer_" ou être juste un ID
@@ -422,7 +422,7 @@ def toggle_favorite(request):
                 except (ValueError, TypeError):
                     return JsonResponse({
                         'success': False,
-                        'error': 'ID d\'article entre particuliers invalide.',
+                        'error': 'ID d\'article C2C invalide.',
                         'like_count': 0
                     }, status=400)
                 
@@ -456,7 +456,7 @@ def toggle_favorite(request):
                 # Compter le nombre total de likes
                 like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
                 
-                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + entre particuliers)
+                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + C2C)
                 if request.user.is_authenticated:
                     wishlist_count = ProductFavorite.objects.filter(user=request.user).count() + \
                                    PeerToPeerProductFavorite.objects.filter(user=request.user).count()
@@ -510,7 +510,7 @@ def toggle_favorite(request):
                 # Compter le nombre total de likes
                 like_count = ProductFavorite.objects.filter(product=product).count()
                 
-                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + entre particuliers)
+                # Compter le nombre total de favoris de l'utilisateur/session (produits normaux + C2C)
                 if request.user.is_authenticated:
                     from accounts.models import PeerToPeerProductFavorite
                     wishlist_count = ProductFavorite.objects.filter(user=request.user).count() + \
@@ -542,7 +542,7 @@ def toggle_favorite(request):
 
 @require_http_methods(["GET"])
 def get_wishlist_count(request):
-    """Vue AJAX pour obtenir le nombre d'articles dans la liste à souhaits (produits normaux + articles entre particuliers)"""
+    """Vue AJAX pour obtenir le nombre d'articles dans la liste à souhaits (produits normaux + articles C2C)"""
     try:
         from django.db import connection
         from accounts.models import PeerToPeerProductFavorite

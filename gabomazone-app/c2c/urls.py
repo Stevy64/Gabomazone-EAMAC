@@ -3,6 +3,7 @@ URLs pour le module C2C
 """
 from django.urls import path
 from . import views
+from . import views_seller_reviews
 
 app_name = 'c2c'
 
@@ -21,6 +22,8 @@ urlpatterns = [
     # Commandes C2C
     path('order/<int:order_id>/', views.c2c_order_detail, name='order-detail'),
     path('order/<int:order_id>/payment/', views.init_c2c_payment, name='init-payment'),
+    path('order/<int:order_id>/payment-success/', views.payment_success, name='payment-success'),
+    path('order/<int:order_id>/simulate-payment/', views.simulate_payment, name='simulate-payment'),
     
     # Vérification de livraison
     path('order/<int:order_id>/verify-seller-code/', views.verify_seller_code, name='verify-seller-code'),
@@ -29,6 +32,8 @@ urlpatterns = [
     # Boosts
     path('boost/<int:product_id>/', views.boost_product, name='boost-product'),
     path('boost/<int:product_id>/purchase/', views.purchase_boost, name='purchase-boost'),
+    path('boost/<int:product_id>/success/', views.boost_success, name='boost-success'),
+    path('boost/<int:product_id>/simulate/', views.simulate_boost_payment, name='simulate-boost'),
     
     # Dashboard vendeur
     path('seller/dashboard/', views.seller_dashboard, name='seller-dashboard'),
@@ -38,5 +43,11 @@ urlpatterns = [
     # Dashboard acheteur
     path('buyer/orders/', views.buyer_orders, name='buyer-orders'),
     path('buyer/intents/', views.buyer_intents, name='buyer-intents'),
+    
+    # Avis et notes vendeurs
+    path('seller/<int:seller_id>/profile/', views_seller_reviews.seller_profile, name='seller-profile'),
+    path('review/<int:order_id>/create/', views_seller_reviews.create_review, name='create-review'),
+    path('review/<int:review_id>/delete/', views_seller_reviews.delete_review, name='delete-review'),
+    path('seller/<int:seller_id>/stats/', views_seller_reviews.get_seller_stats, name='seller-stats'),
 ]
 

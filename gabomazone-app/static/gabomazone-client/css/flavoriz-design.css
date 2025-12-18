@@ -105,11 +105,11 @@ main.main.pages {
 /* Mobile : ajuster le margin-top - header plus haut sur mobile */
 @media (max-width: 768px) {
     main.main {
-        margin-top: 90px !important;
+        margin-top: 140px !important;
     }
     
     main.main.pages {
-        margin-top: 90px !important;
+        margin-top: 140px !important;
         padding-top: 15px !important;
     }
     

@@ -274,6 +274,11 @@ class PurchaseIntentService:
         """
         Accepte un prix final et crée la commande C2C
         """
+        # Vérifier si une commande existe déjà pour cette intention
+        existing_order = C2COrder.objects.filter(purchase_intent=intent).first()
+        if existing_order:
+            return existing_order
+        
         if intent.status != PurchaseIntent.AGREED:
             intent.status = PurchaseIntent.AGREED
             intent.final_price = final_price
@@ -347,7 +352,7 @@ class SingPayService:
             user=c2c_order.buyer,
             peer_product=c2c_order.product,
             callback_url=request.build_absolute_uri('/payments/singpay/callback/'),
-            return_url=request.build_absolute_uri(f'/c2c/order/{c2c_order.id}/'),
+            return_url=request.build_absolute_uri(f'/c2c/order/{c2c_order.id}/payment-success/'),
             status=SingPayTransaction.PENDING
         )
         
@@ -378,6 +383,73 @@ class SingPayService:
         singpay_transaction.save()
         
         return c2c_order
+    
+    @staticmethod
+    def init_boost_payment(product: PeerToPeerProduct, user, duration, request):
+        """
+        Initialise un paiement SingPay pour un boost de produit
+        """
+        from payments.models import SingPayTransaction
+        
+        # Calculer le prix du boost
+        price = BoostService.get_boost_price(duration)
+        
+        # Préparer les données pour SingPay
+        amount = float(price)
+        description = f"Boost produit C2C - {product.product_name} ({duration})"
+        
+        # Créer la transaction SingPay
+        singpay_transaction = SingPayTransaction.objects.create(
+            transaction_id=f"BOOST-{product.id}-{timezone.now().timestamp()}",
+            internal_order_id=f"BOOST-{product.id}-{duration}",
+            amount=amount,
+            currency='XOF',
+            customer_email=user.email,
+            customer_phone=user.profile.mobile_number if hasattr(user, 'profile') else '',
+            customer_name=user.get_full_name() or user.username,
+            description=description,
+            transaction_type=SingPayTransaction.BOOST_PAYMENT,
+            user=user,
+            peer_product=product,
+            callback_url=request.build_absolute_uri('/payments/singpay/callback/'),
+            return_url=request.build_absolute_uri(f'/c2c/boost/{product.id}/success/'),
+            status=SingPayTransaction.PENDING
+        )
+        
+        return singpay_transaction
+    
+    @staticmethod
+    def handle_boost_payment_success(singpay_transaction: SingPayTransaction):
+        """
+        Gère le succès d'un paiement SingPay pour un boost
+        """
+        product = singpay_transaction.peer_product
+        if not product:
+            logger.error(f"Aucun produit trouvé pour la transaction boost {singpay_transaction.transaction_id}")
+            return None
+        
+        # Récupérer la durée depuis l'internal_order_id (format: BOOST-{product_id}-{duration})
+        try:
+            duration = singpay_transaction.internal_order_id.split('-')[-1]
+            if duration not in ['24h', '72h', '7d']:
+                duration = '24h'  # Par défaut
+        except:
+            duration = '24h'
+        
+        # Créer le boost
+        boost = BoostService.create_boost(
+            product=product,
+            buyer=singpay_transaction.user,
+            duration=duration,
+            payment_transaction=singpay_transaction
+        )
+        
+        # Mettre à jour le statut de la transaction
+        singpay_transaction.status = SingPayTransaction.SUCCESS
+        singpay_transaction.paid_at = timezone.now()
+        singpay_transaction.save()
+        
+        return boost
 
 
 class DeliveryVerificationService:
@@ -498,9 +570,9 @@ class BoostService:
     """Service pour gérer les boosts de produits"""
     
     BOOST_PRICES = {
-        '24h': Decimal('5000'),   # 5000 FCFA pour 24h
-        '72h': Decimal('12000'),  # 12000 FCFA pour 72h
-        '7d': Decimal('25000'),   # 25000 FCFA pour 7 jours
+        '24h': Decimal('500'),   # 500 FCFA pour 24h
+        '72h': Decimal('1200'),  # 1200 FCFA pour 72h
+        '7d': Decimal('2500'),   # 2500 FCFA pour 7 jours
     }
     
     @staticmethod

@@ -201,6 +201,12 @@
                         <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                             <div style="margin-bottom: 12px; position: relative;">
                                 <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                                {% if product.is_boosted %}
+                                <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fi-rs-rocket" style="font-size: 12px;"></i>
+                                    <span>Boosté</span>
+                                </div>
+                                {% endif %}
                                 {% if product.status == 'APPROVED' %}
                                 <button type="button" onclick="openChatbot({{ product.id }})" class="chatbot-trigger-btn" data-product-id="{{ product.id }}" style="position: absolute; top: 8px; right: 8px; background: {% if product.unread_messages_count > 0 %}rgba(255, 123, 44, 0.95){% else %}rgba(255, 255, 255, 0.95){% endif %}; padding: 8px; border: none; border-radius: 50%; color: {% if product.unread_messages_count > 0 %}white{% else %}#9CA3AF{% endif %}; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.3s; position: relative;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
                                     <i class="fi-rs-comment" style="font-size: 18px;"></i>
@@ -210,7 +216,14 @@
                                 </button>
                                 {% endif %}
                             </div>
-                            <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4;">{{ product.product_name|truncatechars:50 }}</h4>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0; line-height: 1.4; flex: 1;">{{ product.product_name|truncatechars:50 }}</h4>
+                                {% if product.status == 'APPROVED' %}
+                                <button type="button" onclick="openChatbot({{ product.id }})" title="Voir toutes les discussions" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 4px 8px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 123, 44, 0.1)'; this.style.transform='scale(1.1)'" onmouseout="this.style.background='none'; this.style.transform='scale(1)'">
+                                    <i class="fi-rs-list" style="font-size: 18px;"></i>
+                                </button>
+                                {% endif %}
+                            </div>
                             <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
                                 {% if product.status == 'PENDING' %}
@@ -239,13 +252,20 @@
                             <p style="font-size: 12px; color: #6B7280; margin: 0 0 16px 0;">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
                             
                             <!-- Actions CRUD -->
-                            <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
-                                <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                    <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
-                                </a>
-                                <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
-                                    <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                                {% if product.status == 'APPROVED' %}
+                                <button type="button" onclick="openBoostModal({{ product.id }}, '{{ product.product_name|escapejs }}')" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; border: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <i class="fi-rs-rocket" style="font-size: 14px;"></i> Booster cet article
                                 </button>
+                                {% endif %}
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
+                                    </a>
+                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
+                                        <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -446,7 +466,7 @@ function loadConversations(productId) {
     contentDiv.style.display = 'none';
     noConversationsDiv.style.display = 'none';
     
-    fetch(`/accounts/product-conversations/${productId}/`)
+    fetch(`/product-conversations/${productId}/`)
         .then(response => response.json())
         .then(data => {
             loadingDiv.style.display = 'none';
@@ -537,7 +557,7 @@ function sendMessage(event) {
     if (!conversation) return;
     
     // Envoyer le message
-    fetch(`/accounts/send-product-message/${currentProductId}/`, {
+    fetch(`/send-product-message/${currentProductId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -565,7 +585,7 @@ function sendMessage(event) {
 }
 
 function markConversationAsRead(conversationId) {
-    fetch(`/accounts/mark-conversation-read/${conversationId}/`, {
+    fetch(`/mark-conversation-read/${conversationId}/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken')
@@ -665,5 +685,201 @@ function confirmDelete(productId, productName) {
         </div>
     </div>
 </div>
+
+<!-- Modal de Boost -->
+<div id="boostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+            <h3 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fi-rs-rocket" style="color: #10B981;"></i>
+                Booster votre article
+            </h3>
+            <button onclick="closeBoostModal()" style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
+        </div>
+        
+        <p id="boostProductName" style="font-size: 16px; color: #6B7280; margin: 0 0 24px 0; font-weight: 600;"></p>
+        
+        <p style="font-size: 14px; color: #6B7280; margin: 0 0 20px 0; line-height: 1.6;">
+            Mettez votre article en avant pour augmenter sa visibilité et vos chances de vente !
+        </p>
+        
+        <div id="boostOptions" style="display: grid; gap: 12px; margin-bottom: 24px;">
+            <!-- Les options seront injectées ici -->
+        </div>
+        
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+            <button onclick="closeBoostModal()" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
+            <button id="confirmBoostBtn" onclick="confirmBoost()" disabled style="padding: 12px 24px; background: #D1D5DB; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: not-allowed; display: flex; align-items: center; gap: 8px;">
+                <i class="fi-rs-credit-card"></i> Procéder au paiement
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedBoostDuration = null;
+let selectedBoostPrice = null;
+let currentBoostProductId = null;
+
+const BOOST_PRICES = {
+    '24h': 500,
+    '72h': 1200,
+    '7d': 2500
+};
+
+const BOOST_DURATIONS = {
+    '24h': '24 heures',
+    '72h': '72 heures',
+    '7d': '7 jours'
+};
+
+function openBoostModal(productId, productName) {
+    currentBoostProductId = productId;
+    const modal = document.getElementById('boostModal');
+    const productNameEl = document.getElementById('boostProductName');
+    const optionsContainer = document.getElementById('boostOptions');
+    
+    productNameEl.textContent = productName;
+    
+    // Générer les options de boost
+    let html = '';
+    for (const [duration, price] of Object.entries(BOOST_PRICES)) {
+        html += `
+            <div onclick="selectBoostDuration('${duration}', ${price})" id="boostOption_${duration}" style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s; background: white;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">${BOOST_DURATIONS[duration]}</h4>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #6B7280;">Mise en avant pendant ${BOOST_DURATIONS[duration]}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--color-orange);">${price.toLocaleString()}</div>
+                        <div style="font-size: 12px; color: #6B7280;">FCFA</div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #10B981;">
+                        <i class="fi-rs-check"></i>
+                        <span>Visibilité maximale</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    optionsContainer.innerHTML = html;
+    
+    modal.style.display = 'flex';
+    selectedBoostDuration = null;
+    selectedBoostPrice = null;
+    updateBoostButton();
+}
+
+function closeBoostModal() {
+    document.getElementById('boostModal').style.display = 'none';
+    selectedBoostDuration = null;
+    selectedBoostPrice = null;
+    currentBoostProductId = null;
+}
+
+function selectBoostDuration(duration, price) {
+    selectedBoostDuration = duration;
+    selectedBoostPrice = price;
+    
+    // Mettre à jour l'apparence des options
+    document.querySelectorAll('[id^="boostOption_"]').forEach(el => {
+        el.style.borderColor = '#E5E7EB';
+        el.style.background = 'white';
+    });
+    
+    const selectedEl = document.getElementById(`boostOption_${duration}`);
+    if (selectedEl) {
+        selectedEl.style.borderColor = '#10B981';
+        selectedEl.style.background = '#F0FDF4';
+    }
+    
+    updateBoostButton();
+}
+
+function updateBoostButton() {
+    const btn = document.getElementById('confirmBoostBtn');
+    if (selectedBoostDuration && selectedBoostPrice) {
+        btn.disabled = false;
+        btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+        btn.style.cursor = 'pointer';
+        btn.innerHTML = `<i class="fi-rs-credit-card"></i> Payer ${selectedBoostPrice.toLocaleString()} FCFA`;
+    } else {
+        btn.disabled = true;
+        btn.style.background = '#D1D5DB';
+        btn.style.cursor = 'not-allowed';
+        btn.innerHTML = '<i class="fi-rs-credit-card"></i> Procéder au paiement';
+    }
+}
+
+async function confirmBoost() {
+    if (!selectedBoostDuration || !currentBoostProductId) {
+        GMModal.warning('Attention', 'Veuillez sélectionner une durée de boost');
+        return;
+    }
+    
+    GMModal.show({
+        type: 'confirm',
+        title: 'Confirmer le boost',
+        message: `Vous allez booster votre article pendant <strong>${BOOST_DURATIONS[selectedBoostDuration]}</strong> pour <strong>${selectedBoostPrice.toLocaleString()} FCFA</strong>.<br><br>Vous serez redirigé vers le paiement.`,
+        showCancel: true,
+        confirmText: 'Confirmer',
+        cancelText: 'Annuler',
+        onConfirm: async function() {
+            try {
+                // Désactiver le bouton pendant le traitement
+                const btn = document.getElementById('confirmBoostBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fi-rs-spinner" style="animation: spin 1s linear infinite;"></i> Traitement...';
+                
+                const response = await fetch(`/c2c/boost/${currentBoostProductId}/purchase/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        duration: selectedBoostDuration
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Rediriger vers la page de paiement
+                    if (data.payment_url) {
+                        window.location.href = data.payment_url;
+                    } else {
+                        GMModal.success('Boost activé !', data.message || 'Votre boost a été activé avec succès !', () => {
+                            location.reload();
+                        });
+                    }
+                } else {
+                    btn.disabled = false;
+                    updateBoostButton();
+                    GMModal.error('Erreur', data.error || 'Erreur lors de l\'activation du boost');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                const btn = document.getElementById('confirmBoostBtn');
+                btn.disabled = false;
+                updateBoostButton();
+                GMModal.error('Erreur', 'Erreur lors de l\'activation du boost');
+            }
+        }
+    });
+}
+
+// Fermer la modal en cliquant en dehors
+document.getElementById('boostModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBoostModal();
+    }
+});
+</script>
+
 {% endblock %}
 

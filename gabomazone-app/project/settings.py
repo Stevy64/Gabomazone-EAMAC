@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     'contact',
     'pages',
     'payments',
-    'c2c',  # Module C2C - Vente entre particuliers
+    'c2c',  # Module C2C
 ]
 
 MIDDLEWARE = [

@@ -57,10 +57,15 @@ def wishlist_count(request):
 
 
 def messages_count(request):
-    """Context processor pour le compteur de messages non lus (conversations + commandes + intentions d'achat)"""
+    """Context processor pour le compteur de messages non lus, commandes et notifications totales"""
     try:
         if not request.user.is_authenticated:
-            return {'messages_count': 0}
+            return {
+                'messages_count': 0,
+                'unread_messages_count': 0,
+                'unread_orders_count': 0,
+                'total_notifications_count': 0,
+            }
         
         total_unread_messages = 0
         total_unread_orders = 0
@@ -89,7 +94,7 @@ def messages_count(request):
             for conv in buyer_conversations:
                 total_unread_messages += conv.get_unread_count_for_buyer()
         
-        # Commandes non lues
+        # Commandes non lues (notifications peer-to-peer)
         if notif_table_exists:
             from accounts.models import PeerToPeerOrderNotification
             total_unread_orders = PeerToPeerOrderNotification.objects.filter(
@@ -97,7 +102,7 @@ def messages_count(request):
                 is_read=False
             ).count()
         
-        # Intentions d'achat non notifiées
+        # Intentions d'achat non notifiées (ajouter aux notifications de commandes)
         if intent_table_exists:
             from c2c.models import PurchaseIntent
             total_unread_intents = PurchaseIntent.objects.filter(
@@ -106,16 +111,29 @@ def messages_count(request):
                 status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]
             ).count()
         
-        total = total_unread_messages + total_unread_orders + total_unread_intents
+        # Total des messages non lus (conversations uniquement)
+        unread_messages = total_unread_messages
+        
+        # Total des commandes non lues (commandes + intentions d'achat)
+        unread_orders = total_unread_orders + total_unread_intents
+        
+        # Total des notifications (messages + commandes)
+        total_notifications = unread_messages + unread_orders
         
         return {
-            'messages_count': total,
-            'orders_count': total_unread_orders,
-            'intents_count': total_unread_intents,
+            'messages_count': total_notifications,  # Pour compatibilité
+            'unread_messages_count': unread_messages,
+            'unread_orders_count': unread_orders,
+            'total_notifications_count': total_notifications,
         }
     except Exception as e:
         # En cas d'erreur, retourner 0 pour éviter de casser le template
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"Error in messages_count context processor: {e}")
-        return {'messages_count': 0, 'orders_count': 0, 'intents_count': 0}
+        return {
+            'messages_count': 0,
+            'unread_messages_count': 0,
+            'unread_orders_count': 0,
+            'total_notifications_count': 0,
+        }

@@ -81,7 +81,35 @@
 
 {% endblock %}
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{% if user.is_staff and user.is_authenticated %}
+<script src="{% static 'admin/js/admin-notifications.js' %}?v=1.0"></script>
+<style>
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    .mark-read-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .notification-item:hover .mark-read-btn {
+        opacity: 1;
+    }
+    #admin-notifications-list {
+        min-width: 350px;
+    }
+    #admin-notifications-list .dropdown-item {
+        white-space: normal;
+        padding: 10px 15px;
+    }
+</style>
+{% endif %}
+{% endblock %}
 
 {% block extra_foot %}{% endblock %}
 </body>

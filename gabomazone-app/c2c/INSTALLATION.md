@@ -141,3 +141,4 @@ Solution : Vérifiez que le dossier `c2c/templates/` existe et contient les fich
 
 Pour toute question, consultez le README.md du module C2C.
 
+

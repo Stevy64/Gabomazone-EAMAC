@@ -55,38 +55,38 @@
 
         <!-- Page Header -->
         <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-            <div>
+                                <div>
                 <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Magasins Partenaires</h1>
                 <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos magasins partenaires</p>
-            </div>
-        </div>
-        
+                                    </div>
+                                </div>
+
         <!-- Results Count -->
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
             <p style="font-size: 14px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px;">
                 <i class="fi-rs-store" style="color: var(--color-orange); font-size: 16px;"></i>
                 <span>Nous avons trouvé <strong id="vendors-number" style="color: var(--color-orange); font-weight: 700;">0</strong> magasin(s)</span>
             </p>
-        </div>
+                            </div>
 
         <!-- Vendors Grid -->
         <div id="vendors-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; gap: 24px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
             <!-- Vendors will be loaded here via AJAX -->
-        </div>
-        
+                </div>
+                
         <!-- Loading Spinner -->
         <div id="spinner-box" class="not-visible" style="text-align: center; padding: 60px 20px;">
             <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
             <p style="margin-top: 20px; color: #6B7280; font-size: 14px;">Chargement des magasins...</p>
-        </div>
-        
+            </div>
+
         <!-- Empty Box -->
         <div id="empty-box" class="not-visible" style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
             <i class="fi-rs-store" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
             <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucun magasin trouvé</h2>
             <p style="font-size: 16px; color: #6B7280; margin: 0;">Les magasins partenaires seront bientôt disponibles.</p>
-        </div>
-        
+                      </div>
+
         <!-- Load More Button -->
         <div id="loading-box" class="not-visible" style="text-align: center; padding: 40px 20px;">
             <button id="load-btn" type="button" 
@@ -149,7 +149,7 @@
 
 {%block script%}
 {{ block.super }}
-<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+    <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script>
 (function() {
     'use strict';

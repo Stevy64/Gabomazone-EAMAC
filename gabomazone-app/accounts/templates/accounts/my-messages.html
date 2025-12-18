@@ -8,107 +8,360 @@
 
 {%block body%}
 <style>
-/* Styles responsive pour mobile */
-@media (max-width: 768px) {
+/* ============================================
+   MOBILE-FIRST APPROACH - Styles par défaut pour mobile
+   ============================================ */
+
+/* Prévenir le débordement horizontal sur toute la page */
+body {
+    overflow-x: hidden;
+}
+
+/* Layout principal - Mobile par défaut */
+.main.pages {
+    padding-top: 80px;
+    padding-bottom: 40px;
+    overflow-x: hidden;
+}
+
+.container {
+    padding: 0 12px;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Row - Mobile: colonnes empilées */
+.row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Sidebar - Mobile: pleine largeur, en haut */
+.col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    margin-bottom: 16px;
+    order: 1;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.flavoriz-dashboard-menu {
+    position: relative;
+    top: 0;
+    padding: 16px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.flavoriz-dashboard-menu ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+}
+
+.flavoriz-dashboard-menu li a {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+}
+
+.flavoriz-dashboard-menu li a i {
+    font-size: 18px !important;
+    width: auto !important;
+}
+
+/* Main content - Mobile: pleine largeur */
+.col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    order: 2;
+    box-sizing: border-box;
+}
+
+.col-md-9 > div {
+    padding: 16px 12px;
+    border-radius: 16px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Breadcrumb - Mobile: simplifié */
+nav {
+    font-size: 12px !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    margin-bottom: 16px !important;
+}
+
+nav a span {
+    display: none !important;
+}
+
+nav span:not(:last-child) {
+    display: none !important;
+}
+
+/* Header - Mobile */
+.main-content-header h1 {
+    font-size: 20px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.main-content-header h1 i {
+    font-size: 22px !important;
+}
+
+.main-content-header p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+/* Conversations grid - Mobile: 1 colonne */
+.conversations-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Cards de conversation - Mobile */
+.conversation-card {
+    padding: 12px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+/* Avatar - Mobile */
+.conversation-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+}
+
+/* Image produit - Mobile */
+.conversation-product-img {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+}
+
+/* Textes - Mobile */
+.conversation-user-name {
+    font-size: 15px;
+}
+
+.conversation-product-name {
+    font-size: 13px;
+}
+
+/* Prévenir le débordement du texte dans les cartes */
+.conversation-card p,
+.conversation-card div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.conversation-card strong {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Intentions d'achat grid - Mobile: 1 colonne */
+.purchase-intents-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+/* Cartes d'intentions - Mobile */
+.intent-card {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* Boutons dans intentions - Mobile: 2 colonnes */
+.purchase-intents-grid > div > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+}
+
+.purchase-intents-grid > div > div:last-child > button,
+.purchase-intents-grid > div > div:last-child > span {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-width: calc(50% - 3px) !important;
+    font-size: 12px !important;
+    padding: 8px !important;
+}
+
+/* ============================================
+   DESKTOP - Styles pour écrans >= 769px
+   ============================================ */
+@media (min-width: 769px) {
     .main.pages {
-        padding-top: 90px !important;
-        padding-bottom: 40px !important;
+        padding-top: 100px;
+        padding-bottom: 100px;
     }
     
     .container {
-        padding: 0 16px !important;
+        padding: 0 24px;
+        max-width: 1400px;
     }
     
-    /* Sidebar - mettre en haut sur mobile */
+    .row {
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+    }
+    
     .col-md-3 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        margin-bottom: 20px;
-        order: 1;
-    }
-    
-    .col-md-9 {
-        order: 2;
+        flex: 0 0 280px;
+        max-width: 280px;
+        width: 280px;
+        margin-bottom: 0;
+        order: 0;
     }
     
     .flavoriz-dashboard-menu {
-        position: relative !important;
-        top: 0 !important;
-        padding: 20px !important;
-        border-radius: 16px !important;
+        padding: 24px;
+        border-radius: 20px;
+        position: sticky;
+        top: 120px;
     }
     
     .flavoriz-dashboard-menu ul {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: none;
+        gap: 4px;
     }
     
     .flavoriz-dashboard-menu li a {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
-        flex-direction: column !important;
-        gap: 6px !important;
-        text-align: center !important;
+        padding: 12px 16px;
+        font-size: 14px;
+        flex-direction: row;
+        text-align: left;
+        gap: 12px;
     }
     
     .flavoriz-dashboard-menu li a i {
-        font-size: 18px !important;
-        width: auto !important;
+        font-size: 16px;
+        width: 20px;
     }
     
-    /* Main content - pleine largeur sur mobile */
     .col-md-9 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
+        flex: 1;
+        min-width: 0;
+        order: 0;
     }
     
-    .main-content-wrapper {
-        padding: 20px 16px !important;
-        border-radius: 16px !important;
+    .col-md-9 > div {
+        padding: 32px;
+        border-radius: 20px;
     }
     
-    /* Breadcrumb responsive */
     nav {
-        font-size: 12px !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
+        font-size: 13px !important;
+        margin-bottom: 20px !important;
     }
     
     nav a span {
-        display: none !important;
+        display: inline !important;
     }
     
     nav span:not(:last-child) {
-        display: none !important;
+        display: inline !important;
     }
     
-    /* Header */
     .main-content-header h1 {
-        font-size: 22px !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 8px !important;
+        font-size: 28px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        margin-bottom: 8px !important;
     }
     
     .main-content-header h1 i {
-        font-size: 24px !important;
+        font-size: 32px !important;
     }
     
     .main-content-header p {
-        font-size: 13px !important;
+        font-size: 15px !important;
     }
     
-    /* Conversations grid responsive */
     .conversations-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+    
+    .conversation-card {
+        padding: 20px;
+    }
+    
+    .conversation-avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+    
+    .conversation-product-img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .conversation-user-name {
+        font-size: 16px;
+    }
+    
+    .conversation-product-name {
+        font-size: 14px;
+    }
+    
+    .purchase-intents-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+    
+    .intent-card {
+        padding: 20px;
+    }
+    
+    .purchase-intents-grid > div > div:last-child {
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+    }
+    
+    .purchase-intents-grid > div > div:last-child > button,
+    .purchase-intents-grid > div > div:last-child > span {
+        flex: 1 !important;
+        min-width: auto !important;
+        font-size: 13px !important;
+        padding: 10px !important;
     }
 }
 </style>
 
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<main class="main pages" style="min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container">
         <!-- Breadcrumb -->
         <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
             <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
@@ -118,9 +371,9 @@
             <span style="color: #6B7280; font-weight: 500;">Ma messagerie</span>
         </nav>
 
-        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+        <div class="row">
             <!-- Sidebar Menu -->
-            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+            <div class="col-md-3">
                 <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
                     <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
                         <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -173,7 +426,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9" style="flex: 1; min-width: 0;">
+            <div class="col-md-9">
                 <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
                     <!-- Header -->
                     <div class="main-content-header" style="margin-bottom: 32px;">
@@ -207,15 +460,15 @@
                     {% if purchase_intents and purchase_intents|length > 0 %}
                     <div style="margin-bottom: 32px;">
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
-                            <i class="fi-rs-tag" style="color: var(--color-orange);"></i>
+                            <i class="fi-rs-money" style="color: var(--color-orange);"></i>
                             Intentions d'achat
                             {% if purchase_intents_unread > 0 %}
                             <span style="background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 700;">{{ purchase_intents_unread }}</span>
                             {% endif %}
                         </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+                        <div class="purchase-intents-grid">
                             {% for intent in purchase_intents %}
-                            <div onclick="openConversationChatbot({{ intent.product.id }}, null)" style="background: {% if not intent.seller_notified %}#FFF9E6{% else %}white{% endif %}; border-radius: 12px; padding: 20px; border: 2px solid {% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}; transition: all 0.3s; cursor: pointer; position: relative;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='{% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'">
+                            <div class="intent-card" onclick="openConversationChatbot({{ intent.product.id }}, null)" style="background: {% if not intent.seller_notified %}#FFF9E6{% else %}white{% endif %}; border: 2px solid {% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}; transition: all 0.3s; cursor: pointer; position: relative;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='{% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                                     <div>
                                         <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">Intention #{{ intent.id }}</h4>
@@ -254,9 +507,6 @@
                                         <i class="fi-rs-trash"></i> Supprimer
                                     </button>
                                     {% endif %}
-                                    <button onclick="event.stopPropagation(); openConversationChatbot({{ intent.product.id }}, null)" style="flex: 1; padding: 10px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                                        <i class="fi-rs-comment"></i> Négocier
-                                    </button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -264,18 +514,44 @@
                     </div>
                     {% endif %}
 
-                    <!-- Liste des conversations -->
+                    <!-- Liste des conversations actives -->
                     {% if conversations %}
-                    <div class="conversations-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                    <div class="conversations-grid">
                         {% for conversation in conversations %}
-                        <div onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                        <div class="conversation-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: white; border: 2px solid #E5E7EB; transition: all 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                            <!-- Bouton d'archivage -->
+                            <button onclick="event.stopPropagation(); archiveConversation({{ conversation.id }})" title="Archiver" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#FEF3C7'; this.style.color='#D97706'" onmouseout="this.style.background='rgba(255, 255, 255, 0.95)'; this.style.color='#9CA3AF'">
+                                <i class="fi-rs-archive" style="font-size: 14px;"></i>
+                            </button>
+                            
+                            <!-- Badge de statut C2C -->
+                            {% if conversation.c2c_order %}
+                            <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; z-index: 10;
+                                {% if conversation.c2c_order.status == 'completed' %}background: #D1FAE5; color: #065F46;
+                                {% elif conversation.c2c_order.status == 'paid' or conversation.c2c_order.status == 'pending_delivery' %}background: #DBEAFE; color: #1E40AF;
+                                {% elif conversation.c2c_order.status == 'pending_payment' %}background: #FEF3C7; color: #D97706;
+                                {% else %}background: #F3F4F6; color: #6B7280;{% endif %}">
+                                {% if conversation.c2c_order.status == 'completed' %}✓ Terminé
+                                {% elif conversation.c2c_order.status == 'paid' %}💳 Payé
+                                {% elif conversation.c2c_order.status == 'pending_delivery' %}📦 Livraison
+                                {% elif conversation.c2c_order.status == 'pending_payment' %}⏳ Paiement
+                                {% else %}{{ conversation.c2c_order.status }}{% endif %}
+                            </div>
+                            {% elif conversation.purchase_intent %}
+                            <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; background: #FFF7ED; color: var(--color-orange); z-index: 10;">
+                                {% if conversation.purchase_intent.status == 'agreed' %}🤝 Accord
+                                {% elif conversation.purchase_intent.status == 'negotiating' %}💬 Négo
+                                {% else %}📩 Intent{% endif %}
+                            </div>
+                            {% endif %}
+                            
                             <!-- En-tête de conversation -->
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                                <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: {% if conversation.c2c_order or conversation.purchase_intent %}28px{% else %}0{% endif %};">
+                                <div class="conversation-avatar" style="border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">
                                     {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
-                                    <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
                                     </h4>
                                     <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">
@@ -291,9 +567,9 @@
                             
                             <!-- Informations sur l'article -->
                             <div style="background: #F9FAFB; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center;">
-                                <img src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" style="object-fit: cover; border-radius: 6px; flex-shrink: 0;">
                                 <div style="flex: 1; min-width: 0;">
-                                    <h5 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ conversation.product.product_name|truncatechars:40 }}
                                     </h5>
                                     <p style="margin: 0; font-size: 13px; font-weight: 700; color: var(--color-orange);">
@@ -325,8 +601,78 @@
                     {% else %}
                     <div style="text-align: center; padding: 60px 20px;">
                         <i class="fi-rs-inbox" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune conversation</h3>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune conversation active</h3>
                         <p style="font-size: 15px; color: #9CA3AF; margin: 0 0 24px 0;">Vous n'avez pas encore de messages.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Section des conversations archivées -->
+                    {% if archived_conversations %}
+                    <div style="margin-top: 32px;">
+                        <div onclick="toggleArchivedSection()" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #F9FAFB; border-radius: 12px; cursor: pointer; margin-bottom: 16px; border: 1px solid #E5E7EB; transition: all 0.2s;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='#F9FAFB'">
+                            <i class="fi-rs-archive" style="font-size: 20px; color: #6B7280;"></i>
+                            <span style="font-size: 16px; font-weight: 700; color: #6B7280;">Archives</span>
+                            <span style="background: #E5E7EB; color: #6B7280; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700;">{{ archived_conversations|length }}</span>
+                            <i id="archivedToggleIcon" class="fi-rs-angle-down" style="margin-left: auto; font-size: 14px; color: #9CA3AF; transition: transform 0.3s;"></i>
+                        </div>
+                        
+                        <div id="archivedConversationsSection" style="display: none;">
+                            <div class="conversations-grid">
+                                {% for conversation in archived_conversations %}
+                                <div class="conversation-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: #FAFAFA; border: 2px dashed #D1D5DB; transition: all 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; opacity: 0.85;" onmouseover="this.style.borderColor='#9CA3AF'; this.style.opacity='1'" onmouseout="this.style.borderColor='#D1D5DB'; this.style.opacity='0.85'">
+                                    <!-- Bouton de désarchivage -->
+                                    <button onclick="event.stopPropagation(); unarchiveConversation({{ conversation.id }})" title="Désarchiver" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#DBEAFE'; this.style.color='#2563EB'" onmouseout="this.style.background='rgba(255, 255, 255, 0.95)'; this.style.color='#9CA3AF'">
+                                        <i class="fi-rs-inbox-in" style="font-size: 14px;"></i>
+                                    </button>
+                                    
+                                    <!-- Badge Archivé -->
+                                    <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; background: #F3F4F6; color: #6B7280; z-index: 10;">
+                                        📁 Archivé
+                                    </div>
+                                    
+                                    <!-- En-tête de conversation -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 28px;">
+                                        <div class="conversation-avatar" style="border-radius: 50%; background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">
+                                            {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
+                                        </div>
+                                        <div style="flex: 1; min-width: 0;">
+                                            <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
+                                            </h4>
+                                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #9CA3AF;">
+                                                {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Informations sur l'article -->
+                                    <div style="background: #F3F4F6; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center;">
+                                        <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" style="object-fit: cover; border-radius: 6px; flex-shrink: 0; filter: grayscale(30%);">
+                                        <div style="flex: 1; min-width: 0;">
+                                            <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                {{ conversation.product.product_name|truncatechars:40 }}
+                                            </h5>
+                                            <p style="margin: 0; font-size: 13px; font-weight: 700; color: #9CA3AF;">
+                                                {{ conversation.product.PRDPrice|format_price }} FCFA
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dernier message -->
+                                    {% if conversation.last_message %}
+                                    <div style="margin-top: auto; padding-top: 12px; border-top: 1px dashed #D1D5DB;">
+                                        <p style="margin: 0 0 4px 0; font-size: 13px; color: #9CA3AF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ conversation.last_message.message|truncatechars:60 }}
+                                        </p>
+                                        <p style="margin: 0; font-size: 11px; color: #9CA3AF;">
+                                            {{ conversation.last_message.created_at|date:"d/m/Y à H:i" }}
+                                        </p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
@@ -334,6 +680,21 @@
         </div>
     </div>
 </main>
+
+<script>
+function toggleArchivedSection() {
+    const section = document.getElementById('archivedConversationsSection');
+    const icon = document.getElementById('archivedToggleIcon');
+    
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        section.style.display = 'none';
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+</script>
 
 <!-- Chatbot Popup (réutilisé depuis my-published-products.html) -->
 <div id="chatbotPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); height: 600px; max-height: calc(100vh - 40px); background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; flex-direction: column; overflow: hidden;">
@@ -367,9 +728,9 @@
     </div>
     
     <!-- Active Conversation View -->
-    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white; min-height: 0;">
+    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white; min-height: 0; overflow: hidden;">
         <!-- Conversation Header -->
-        <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB;">
+        <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB; flex-shrink: 0;">
             <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
                 <i class="fi-rs-arrow-left" style="font-size: 18px;"></i>
             </button>
@@ -379,48 +740,56 @@
             </div>
         </div>
         
-        <!-- Messages Container -->
-        <div id="messagesContainer" style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; background: #F9FAFB; scroll-behavior: smooth;">
-            <!-- Les messages seront injectés ici -->
-        </div>
+        <!-- Scrollable Content: Messages + Negotiation -->
+        <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;">
+            <!-- Messages Container -->
+            <div id="messagesContainer" style="padding: 16px; background: #F9FAFB; min-height: min-content;">
+                <!-- Les messages seront injectés ici -->
+            </div>
         
-        <!-- Negotiation Section (si intention d'achat active) -->
-        <div id="negotiationSection" style="display: none; padding: 16px; border-top: 1px solid #E5E7EB; background: #FFF9E6; border-bottom: 1px solid #E5E7EB;">
-            <div style="margin-bottom: 12px;">
-                <h5 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 6px;">
-                    <i class="fi-rs-tag" style="color: var(--color-orange);"></i>
-                    Négocier le prix
-                </h5>
-                <p style="margin: 0; font-size: 12px; color: #6B7280;">Proposez un nouveau prix pour cet article</p>
-            </div>
-            
-            <!-- Historique des négociations -->
-            <div id="negotiationHistory" style="margin-bottom: 12px;">
-                <!-- L'historique sera injecté ici -->
-            </div>
-            
-            <!-- Formulaire de proposition -->
-            <form id="negotiationForm" onsubmit="submitNegotiation(event)" style="display: flex; gap: 8px; align-items: end; margin-bottom: 12px;">
-                <div style="flex: 1;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Prix proposé (FCFA)</label>
-                    <input type="number" id="negotiationPrice" placeholder="Ex: 50000" min="1" step="1" required style="width: 100%; padding: 10px 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+            <!-- Negotiation Section (si intention d'achat active) -->
+            <div id="negotiationSection" style="display: none; padding: 16px; border-top: 1px solid #E5E7EB; background: #FFF9E6; flex-shrink: 0;">
+                <div style="margin-bottom: 12px;">
+                    <h5 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 6px;">
+                        <i class="fi-rs-money" style="color: var(--color-orange);"></i>
+                        Négocier le prix
+                    </h5>
+                    <p style="margin: 0; font-size: 12px; color: #6B7280;">Proposez un nouveau prix pour cet article</p>
                 </div>
-                <button type="submit" style="padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <i class="fi-rs-check"></i> Proposer
+                
+                <!-- Historique des négociations -->
+                <div id="negotiationHistory" style="margin-bottom: 12px; max-height: 200px; overflow-y: auto;">
+                    <!-- L'historique sera injecté ici -->
+                </div>
+                
+                <!-- Formulaire de proposition -->
+                <form id="negotiationForm" onsubmit="submitNegotiation(event)" style="display: flex; gap: 8px; align-items: end; margin-bottom: 12px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Prix proposé (FCFA)</label>
+                        <input type="number" id="negotiationPrice" placeholder="Ex: 50000" min="1" step="1" required style="width: 100%; padding: 10px 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                    </div>
+                    <button type="submit" style="padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="fi-rs-check"></i> Proposer
+                    </button>
+                </form>
+                
+                <!-- Bouton pour accepter le prix final -->
+                <button id="acceptFinalPriceBtn" style="display: none; width: 100%; padding: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);" onmouseover="this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'; this.style.transform='translateY(0)'">
+                    <i class="fi-rs-check-circle"></i> Accepter le prix final et procéder au paiement
                 </button>
-            </form>
-            
-            <!-- Bouton pour accepter le prix final -->
-            <button id="acceptFinalPriceBtn" style="display: none; width: 100%; padding: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 8px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                <i class="fi-rs-check-circle"></i> Accepter le prix final et procéder au paiement
-            </button>
+            </div>
         </div>
         
-        <!-- Message Input -->
-        <div style="padding: 16px; border-top: 1px solid #E5E7EB; background: white;">
+        <!-- Section Vérification de livraison (après paiement) -->
+        <div id="verificationSection" style="display: none; padding: 16px; border-top: 1px solid #E5E7EB; flex-shrink: 0;">
+            <!-- Contenu injecté par JavaScript -->
+        </div>
+        
+        <!-- Message Input (fixe en bas) -->
+        <div style="padding: 16px; border-top: 1px solid #E5E7EB; background: white; flex-shrink: 0;">
             <div id="chatHelper" style="display: none; margin-bottom: 8px; font-size: 12px; color: #F97316; font-weight: 600;">Pendant la négociation, proposez un prix dans la section jaune. Le chat libre sera disponible après accord.</div>
             <form id="messageForm" onsubmit="sendMessage(event)" style="display: flex; gap: 8px;">
-                <input type="text" id="messageInput" placeholder="Tapez votre message..." style="flex: 1; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                <input type="text" id="messageInput" placeholder="Tapez votre message..." style="flex: 1; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
                 <button type="submit" style="padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fi-rs-paper-plane" style="font-size: 16px;"></i>
                 </button>
@@ -458,6 +827,45 @@
     border-bottom-left-radius: 4px;
 }
 
+/* Améliorer le scroll dans le chatbot */
+#activeConversation > div:first-child {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Historique de négociation avec scroll amélioré */
+#negotiationHistory {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 123, 44, 0.5) rgba(0, 0, 0, 0.1);
+}
+
+/* Style de la scrollbar pour webkit (Chrome, Safari) */
+#negotiationHistory::-webkit-scrollbar {
+    width: 6px;
+}
+
+#negotiationHistory::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+#negotiationHistory::-webkit-scrollbar-thumb {
+    background: rgba(255, 123, 44, 0.5);
+    border-radius: 3px;
+}
+
+#negotiationHistory::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 123, 44, 0.7);
+}
+
+/* S'assurer que le bouton vert est bien visible */
+#acceptFinalPriceBtn {
+    position: relative;
+    z-index: 10;
+}
+
 @media (max-width: 768px) {
     #chatbotPopup {
         width: calc(100vw - 20px);
@@ -466,10 +874,23 @@
         right: 10px;
         border-radius: 16px;
     }
+    
+    /* Réduire les paddings sur mobile pour plus d'espace */
+    #messagesContainer {
+        padding: 12px !important;
+    }
+    
+    #negotiationSection {
+        padding: 12px !important;
+    }
+    
+    #negotiationHistory {
+        max-height: 150px !important;
+    }
 }
 </style>
 
-<script src="{% static 'accounts/js/negotiation.js' %}"></script>
+<script src="{% static 'accounts/js/negotiation.js' %}?v=3.7"></script>
 <script>
 // Variables globales pour la conversation (accessibles depuis negotiation.js)
 window.currentProductId = null;
@@ -707,28 +1128,38 @@ function displayMessages(messages) {
     }, 50);
 }
 
-async function deleteMessage(messageId) {
-    if (!confirm('Supprimer ce message ?')) return;
-    try {
-        const response = await fetch(`/accounts/delete-product-message/${messageId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        const data = await response.json();
-        if (data.success) {
-            if (currentConversationId && typeof showActiveConversation === 'function') {
-                showActiveConversation(currentConversationId);
-            }
-        } else {
-            alert(data.error || 'Erreur lors de la suppression');
+function deleteMessage(messageId) {
+    GMModal.show({
+        type: 'warning',
+        title: 'Supprimer le message',
+        message: 'Êtes-vous sûr de vouloir supprimer ce message ?',
+        showCancel: true,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        onConfirm: function() {
+            fetch(`/delete-product-message/${messageId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (currentConversationId && typeof showActiveConversation === 'function') {
+                        showActiveConversation(currentConversationId);
+                    }
+                } else {
+                    GMModal.error('Erreur', data.error || 'Erreur lors de la suppression');
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                GMModal.error('Erreur', 'Erreur lors de la suppression');
+            });
         }
-    } catch (e) {
-        console.error(e);
-        alert('Erreur lors de la suppression');
-    }
+    });
 }
 
 function sendMessage(event) {
@@ -736,13 +1167,19 @@ function sendMessage(event) {
     const input = document.getElementById('messageInput');
     const message = input.value.trim();
     
-    if (!message || !currentProductId || !currentConversationId) return;
+    if (!message || !currentConversationId) return;
     
     const conversation = conversationsData.find(c => c.id === currentConversationId);
-    if (!conversation) return;
+    if (!conversation) {
+        GMModal.error('Erreur', 'Conversation introuvable');
+        return;
+    }
     
-    // Envoyer le message
-    fetch(`/accounts/send-product-message/${currentProductId}/`, {
+    // Utiliser le product_id de la conversation (ou 0 si non disponible - le backend utilisera conversation_id)
+    const productId = conversation.product_id || currentProductId || 0;
+    
+    // Envoyer le message - URL sans préfixe /accounts car accounts.urls monté à la racine
+    fetch(`/send-product-message/${productId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -754,23 +1191,27 @@ function sendMessage(event) {
         })
     })
     .then(response => {
-        if (!response.ok) return null;
-        try { return response.json(); } catch (e) { return null; }
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Erreur lors de l\'envoi');
+            });
+        }
+        return response.json();
     })
     .then(data => {
         if (data && data.success) {
             input.value = '';
             // Recharger les conversations
-            loadConversations(currentProductId);
+            loadConversations(productId);
             // Réafficher la conversation active
             setTimeout(() => showActiveConversation(currentConversationId), 300);
         } else {
-            alert('Envoi échoué. Réessayez.');
+            GMModal.error('Envoi échoué', data.error || 'Le message n\'a pas pu être envoyé.');
         }
     })
     .catch(error => {
         console.error('Error sending message:', error);
-        alert('Erreur lors de l\'envoi du message');
+        GMModal.error('Erreur', error.message || 'Erreur lors de l\'envoi du message');
     });
 }
 
@@ -806,7 +1247,7 @@ function updateMessageBadges() {
 /**
  * Active/désactive la zone de saisie libre selon le statut de l'intention.
  * Pendant la négociation (PENDING/NEGOTIATING), on force la saisie par le champ de prix uniquement.
- * Après accord (AGREED), on réactive le chat libre.
+ * Après paiement (PAID), on réactive le chat libre.
  */
 function updateChatControls(intentData) {
     const messageInput = document.getElementById('messageInput');
@@ -816,18 +1257,55 @@ function updateChatControls(intentData) {
     if (!messageInput || !sendBtn || !helper) return;
     
     const status = intentData && intentData.status ? intentData.status : null;
+    const orderStatus = intentData ? intentData.order_status : null;
     const isAgreed = status === 'agreed';
+    const isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].includes(orderStatus);
+    const isCompleted = orderStatus === 'completed';
     
-    if (isAgreed) {
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        messageInput.placeholder = "Tapez votre message...";
-        helper.style.display = 'none';
-    } else {
+    if (isCompleted) {
+        // Transaction terminée → DÉSACTIVER le chat complètement
         messageInput.disabled = true;
         sendBtn.disabled = true;
-        messageInput.placeholder = "La discussion libre sera disponible après accord sur le prix";
+        sendBtn.style.opacity = '0.5';
+        sendBtn.style.cursor = 'not-allowed';
+        messageInput.placeholder = "Transaction terminée - Le chat est désactivé";
         helper.style.display = 'block';
+        helper.innerHTML = '🎉 Transaction terminée avec succès ! Le chat est maintenant fermé.';
+        helper.style.color = '#059669';
+    } else if (isPaid) {
+        // Paiement effectué mais pas terminé → activer le chat libre
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        sendBtn.style.cursor = 'pointer';
+        messageInput.placeholder = "Discutez du lieu et de l'heure de rencontre...";
+        helper.style.display = 'block';
+        helper.innerHTML = '💬 Paiement confirmé ! Échangez pour convenir du lieu et de l\'heure de remise.';
+        helper.style.color = '#2563EB';
+    } else if (isAgreed) {
+        // Prix accepté mais pas payé → bloquer tout
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.5';
+        sendBtn.style.cursor = 'not-allowed';
+        messageInput.placeholder = "⏳ En attente du paiement...";
+        helper.style.display = 'block';
+        const currentUserId = window.currentUserId || 0;
+        const isBuyer = intentData && intentData.buyer_id === currentUserId;
+        helper.innerHTML = isBuyer 
+            ? '✅ Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.'
+            : '✅ Prix accepté ! En attente du paiement de l\'acheteur.';
+        helper.style.color = '#10B981';
+    } else {
+        // Négociation en cours → bloquer le chat libre
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.5';
+        sendBtn.style.cursor = 'not-allowed';
+        messageInput.placeholder = "La discussion libre sera disponible après le paiement";
+        helper.style.display = 'block';
+        helper.innerHTML = '📝 Utilisez le formulaire ci-dessus pour négocier le prix';
+        helper.style.color = '#6B7280';
     }
 }
 
@@ -864,91 +1342,110 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function acceptPurchaseIntent(intentId) {
-    if (confirm('Êtes-vous sûr de vouloir accepter cette intention d\'achat ? Vous pourrez ensuite négocier le prix.')) {
-        fetch(`/c2c/purchase-intent/${intentId}/accept/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Ouvrir automatiquement le chatbot avec la conversation pour démarrer la négociation
-                if (data.product_id) {
-                    // Attendre un peu pour que la conversation soit créée côté serveur
-                    setTimeout(() => {
-                        openConversationChatbot(data.product_id, data.conversation_id || null);
-                    }, 500);
-                } else {
-                    alert('Intention d\'achat acceptée ! Vous pouvez maintenant négocier le prix.');
-                    location.reload();
+    GMModal.show({
+        type: 'confirm',
+        title: 'Accepter l\'intention d\'achat',
+        message: 'Êtes-vous sûr de vouloir accepter cette intention d\'achat ? Vous pourrez ensuite négocier le prix.',
+        showCancel: true,
+        confirmText: 'Accepter',
+        cancelText: 'Annuler',
+        onConfirm: function() {
+            fetch(`/c2c/purchase-intent/${intentId}/accept/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-            } else {
-                alert(data.error || 'Erreur lors de l\'acceptation');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors de l\'acceptation');
-        });
-    }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Ouvrir automatiquement le chatbot avec la conversation pour démarrer la négociation
+                    if (data.product_id) {
+                        // Attendre un peu pour que la conversation soit créée côté serveur
+                        setTimeout(() => {
+                            openConversationChatbot(data.product_id, data.conversation_id || null);
+                        }, 500);
+                    } else {
+                        GMModal.success('Acceptée !', 'Intention d\'achat acceptée ! Vous pouvez maintenant négocier le prix.', () => location.reload());
+                    }
+                } else {
+                    GMModal.error('Erreur', data.error || 'Erreur lors de l\'acceptation');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                GMModal.error('Erreur', 'Erreur lors de l\'acceptation');
+            });
+        }
+    });
 }
 
 function rejectPurchaseIntent(intentId) {
-    if (confirm('Êtes-vous sûr de vouloir refuser cette intention d\'achat ?')) {
-        fetch(`/c2c/purchase-intent/${intentId}/reject/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Intention d\'achat refusée.');
-                location.reload();
-            } else {
-                alert(data.error || 'Erreur lors du refus');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors du refus');
-        });
-    }
+    GMModal.confirm(
+        'Refuser l\'intention d\'achat',
+        'Êtes-vous sûr de vouloir refuser cette intention d\'achat ?',
+        function() {
+            fetch(`/c2c/purchase-intent/${intentId}/reject/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    GMModal.success('Refusée', 'Intention d\'achat refusée.', () => location.reload());
+                } else {
+                    GMModal.error('Erreur', data.error || 'Erreur lors du refus');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                GMModal.error('Erreur', 'Erreur lors du refus');
+            });
+        }
+    );
 }
 
 function cancelPurchaseIntent(intentId) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette intention d\'achat ? Cette action est définitive.')) {
-        fetch(`/c2c/purchase-intent/${intentId}/cancel/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Intention d\'achat supprimée.');
-                location.reload();
-            } else {
-                alert(data.error || 'Erreur lors de la suppression');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la suppression');
-        });
-    }
+    GMModal.show({
+        type: 'warning',
+        title: 'Supprimer l\'intention d\'achat',
+        message: 'Êtes-vous sûr de vouloir supprimer cette intention d\'achat ? Cette action est définitive.',
+        showCancel: true,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        onConfirm: function() {
+            fetch(`/c2c/purchase-intent/${intentId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    GMModal.success('Supprimée', 'Intention d\'achat supprimée.', () => location.reload());
+                } else {
+                    GMModal.error('Erreur', data.error || 'Erreur lors de la suppression');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                GMModal.error('Erreur', 'Erreur lors de la suppression');
+            });
+        }
+    });
 }
+
+// Le CSS mobile-first gère maintenant le responsive nativement
+// Plus besoin de JavaScript pour forcer les styles
 </script>
 
 {% endblock %}
-

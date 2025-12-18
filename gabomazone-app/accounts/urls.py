@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import admin_notifications
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import reverse_lazy
@@ -45,8 +46,16 @@ urlpatterns = [
     path('send-product-message/<int:product_id>/', views.send_product_message, name="send-product-message"),
     path('mark-conversation-read/<int:conversation_id>/', views.mark_conversation_messages_read, name="mark-conversation-read"),
 path('delete-product-message/<int:message_id>/', views.delete_product_message, name="delete-product-message"),
+    path('archive-conversation/<int:conversation_id>/', views.archive_conversation, name="archive-conversation"),
+    path('unarchive-conversation/<int:conversation_id>/', views.unarchive_conversation, name="unarchive-conversation"),
     path('download_file/<int:order_id>/<str:filename>/',
          views.download_file, name="download-file"),
+    
+    # URLs pour les notifications admin
+    path('admin/notifications/', admin_notifications.get_admin_notifications, name="admin-notifications"),
+    path('admin/notifications/<int:notification_id>/read/', admin_notifications.mark_notification_read, name="admin-notification-read"),
+    path('admin/notifications/<int:notification_id>/resolve/', admin_notifications.mark_notification_resolved, name="admin-notification-resolve"),
+    path('admin/notifications/read-all/', admin_notifications.mark_all_notifications_read, name="admin-notifications-read-all"),
 
 
 ]

@@ -52,7 +52,7 @@ class Profile(models.Model):
 
 
 class PeerToPeerProduct(models.Model):
-    """Modèle pour les articles vendus entre particuliers"""
+    """Modèle pour les articles vendus C2C"""
     seller = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='peer_to_peer_products', verbose_name=_("Vendeur"))
     product_name = models.CharField(max_length=150, verbose_name=_("Nom du produit"))
@@ -122,8 +122,8 @@ class PeerToPeerProduct(models.Model):
     
     class Meta:
         ordering = ('-date',)
-        verbose_name = _("Article entre particuliers")
-        verbose_name_plural = _("Articles entre particuliers")
+        verbose_name = _("Article C2C")
+        verbose_name_plural = _("Articles C2C")
     
     def __str__(self):
         return f"{self.product_name} - {self.seller.username}"
@@ -269,6 +269,12 @@ class ProductConversation(models.Model):
     # Indicateur de dernière activité
     last_message_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Dernier message"))
     
+    # Archivage
+    is_archived_by_seller = models.BooleanField(default=False, verbose_name=_("Archivé par le vendeur"))
+    is_archived_by_buyer = models.BooleanField(default=False, verbose_name=_("Archivé par l'acheteur"))
+    archived_at_seller = models.DateTimeField(blank=True, null=True, verbose_name=_("Date d'archivage (vendeur)"))
+    archived_at_buyer = models.DateTimeField(blank=True, null=True, verbose_name=_("Date d'archivage (acheteur)"))
+    
     class Meta:
         ordering = ('-last_message_at',)
         unique_together = ('product', 'buyer')
@@ -285,6 +291,62 @@ class ProductConversation(models.Model):
     def get_unread_count_for_buyer(self):
         """Retourne le nombre de messages non lus pour l'acheteur"""
         return self.messages.filter(is_read=False, sender=self.seller).count()
+    
+    def archive_for_user(self, user):
+        """Archive la conversation pour un utilisateur"""
+        from django.utils import timezone
+        if user == self.seller:
+            self.is_archived_by_seller = True
+            self.archived_at_seller = timezone.now()
+        elif user == self.buyer:
+            self.is_archived_by_buyer = True
+            self.archived_at_buyer = timezone.now()
+        self.save()
+    
+    def unarchive_for_user(self, user):
+        """Désarchive la conversation pour un utilisateur"""
+        if user == self.seller:
+            self.is_archived_by_seller = False
+            self.archived_at_seller = None
+        elif user == self.buyer:
+            self.is_archived_by_buyer = False
+            self.archived_at_buyer = None
+        self.save()
+    
+    def is_archived_for_user(self, user):
+        """Vérifie si la conversation est archivée pour un utilisateur"""
+        if user == self.seller:
+            return self.is_archived_by_seller
+        elif user == self.buyer:
+            return self.is_archived_by_buyer
+        return False
+    
+    def get_c2c_order(self):
+        """Retourne la commande C2C associée si elle existe"""
+        from c2c.models import PurchaseIntent
+        try:
+            intent = PurchaseIntent.objects.filter(
+                product=self.product,
+                buyer=self.buyer,
+                seller=self.seller
+            ).first()
+            if intent:
+                return getattr(intent, 'c2c_order', None)
+        except Exception:
+            pass
+        return None
+    
+    def get_purchase_intent(self):
+        """Retourne l'intention d'achat associée si elle existe"""
+        from c2c.models import PurchaseIntent
+        try:
+            return PurchaseIntent.objects.filter(
+                product=self.product,
+                buyer=self.buyer,
+                seller=self.seller
+            ).first()
+        except Exception:
+            return None
 
 
 class ProductMessage(models.Model):
@@ -475,9 +537,9 @@ class ProductBoostRequest(models.Model):
 
 
 class PeerToPeerProductFavorite(models.Model):
-    """Modèle pour gérer les favoris/likes des articles entre particuliers"""
+    """Modèle pour gérer les favoris/likes des articles C2C"""
     product = models.ForeignKey(
-        PeerToPeerProduct, on_delete=models.CASCADE, verbose_name=_("Article entre particuliers"), related_name='favorites')
+        PeerToPeerProduct, on_delete=models.CASCADE, verbose_name=_("Article C2C"), related_name='favorites')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name=_("User"), blank=True, null=True, related_name='peer_to_peer_product_favorites')
     session_key = models.CharField(
@@ -486,8 +548,71 @@ class PeerToPeerProductFavorite(models.Model):
 
     class Meta:
         unique_together = [['product', 'user'], ['product', 'session_key']]
-        verbose_name = _("Favori Article entre particuliers")
-        verbose_name_plural = _("Favoris Articles entre particuliers")
+        verbose_name = _("Favori Article C2C")
+        verbose_name_plural = _("Favoris Articles C2C")
+
+
+class AdminNotification(models.Model):
+    """Modèle pour les notifications administrateur nécessitant une action"""
+    BOOST_REQUEST = 'BOOST_REQUEST'
+    PREMIUM_SUBSCRIPTION = 'PREMIUM_SUBSCRIPTION'
+    CONTACT_MESSAGE = 'CONTACT_MESSAGE'
+    PRODUCT_APPROVAL = 'PRODUCT_APPROVAL'
+    
+    TYPE_CHOICES = [
+        (BOOST_REQUEST, _('Demande de boost')),
+        (PREMIUM_SUBSCRIPTION, _('Abonnement premium')),
+        (CONTACT_MESSAGE, _('Message de contact')),
+        (PRODUCT_APPROVAL, _('Approbation de produit')),
+    ]
+    
+    notification_type = models.CharField(
+        max_length=50, choices=TYPE_CHOICES, verbose_name=_("Type de notification"))
+    title = models.CharField(max_length=200, verbose_name=_("Titre"))
+    message = models.TextField(verbose_name=_("Message"))
+    
+    # Lien vers l'objet concerné
+    related_object_id = models.PositiveIntegerField(blank=True, null=True, verbose_name=_("ID de l'objet"))
+    related_object_type = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name=_("Type d'objet"))
+    related_url = models.CharField(
+        max_length=500, blank=True, null=True, verbose_name=_("URL de l'objet"))
+    
+    # Statut
+    is_read = models.BooleanField(default=False, verbose_name=_("Lu"))
+    is_resolved = models.BooleanField(default=False, verbose_name=_("Résolu"))
+    
+    # Dates
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    read_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de lecture"))
+    resolved_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de résolution"))
+    
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Notification administrateur")
+        verbose_name_plural = _("Notifications administrateur")
+        indexes = [
+            models.Index(fields=['is_read', 'is_resolved', 'created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_notification_type_display()} - {self.title}"
+    
+    def mark_as_read(self):
+        """Marque la notification comme lue"""
+        from django.utils import timezone
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save(update_fields=['is_read', 'read_at'])
+    
+    def mark_as_resolved(self):
+        """Marque la notification comme résolue"""
+        from django.utils import timezone
+        if not self.is_resolved:
+            self.is_resolved = True
+            self.resolved_at = timezone.now()
+            self.save(update_fields=['is_resolved', 'resolved_at'])
 
     def __str__(self):
         if self.user:

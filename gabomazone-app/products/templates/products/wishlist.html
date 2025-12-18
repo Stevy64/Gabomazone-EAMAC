@@ -170,7 +170,7 @@
                          onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'"
                          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer;" />
                     <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fi-rs-users" style="font-size: 12px;"></i>
+                        <i class="fi-rs-hand-holding-usd" style="font-size: 12px;"></i>
                         <span>Occasion</span>
                     </div>
                     <button class="flavoriz-favorite-btn" data-product-id="peer_{{ favorite.product.id }}" 
@@ -195,8 +195,8 @@
                             <i class="fi-rs-eye" style="font-size: 13px;"></i>
                             <span>Voir</span>
                         </button>
-                        <button class="flavoriz-propose-offer-btn" data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" style="padding: 10px 14px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.3); min-width: 48px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(255, 123, 44, 0.3)'">
-                            <i class="fi-rs-tag" style="font-size: 15px;"></i>
+                        <button class="flavoriz-propose-offer-btn" data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" title="Négocier le prix" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
+                            <i class="fi-rs-money" style="font-size: 15px;"></i>
                         </button>
                     </div>
                 </div>

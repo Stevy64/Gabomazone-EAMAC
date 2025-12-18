@@ -5,7 +5,7 @@
 {%block body%}
 {% if page.slug == 'about-us' or 'about' in page.slug|lower or 'a-propos' in page.slug|lower %}
 <!-- ===== Page À Propos - Design Professionnel FLAVORIZ ===== -->
-<section class="flavoriz-section" style="padding: 0; margin-top: 0;">
+<section class="flavoriz-section" style="padding: 0;">
     
     <!-- ===== SECTION HERO ===== -->
     <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
@@ -203,6 +203,11 @@
     <style>
         /* ===== MOBILE - CORRECTION COMPLÈTE ===== */
         @media (max-width: 768px) {
+            /* Ajouter margin-top pour mobile - compenser le header fixe */
+            .flavoriz-section {
+                margin-top: 140px !important;
+            }
+            
             /* Hero Section Mobile */
             .flavoriz-section > div:first-child {
                 padding: 40px 16px 30px !important;
@@ -295,7 +300,7 @@
 
 {% else %}
 <!-- ===== Pages Standard FLAVORIZ - Design Moderne et Élégant ===== -->
-<section class="flavoriz-section" style="padding: 0; margin-top: 0;">
+<section class="flavoriz-section" style="padding: 0;">
     
     <!-- ===== SECTION HERO ===== -->
     <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
@@ -469,6 +474,11 @@
         
         /* Mobile */
         @media (max-width: 768px) {
+            /* Ajouter margin-top pour mobile - compenser le header fixe */
+            .flavoriz-section {
+                margin-top: 140px !important;
+            }
+            
             /* Hero Section Mobile */
             .flavoriz-section > div:first-child {
                 padding: 50px 16px 40px !important;

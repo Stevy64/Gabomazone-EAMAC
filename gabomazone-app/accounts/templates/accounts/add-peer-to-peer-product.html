@@ -634,7 +634,7 @@ input[type="file"]:active {
                         <!-- Catégories -->
                         <div class="form-section" style="margin-bottom: 32px;">
                             <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
-                                <i class="fi-rs-tag" style="color: var(--color-orange);"></i>
+                                <i class="fi-rs-money" style="color: var(--color-orange);"></i>
                                 Catégories
                             </h3>
                             
@@ -784,6 +784,12 @@ input[type="file"]:active {
                             <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
                                 <div style="margin-bottom: 12px; position: relative;">
                                     <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                                    {% if product.is_boosted %}
+                                    <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <i class="fi-rs-rocket" style="font-size: 12px;"></i>
+                                        <span>Boosté</span>
+                                    </div>
+                                    {% endif %}
                                     {% if product.status == 'APPROVED' %}
                                     <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); padding: 6px 10px; border-radius: 6px; color: var(--color-orange); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                         <i class="fi-rs-eye"></i> Voir
