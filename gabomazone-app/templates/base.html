@@ -57,7 +57,7 @@
 					<li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
 					<li><a href="{% url 'suppliers:supplier-list' %}" class="{% if 'supplier' in request.path %}active{% endif %}">MAGASINS</a></li>
 					{% for page_obj in pages_list|slice:"0:1"%}
-					<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name|upper}}</a></li>
+					<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{% if 'about' in page_obj.name|lower or 'about-us' in page_obj.slug|lower %}À PROPOS{% else %}{{page_obj.name|upper}}{% endif %}</a></li>
 					{%endfor%}
 				</ul>
 			</nav>
@@ -200,7 +200,7 @@
 				<li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
 				<li><a href="{% url 'suppliers:supplier-list' %}" class="{% if 'supplier' in request.path %}active{% endif %}">MAGASINS</a></li>
 				{% for page_obj in pages_list|slice:"0:1"%}
-				<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name|upper}}</a></li>
+				<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{% if 'about' in page_obj.name|lower or 'about-us' in page_obj.slug|lower %}À PROPOS{% else %}{{page_obj.name|upper}}{% endif %}</a></li>
 				{%endfor%}
 			</ul>
 		</nav>
@@ -761,12 +761,19 @@
 				
 				/* Sections principales - pas de padding-top supplémentaire */
 				main.main .container,
-				.flavoriz-section,
-				section.flavoriz-section,
 				.page-content,
 				.content-wrapper {
 					padding-top: 0 !important;
 					margin-top: 0 !important;
+				}
+				
+				/* Pages spécifiques qui nécessitent un margin-top sur desktop */
+				.flavoriz-section.login-page-section,
+				section.flavoriz-section.login-page-section,
+				.flavoriz-section.about-page-section,
+				section.flavoriz-section.about-page-section {
+					margin-top: 120px !important;
+					padding-top: 10px !important;
 				}
 				
 				/* Hero section - première section visible avec un peu d'espace */
@@ -799,6 +806,15 @@
 					main.main .container {
 						padding-top: 0 !important;
 					}
+					
+					/* Pages spécifiques qui nécessitent un margin-top sur mobile */
+					.flavoriz-section.login-page-section,
+					section.flavoriz-section.login-page-section,
+					.flavoriz-section.about-page-section,
+					section.flavoriz-section.about-page-section {
+						margin-top: 120px !important;
+						padding-top: 20px !important;
+					}
 				}
 			</style>
 	{%endblock body%}
@@ -823,7 +839,7 @@
                             <a href="{% url 'orders:cart'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Voir le panier</a>
                         </li>
                         <li style="margin-bottom: 10px;">
-                            <a href="{% url 'supplier_dashboard:supplier-register'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Devenir vendeur</a>
+                            <a href="{% url 'supplier_dashboard:supplier-login'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Devenir vendeur</a>
                         </li>
                         <li style="margin-bottom: 10px;">
                             <a href="{%url 'contact:contact'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Nous contacter</a>

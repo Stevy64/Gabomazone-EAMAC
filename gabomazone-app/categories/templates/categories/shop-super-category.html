@@ -251,6 +251,22 @@ select.mySelect:focus {
         padding: 8px 12px !important;
         font-size: 12px !important;
     }
+    
+    .flavoriz-add-cart-btn,
+    .flavoriz-propose-offer-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        min-width: 44px !important;
+    }
+    
+    .flavoriz-favorite-btn {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-favorite-btn .favorite-count {
+        font-size: 9px !important;
+    }
 }
 
 /* Amélioration des cartes produits */
@@ -421,22 +437,40 @@ div#products-list.flavoriz-product-grid > * {
             }
         });
         
+        // Fonction pour mettre à jour le compteur
+        function updateProductCount() {
+            const totalCountEl = document.getElementById('total-products-count');
+            const productNum = document.getElementById('product-num');
+            if (totalCountEl && productNum) {
+                const totalCount = totalCountEl.textContent.trim();
+                const strongEl = productNum.querySelector('strong');
+                if (strongEl && totalCount) {
+                    strongEl.textContent = totalCount;
+                }
+            }
+        }
+        
+        // Mettre à jour lors du chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProductCount();
+        });
+        
         // Mettre à jour le compteur de produits après chargement HTMX
         document.addEventListener('htmx:afterSwap', function(event) {
             if (event.detail.target.id === 'products-list') {
                 // Forcer la grille après chaque swap
                 forceGridLayout();
-                
-                // Mettre à jour le compteur total si disponible
-                const totalCountEl = document.getElementById('total-products-count');
-                const productNum = document.getElementById('product-num');
-                if (totalCountEl && productNum) {
-                    const totalCount = totalCountEl.textContent.trim();
-                    const strongEl = productNum.querySelector('strong');
-                    if (strongEl) {
-                        strongEl.textContent = totalCount;
-                    }
-                }
+                // Mettre à jour le compteur
+                updateProductCount();
+            } else if (event.detail.target.id === 'total-products-count') {
+                updateProductCount();
+            }
+        });
+        
+        // Mettre à jour aussi après le swap OOB (out-of-band)
+        document.addEventListener('htmx:oobAfterSwap', function(event) {
+            if (event.detail.target.id === 'total-products-count') {
+                updateProductCount();
             }
         });
         

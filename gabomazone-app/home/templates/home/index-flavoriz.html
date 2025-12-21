@@ -79,7 +79,66 @@
         
         <!-- Publicités Banners -->
         <div class="flavoriz-hero-ads">
-            {% if home_ad_middlebar %}
+            <!-- Cartes publicitaires ShopAdSidebar (comme dans la page À Propos) -->
+            {% if shop_page_ad %}
+                {% for shop_ad in shop_page_ad|slice:":2" %}
+                <div class="flavoriz-hero-ad-card" style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
+                    <a href="{% if shop_ad.ad_URL %}{{shop_ad.ad_URL}}{% else %}#{% endif %}" style="text-decoration: none; display: block; position: relative;">
+                        {% if shop_ad.ad_mage %}
+                        <div style="position: relative; width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); overflow: hidden; min-height: 200px;">
+                            <img src="/media/{{shop_ad.ad_mage}}" alt="{{shop_ad.ad_title|default:'Publicité'}}" style="width: 100%; height: auto; border-radius: 16px; transition: transform 0.4s ease; display: block; position: relative; z-index: 2;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                            <!-- Motif animé de fallback élégant (affiché seulement si l'image ne charge pas) -->
+                            <div class="ad-pattern-fallback" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; z-index: 1;">
+                                <div style="width: 100%; height: 100%; min-height: 200px; background: linear-gradient(135deg, #fff8f3 0%, #ffe8d6 50%, #fff8f3 100%); background-size: 200% 200%; animation: gradientShift 4s ease infinite; position: relative; overflow: hidden; border-radius: 16px;">
+                                    <!-- Motif géométrique moderne avec SVG -->
+                                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0; opacity: 0.3;">
+                                        <defs>
+                                            <pattern id="geometric-pattern-{{forloop.counter}}" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+                                                <circle cx="40" cy="40" r="1.5" fill="rgba(255, 123, 44, 0.12)"/>
+                                                <path d="M0,40 L80,40 M40,0 L40,80" stroke="rgba(255, 123, 44, 0.06)" stroke-width="0.5"/>
+                                            </pattern>
+                                        </defs>
+                                        <rect width="100%" height="100%" fill="url(#geometric-pattern-{{forloop.counter}})"/>
+                                    </svg>
+                                    <!-- Formes géométriques flottantes subtiles -->
+                                    <div style="position: absolute; top: 15%; left: 20%; width: 50px; height: 50px; background: rgba(255, 123, 44, 0.08); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
+                                    <div style="position: absolute; top: 55%; right: 15%; width: 35px; height: 35px; background: rgba(255, 123, 44, 0.06); border-radius: 6px; transform: rotate(45deg); animation: float 8s ease-in-out infinite reverse;"></div>
+                                    <div style="position: absolute; bottom: 25%; left: 30%; width: 30px; height: 30px; background: rgba(255, 123, 44, 0.1); border-radius: 4px; animation: float 7s ease-in-out infinite;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Motif animé élégant si pas d'image -->
+                        <div style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); min-height: 200px; background: linear-gradient(135deg, #fff8f3 0%, #ffe8d6 50%, #fff8f3 100%); background-size: 200% 200%; animation: gradientShift 4s ease infinite; position: relative; overflow: hidden;">
+                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0; opacity: 0.3;">
+                                <defs>
+                                    <pattern id="geometric-pattern-2" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+                                        <circle cx="40" cy="40" r="1.5" fill="rgba(255, 123, 44, 0.12)"/>
+                                        <path d="M0,40 L80,40 M40,0 L40,80" stroke="rgba(255, 123, 44, 0.06)" stroke-width="0.5"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#geometric-pattern-2)"/>
+                            </svg>
+                            <div style="position: absolute; top: 15%; left: 20%; width: 50px; height: 50px; background: rgba(255, 123, 44, 0.08); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
+                            <div style="position: absolute; top: 55%; right: 15%; width: 35px; height: 35px; background: rgba(255, 123, 44, 0.06); border-radius: 6px; transform: rotate(45deg); animation: float 8s ease-in-out infinite reverse;"></div>
+                            <div style="position: absolute; bottom: 25%; left: 30%; width: 30px; height: 30px; background: rgba(255, 123, 44, 0.1); border-radius: 4px; animation: float 7s ease-in-out infinite;"></div>
+                        </div>
+                        {% endif %}
+                        <div>
+                            {% if shop_ad.supplier %}
+                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{% if shop_ad.supplier.user %}{{shop_ad.supplier.user.username}}{% else %}{{shop_ad.supplier}}{% endif %}</span>
+                            {% endif %}
+                            {% if shop_ad.ad_title %}
+                            <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">{{shop_ad.ad_title}}</h4>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Publicités HomeAdMiddlebar (fallback si pas de shop_page_ad) -->
+            {% if home_ad_middlebar and not shop_page_ad %}
                 {% for ad in home_ad_middlebar|slice:":2" %}
                 <div class="flavoriz-hero-ad-card">
                     {% if ad.ad_mage %}
@@ -153,9 +212,9 @@
         </div>
         
         <!-- Carrousel Container -->
-        <div class="carousel-container" style="position: relative;">
+        <div class="carousel-container" style="position: relative; padding: 0 8px;">
             <div class="carousel-wrapper" style="position: relative;">
-                <div id="popular-carousel" class="carousel-track" style="display: flex; gap: 20px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                <div id="popular-carousel" class="carousel-track" style="display: flex; gap: 12px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
                     {% for item in popular_products_data %}
                     {% with product=item.product product_images=item.product_images like_count=item.like_count is_boosted=item.is_boosted|default:False is_peer_to_peer=item.is_peer_to_peer|default:False view_count=item.view_count|default:0 %}
                     {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
@@ -197,8 +256,8 @@
                                     <span>Voir</span>
                                 </button>
                                 {% if is_peer_to_peer %}
-                                <button class="flavoriz-propose-offer-btn" data-product-id="{{ product.id }}" data-product-slug="{{ product.PRDSlug }}" data-product-price="{{ price|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Négocier le prix" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                                    <i class="fi-rs-users" style="font-size: 15px; color: #10B981;"></i>
+                                <button class="flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
+                                    <i class="fi-rs-comment" style="font-size: 15px;"></i>
                                 </button>
                                 {% else %}
                                 <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
@@ -243,9 +302,9 @@
         </div>
         
         <!-- Carrousel Container -->
-        <div class="carousel-container" style="position: relative;">
+        <div class="carousel-container" style="position: relative; padding: 0 8px;">
             <div class="carousel-wrapper" style="position: relative;">
-                <div id="new-carousel" class="carousel-track" style="display: flex; gap: 20px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                <div id="new-carousel" class="carousel-track" style="display: flex; gap: 12px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
                     {% for item in new_products_data %}
                     {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:False %}
                     {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
@@ -287,8 +346,8 @@
                                     <span>Voir</span>
                                 </button>
                                 {% if is_peer_to_peer %}
-                                <button class="flavoriz-propose-offer-btn" data-product-id="{{ product.id }}" data-product-slug="{{ product.PRDSlug }}" data-product-price="{{ price|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Négocier le prix" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                                    <i class="fi-rs-users" style="font-size: 15px; color: #10B981;"></i>
+                                <button class="flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
+                                    <i class="fi-rs-comment" style="font-size: 15px;"></i>
                                 </button>
                                 {% else %}
                                 <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
@@ -308,6 +367,84 @@
                 <i class="fi-rs-arrow-left" style="font-size: 20px; color: #1F2937;"></i>
             </button>
             <button class="carousel-btn carousel-next" id="new-next" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-right" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== Meilleurs Magasins Section ===== -->
+<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin: var(--spacing-2xl) auto; max-width: 1400px;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <!-- Section Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
+                    <i class="fi-rs-store" style="color: var(--color-orange); margin-right: 8px;"></i>
+                    Meilleurs Magasins
+                </h2>
+                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos magasins partenaires les plus populaires</p>
+            </div>
+            <a href="{% url 'suppliers:supplier-list' %}" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                <span>Voir plus</span>
+                <i class="fi-rs-arrow-right"></i>
+            </a>
+        </div>
+        
+        <!-- Carrousel Container -->
+        <div class="carousel-container" style="position: relative; padding: 0 8px;">
+            <div class="carousel-wrapper" style="position: relative;">
+                <div id="vendors-carousel" class="carousel-track" style="display: flex; gap: 12px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+                    {% for item in top_vendors_data %}
+                    {% with vendor=item.vendor is_premium=item.is_premium total_views=item.total_views %}
+                    <div class="flavoriz-vendor-card carousel-item" onclick="window.location.href='{% url 'suppliers:vendor-details' vendor.slug %}'" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%; min-height: 280px;">
+                        <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%); width: 100%; padding-top: 70%;">
+                            {% if vendor.image %}
+                            <img src="/media/{{ vendor.image }}" alt="{{ vendor.display_name|default:vendor.user.username }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" />
+                            {% else %}
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%);">
+                                <i class="fi-rs-store" style="font-size: 48px; color: white; opacity: 0.7;"></i>
+                            </div>
+                            {% endif %}
+                            {% if is_premium %}
+                            <div style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fi-rs-crown" style="font-size: 12px;"></i>
+                                <span>Premium</span>
+                            </div>
+                            {% endif %}
+                            {% if total_views > 0 %}
+                            <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
+                                <i class="fi-rs-eye" style="font-size: 11px;"></i>
+                                <span>{{ total_views|floatformat:0 }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+                            <h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0;">
+                                {{ vendor.display_name|default:vendor.user.username }}
+                            </h3>
+                            {% if vendor.bio %}
+                            <p style="font-size: 13px; color: #6B7280; margin: 0 0 12px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
+                                {{ vendor.bio|truncatewords:15 }}
+                            </p>
+                            {% endif %}
+                            <div style="display: flex; gap: 8px; margin-top: auto;">
+                                <button onclick="event.stopPropagation(); window.location.href='{% url 'suppliers:vendor-details' vendor.slug %}';" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+                                    <i class="fi-rs-store" style="font-size: 13px;"></i>
+                                    <span>Visiter</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Navigation Buttons -->
+            <button class="carousel-btn carousel-prev" id="vendors-prev" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
+                <i class="fi-rs-arrow-left" style="font-size: 20px; color: #1F2937;"></i>
+            </button>
+            <button class="carousel-btn carousel-next" id="vendors-next" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
                 <i class="fi-rs-arrow-right" style="font-size: 20px; color: #1F2937;"></i>
             </button>
         </div>
@@ -594,15 +731,67 @@
 .flavoriz-hero-ad-card {
     flex: 1;
     border-radius: 16px;
-    overflow: hidden;
+    overflow: visible !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     background: white;
 }
 
+/* Forcer l'affichage des images dans les cartes publicitaires ShopAdSidebar */
+.flavoriz-hero-ad-card a {
+    overflow: visible !important;
+}
+
+.flavoriz-hero-ad-card img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    background: transparent !important;
+    position: relative !important;
+    z-index: 10 !important;
+    max-height: none !important;
+}
+
 .flavoriz-hero-ad-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Animations pour le motif de fallback des publicités - Design moderne et élégant */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.6;
+    }
+    33% {
+        transform: translateY(-15px) translateX(10px);
+        opacity: 0.8;
+    }
+    66% {
+        transform: translateY(10px) translateX(-5px);
+        opacity: 0.7;
+    }
+}
+
+/* Afficher le motif si l'image ne charge pas */
+.flavoriz-hero-ad-card .show-pattern .ad-pattern-fallback {
+    opacity: 1 !important;
 }
 
 .flavoriz-hero-ad-link {
@@ -817,27 +1006,35 @@
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         scroll-snap-type: x mandatory !important;
-    }
-    
-    .carousel-track {
-        gap: 12px !important;
-        overflow-x: visible !important;
-        scroll-snap-type: x mandatory !important;
-        -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
+        width: 100% !important;
     }
     
-    .carousel-track::-webkit-scrollbar {
+    .carousel-wrapper::-webkit-scrollbar {
         display: none !important;
     }
     
+    .carousel-track {
+        display: flex !important;
+        gap: 12px !important;
+        width: max-content !important;
+        overflow-x: visible !important;
+    }
+    
     .carousel-item {
-        flex: 0 0 auto !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
-        width: 280px !important;
+        flex: 0 0 calc(50vw - 26px) !important;
+        min-width: calc(50vw - 26px) !important;
+        max-width: calc(50vw - 26px) !important;
+        width: calc(50vw - 26px) !important;
         scroll-snap-align: start !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .carousel-container {
+        overflow-x: visible !important;
+        width: 100% !important;
+        padding: 0 8px !important;
     }
     
     /* Cartes produits sur mobile */
@@ -856,7 +1053,8 @@
     }
     
     .carousel-item .flavoriz-product-card-btn,
-    .carousel-item .flavoriz-add-cart-btn {
+    .carousel-item .flavoriz-add-cart-btn,
+    .carousel-item .flavoriz-propose-offer-btn {
         padding: 8px 12px !important;
         font-size: 12px !important;
         border-radius: 6px !important;
@@ -875,6 +1073,30 @@
     /* Prix sur mobile */
     .carousel-item .flavoriz-product-body > div:first-of-type span:first-child {
         font-size: 16px !important;
+    }
+    
+    /* Cartes magasins sur mobile */
+    .carousel-item.flavoriz-vendor-card {
+        min-height: 240px !important;
+    }
+    
+    .carousel-item.flavoriz-vendor-card > div:last-child {
+        padding: 12px !important;
+    }
+    
+    .carousel-item.flavoriz-vendor-card h3 {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    .carousel-item.flavoriz-vendor-card p {
+        font-size: 12px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .carousel-item.flavoriz-vendor-card button {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
     }
     
     /* Tags de catégories */
@@ -1101,37 +1323,9 @@
         initHeroCarousel();
     }
     
-    // Fonction pour proposer une offre au vendeur (articles peer-to-peer)
-    window.proposeOfferToSeller = function(productId, productSlug, productPrice) {
-        {% if not user.is_authenticated %}
-        // Rediriger vers la page de connexion
-        window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
-        return;
-        {% endif %}
-        
-        // Rediriger vers la création d'intention d'achat C2C
-        const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
-        window.location.href = createIntentUrl;
-    };
-    
     // Initialiser les event listeners pour les produits
     if (typeof window.attachProductEventListeners === 'function') {
         window.attachProductEventListeners();
-    } else {
-        // Si la fonction n'existe pas, créer un listener basique pour les boutons panier
-        document.addEventListener('click', function(e) {
-            const cartBtn = e.target.closest('.flavoriz-add-cart-btn');
-            if (cartBtn) {
-                e.stopPropagation();
-                e.preventDefault();
-                const productId = cartBtn.getAttribute('data-product-id');
-                const productPrice = cartBtn.getAttribute('data-product-price');
-                if (productId && productPrice && typeof window.addToCartQuick === 'function') {
-                    window.addToCartQuick(parseInt(productId), productPrice);
-                }
-                return false;
-            }
-        });
     }
     
     // Fonction pour gérer le carrousel
@@ -1150,28 +1344,25 @@
         function getItemsPerView() {
             if (window.innerWidth >= 1200) return 4;
             if (window.innerWidth >= 769) return 3;
-            return 1; // Sur mobile, on affiche tous les articles avec scroll horizontal
+            return 2; // 2 items sur mobile
         }
         
-        // Sur mobile, permettre le scroll horizontal natif pour afficher tous les articles
+        // Sur mobile, permettre le scroll horizontal natif
         if (window.innerWidth <= 768) {
-            const carouselWrapper = carousel.closest('.carousel-wrapper');
-            if (carouselWrapper) {
-                carouselWrapper.style.overflowX = 'auto';
-                carouselWrapper.style.scrollSnapType = 'x mandatory';
-                carouselWrapper.style.webkitOverflowScrolling = 'touch';
-                carouselWrapper.style.scrollbarWidth = 'none';
-                carouselWrapper.style.msOverflowStyle = 'none';
-            }
-            carousel.style.overflowX = 'visible';
-            carousel.style.display = 'flex';
-            carousel.style.flexWrap = 'nowrap';
+            carousel.style.overflowX = 'auto';
+            carousel.style.scrollSnapType = 'x mandatory';
+            carousel.style.webkitOverflowScrolling = 'touch';
             // Désactiver les boutons de navigation sur mobile
             prevBtn.style.display = 'none';
             nextBtn.style.display = 'none';
         }
         
         function updateCarousel() {
+            // Sur mobile, ne pas appliquer de transformation (scroll natif)
+            if (window.innerWidth <= 768) {
+                return;
+            }
+            
             const itemsPerView = getItemsPerView();
             const maxIndex = Math.max(0, items.length - itemsPerView);
             
@@ -1222,17 +1413,21 @@
             resizeTimeout = setTimeout(function() {
                 currentIndex = 0;
                 // Sur mobile, désactiver les boutons et activer le scroll natif
+                const wrapper = carousel.closest('.carousel-wrapper');
                 if (window.innerWidth <= 768) {
                     prevBtn.style.display = 'none';
                     nextBtn.style.display = 'none';
-                    carousel.style.overflowX = 'auto';
-                    carousel.style.scrollSnapType = 'x mandatory';
-                    carousel.style.webkitOverflowScrolling = 'touch';
+                    if (wrapper) {
+                        wrapper.style.overflowX = 'auto';
+                        wrapper.style.scrollSnapType = 'x mandatory';
+                        wrapper.style.webkitOverflowScrolling = 'touch';
+                    }
                 } else {
                     prevBtn.style.display = 'flex';
                     nextBtn.style.display = 'flex';
-                    carousel.style.overflowX = 'hidden';
-                    carousel.style.scrollSnapType = 'none';
+                    if (wrapper) {
+                        wrapper.style.overflowX = 'hidden';
+                    }
                 }
                 updateCarousel();
             }, 250);
@@ -1242,13 +1437,23 @@
         if (window.innerWidth <= 768) {
             prevBtn.style.display = 'none';
             nextBtn.style.display = 'none';
-            carousel.style.overflowX = 'auto';
-            carousel.style.scrollSnapType = 'x mandatory';
-            carousel.style.webkitOverflowScrolling = 'touch';
+            // Le wrapper gère le scroll, pas le track
+            const wrapper = carousel.closest('.carousel-wrapper');
+            if (wrapper) {
+                wrapper.style.overflowX = 'auto';
+                wrapper.style.scrollSnapType = 'x mandatory';
+                wrapper.style.webkitOverflowScrolling = 'touch';
+            }
+            carousel.style.transform = 'none';
+            // S'assurer que les items sont visibles et ont la bonne largeur
+            items.forEach(item => {
+                item.style.transform = 'none';
+                item.style.flexShrink = '0';
+            });
+        } else {
+            // Initialiser après un court délai pour s'assurer que les éléments sont rendus
+            setTimeout(updateCarousel, 100);
         }
-        
-        // Initialiser après un court délai pour s'assurer que les éléments sont rendus
-        setTimeout(updateCarousel, 100);
     }
     
     // Initialiser les deux carrousels
@@ -1260,8 +1465,22 @@
     } else {
         initCarousel('popular-carousel', 'popular-prev', 'popular-next');
         initCarousel('new-carousel', 'new-prev', 'new-next');
+        initCarousel('vendors-carousel', 'vendors-prev', 'vendors-next');
     }
 })();
+
+// Fonction pour proposer une offre au vendeur (articles peer-to-peer)
+function proposeOfferToSeller(productId, productSlug, productPrice) {
+    {% if not user.is_authenticated %}
+    // Rediriger vers la page de connexion
+    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+    return;
+    {% endif %}
+    
+    // Rediriger vers la création d'intention d'achat C2C
+    const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
+    window.location.href = createIntentUrl;
+}
 </script>
 
 {% endblock %}

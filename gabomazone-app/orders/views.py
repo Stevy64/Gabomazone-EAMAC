@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier, OrderDetailsSupplier, Province
 from products.models import Product
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_http_methods
 from decimal import Context, Decimal, InvalidOperation
@@ -67,6 +68,7 @@ def safe_decimal_price(price_value, max_digits=10, decimal_places=2):
         return Decimal('0')
 
 
+@login_required(login_url='accounts:login')
 def add_to_cart(request):
     try:
         if not request.session.has_key('currency'):
@@ -158,16 +160,10 @@ def add_to_cart(request):
                     qyt = 1
 
             try:
-                if request.user.is_authenticated and not request.user.is_anonymous:
-                    order = Order.objects.filter(
-                        user=request.user, is_finished=False).first()
-                    print("order: ", order)
-                else:
-                    cart_id = request.session.get('cart_id')
-                    if cart_id:
-                        order = Order.objects.filter(id=cart_id, is_finished=False).first()
-                    else:
-                        order = None
+                # Utilisateur doit être authentifié (décorateur @login_required)
+                order = Order.objects.filter(
+                    user=request.user, is_finished=False).first()
+                print("order: ", order)
 
             except Exception as e:
                 print(f"Erreur lors de la récupération de la commande: {e}")
@@ -181,17 +177,9 @@ def add_to_cart(request):
 
             if order:
                 if request.user.is_authenticated and not request.user.is_anonymous:
+                    # Utilisateur doit être authentifié (décorateur @login_required)
                     old_orde = Order.objects.filter(
                         user=request.user, is_finished=False).first()
-                else:
-                    cart_id = request.session.get('cart_id')
-                    if cart_id:
-                        try:
-                            old_orde = Order.objects.get(id=cart_id, is_finished=False)
-                        except Order.DoesNotExist:
-                            old_orde = None
-                    else:
-                        old_orde = None
                 
                 if not old_orde:
                     if is_ajax:
@@ -743,6 +731,7 @@ def add_to_cart(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
+@login_required(login_url='accounts:login')
 def cart(request):
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
@@ -771,18 +760,11 @@ def cart(request):
     provinces = Province.objects.all()
 
     try:
-        if request.user.is_authenticated and not request.user.is_anonymous:
-            order_view = Order.objects.all().filter(
-                user=request.user, is_finished=False).first()
-            if order_view:
-                request.session['cart_id'] = order_view.id
-        else:
-            cart_id = request.session.get('cart_id')
-            if cart_id:
-                order_view = Order.objects.filter(id=cart_id, is_finished=False).first()
-            else:
-                order_view = None
-
+        # Utilisateur doit être authentifié (décorateur @login_required)
+        order_view = Order.objects.all().filter(
+            user=request.user, is_finished=False).first()
+        if order_view:
+            request.session['cart_id'] = order_view.id
     except Exception as e:
         order_view = None
 
@@ -848,12 +830,9 @@ def cart(request):
         else:
             # total = f_total
             # coupon_id = None
-            if request.user.is_authenticated and not request.user.is_anonymous:
-                old_orde = Order.objects.get(
-                    user=request.user, is_finished=False)
-            else:
-                old_orde = Order.objects.get(
-                    id=cart_id, is_finished=False)
+            # Utilisateur doit être authentifié (décorateur @login_required)
+            old_orde = Order.objects.get(
+                user=request.user, is_finished=False)
             old_orde.amount = total
             old_orde.discount = 0
             old_orde.sub_total = f_total
@@ -897,11 +876,10 @@ def cart(request):
         # Panier vide - définir un contexte minimal
         # Récupérer le profil utilisateur pour pré-remplir le formulaire
         profile = None
-        if request.user.is_authenticated and not request.user.is_anonymous:
-            try:
-                profile = Profile.objects.get(user=request.user)
-            except Profile.DoesNotExist:
-                profile = None
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            profile = None
         
         context = {
             "order_details": None,
@@ -982,16 +960,20 @@ def remove_item(request, productdeatails_id):
     # if request.user.is_authenticated and not request.user.is_anonymous and productdeatails_id:
     item_id = OrderDetails.objects.get(id=productdeatails_id)
     try:
-        cart_id = request.session.get('cart_id')
-        if item_id.order.id == request.session.get('cart_id'):
+        # Utilisateur doit être authentifié (décorateur @login_required)
+        # Vérifier que l'item appartient à l'utilisateur connecté
+        if item_id.order.user.id != request.user.id:
+            messages.error(request, 'Vous n\'avez pas l\'autorisation de modifier cette commande.')
+            return redirect('orders:cart')
+        if item_id.order.id == order.id:
             # if item_id.order.user.id == request.user.id:
             item = OrderDetails.objects.all().filter(order_id=item_id.order_id).count()
             if item-1 == 0:
                 # order = Order.objects.all().filter(user=request.user, is_finished=False)
                 try:
 
-                    old_orde = Order.objects.get(
-                        id=cart_id, is_finished=False)
+                    # Utilisateur doit être authentifié (décorateur @login_required)
+                    old_orde = order
                     old_orde.delete()
                     messages.warning(request, 'Produit supprimé du panier')
                     return redirect('orders:cart')
@@ -1076,9 +1058,11 @@ def remove_item(request, productdeatails_id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+@login_required(login_url='accounts:login')
 def payment(request):
     """
     Page de paiement - Uniquement SingPay et paiement à la livraison
+    Nécessite une authentification
     """
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
@@ -1127,9 +1111,15 @@ def payment(request):
         # country_obj = Country.objects.get(
         #     country_code=country)
         # country_code = country_obj.country_code
-        cart_id = request.session.get('cart_id')
-        order_weight = Order.objects.get(
-            id=cart_id, is_finished=False).weight
+        # Utilisateur doit être authentifié (décorateur @login_required)
+        order = Order.objects.filter(
+            user=request.user, is_finished=False).first()
+        if not order:
+            messages.error(request, 'Aucune commande en cours.')
+            return redirect('orders:cart')
+        cart_id = order.id
+        request.session['cart_id'] = cart_id
+        order_weight = order.weight
         # print(order_weight)
         if settings.ARAMEX_USERNAME != "":
             data = {
@@ -1192,10 +1182,11 @@ def payment(request):
             # print(shipping)
             currency_code = soup.currencycode.string
 
-        order = Order.objects.all().filter(id=cart_id, is_finished=False)
+        # Utilisateur doit être authentifié (décorateur @login_required)
+        order = Order.objects.filter(user=request.user, is_finished=False).first()
 
         if order:
-            old_orde = Order.objects.get(id=cart_id, is_finished=False)
+            old_orde = order
             # if settings.ARAMEX_USERNAME != "" :
             old_orde.amount = float(old_orde.amount)+shipping
             old_orde.shipping = shipping
@@ -1241,23 +1232,14 @@ def payment(request):
                 request, 'Vos informations de facturation ont été enregistrées')
             return render(request, "orders/shop-checkout.html", context)
 
-    if request.user.is_authenticated and not request.user.is_anonymous:
-        # if Order.objects.all().filter(user=request.user, is_finished=False):
-        #     order = Order.objects.get(user=request.user, is_finished=False)
-
-        #     order_details = OrderDetails.objects.all().filter(order=order)
-        #     blance = Profile.objects.get(user=request.user).blance
-        #     context = {
-        #         "order": order,
-        #         "order_details": order_details,
-        #         "PUBLIC_KEY": PUBLIC_KEY,
-        #         "blance": blance,
-
-        #     }
-        #     return render(request, "orders/payment.html", context)
+    # Utilisateur doit être authentifié (décorateur @login_required)
+    # Vérifier qu'il y a une commande en cours
+    order = Order.objects.filter(user=request.user, is_finished=False).first()
+    if not order:
+        messages.warning(request, 'Aucune commande à acheter')
         return redirect('orders:cart')
-
-    messages.warning(request, 'Aucune commande à acheter')
+    
+    # Rediriger vers le panier si pas de POST (affichage initial)
     return redirect('orders:cart')
 
 
@@ -1511,13 +1493,18 @@ def payment_blance(request):
     return redirect("home:index")
 
 
+@login_required(login_url='accounts:login')
 def payment_cash(request):
-
-    cart_id = request.session.get('cart_id')
-    order = Order.objects.all().filter(id=cart_id, is_finished=False)
+    # Utilisateur doit être authentifié (décorateur @login_required)
+    order = Order.objects.filter(user=request.user, is_finished=False).first()
+    if not order:
+        messages.error(request, 'Aucune commande en cours.')
+        return redirect('orders:cart')
+    cart_id = order.id
+    request.session['cart_id'] = cart_id
 
     if order:
-        old_orde = Order.objects.get(id=cart_id, is_finished=False)
+        old_orde = order
         try:
             Consignee_id = old_orde.user.id
             Consignee_email = old_orde.user.email
@@ -1764,13 +1751,17 @@ def payment_cash(request):
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+@login_required(login_url='accounts:login')
 def create_checkout_session(request):
     # product_id = self.kwargs["pk"]
     #     product = Product.objects.get(id=product_id)
     domain = f"https://{settings.YOUR_DOMAIN}/"
-    cart_id = request.session.get('cart_id')
-
-    order = Order.objects.get(id=cart_id, is_finished=False)
+    # Utilisateur doit être authentifié (décorateur @login_required)
+    order = Order.objects.filter(user=request.user, is_finished=False).first()
+    if not order:
+        return JsonResponse({'error': 'Aucune commande en cours.'}, status=400)
+    cart_id = order.id
+    request.session['cart_id'] = cart_id
     try:
         stripe_logo = SiteSetting.objects.first().login_image.url
         # host = request.META.get("HTTP_HOST")
@@ -2352,12 +2343,15 @@ def my_webhook_view(request):
     return HttpResponse(status=200)
 
 
+@login_required(login_url='accounts:login')
 def checkout_payment_paymob(request, id):
     context = None
     # if request.method == "POST":
     order_id = id
-    if Order.objects.all().filter(id=order_id, is_finished=False).exists():
-        old_orde = Order.objects.get(id=order_id, is_finished=False)
+    # Vérifier que la commande appartient à l'utilisateur connecté
+    order = Order.objects.filter(id=order_id, user=request.user, is_finished=False).first()
+    if order:
+        old_orde = order
         payment_method = Payment.objects.get(order=old_orde)
         order_details = OrderDetails.objects.filter(
             order=old_orde).last()
@@ -2705,6 +2699,7 @@ def my_webhook_view_paymob(request, *args, **kwargs):
             return redirect('home:index')
 
 
+@login_required(login_url='accounts:login')
 def verify_payment_razorpay(request):
     if request.is_ajax():
         razorpay_payment_id = request.POST.get('razorpay_payment_id')
@@ -2962,6 +2957,7 @@ def verify_payment_razorpay(request):
         return JsonResponse({"success": False, "data": "None"}, safe=False)
 
 
+@login_required(login_url='accounts:login')
 def verify_payment_paypal(request):
     if request.is_ajax():
         paypal_order_id = request.POST.get('paypal_order_id')
@@ -3221,10 +3217,13 @@ def verify_payment_paypal(request):
 
 
 
+@login_required(login_url='accounts:login')
 def send_payment_fatoorah(request, id):
     order_id = id
-    if Order.objects.all().filter(id=order_id, is_finished=False).exists():
-        old_orde = Order.objects.get(id=order_id, is_finished=False)
+    # Vérifier que la commande appartient à l'utilisateur connecté
+    order = Order.objects.filter(id=order_id, user=request.user, is_finished=False).first()
+    if order:
+        old_orde = order
         payment_method = Payment.objects.get(order=old_orde)
         order_details = OrderDetails.objects.filter(
             order=old_orde).last()
@@ -3424,11 +3423,8 @@ def get_cart_count(request):
         if request.user.is_authenticated and not request.user.is_anonymous:
             order = Order.objects.filter(user=request.user, is_finished=False).first()
         else:
-            cart_id = request.session.get('cart_id')
-            if cart_id:
-                order = Order.objects.filter(id=cart_id, is_finished=False).first()
-            else:
-                order = None
+            # Seuls les utilisateurs authentifiés peuvent avoir un panier
+            order = None
         
         if order:
             cart_count = OrderDetails.objects.filter(order=order).count()

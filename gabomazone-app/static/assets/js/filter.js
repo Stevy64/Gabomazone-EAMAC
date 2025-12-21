@@ -458,14 +458,25 @@ window.addToCartQuick = function(productId, productPrice) {
         }
     })
     .then(response => {
+        // Si redirection (status 302 ou 301), c'est probablement vers la page de connexion
+        if (response.redirected || response.status === 302 || response.status === 301) {
+            // Rediriger vers la page de connexion avec le paramètre next
+            const currentUrl = window.location.pathname + window.location.search;
+            window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
+            return null;
+        }
+        
+        // Vérifier si c'est une erreur 403 (Forbidden) ou 401 (Unauthorized) - utilisateur non authentifié
+        if (response.status === 403 || response.status === 401) {
+            const currentUrl = window.location.pathname + window.location.search;
+            window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
+            return null;
+        }
+        
         // Vérifier le type de contenu
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             return response.json();
-        } else if (response.redirected) {
-            // Si redirection, c'est probablement vers la page de connexion
-            window.location.href = response.url;
-            return null;
         } else if (response.ok) {
             // Si ce n'est pas du JSON, c'est probablement une redirection HTML
             return response.text().then(text => {
@@ -515,7 +526,8 @@ window.addToCartQuick = function(productId, productPrice) {
             // Erreur retournée par le serveur
             if (data.requires_login) {
                 if (confirm(data.error + '\n\nVoulez-vous être redirigé vers la page de connexion ?')) {
-                    window.location.href = '/accounts/login/';
+                    const currentUrl = window.location.pathname + window.location.search;
+                    window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
                 }
             } else {
                 alert(data.error || 'Une erreur est survenue lors de l\'ajout au panier.');

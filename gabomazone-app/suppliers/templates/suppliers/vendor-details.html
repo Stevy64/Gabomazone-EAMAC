@@ -100,16 +100,27 @@
     }
     
     .flavoriz-vendor-badge {
-        display: inline-block;
-        padding: 6px 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
         background: rgba(255, 123, 44, 0.2);
         color: var(--color-orange);
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 12px;
+        margin-bottom: 0;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 123, 44, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .flavoriz-vendor-badge:hover {
+        background: rgba(255, 123, 44, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
     }
     
     .flavoriz-vendor-name {
@@ -121,16 +132,34 @@
     
     .flavoriz-vendor-meta {
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        width: fit-content;
+        backdrop-filter: blur(10px);
+    }
+    
+    .flavoriz-vendor-meta i {
+        color: var(--color-orange);
+        font-size: 16px;
     }
     
     .flavoriz-vendor-description {
         font-size: 15px;
-        line-height: 1.6;
-        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.95);
         margin-bottom: 24px;
         max-width: 600px;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border-left: 3px solid var(--color-orange);
+        backdrop-filter: blur(10px);
     }
     
     .flavoriz-vendor-details-grid {
@@ -146,6 +175,16 @@
         gap: 12px;
         font-size: 14px;
         color: rgba(255, 255, 255, 0.9);
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .flavoriz-vendor-detail-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
     }
     
     .flavoriz-vendor-detail-item i {
@@ -153,6 +192,13 @@
         color: var(--color-orange);
         width: 24px;
         text-align: center;
+        flex-shrink: 0;
+    }
+    
+    .flavoriz-vendor-detail-item span {
+        flex: 1;
+        word-break: break-word;
+        line-height: 1.5;
     }
     
     .flavoriz-vendor-social {
@@ -396,12 +442,22 @@
         }
         
         .flavoriz-vendor-details-grid {
-            grid-template-columns: 1fr;
-            justify-items: center;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
         }
         
         .flavoriz-vendor-detail-item {
-            justify-content: center;
+            justify-content: flex-start;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            padding: 16px;
+            gap: 8px;
+        }
+        
+        .flavoriz-vendor-detail-item i {
+            font-size: 20px;
+            width: auto;
         }
         
         .flavoriz-vendor-social {
@@ -443,31 +499,57 @@
         }
         
         .flavoriz-vendor-meta {
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 16px;
+            padding: 8px 12px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .flavoriz-vendor-meta i {
+            font-size: 14px;
         }
         
         .flavoriz-vendor-description {
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 20px;
             text-align: left;
+            padding: 12px 16px;
+            line-height: 1.6;
+        }
+        
+        .flavoriz-vendor-badge {
+            padding: 6px 10px;
+            font-size: 11px;
         }
         
         .flavoriz-vendor-details-grid {
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
         
         .flavoriz-vendor-detail-item {
-            font-size: 13px;
+            font-size: 12px;
             justify-content: flex-start;
             text-align: left;
-            padding: 8px 0;
+            padding: 12px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            min-height: 80px;
         }
         
         .flavoriz-vendor-detail-item i {
-            font-size: 16px;
-            width: 20px;
+            font-size: 18px;
+            width: auto;
+            margin-bottom: 4px;
+        }
+        
+        .flavoriz-vendor-detail-item span {
+            font-size: 12px;
+            line-height: 1.4;
+            word-break: break-word;
         }
         
         .flavoriz-vendor-social {
@@ -544,22 +626,26 @@
                     </div>
                     
                     <div class="flavoriz-vendor-info" style="color: white !important;">
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-                            <span class="flavoriz-vendor-badge">Vendeur vérifié</span>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                            <span class="flavoriz-vendor-badge" style="display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fi-rs-check-circle" style="font-size: 14px;"></i>
+                                Vendeur vérifié
+                            </span>
                             {% if is_premium %}
-                            <span class="flavoriz-vendor-badge" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; font-weight: 700;">
-                                <i class="fi-rs-star" style="margin-right: 4px;"></i>Premium
+                            <span class="flavoriz-vendor-badge" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fi-rs-crown" style="font-size: 14px;"></i>
+                                Premium
                             </span>
                             {% endif %}
                         </div>
-                        <h1 class="flavoriz-vendor-name" style="color: white !important;">{{vendor_detail.display_name|default:vendor_detail.user.username}}</h1>
-                        <div class="flavoriz-vendor-meta" style="color: rgba(255, 255, 255, 0.9) !important;">
+                        <h1 class="flavoriz-vendor-name" style="color: white !important; margin-bottom: 12px;">{{vendor_detail.display_name|default:vendor_detail.user.username}}</h1>
+                        <div class="flavoriz-vendor-meta">
                             <i class="fi-rs-calendar"></i>
-                            Membre depuis {{vendor_detail.date|date:"F Y"}}
+                            <span>Membre depuis {{vendor_detail.date|date:"F Y"}}</span>
                         </div>
                         
                         {% if vendor_detail.bio %}
-                        <div class="flavoriz-vendor-description" style="color: rgba(255, 255, 255, 0.95) !important;">
+                        <div class="flavoriz-vendor-description">
                             {{vendor_detail.bio}}
                         </div>
                         {% endif %}
@@ -570,19 +656,53 @@
                                 <i class="fi-rs-marker"></i>
                                 <span style="color: rgba(255, 255, 255, 0.95) !important;">
                                     {% if vendor_detail.address %}{{vendor_detail.address}}{% endif %}
-                                    {% if vendor_detail.city %}, {{vendor_detail.city}}{% endif %}
+                                    {% if vendor_detail.city %}{% if vendor_detail.address %}, {% endif %}{{vendor_detail.city}}{% endif %}
                                     {% if vendor_detail.post_code %} {{vendor_detail.post_code}}{% endif %}
-                                    {% if vendor_detail.country %}, {{vendor_detail.country}}{% endif %}
+                                    {% if vendor_detail.country %}{% if vendor_detail.city or vendor_detail.address %}, {% endif %}{{vendor_detail.country}}{% endif %}
                                 </span>
                             </div>
                             {% endif %}
                             
-                            {% if vendor_detail.mobile_number %}
                             <div class="flavoriz-vendor-detail-item" style="color: rgba(255, 255, 255, 0.95) !important;">
-                                <i class="fi-rs-phone"></i>
-                                <span style="color: rgba(255, 255, 255, 0.95) !important;">{{vendor_detail.mobile_number}}</span>
+                                <i class="fi-rs-star" style="color: #FFD700;"></i>
+                                <span style="color: rgba(255, 255, 255, 0.95) !important; display: flex; flex-direction: column; gap: 6px; width: 100%;">
+                                    <span style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-weight: 700; font-size: 18px; color: #FFD700;">{{average_rating|default:"0.0"}}</span>
+                                        <span style="display: flex; gap: 2px; align-items: center;">
+                                            {% if average_rating >= 1 %}
+                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
+                                            {% else %}
+                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
+                                            {% endif %}
+                                            {% if average_rating >= 2 %}
+                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
+                                            {% else %}
+                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
+                                            {% endif %}
+                                            {% if average_rating >= 3 %}
+                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
+                                            {% else %}
+                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
+                                            {% endif %}
+                                            {% if average_rating >= 4 %}
+                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
+                                            {% else %}
+                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
+                                            {% endif %}
+                                            {% if average_rating >= 5 %}
+                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
+                                            {% else %}
+                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
+                                            {% endif %}
+                                        </span>
+                                    </span>
+                                    {% if total_ratings > 0 %}
+                                    <span style="font-size: 12px; opacity: 0.9;">{{total_ratings}} avis client{{total_ratings|pluralize}}</span>
+                                    {% else %}
+                                    <span style="font-size: 12px; opacity: 0.9;">Aucun avis pour le moment</span>
+                                    {% endif %}
+                                </span>
                             </div>
-                            {% endif %}
                         </div>
                         
                         {% if vendor_social_links %}

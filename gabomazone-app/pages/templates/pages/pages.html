@@ -5,7 +5,7 @@
 {%block body%}
 {% if page.slug == 'about-us' or 'about' in page.slug|lower or 'a-propos' in page.slug|lower %}
 <!-- ===== Page À Propos - Design Professionnel FLAVORIZ ===== -->
-<section class="flavoriz-section" style="padding: 0;">
+<section class="flavoriz-section about-page-section" style="padding: 0;">
     
     <!-- ===== SECTION HERO ===== -->
     <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
@@ -183,12 +183,16 @@
                 {% for shop_ad in shop_page_ad|slice:"0:1" %}
                 <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
                     <a href="{{shop_ad.ad_URL}}" style="text-decoration: none; display: block;">
-                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                        {% if shop_ad.ad_mage %}
+                        <img src="/media/{{shop_ad.ad_mage}}" alt="{{shop_ad.ad_title|default:'Publicité'}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease; display: block;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                        {% endif %}
                         <div>
                             <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{shop_ad.supplier}}</span>
+                            {% if shop_ad.ad_title %}
                             <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">
                                 {{shop_ad.ad_title}}
                             </h4>
+                            {% endif %}
                         </div>
                     </a>
                 </div>
@@ -201,11 +205,21 @@
     
     <!-- Styles Responsive - CORRECTION MOBILE COMPLÈTE -->
     <style>
+        /* ===== DESKTOP - Margin-top pour éviter le header fixe ===== */
+        @media (min-width: 769px) {
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 120px !important;
+                padding-top: 10px !important;
+            }
+        }
+        
         /* ===== MOBILE - CORRECTION COMPLÈTE ===== */
         @media (max-width: 768px) {
             /* Ajouter margin-top pour mobile - compenser le header fixe */
-            .flavoriz-section {
-                margin-top: 140px !important;
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 120px !important;
             }
             
             /* Hero Section Mobile */
@@ -261,21 +275,33 @@
             
             /* Grille Valeurs - 1 colonne sur mobile */
             .valeurs-grid {
-                display: block !important;
-                grid-template-columns: none !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
             }
             
             .valeurs-grid > div {
                 width: 100% !important;
-                margin-bottom: 16px !important;
-                border-radius: 32px !important;
-                padding: 24px !important;
+                margin-bottom: 0 !important;
+                border-radius: 24px !important;
+                padding: 20px !important;
             }
             
             .valeurs-grid > div > div:first-child {
-                width: 64px !important;
-                height: 64px !important;
-                border-radius: 20px !important;
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 16px !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .valeurs-grid > div h3 {
+                font-size: 16px !important;
+                margin-bottom: 8px !important;
+            }
+            
+            .valeurs-grid > div p {
+                font-size: 13px !important;
+                line-height: 1.5 !important;
             }
             
             /* Sidebar devient normale sur mobile */
@@ -434,12 +460,16 @@
                 {% for shop_ad in shop_page_ad|slice:"0:1" %}
                 <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
                     <a href="{{shop_ad.ad_URL}}" style="text-decoration: none; display: block;">
-                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                        {% if shop_ad.ad_mage %}
+                        <img src="/media/{{shop_ad.ad_mage}}" alt="{{shop_ad.ad_title|default:'Publicité'}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease; display: block;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
+                        {% endif %}
                         <div>
                             <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{shop_ad.supplier}}</span>
+                            {% if shop_ad.ad_title %}
                             <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">
                                 {{shop_ad.ad_title}}
                             </h4>
+                            {% endif %}
                         </div>
                     </a>
                 </div>
@@ -475,8 +505,9 @@
         /* Mobile */
         @media (max-width: 768px) {
             /* Ajouter margin-top pour mobile - compenser le header fixe */
-            .flavoriz-section {
-                margin-top: 140px !important;
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 120px !important;
             }
             
             /* Hero Section Mobile */

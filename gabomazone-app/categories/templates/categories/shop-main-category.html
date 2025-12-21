@@ -230,6 +230,75 @@ select.mySelect:focus {
         gap: 12px !important;
         width: 100% !important;
     }
+    
+    #products-list > * {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    .flavoriz-product-image {
+        height: 160px !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 12px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 36px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .flavoriz-product-card-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-add-cart-btn,
+    .flavoriz-propose-offer-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        min-width: 44px !important;
+    }
+    
+    .flavoriz-favorite-btn {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-favorite-btn .favorite-count {
+        font-size: 9px !important;
+    }
+}
+
+/* Amélioration des cartes produits */
+.flavoriz-product-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #F3F4F6 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flavoriz-product-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+
+.flavoriz-product-card:hover .flavoriz-product-image {
+    transform: scale(1.05) !important;
+}
+
+.flavoriz-product-card-btn:hover {
+    background: var(--color-orange) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
 }
 
 /* Styles de base pour la grille */
@@ -276,18 +345,34 @@ select.mySelect:focus {
         });
         
         // Mettre à jour le compteur de produits après chargement HTMX
-        document.addEventListener('htmx:afterSwap', function(event) {
-            if (event.detail.target.id === 'products-list') {
-                // Mettre à jour le compteur total si disponible
-                const totalCountEl = document.getElementById('total-products-count');
-                const productNum = document.getElementById('product-num');
-                if (totalCountEl && productNum) {
-                    const totalCount = totalCountEl.textContent.trim();
-                    const strongEl = productNum.querySelector('strong');
-                    if (strongEl) {
-                        strongEl.textContent = totalCount;
-                    }
+        function updateProductCount() {
+            const totalCountEl = document.getElementById('total-products-count');
+            const productNum = document.getElementById('product-num');
+            if (totalCountEl && productNum) {
+                const totalCount = totalCountEl.textContent.trim();
+                const strongEl = productNum.querySelector('strong');
+                if (strongEl && totalCount) {
+                    strongEl.textContent = totalCount;
                 }
+            }
+        }
+        
+        // Mettre à jour lors du chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProductCount();
+        });
+        
+        // Mettre à jour après chaque swap HTMX
+        document.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'products-list' || event.detail.target.id === 'total-products-count') {
+                updateProductCount();
+            }
+        });
+        
+        // Mettre à jour aussi après le swap OOB (out-of-band)
+        document.addEventListener('htmx:oobAfterSwap', function(event) {
+            if (event.detail.target.id === 'total-products-count') {
+                updateProductCount();
             }
         });
     });

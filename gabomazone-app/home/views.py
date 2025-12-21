@@ -315,6 +315,69 @@ def home_page(request):
             'is_peer_to_peer': is_peer_to_peer,
         })
     
+    # Récupérer les meilleurs magasins (priorisant Premium, puis par nombre d'articles vus)
+    from accounts.models import Profile, PremiumSubscription
+    from django.db.models import Sum, Q
+    from django.utils import timezone
+    
+    try:
+        now = timezone.now()
+        
+        # Récupérer les magasins avec abonnement Premium actif
+        premium_vendors = Profile.objects.filter(
+            status="vendor",
+            admission=True,
+            premium_subscription__status=PremiumSubscription.ACTIVE,
+            premium_subscription__end_date__gt=now
+        ).distinct()
+        
+        # Récupérer tous les magasins approuvés
+        all_vendors = Profile.objects.filter(
+            status="vendor",
+            admission=True
+        )
+        
+        # Annoter avec le total des vues de leurs produits
+        vendors_with_views = all_vendors.annotate(
+            total_views=Sum('product__view_count', filter=Q(product__PRDISDeleted=False, product__PRDISactive=True))
+        )
+        
+        # Créer une liste de magasins avec leurs données
+        vendors_list = []
+        for vendor in vendors_with_views:
+            # Vérifier si le magasin a un abonnement Premium actif
+            is_premium = False
+            try:
+                premium_sub = PremiumSubscription.objects.filter(
+                    vendor=vendor,
+                    status=PremiumSubscription.ACTIVE,
+                    end_date__gt=now
+                ).first()
+                if premium_sub and premium_sub.is_active():
+                    is_premium = True
+            except:
+                pass
+            
+            total_views = vendor.total_views or 0
+            
+            vendors_list.append({
+                'vendor': vendor,
+                'is_premium': is_premium,
+                'total_views': int(total_views),
+            })
+        
+        # Trier : d'abord les Premium (is_premium=True), puis par total_views décroissant
+        vendors_list.sort(key=lambda x: (-x['is_premium'], -x['total_views']))
+        
+        # Limiter à 12 magasins
+        top_vendors_data = vendors_list[:12]
+        
+    except Exception as e:
+        import traceback
+        print(f"Erreur dans la récupération des meilleurs magasins: {e}")
+        print(traceback.format_exc())
+        top_vendors_data = []
+    
     context = {
         "super_category": super_category,
         "carousels": carousels,
@@ -324,6 +387,7 @@ def home_page(request):
         "home_ad_middlebar": home_ad_middlebar,
         "popular_products_data": popular_products_data,
         "new_products_data": new_products_data,
+        "top_vendors_data": top_vendors_data,
         "home_ad_suppliers": home_ad_suppliers,
         "home_ad_daily": home_ad_daily,
         "home_ads_deal_time": home_ads_deal_time,

@@ -4,7 +4,7 @@
 
 {%block body%}
 <!-- ===== Modern Login Page FLAVORIZ Design ===== -->
-<section class="flavoriz-section" style="margin-top: 0; padding: 0; min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-beige) 0%, var(--color-white) 100%);">
+<section class="flavoriz-section login-page-section" style="padding: 0; min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-beige) 0%, var(--color-white) 100%);">
     <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto; padding: var(--spacing-xl) var(--spacing-lg);">
         <div class="login-card" style="background: var(--color-white); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); overflow: hidden; position: relative;">
             
@@ -280,6 +280,12 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 /* Desktop - Carte centrée et réduite */
 @media (min-width: 1024px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
+        padding-top: 10px !important;
+    }
+    
     .login-container {
         max-width: 480px !important;
     }
@@ -293,6 +299,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Tablet */
 @media (min-width: 768px) and (max-width: 1023px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
+        padding-top: 10px !important;
+    }
+    
     .login-container {
         max-width: 500px !important;
         padding: var(--spacing-lg) var(--spacing-md) !important;
@@ -303,8 +315,10 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 /* Mobile - Design compact et moderne */
-@media (max-width: 767px) {
-    .flavoriz-section {
+@media (max-width: 768px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
         min-height: calc(100vh - 80px - 64px) !important;
         padding: var(--spacing-md) 0 !important;
         align-items: flex-start !important;

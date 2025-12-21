@@ -560,23 +560,35 @@ class ProductListHTMXView(View):
         base_filter = {'PRDISDeleted': False, 'PRDISactive': True}
         
         # Ajouter le filtre de catégorie
-        if cat_type == "super" and cat_id:
-            base_filter['product_supercategory'] = int(cat_id)
-        elif cat_type == "main" and cat_id:
-            base_filter['product_maincategory'] = int(cat_id)
-        elif cat_type == "sub" and cat_id:
-            base_filter['product_subcategory'] = int(cat_id)
-        elif cat_type == "mini" and cat_id:
-            base_filter['product_minicategor'] = int(cat_id)
+        if cat_type and cat_id:
+            try:
+                cat_id_int = int(cat_id)
+                print(f"DEBUG get_queryset - cat_type: '{cat_type}', cat_id_int: {cat_id_int}")
+                if cat_type == "super":
+                    base_filter['product_supercategory'] = cat_id_int
+                elif cat_type == "main":
+                    base_filter['product_maincategory'] = cat_id_int
+                elif cat_type == "sub":
+                    base_filter['product_subcategory'] = cat_id_int
+                elif cat_type == "mini":
+                    base_filter['product_minicategor'] = cat_id_int
+                print(f"DEBUG get_queryset - base_filter: {base_filter}")
+            except (ValueError, TypeError) as e:
+                # Si cat_id n'est pas un entier valide, ignorer le filtre
+                print(f"DEBUG get_queryset - Erreur conversion cat_id: {e}, cat_id reçu: '{cat_id}'")
+                pass
         
         # Construire le queryset avec annotation pour like_count
         try:
             queryset = Product.objects.filter(**base_filter).annotate(
                 like_count=Count('favorites')
             ).order_by(order_by)
-        except:
+            print(f"DEBUG get_queryset - queryset count: {queryset.count()}")
+        except Exception as e:
             # Si la table favorites n'existe pas encore
+            print(f"DEBUG get_queryset - Exception avec favorites: {e}")
             queryset = Product.objects.filter(**base_filter).order_by(order_by)
+            print(f"DEBUG get_queryset - queryset count (sans favorites): {queryset.count()}")
         
         return queryset
     
@@ -586,12 +598,18 @@ class ProductListHTMXView(View):
             peer_products = PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED)
             
             # Appliquer les filtres de catégorie
-            if cat_type == "super" and cat_id:
-                peer_products = peer_products.filter(product_supercategory_id=int(cat_id))
-            elif cat_type == "main" and cat_id:
-                peer_products = peer_products.filter(product_maincategory_id=int(cat_id))
-            elif cat_type == "sub" and cat_id:
-                peer_products = peer_products.filter(product_subcategory_id=int(cat_id))
+            if cat_type and cat_id:
+                try:
+                    cat_id_int = int(cat_id)
+                    if cat_type == "super":
+                        peer_products = peer_products.filter(product_supercategory_id=cat_id_int)
+                    elif cat_type == "main":
+                        peer_products = peer_products.filter(product_maincategory_id=cat_id_int)
+                    elif cat_type == "sub":
+                        peer_products = peer_products.filter(product_subcategory_id=cat_id_int)
+                except (ValueError, TypeError):
+                    # Si cat_id n'est pas un entier valide, ignorer le filtre
+                    pass
             
             # Trier selon order_by
             if order_by == '-date':
@@ -617,10 +635,15 @@ class ProductListHTMXView(View):
         cat_id = request.GET.get('cat_id', '')
         product_type = request.GET.get('product_type', 'all')  # 'all', 'shop', 'peer'
         
+        # Debug: imprimer les paramètres reçus
+        print(f"DEBUG ProductListHTMXView - cat_type: '{cat_type}', cat_id: '{cat_id}', order_by: '{order_by}', page: {page}")
+        
         # Construire le queryset pour les produits de magasin
         shop_queryset = None
         if product_type in ['all', 'shop']:
-            if cat_type == "all":
+            # Si cat_type est "all" ou vide, ou si cat_id est vide, récupérer tous les produits
+            if cat_type == "all" or not cat_type or (cat_id == '' or cat_id is None):
+                print(f"DEBUG - Récupération de tous les produits (cat_type='{cat_type}', cat_id='{cat_id}')")
                 try:
                     shop_queryset = Product.objects.filter(
                         PRDISDeleted=False, 
@@ -634,7 +657,10 @@ class ProductListHTMXView(View):
                         PRDISactive=True
                     ).order_by(order_by)
             else:
+                # Filtrer par catégorie
+                print(f"DEBUG - Filtrage par catégorie (cat_type='{cat_type}', cat_id='{cat_id}')")
                 shop_queryset = self.get_queryset(cat_type, cat_id, order_by)
+                print(f"DEBUG shop_queryset count after get_queryset: {shop_queryset.count() if shop_queryset else 0}")
         else:
             shop_queryset = Product.objects.none()
         

@@ -61,6 +61,20 @@ def vendor_details(request, slug):
         PRDISactive=True
     ).order_by('-date')[:8]
     
+    # Calculer la note moyenne du vendeur basée sur les ratings de ses produits
+    from products.models import ProductRating
+    from django.db.models import Avg, Count
+    vendor_ratings = ProductRating.objects.filter(
+        vendor=vendor_detail,
+        active=True
+    )
+    vendor_rating_stats = vendor_ratings.aggregate(
+        average_rating=Avg('rate'),
+        total_ratings=Count('id')
+    )
+    average_rating = vendor_rating_stats['average_rating'] or 0
+    total_ratings = vendor_rating_stats['total_ratings'] or 0
+    
     # Récupérer les nouveaux produits (pour la sidebar)
     new_products = Product.objects.filter(
         PRDISDeleted=False,
@@ -92,6 +106,8 @@ def vendor_details(request, slug):
         "vendor_page_ad_image": vendor_page_ad_image,
         "shop_page_ad": shop_page_ad,
         "is_premium": is_premium,
+        "average_rating": round(average_rating, 1) if average_rating else 0,
+        "total_ratings": total_ratings,
     }
     return render(request, 'suppliers/vendor-details.html', context)
 
