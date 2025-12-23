@@ -37,6 +37,7 @@ urlpatterns = [
      path('api/callbacks-myfatoorah/', views.callback_url_fatoorah,
           name="callbacks-myfatoorah"),
     path('api/cart-count/', views.get_cart_count, name="get-cart-count"),
+    path('invoice-print/<int:order_id>/', views.invoice_print, name="invoice-print"),
      
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

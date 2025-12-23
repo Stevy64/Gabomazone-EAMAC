@@ -25,6 +25,8 @@
 
         <!-- HTMX -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <!-- Font Awesome pour icônes (WhatsApp, etc.) -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <!-- Template CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
@@ -1154,10 +1156,29 @@
                 <i class="fi-rs-comment"></i>
                 <span>Messages</span>
             </a>
-            <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
-                <i class="fi-rs-shopping-bag"></i>
-                <span>Panier</span>
-            </a>
+            {% if user.is_authenticated %}
+                {% with profile=user.profile %}
+                    {% if profile.status == 'vendor' and profile.admission %}
+                        <!-- WhatsApp Assistance pour les vendeurs -->
+                        <a href="https://wa.me/241074040000?text=Bonjour,%20j'ai%20besoin%20d'assistance%20en%20tant%20que%20vendeur%20sur%20GabomaZone" target="_blank" class="flavoriz-bottom-nav-item">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Assistance</span>
+                        </a>
+                    {% else %}
+                        <!-- Panier pour les clients normaux -->
+                        <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
+                            <i class="fi-rs-shopping-bag"></i>
+                            <span>Panier</span>
+                        </a>
+                    {% endif %}
+                {% endwith %}
+            {% else %}
+                <!-- Panier pour les utilisateurs non connectés -->
+                <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
+                    <i class="fi-rs-shopping-bag"></i>
+                    <span>Panier</span>
+                </a>
+            {% endif %}
             <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">
                 <i class="fi-rs-user"></i>
                 <span>Compte</span>
@@ -1344,12 +1365,13 @@
 		
 		.gm-modal {
 			background: white;
-			border-radius: 20px;
-			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-			max-width: 400px;
+			border-radius: 24px;
+			box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+			max-width: 420px;
 			width: 100%;
 			overflow: hidden;
 			animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+			position: relative;
 		}
 		
 		.gm-modal.closing {
@@ -1357,7 +1379,7 @@
 		}
 		
 		.gm-modal-header {
-			padding: 24px 24px 16px;
+			padding: 28px 28px 20px;
 			text-align: center;
 		}
 		
@@ -1405,7 +1427,7 @@
 		}
 		
 		.gm-modal-body {
-			padding: 0 24px 24px;
+			padding: 0 28px 24px;
 			text-align: center;
 		}
 		
@@ -1416,22 +1438,35 @@
 			margin: 0;
 		}
 		
+		.gm-modal-message strong {
+			color: #1F2937;
+			font-weight: 600;
+		}
+		
+		.gm-modal-message br {
+			display: block;
+			margin: 8px 0;
+		}
+		
 		.gm-modal-footer {
-			padding: 16px 24px 24px;
+			padding: 20px 28px 28px;
 			display: flex;
 			gap: 12px;
 			justify-content: center;
+			border-top: 1px solid #F3F4F6;
 		}
 		
 		.gm-modal-btn {
-			padding: 12px 24px;
+			padding: 12px 28px;
 			border-radius: 12px;
 			font-size: 14px;
 			font-weight: 600;
 			cursor: pointer;
-			transition: all 0.2s ease;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 			border: none;
-			min-width: 100px;
+			min-width: 110px;
+			position: relative;
+			overflow: hidden;
 		}
 		
 		.gm-modal-btn:hover {
@@ -1553,20 +1588,48 @@
 				// Créer la modal
 				const overlay = document.createElement('div');
 				overlay.className = 'gm-modal-overlay';
+				
+				// Échapper le HTML pour éviter les injections XSS
+				const escapeHtml = (text) => {
+					const div = document.createElement('div');
+					div.textContent = text;
+					return div.innerHTML;
+				};
+				
+				// Permettre certaines balises HTML dans le message (br, strong, em)
+				const sanitizeMessage = (message) => {
+					if (!message) return '';
+					// Échapper d'abord tout le HTML
+					let safe = message
+						.replace(/&/g, '&amp;')
+						.replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;');
+					// Puis réautoriser certaines balises sécurisées
+					safe = safe
+						.replace(/&lt;br\s*\/?&gt;/gi, '<br>')
+						.replace(/&lt;br&gt;/gi, '<br>')
+						.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/gi, '<strong>$1</strong>')
+						.replace(/&lt;em&gt;(.*?)&lt;\/em&gt;/gi, '<em>$1</em>');
+					return safe;
+				};
+				
+				const safeMessage = sanitizeMessage(config.message);
+				const safeTitle = escapeHtml(config.title);
+				
 				overlay.innerHTML = `
 					<div class="gm-modal">
 						<div class="gm-modal-header">
 							<div class="gm-modal-icon ${config.type}">
 								<i class="${icons[config.type] || icons.info}"></i>
 							</div>
-							<h3 class="gm-modal-title">${config.title}</h3>
+							<h3 class="gm-modal-title">${safeTitle}</h3>
 						</div>
 						<div class="gm-modal-body">
-							<p class="gm-modal-message">${config.message}</p>
+							<div class="gm-modal-message">${safeMessage}</div>
 						</div>
 						<div class="gm-modal-footer">
-							${config.showCancel ? `<button class="gm-modal-btn secondary" data-action="cancel">${config.cancelText}</button>` : ''}
-							<button class="gm-modal-btn ${config.type === 'error' ? 'danger' : config.type === 'success' ? 'success' : 'primary'}" data-action="confirm">${config.confirmText}</button>
+							${config.showCancel ? `<button class="gm-modal-btn secondary" data-action="cancel">${escapeHtml(config.cancelText)}</button>` : ''}
+							<button class="gm-modal-btn ${config.type === 'error' ? 'danger' : config.type === 'success' ? 'success' : 'primary'}" data-action="confirm">${escapeHtml(config.confirmText)}</button>
 						</div>
 					</div>
 				`;

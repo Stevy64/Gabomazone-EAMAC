@@ -580,7 +580,11 @@ function sendMessage(event) {
     })
     .catch(error => {
         console.error('Error sending message:', error);
-        alert('Erreur lors de l\'envoi du message');
+        if (typeof GMModal !== 'undefined') {
+            GMModal.error('Erreur', 'Erreur lors de l\'envoi du message');
+        } else {
+            alert('Erreur lors de l\'envoi du message');
+        }
     });
 }
 
@@ -630,61 +634,55 @@ function getCookie(name) {
 </script>
 
 <script>
-// URL de base pour la suppression (générée par Django)
-const DELETE_PRODUCT_URL_BASE = '{% url "accounts:delete-peer-product" 0 %}'.replace('0', '');
-
 function confirmDelete(productId, productName) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = DELETE_PRODUCT_URL_BASE + productId + '/';
-        
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken.value;
-            form.appendChild(csrfInput);
-        } else {
-            const cookies = document.cookie.split(';');
-            let csrfValue = null;
-            for (let cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'csrftoken') {
-                    csrfValue = value;
-                    break;
+    // Utiliser GMModal pour la confirmation
+    if (typeof GMModal !== 'undefined') {
+        GMModal.confirmDelete(
+            productName,
+            function() {
+                // Créer le formulaire de suppression
+                const form = document.createElement('form');
+                form.method = 'POST';
+                // Construire l'URL correctement sans double slash
+                form.action = '{% url "accounts:delete-peer-product" 999 %}'.replace('999', productId);
+                
+                // Récupérer le token CSRF
+                const csrfToken = getCookie('csrftoken');
+                if (csrfToken) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
                 }
+                
+                document.body.appendChild(form);
+                form.submit();
             }
-            if (csrfValue) {
+        );
+    } else {
+        // Fallback si GMModal n'est pas disponible
+        if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "accounts:delete-peer-product" 999 %}'.replace('999', productId);
+            
+            const csrfToken = getCookie('csrftoken');
+            if (csrfToken) {
                 const csrfInput = document.createElement('input');
                 csrfInput.type = 'hidden';
                 csrfInput.name = 'csrfmiddlewaretoken';
-                csrfInput.value = csrfValue;
+                csrfInput.value = csrfToken;
                 form.appendChild(csrfInput);
             }
+            
+            document.body.appendChild(form);
+            form.submit();
         }
-        
-        document.body.appendChild(form);
-        form.submit();
     }
 }
 </script>
 
-<!-- Modal de confirmation de suppression -->
-<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">Confirmer la suppression</h3>
-        <p style="font-size: 15px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.6;">Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.</p>
-        <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button onclick="document.getElementById('deleteModal').style.display='none'" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
-            <form id="deleteForm" method="POST" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" style="padding: 12px 24px; background: #DC2626; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Supprimer</button>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de Boost -->
 <div id="boostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; align-items: center; justify-content: center; padding: 20px;">

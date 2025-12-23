@@ -5,14 +5,14 @@
 {%block section %}
 
     <!-- Messages d'alerte -->
-    {% if messages %}
-        {% for message in messages %}
+            {% if messages %}
+            {% for message in messages %}
         <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 14px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; display: flex; align-items: center; gap: 10px;">
             <i class="fi-rs-{% if message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}exclamation{% else %}check-circle{% endif %}" style="font-size: 18px;"></i>
             <span>{{message}}</span>
-        </div>
-        {% endfor %}
-    {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
 
     <!-- Cartes de Statistiques -->
     <div class="stats-grid">
@@ -22,13 +22,13 @@
             <div class="stat-card-header">
                 <div class="stat-card-icon">
                     <i class="fi-rs-money"></i>
-                </div>
-            </div>
+        </div>
+                        </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{vendor.blance|format_price}} FCFA</div>
                 <div class="stat-card-label">Revenus totaux</div>
+                </div>
             </div>
-        </div>
 
         <!-- Carte Commandes en cours -->
         <div class="stat-card stat-card-green" onclick="openStatModal('orders-underway')" data-stat-type="orders-underway">
@@ -37,12 +37,12 @@
                 <div class="stat-card-icon">
                     <i class="fi-rs-shopping-cart"></i>
                 </div>
-            </div>
+                        </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{orders_underway.count}}</div>
                 <div class="stat-card-label">Commandes en cours</div>
+                </div>
             </div>
-        </div>
 
         <!-- Carte Produits -->
         <div class="stat-card stat-card-orange" onclick="openStatModal('products')" data-stat-type="products">
@@ -51,12 +51,12 @@
                 <div class="stat-card-icon">
                     <i class="fi-rs-shopping-bag"></i>
                 </div>
-            </div>
+                        </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{products_supplier.count}}</div>
                 <div class="stat-card-label">Produits actifs</div>
+                </div>
             </div>
-        </div>
 
         <!-- Carte Total Commandes -->
         <div class="stat-card stat-card-purple" onclick="openStatModal('total-orders')" data-stat-type="total-orders">
@@ -65,13 +65,13 @@
                 <div class="stat-card-icon">
                     <i class="fi-rs-receipt"></i>
                 </div>
-            </div>
+                        </div>
             <div class="stat-card-content">
                 <div class="stat-card-value">{{orders_supplier.count}}</div>
                 <div class="stat-card-label">Total commandes</div>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- Graphique et Sections -->
     <div class="dashboard-grid">
@@ -86,12 +86,12 @@
                     <span class="period-badge" data-period="3" onclick="changeChartPeriod(3)">3 mois</span>
                     <span class="period-badge" data-period="6" onclick="changeChartPeriod(6)">6 mois</span>
                     <span class="period-badge active" data-period="12" onclick="changeChartPeriod(12)">12 mois</span>
-                </div>
-            </div>
+                                            </div>
+                                        </div>
             <div class="chart-container">
                 <canvas id="myChart"></canvas>
-            </div>
-        </div>
+                                    </div>
+                                </div>
 
         <!-- Commandes récentes en cours -->
         <div class="recent-orders-card">
@@ -99,34 +99,34 @@
                 <div class="recent-orders-title">
                     <i class="fi-rs-clock"></i>
                     <h3>Commandes récentes</h3>
-                </div>
-            </div>
+                        </div>
+                    </div>
             <div class="recent-orders-list">
-                {% for order in orders_underway|slice:"0:5"%}
+                                    {% for order in orders_underway|slice:"0:5"%}
                 <a href="{% url 'supplier_dashboard:order-details' order.id %}" class="recent-order-item">
                     <div class="recent-order-content">
                         <div class="recent-order-header">
                             <span class="recent-order-id">#{{order.id}}</span>
                             <span class="recent-order-status-dot"></span>
-                        </div>
+                                        </div>
                         <div class="recent-order-date">
                             <i class="fi-rs-calendar"></i>
                             {{order.date_update|date:"d/m/Y H:i"}}
-                        </div>
-                    </div>
+                                            </div>
+                                        </div>
                     <div class="recent-order-arrow">
                         <i class="fi-rs-angle-right"></i>
-                    </div>
+                        </div>
                 </a>
                 {% empty %}
                 <div class="recent-orders-empty">
                     <i class="fi-rs-shopping-cart"></i>
                     <p>Aucune commande en cours</p>
-                </div>
+                    </div>
                 {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
 
 
     <style>
@@ -700,18 +700,18 @@
                 <div class="stat-modal-title">
                     <i id="statModalIcon"></i>
                     <h3 id="statModalTitle"></h3>
-                </div>
+                    </div>
                 <button class="stat-modal-close" onclick="closeStatModal()">
                     <i class="fi fi-rs-cross"></i>
                 </button>
-            </div>
+                </div>
             <div class="stat-modal-content">
                 <div class="stat-modal-value" id="statModalValue"></div>
                 <div class="stat-modal-description" id="statModalDescription"></div>
                 <div class="stat-modal-details" id="statModalDetails"></div>
+                    </div>
             </div>
         </div>
-    </div>
 
 {%endblock section%}
 

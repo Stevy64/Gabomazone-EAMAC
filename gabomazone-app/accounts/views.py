@@ -758,15 +758,47 @@ def edit_peer_product(request, product_id):
 def delete_peer_product(request, product_id):
     """
     Vue pour supprimer un article peer-to-peer.
+    Empêche la suppression si des commandes C2C sont associées.
     """
     if request.method == 'POST':
         try:
             product = PeerToPeerProduct.objects.get(id=product_id, seller=request.user)
             product_name = product.product_name
-            product.delete()
-            messages.success(request, f'L\'article "{product_name}" a été supprimé avec succès.')
+            
+            # Vérifier si des commandes C2C sont associées
+            from c2c.models import C2COrder
+            c2c_orders_count = C2COrder.objects.filter(product=product).count()
+            
+            if c2c_orders_count > 0:
+                messages.error(
+                    request, 
+                    f'Impossible de supprimer l\'article "{product_name}". '
+                    f'Il est associé à {c2c_orders_count} commande(s) C2C. '
+                    f'Pour préserver l\'historique des transactions, vous pouvez uniquement modifier ou archiver cet article.'
+                )
+            else:
+                # Vérifier aussi les intentions d'achat en cours
+                from c2c.models import PurchaseIntent
+                active_intents = PurchaseIntent.objects.filter(
+                    product=product,
+                    status__in=['pending', 'negotiating', 'accepted']
+                ).count()
+                
+                if active_intents > 0:
+                    messages.warning(
+                        request,
+                        f'L\'article "{product_name}" a {active_intents} intention(s) d\'achat en cours. '
+                        f'Veuillez attendre la finalisation ou l\'annulation de ces intentions avant de supprimer l\'article.'
+                    )
+                else:
+                    # Supprimer l'article
+                    product.delete()
+                    messages.success(request, f'L\'article "{product_name}" a été supprimé avec succès.')
+                    
         except PeerToPeerProduct.DoesNotExist:
             messages.error(request, 'Article introuvable ou vous n\'avez pas la permission de le supprimer.')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression : {str(e)}')
     else:
         messages.error(request, 'Méthode non autorisée.')
     

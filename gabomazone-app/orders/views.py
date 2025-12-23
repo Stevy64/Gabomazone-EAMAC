@@ -3416,6 +3416,144 @@ class CancelView(TemplateView):
     template_name = "orders/cancel.html"
 
 
+@login_required(login_url='accounts:login')
+def invoice_print(request, order_id):
+    """
+    Vue pour afficher la facture imprimable avec le nouveau design
+    Supporte l'export PDF via le paramètre ?format=pdf
+    """
+    from django.shortcuts import get_object_or_404
+    from orders.models import Payment
+    from payments.models import SingPayTransaction
+    from settings.models import SiteSetting, ContactInfo
+    
+    # Vérifier que la commande appartient à l'utilisateur
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        is_finished=True
+    )
+    
+    # Vérifier l'accès (admin et vendeur peuvent aussi voir)
+    is_admin = request.user.is_staff or request.user.is_superuser
+    is_vendor = False
+    if hasattr(order, 'ordersupplier'):
+        try:
+            from accounts.models import Profile
+            vendor_profile = Profile.objects.get(user=request.user)
+            is_vendor = order.ordersupplier.vendor == vendor_profile
+        except:
+            pass
+    
+    if not is_admin and not is_vendor and order.user != request.user and order.email_client != request.user.email:
+        messages.error(request, "Vous n'avez pas accès à cette facture.")
+        return redirect('accounts:dashboard_customer')
+    
+    # Récupérer les détails de la commande
+    order_details = OrderDetails.objects.filter(order=order)
+    
+    # Récupérer les informations de paiement
+    payment_info = None
+    try:
+        payment_info = Payment.objects.filter(order=order).first()
+    except:
+        pass
+    
+    # Récupérer la transaction SingPay si elle existe
+    transaction = None
+    try:
+        transaction = SingPayTransaction.objects.filter(order=order).first()
+    except:
+        pass
+    
+    # Récupérer les informations du site
+    site_info = SiteSetting.objects.first()
+    contact_info = ContactInfo.objects.all()
+    
+    context = {
+        "order_success": order,
+        "order_details_success": order_details,
+        "payment_info": payment_info,
+        "transaction": transaction,
+        "site_info": site_info,
+        "contact_info": contact_info,
+    }
+    
+    # Générer PDF si demandé
+    if request.GET.get('format') == 'pdf':
+        try:
+            from weasyprint import HTML, CSS
+            from django.template.loader import render_to_string
+            from django.http import HttpResponse
+            import io
+            
+            # Ajouter un flag pour forcer le design desktop dans le PDF
+            context['force_desktop_design'] = True
+            
+            html_string = render_to_string("orders/invoice-print.html", context)
+            
+            # Créer le HTML avec une largeur fixe pour le PDF (design desktop)
+            html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+            
+            # CSS pour forcer le design desktop dans le PDF
+            pdf_css = CSS(string='''
+                @page {
+                    size: A4;
+                    margin: 1cm;
+                }
+                body {
+                    width: 100%;
+                }
+                .products-table-mobile {
+                    display: none !important;
+                }
+                .products-table {
+                    display: table !important;
+                    width: 100%;
+                }
+                .invoice-header {
+                    flex-direction: row !important;
+                }
+                .invoice-info {
+                    grid-template-columns: 1fr 1fr !important;
+                }
+                .invoice-bottom {
+                    grid-template-columns: 1fr 1fr !important;
+                }
+                .invoice-payment {
+                    border-right: 1px solid #E5E7EB !important;
+                    border-bottom: none !important;
+                }
+            ''')
+            
+            pdf_file = io.BytesIO()
+            html.write_pdf(pdf_file, stylesheets=[pdf_css])
+            
+            response = HttpResponse(pdf_file.getvalue(), content_type='application/pdf')
+            response['Content-Disposition'] = f'inline; filename="facture_{order_id}.pdf"'
+            return response
+        except ImportError:
+            import sys
+            error_msg = (
+                "La génération PDF nécessite WeasyPrint. "
+                "Pour l'installer, exécutez dans votre terminal :\n\n"
+                "pip install weasyprint\n\n"
+                "Ou sur Windows/WSL, vous devrez peut-être installer les dépendances système d'abord.\n"
+                "Utilisez l'impression du navigateur en attendant."
+            )
+            messages.warning(request, error_msg)
+            return render(request, "orders/invoice-print.html", context)
+        except Exception as e:
+            error_msg = (
+                f"Erreur lors de la génération PDF: {str(e)}\n\n"
+                "Assurez-vous que WeasyPrint est correctement installé avec toutes ses dépendances système."
+            )
+            messages.error(request, error_msg)
+            return render(request, "orders/invoice-print.html", context)
+    
+    return render(request, "orders/invoice-print.html", context)
+
+
 @require_http_methods(["GET"])
 def get_cart_count(request):
     """Vue AJAX pour obtenir le nombre d'articles dans le panier"""

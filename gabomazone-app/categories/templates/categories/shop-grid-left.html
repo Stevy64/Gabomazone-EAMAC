@@ -65,8 +65,8 @@
             <div>
                 <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Produits</h1>
                 <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez notre sélection de produits</p>
-            </div>
-        </div>
+                            </div>
+                        </div>
         
         <!-- Product Count & Sort -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; position: relative; z-index: 10;">
@@ -106,12 +106,12 @@
                         <option value="PRDPrice" {% if request.GET.order_by == 'PRDPrice' %}selected{% endif %}>Prix, bas à haut</option>
                         <option value="-PRDPrice" {% if request.GET.order_by == '-PRDPrice' %}selected{% endif %}>Prix, haut à bas</option>
                     </select>
-                </div>
+                    </div>
                 <input type="hidden" name="cat_type" id="cat_type_input" value="all" />
                 <input type="hidden" name="cat_id" id="cat_id_input" value="" />
                 <input type="hidden" name="product_type" id="product_type_input" value="{{ request.GET.product_type|default:'all' }}" />
+                </div>
             </div>
-        </div>
 
         <!-- Main Content -->
         <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;">
@@ -122,9 +122,9 @@
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <i class="fi-rs-filter" style="color: var(--color-orange); font-size: 20px;"></i>
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; font-family: var(--font-primary);">Filtres et Catégories</h3>
-                    </div>
+        </div>
                     <i class="fi-rs-angle-down" id="filters-toggle-icon" style="color: var(--color-orange); font-size: 20px; transition: transform 0.3s ease;"></i>
-                </div>
+                        </div>
                 
                 <!-- Contenu dépliable -->
                 <div class="flavoriz-filters-content" id="filters-content" style="display: none; padding: 24px;">
@@ -157,7 +157,7 @@
                         <div class="more_categories" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; justify-content: center;">
                             <i class="fi-rs-angle-down"></i>
                             <span>Voir plus de catégories...</span>
-                        </div>
+                                    </div>
                         <div class="ul-category more_slide_open" style="display: none; margin-top: 16px;">
                             <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;">
                                 {%for super in supercategory|slice:"10:" %}
@@ -170,12 +170,12 @@
                                     <span style="line-height: 1.3; text-align: center;">{{super.name}}</span>
                                 </a>
                                 {%endfor%}
+                                    </div>
+                                </div>
+                        {%endif%}
                             </div>
                         </div>
-                        {%endif%}
                     </div>
-                </div>
-            </div>
 
             <!-- Products Grid -->
             <div>
@@ -204,9 +204,9 @@
                     <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
                     <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
                                 </div>
-                </div>
-            </div>
-        </div>
+                    </div>
+                                </div>
+                              </div>
     </main>
 
 <style>
@@ -629,5 +629,5 @@ div#products-list.flavoriz-product-grid > * {
             });
         };
     });
-</script>
+        </script>
 {%endblock script%}

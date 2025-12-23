@@ -1086,11 +1086,20 @@ def supplier_orders_detail(request, id):
     payment_info = Payment.objects.get(order=order_supplier.order)
     order_details_supplier = OrderDetailsSupplier.objects.all().filter(
         order_supplier=order_supplier, supplier=request.user)
+    
+    # Récupérer la transaction SingPay si elle existe
+    transaction = None
+    try:
+        from payments.models import SingPayTransaction
+        transaction = SingPayTransaction.objects.filter(order=order_supplier.order).first()
+    except:
+        pass
 
     context = {
         "order_supplier": order_supplier,
         "order_details_supplier": order_details_supplier,
         "payment_info": payment_info,
+        "transaction": transaction,
     }
     return render(request, 'supplier-panel/supplier-orders-detail.html', context)
 

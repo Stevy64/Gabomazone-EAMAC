@@ -101,16 +101,16 @@ window.onload = function () {
     window.handleGetDataOld = function(sorted) {
         // Cette fonction est désactivée - utiliser HTMX maintenant
         if (false) { // Désactivé
-            $.ajax({
-                type: "GET",
-                url: `/shop-ajax/`,
-                data: {
+        $.ajax({
+            type: "GET",
+            url: `/shop-ajax/`,
+            data: {
                     "num_products": window.visible,
-                    "order_by": mySelect.value,
+                "order_by": mySelect.value,
                     "CAT_id": currentCategoryID,
                     "cat_type": currentCategoryType
-                },
-                success: function (response) {
+            },
+            success: function (response) {
                 const data = response.data;
                 //console.log(data);
                 const maxSize = response.max
@@ -181,21 +181,21 @@ window.onload = function () {
                                     <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
                                         <i class="fi-rs-rocket" style="font-size: 12px;"></i>
                                         <span>Boosté</span>
-                                    </div>
+                                            </div>
                                     ` : ''}
                                     ${viewCount > 0 ? `
                                     <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
                                         <i class="fi-rs-eye" style="font-size: 11px;"></i>
                                         <span>${viewCount}</span>
-                                    </div>
+                                            </div>
                                     ` : ''}
-                                </div>
+                                            </div>
                                 <div class="flavoriz-product-body" style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
                                     <h3 class="flavoriz-product-title" onclick="window.location.href='/product-details/${productSlug}'" style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">${productName}</h3>
                                     <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
                                         <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">${price} FCFA</span>
                                         ${discountPrice ? `<span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} FCFA</span>` : ''}
-                                            </div>
+                                        </div>
                                     <div style="display: flex; gap: 8px; margin-top: auto;">
                                         <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='/product-details/${productSlug}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
                                             <i class="fi-rs-eye" style="font-size: 13px;"></i>
@@ -268,7 +268,7 @@ window.onload = function () {
                 }, 500)
 
 
-                },
+            },
                 error: function (error) {
                     window.isLoadingProducts = false;
                 },
@@ -356,7 +356,11 @@ window.toggleFavorite = function(productId, buttonElement) {
     const csrfToken = getCookie('csrftoken');
     if (!csrfToken) {
         console.error('Token CSRF non trouvé');
-        alert('Erreur: Token de sécurité non trouvé. Veuillez recharger la page.');
+        if (typeof GMModal !== 'undefined') {
+            GMModal.error('Erreur', 'Token de sécurité non trouvé. Veuillez recharger la page.');
+        } else {
+            alert('Erreur: Token de sécurité non trouvé. Veuillez recharger la page.');
+        }
         return;
     }
     formData.append('csrfmiddlewaretoken', csrfToken);
@@ -408,13 +412,21 @@ window.toggleFavorite = function(productId, buttonElement) {
         } else {
             console.error('Erreur dans la réponse:', data.error);
             if (data.error) {
-                alert('Erreur: ' + data.error);
+                if (typeof GMModal !== 'undefined') {
+                    GMModal.error('Erreur', data.error);
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
             }
         }
     })
     .catch(error => {
         console.error('Erreur lors de l\'ajout aux favoris:', error);
-        alert('Une erreur est survenue. Veuillez réessayer.');
+        if (typeof GMModal !== 'undefined') {
+            GMModal.error('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
+        } else {
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        }
     })
     .finally(() => {
         buttonElement.disabled = false;
@@ -436,7 +448,11 @@ window.addToCartQuick = function(productId, productPrice) {
     const csrfToken = getCookie('csrftoken');
     if (!csrfToken) {
         console.error('Token CSRF non trouvé');
-        alert('Erreur: Token de sécurité non trouvé. Veuillez recharger la page.');
+        if (typeof GMModal !== 'undefined') {
+            GMModal.error('Erreur', 'Token de sécurité non trouvé. Veuillez recharger la page.');
+        } else {
+            alert('Erreur: Token de sécurité non trouvé. Veuillez recharger la page.');
+        }
         return;
     }
     formData.append('csrfmiddlewaretoken', csrfToken);
@@ -525,18 +541,37 @@ window.addToCartQuick = function(productId, productPrice) {
         } else {
             // Erreur retournée par le serveur
             if (data.requires_login) {
-                if (confirm(data.error + '\n\nVoulez-vous être redirigé vers la page de connexion ?')) {
-                    const currentUrl = window.location.pathname + window.location.search;
-                    window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
+                if (typeof GMModal !== 'undefined') {
+                    GMModal.confirm(
+                        'Connexion requise',
+                        data.error + '<br><br>Voulez-vous être redirigé vers la page de connexion ?',
+                        function() {
+                            const currentUrl = window.location.pathname + window.location.search;
+                            window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
+                        }
+                    );
+                } else {
+                    if (confirm(data.error + '\n\nVoulez-vous être redirigé vers la page de connexion ?')) {
+                        const currentUrl = window.location.pathname + window.location.search;
+                        window.location.href = '/login/?next=' + encodeURIComponent(currentUrl);
+                    }
                 }
             } else {
-                alert(data.error || 'Une erreur est survenue lors de l\'ajout au panier.');
+                if (typeof GMModal !== 'undefined') {
+                    GMModal.error('Erreur', data.error || 'Une erreur est survenue lors de l\'ajout au panier.');
+                } else {
+                    alert(data.error || 'Une erreur est survenue lors de l\'ajout au panier.');
+                }
             }
         }
     })
     .catch(error => {
         console.error('Erreur lors de l\'ajout au panier:', error);
-        alert('Une erreur est survenue lors de l\'ajout au panier. Veuillez réessayer.');
+        if (typeof GMModal !== 'undefined') {
+            GMModal.error('Erreur', 'Une erreur est survenue lors de l\'ajout au panier. Veuillez réessayer.');
+        } else {
+            alert('Une erreur est survenue lors de l\'ajout au panier. Veuillez réessayer.');
+        }
     })
     .finally(() => {
         // Réactiver les boutons

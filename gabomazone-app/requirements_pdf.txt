@@ -1,0 +1,4 @@
+# Bibliothèque pour générer des PDFs à partir de HTML
+# Installation: pip install weasyprint
+weasyprint>=60.0
+

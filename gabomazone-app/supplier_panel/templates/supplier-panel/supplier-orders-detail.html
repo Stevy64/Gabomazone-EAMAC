@@ -727,10 +727,15 @@
         </div>
     </div>
 
-<!-- Bouton d'impression flottant -->
-<button class="flavoriz-print-btn" onclick="window.print()" title="Imprimer">
-    <i class="fi-rs-print"></i>
-</button>
+<!-- Actions de facture -->
+<div style="position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px; z-index: 1000;">
+    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}" target="_blank" class="flavoriz-print-btn" title="Voir la facture" style="text-decoration: none; color: white; display: flex; align-items: center; justify-content: center;">
+        <i class="fi-rs-eye"></i>
+    </a>
+    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}?format=pdf" target="_blank" class="flavoriz-print-btn" title="Télécharger PDF" style="background: #DC2626; text-decoration: none; color: white; display: flex; align-items: center; justify-content: center;">
+        <i class="fi-rs-file-pdf"></i>
+    </a>
+</div>
 
 {%endblock section%}
 

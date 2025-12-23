@@ -61,111 +61,174 @@
                             </div>
                         </div>
 
-        <!-- Categories Grid -->
+        <!-- Categories Grid - Large Image Cards 2x2 -->
         {% if super_categories_data %}
-        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
             {% for data in super_categories_data %}
             {% with super=data.super main_cats=data.main_categories %}
-            <!-- Super Category Card -->
-            <div class="category-card" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; transition: all 0.3s ease; height: fit-content;">
-                <!-- Super Category Header -->
-                <div class="category-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
+            <!-- Super Category Card - Large Image Card -->
+            <a href="{% url 'categories:super-category' super.slug %}" class="category-card-large" style="position: relative; display: block; border-radius: 20px; overflow: hidden; background: white; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; height: 280px; min-height: 280px; cursor: pointer;" 
+               onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.15)'" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 0, 0, 0.08)'">
+                <!-- Background Image or Gradient -->
+                <div class="category-card-bg" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;">
                     {% if super.category_image %}
-                    <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
+                    <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);" 
+                         onmouseover="this.style.transform='scale(1.1)'" 
+                         onmouseout="this.style.transform='scale(1)'" />
                     {% else %}
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{super.name|first|upper}}</div>
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 50%, #FF8C42 100%); background-size: 200% 200%; animation: gradientShift 8s ease infinite;"></div>
                     {% endif %}
-                    <div style="flex: 1; min-width: 0;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; line-height: 1.3; font-family: var(--font-primary);">
-                            <a href="{% url 'categories:super-category' super.slug %}" style="color: #1F2937; text-decoration: none; transition: color 0.2s ease; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
-                                {{super.name}}
-                            </a>
+                    <!-- Overlay Gradient - Réduit pour moins d'obscurcissement -->
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.65) 100%); z-index: 2;"></div>
+                </div>
+                
+                <!-- Content Overlay - Zone de texte avec fond semi-transparent -->
+                <div class="category-card-content" style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;">
+                    <!-- Fond semi-transparent pour le texte - Opacité réduite -->
+                    <div style="background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 100%); padding: 20px 24px; backdrop-filter: blur(6px);">
+                        <!-- Titre principal -->
+                        <h3 style="font-size: 22px; font-weight: 700; color: #FFFFFF !important; margin: 0 0 8px 0; font-family: var(--font-primary); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8); line-height: 1.3; letter-spacing: -0.3px;">
+                            {{super.name}}
                         </h3>
-                        <p style="font-size: 12px; color: #6B7280; margin: 4px 0 0 0;">
+                        
+                        <!-- Informations secondaires -->
+                        <span style="font-size: 13px; color: #FFFFFF !important; font-weight: 500; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); line-height: 1.4; display: block; opacity: 0.95;">
                             {{ main_cats.count }} sous-catégorie{% if main_cats.count > 1 %}s{% endif %}
-                        </p>
-                                        </div>
-                                    </div>
-
-                <!-- Main Categories List (Collapsible) -->
-                {% if main_cats %}
-                <div class="subcategories-toggle" style="margin-bottom: 12px; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; padding: 8px 12px; border-radius: 8px; background: rgba(255, 123, 44, 0.05);" onclick="toggleSubcategories(this)">
-                    <i class="fi-rs-angle-down toggle-icon" style="font-size: 16px; transition: transform 0.3s ease;"></i>
-                    <span>Voir les sous-catégories</span>
+                        </span>
                     </div>
-                <ul class="subcategories-list" style="display: none; list-style: none; padding: 0; margin: 0;">
-                    {% for main in main_cats %}
-                    <li style="margin-bottom: 8px;">
-                        <a href="{% url 'categories:main-category' main.slug %}" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 14px; font-weight: 500; background: #FAFAFA; border: 1px solid #F3F4F6;" 
-                           onmouseover="this.style.background='linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%)'; this.style.borderColor='rgba(255, 123, 44, 0.3)'; this.style.transform='translateX(4px)'"
-                           onmouseout="this.style.background='#FAFAFA'; this.style.borderColor='#F3F4F6'; this.style.transform='translateX(0)'">
-                            {% if main.category_image %}
-                            <img src="{{main.category_image.url}}" alt="{{main.name}}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
-                            {% else %}
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(255, 123, 44, 0.3);">{{main.name|first|upper}}</div>
-                            {% endif %}
-                            <span style="flex: 1; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{main.name}}</span>
-                            {% if main.sub_count %}
-                            <span style="font-size: 11px; color: #6B7280; background: #E5E7EB; padding: 2px 8px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">{{ main.sub_count }}</span>
-                            {% endif %}
-                            <i class="fi-rs-arrow-right" style="font-size: 12px; color: var(--color-orange); flex-shrink: 0; transition: transform 0.2s ease;"></i>
-                        </a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                {% else %}
-                <div style="text-align: center; padding: 20px; background: #FAFAFA; border-radius: 8px; border: 1px dashed #E5E7EB;">
-                    <p style="font-size: 13px; color: #9CA3AF; margin: 0;">Aucune sous-catégorie disponible</p>
-                    </div>
-                {% endif %}
-                            </div>
+                </div>
+                
+                <!-- Hover Effect Indicator -->
+                <div class="category-card-hover-badge" style="position: absolute; top: 20px; right: 20px; z-index: 4; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; border: 2px solid rgba(255, 255, 255, 0.3);">
+                    <i class="fi-rs-arrow-right" style="color: white; font-size: 18px; font-weight: 700;"></i>
+                </div>
+            </a>
             {% endwith %}
             {% endfor %}
-                                </div>
+        </div>
         {% else %}
         <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
             <i class="fi-rs-apps" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
             <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucune catégorie disponible</h2>
             <p style="font-size: 16px; color: #6B7280;">Les catégories seront bientôt disponibles.</p>
-                            </div>
+        </div>
         {% endif %}
+        
+        <style>
+            /* Animation pour le gradient */
+            @keyframes gradientShift {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            
+            /* Force la couleur blanche pour le texte des catégories */
+            .category-card-content h3,
+            .category-card-content span {
+                color: #FFFFFF !important;
+            }
+            
+            /* Responsive - Mobile First */
+            @media (max-width: 768px) {
+                .categories-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 12px !important;
+                }
+                .category-card-large {
+                    height: 200px !important;
+                    min-height: 200px !important;
+                }
+                .category-card-content h3 {
+                    font-size: 16px !important;
+                    margin-bottom: 8px !important;
+                    color: #FFFFFF !important;
+                }
+                .category-card-content > div {
+                    padding: 14px 16px !important;
+                }
+                .category-card-content span {
+                    font-size: 11px !important;
+                    color: #FFFFFF !important;
+                }
+            }
+            
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .categories-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 20px !important;
+                }
+                .category-card-large {
+                    height: 260px !important;
+                    min-height: 260px !important;
+                }
+                .category-card-content h3 {
+                    font-size: 20px !important;
+                    color: #FFFFFF !important;
+                }
+                .category-card-content span {
+                    color: #FFFFFF !important;
+                }
+                .category-card-content > div {
+                    padding: 18px 20px !important;
+                }
+            }
+            
+            @media (min-width: 1025px) {
+                .categories-grid {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 24px !important;
+                }
+                .category-card-large {
+                    height: 320px !important;
+                    min-height: 320px !important;
+                }
+                .category-card-content h3 {
+                    font-size: 24px !important;
+                    color: #FFFFFF !important;
+                }
+                .category-card-content span {
+                    color: #FFFFFF !important;
+                }
+                .category-card-content > div {
+                    padding: 24px 28px !important;
+                }
+            }
+            
+            /* Amélioration de la lisibilité au hover */
+            .category-card-large:hover .category-card-content > div {
+                background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.45) 100%) !important;
+            }
+            
+            /* Hover effect pour l'icône */
+            .category-card-large:hover .category-card-hover-badge {
+                opacity: 1 !important;
+            }
+            
+            .category-card-large:hover .category-card-content i.fi-rs-arrow-right {
+                transform: translateX(4px);
+            }
+        </style>
         </div>
     </main>
 {%endblock body%}
 
 {%block script%}
-        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script>
-    function toggleSubcategories(element) {
-        const $toggle = $(element);
-        const $list = $toggle.next('.subcategories-list');
-        const $icon = $toggle.find('.toggle-icon');
-        
-        if ($list.is(':visible')) {
-            $list.slideUp(300);
-            $icon.css('transform', 'rotate(0deg)');
-        } else {
-            $list.slideDown(300);
-            $icon.css('transform', 'rotate(180deg)');
-        }
-    }
-    
-    // Responsive grid adjustment
+    // Animation pour les cartes au survol
     $(document).ready(function() {
-        function adjustGrid() {
-            const width = $(window).width();
-            const $grid = $('.categories-grid');
-            
-            if (width <= 768) {
-                $grid.css('grid-template-columns', '1fr');
-            } else if (width <= 1024) {
-                $grid.css('grid-template-columns', 'repeat(2, 1fr)');
-            } else {
-                $grid.css('grid-template-columns', 'repeat(auto-fill, minmax(320px, 1fr))');
-            }
-        }
-        
-        adjustGrid();
+        $('.category-card-large').on('mouseenter', function() {
+            $(this).find('.category-card-bg img').css('transform', 'scale(1.1)');
+            $(this).find('.category-card-content i.fi-rs-arrow-right').css('transform', 'translateX(4px)');
+        }).on('mouseleave', function() {
+            $(this).find('.category-card-bg img').css('transform', 'scale(1)');
+            $(this).find('.category-card-content i.fi-rs-arrow-right').css('transform', 'translateX(0)');
+        });
+    });
+</script>
+{%endblock script%}
+
         $(window).on('resize', adjustGrid);
     });
 </script>

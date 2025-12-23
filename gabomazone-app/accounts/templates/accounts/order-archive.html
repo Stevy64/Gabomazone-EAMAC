@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 400px; gap: 32px; align-items: start;">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start;">
             <!-- Liste des articles -->
             <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
                 <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
@@ -190,49 +190,70 @@
                 </div>
             </div>
 
-            <!-- Sidebar avec résumé et informations -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                <!-- Résumé de la commande -->
-                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
-                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
-                        <i class="fi-rs-receipt" style="color: var(--color-orange);"></i>
-                        Résumé de la commande
-                    </h3>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                            <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
-                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.sub_total|default:total|floatformat:0}} FCFA</span>
-                        </div>
+            <!-- Section résumé et informations -->
+            <div class="order-info-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
+                <!-- Colonne gauche : Résumé de la commande -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Résumé de la commande -->
+                    <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fi-rs-receipt" style="color: var(--color-orange);"></i>
+                            Résumé de la commande
+                        </h3>
                         
-                        {% if order.shipping %}
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                            <span style="font-size: 14px; color: #6B7280;">Livraison</span>
-                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.shipping}} FCFA</span>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                                <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
+                                <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.sub_total|default:total|floatformat:0}} FCFA</span>
+                            </div>
+                            
+                            {% if order.shipping %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                                <span style="font-size: 14px; color: #6B7280;">Livraison</span>
+                                <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.shipping}} FCFA</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if order.coupon %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                                <span style="font-size: 14px; color: #6B7280;">Réduction ({{order.coupon.code}})</span>
+                                <span style="font-size: 16px; font-weight: 600; color: #10B981;">-{{order.discount|default:"0"}} FCFA</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px solid #E5E7EB; margin-top: 8px;">
+                                <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
+                                <span style="font-size: 24px; font-weight: 700; color: var(--color-orange);">{{order.amount|floatformat:0}} FCFA</span>
+                            </div>
                         </div>
-                        {% endif %}
-                        
-                        {% if order.coupon %}
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                            <span style="font-size: 14px; color: #6B7280;">Réduction ({{order.coupon.code}})</span>
-                            <span style="font-size: 16px; font-weight: 600; color: #10B981;">-{{order.discount|default:"0"}} FCFA</span>
-                        </div>
-                        {% endif %}
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px solid #E5E7EB; margin-top: 8px;">
-                            <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
-                            <span style="font-size: 24px; font-weight: 700; color: var(--color-orange);">{{order.amount|floatformat:0}} FCFA</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <a href="{% url 'accounts:dashboard_customer' %}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #F3F4F6; color: #374151; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease;">
+                                <i class="fi-rs-arrow-left"></i>
+                                Retour aux commandes
+                            </a>
+                            <a href="{% url 'orders:invoice-print' order.id %}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: var(--color-orange); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
+                                <i class="fi-rs-print"></i>
+                                Voir la facture
+                            </a>
+                            <a href="{% url 'orders:invoice-print' order.id %}?format=pdf" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #DC2626; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); margin-top: 8px;">
+                                <i class="fi-rs-file-pdf"></i>
+                                Télécharger PDF
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Conteneur pour Adresse de livraison et Informations de paiement (côte à côte en desktop) -->
-                <div class="info-cards-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Colonne droite : Adresse de livraison et Informations de paiement -->
+                <div class="info-cards-container" style="display: flex; flex-direction: column; gap: 24px;">
                     <!-- Informations de livraison -->
                     {% if payment_info %}
-                    <div style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); flex: 1;">
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 18px;"></i>
+                            <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 20px;"></i>
                             Adresse de livraison
                         </h3>
                         
@@ -263,48 +284,34 @@
 
                     <!-- Informations de paiement -->
                     {% if transaction %}
-                    <div style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); flex: 1;">
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-credit-card" style="color: var(--color-orange); font-size: 18px;"></i>
-                            Informations de paiement
+                            <i class="fi-rs-credit-card" style="color: var(--color-orange); font-size: 20px;"></i>
+                            <span style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Informations de paiement</span>
                         </h3>
                         
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
-                                <span style="font-size: 13px; color: #6B7280;">Méthode</span>
-                                <span style="font-size: 13px; font-weight: 600; color: #1F2937; text-align: right;">{{transaction.payment_method|default:"Non spécifié"}}</span>
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Méthode</div>
+                                <div style="font-size: 15px; font-weight: 600; color: #1F2937;">{{transaction.payment_method|default:"Non spécifié"}}</div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
-                                <span style="font-size: 13px; color: #6B7280;">Transaction ID</span>
-                                <span style="font-size: 11px; font-weight: 600; color: #1F2937; font-family: monospace; text-align: right; word-break: break-all;">{{transaction.transaction_id}}</span>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Transaction ID</div>
+                                <div style="font-size: 12px; font-weight: 600; color: #1F2937; font-family: monospace; word-break: break-all;">{{transaction.transaction_id}}</div>
                             </div>
                             {% if transaction.paid_at %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #F9FAFB; border-radius: 8px;">
-                                <span style="font-size: 13px; color: #6B7280;">Date de paiement</span>
-                                <span style="font-size: 13px; font-weight: 600; color: #1F2937; text-align: right;">{{transaction.paid_at|date:"d/m/Y à H:i"}}</span>
+                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Date de paiement</div>
+                                <div style="font-size: 15px; font-weight: 600; color: #1F2937;">{{transaction.paid_at|date:"d/m/Y à H:i"}}</div>
                             </div>
                             {% endif %}
-                            <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin-top: 4px;">
-                                <i class="fi-rs-eye" style="margin-right: 6px;"></i>
+                            <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fi-rs-eye"></i>
                                 Voir les étapes
                             </button>
                         </div>
                     </div>
                     {% endif %}
-                </div>
-
-                <!-- Actions -->
-                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <a href="{% url 'accounts:dashboard_customer' %}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #F3F4F6; color: #374151; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease;">
-                            <i class="fi-rs-arrow-left"></i>
-                            Retour aux commandes
-                        </a>
-                        <button onclick="window.print()" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: var(--color-orange); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
-                            <i class="fi-rs-print"></i>
-                            Imprimer le reçu
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -335,7 +342,33 @@
     }
 }
 
+/* Amélioration du layout desktop pour utiliser l'espace disponible */
+.order-info-section {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+    align-items: start !important;
+}
+
+.info-cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+}
+
+.info-cards-container > div {
+    flex: 1 !important;
+    min-height: auto !important;
+}
+
 /* Responsive */
+@media (max-width: 1200px) {
+    .order-info-section {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+}
+
 @media (max-width: 992px) {
     .main.pages {
         padding-top: 80px !important;
@@ -346,7 +379,7 @@
         padding: 0 16px !important;
     }
     
-    div[style*="grid-template-columns: 1fr 400px"] {
+    div[style*="grid-template-columns: 1fr"] {
         grid-template-columns: 1fr !important;
     }
     
@@ -355,7 +388,7 @@
     }
     
     .info-cards-container {
-        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
     }
 }
 
@@ -435,4 +468,150 @@
 {%block script%}
 {{ block.super }}
 <script src="{% static 'assets/js/orders.js'%}"></script>
+<script>
+    // Fonction pour afficher les détails de transaction (surcharge si nécessaire)
+    if (typeof window.showTransactionDetails === 'undefined') {
+        window.showTransactionDetails = function(transactionId) {
+            const modal = document.getElementById('transaction-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const stepsContainer = document.getElementById('transaction-steps');
+                if (stepsContainer) {
+                    stepsContainer.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="width: 40px; height: 40px; border: 4px solid #E5E7EB; border-top-color: var(--color-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 16px; color: #6B7280;">Chargement...</p></div>';
+                }
+            }
+            
+            fetch(`/payments/singpay/details/${transactionId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Utiliser la fonction de orders.js si disponible
+                        if (typeof displayTransactionSteps !== 'undefined') {
+                            displayTransactionSteps(data);
+                        } else {
+                            // Implémentation inline
+                            const stepsContainer = document.getElementById('transaction-steps');
+                            const transaction = data.transaction;
+                            const steps = data.steps;
+                            
+                            let stepsHTML = '<div style="padding: 24px;">';
+                            stepsHTML += `
+                                <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #E5E7EB;">
+                                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Détails de la transaction</h3>
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
+                                        <div>
+                                            <span style="color: #6B7280;">Transaction ID:</span>
+                                            <strong style="color: #1F2937; margin-left: 8px; font-family: monospace;">${transaction.transaction_id}</strong>
+                                        </div>
+                                        <div>
+                                            <span style="color: #6B7280;">Montant:</span>
+                                            <strong style="color: var(--color-orange); margin-left: 8px;">${parseFloat(transaction.amount).toLocaleString('fr-FR')} ${transaction.currency}</strong>
+                                        </div>
+                                        <div>
+                                            <span style="color: #6B7280;">Méthode:</span>
+                                            <strong style="color: #1F2937; margin-left: 8px;">${transaction.payment_method}</strong>
+                                        </div>
+                                        <div>
+                                            <span style="color: #6B7280;">Statut:</span>
+                                            <span style="padding: 4px 10px; background: ${transaction.status === 'success' ? '#D1FAE5' : transaction.status === 'pending' ? '#FEF3C7' : '#FEE2E2'}; color: ${transaction.status === 'success' ? '#065F46' : transaction.status === 'pending' ? '#92400E' : '#991B1B'}; border-radius: 6px; font-size: 12px; font-weight: 600; margin-left: 8px;">${transaction.status_display}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0;">Évolution de la transaction</h4>
+                            `;
+                            
+                            steps.forEach((step, index) => {
+                                const isLast = index === steps.length - 1;
+                                const stepStatus = step.status;
+                                const stepDate = step.date ? new Date(step.date).toLocaleString('fr-FR', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) : null;
+                                
+                                let statusIcon = step.icon || 'fi-rs-circle';
+                                let statusColor = '#9CA3AF';
+                                let statusBg = '#F3F4F6';
+                                
+                                if (stepStatus === 'completed') {
+                                    statusColor = '#10B981';
+                                    statusBg = '#D1FAE5';
+                                    statusIcon = 'fi-rs-check';
+                                } else if (stepStatus === 'active') {
+                                    statusColor = '#3B82F6';
+                                    statusBg = '#DBEAFE';
+                                    statusIcon = 'fi-rs-clock';
+                                } else if (stepStatus === 'failed') {
+                                    statusColor = '#EF4444';
+                                    statusBg = '#FEE2E2';
+                                    statusIcon = 'fi-rs-cross';
+                                }
+                                
+                                let lineColor = '#E5E7EB';
+                                if (stepStatus === 'completed' && !isLast) {
+                                    lineColor = '#10B981';
+                                } else if (stepStatus === 'active' && !isLast) {
+                                    lineColor = '#3B82F6';
+                                }
+                                
+                                stepsHTML += `
+                                    <div style="display: flex; gap: 16px; margin-bottom: ${isLast ? '0' : '24px'}; position: relative;">
+                                        ${!isLast ? `<div style="position: absolute; left: 24px; top: 48px; width: 2px; height: 40px; background: ${lineColor}; z-index: 0;"></div>` : ''}
+                                        <div style="width: 48px; height: 48px; border-radius: 50%; background: ${statusBg}; color: ${statusColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; border: 2px solid ${statusColor}; box-shadow: 0 4px 12px ${statusColor}40;">
+                                            <i class="${statusIcon}" style="font-size: 24px;"></i>
+                                        </div>
+                                        <div style="flex: 1; padding-top: 4px;">
+                                            <div style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 6px;">${step.name}</div>
+                                            <div style="font-size: 14px; color: #6B7280; margin-bottom: 6px; line-height: 1.5;">${step.description}</div>
+                                            ${stepDate ? `<div style="font-size: 12px; color: #9CA3AF; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><i class="fi-rs-calendar" style="font-size: 12px;"></i>${stepDate}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            stepsHTML += '</div>';
+                            if (stepsContainer) {
+                                stepsContainer.innerHTML = stepsHTML;
+                            }
+                        }
+                    } else {
+                        if (typeof GMModal !== 'undefined') {
+                            GMModal.error('Erreur', 'Erreur lors du chargement des détails de la transaction');
+                        } else {
+                            alert('Erreur lors du chargement des détails de la transaction');
+                        }
+                        if (modal) modal.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (typeof GMModal !== 'undefined') {
+                        GMModal.error('Erreur', 'Erreur lors du chargement des détails de la transaction');
+                    } else {
+                        alert('Erreur lors du chargement des détails de la transaction');
+                    }
+                    if (modal) modal.style.display = 'none';
+                });
+        };
+    }
+    
+    // Fermer la modal en cliquant sur l'overlay
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('transaction-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
 {%endblock script%}
