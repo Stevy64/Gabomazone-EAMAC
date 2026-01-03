@@ -35,3 +35,4 @@ else
     echo "Sur Windows, utilisez l'installeur Windows de WeasyPrint ou installez GTK+."
 fi
 
+

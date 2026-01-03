@@ -155,3 +155,4 @@ PlatformSettings.objects.create()
 - Les badges vendeurs sont attribués automatiquement selon les performances
 
 
+

@@ -84,3 +84,4 @@ Le design de la facture est optimisé pour l'impression et fonctionne parfaiteme
 - Consultez les logs Django pour plus de détails
 - Utilisez l'impression du navigateur en alternative
 
+

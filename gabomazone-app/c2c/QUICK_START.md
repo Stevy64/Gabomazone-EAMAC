@@ -114,3 +114,4 @@ python manage.py migrate
 Une fois ces étapes complétées, l'erreur devrait disparaître ! 🎉
 
 
+

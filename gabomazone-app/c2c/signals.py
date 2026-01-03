@@ -46,3 +46,4 @@ def complete_order_on_verification(sender, instance, created, **kwargs):
         instance.c2c_order.save(update_fields=['status', 'completed_at'])
 
 
+
