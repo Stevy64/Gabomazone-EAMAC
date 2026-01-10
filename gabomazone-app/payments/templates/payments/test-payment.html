@@ -9,8 +9,13 @@
                 <i class="fi-rs-credit-card" style="font-size: 48px; color: white;"></i>
             </div>
             
+            {% if bypass_mode %}
             <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Paiement SingPay (Mode Test)</h1>
             <p style="font-size: 16px; color: #6B7280; margin: 0 0 32px 0;">Simulation de paiement pour les tests</p>
+            {% else %}
+            <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Redirection vers SingPay</h1>
+            <p style="font-size: 16px; color: #6B7280; margin: 0 0 32px 0;">Vous allez être redirigé vers la plateforme de paiement SingPay...</p>
+            {% endif %}
             
             <div style="background: #F9FAFB; border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: left;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
@@ -27,6 +32,7 @@
                 </div>
             </div>
             
+            {% if bypass_mode %}
             <form method="POST" style="margin-bottom: 24px;">
                 {% csrf_token %}
                 <div style="margin-bottom: 20px;">
@@ -49,6 +55,35 @@
                 <i class="fi-rs-info" style="margin-right: 4px;"></i>
                 Mode test activé - Aucun paiement réel ne sera effectué
             </p>
+            {% else %}
+            <div style="text-align: center; padding: 40px 0;">
+                <div style="margin-bottom: 24px;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto; border: 4px solid var(--color-orange); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                </div>
+                <p style="font-size: 14px; color: #6B7280; margin: 0 0 16px 0;">
+                    Redirection en cours vers la plateforme de paiement SingPay...
+                </p>
+                {% if transaction.payment_url %}
+                <a href="{{ transaction.payment_url }}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 16px;">
+                    <i class="fi-rs-arrow-right" style="margin-left: 8px;"></i>
+                    Continuer vers SingPay
+                </a>
+                {% endif %}
+            </div>
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+            <script>
+                // Redirection automatique si URL disponible
+                {% if transaction.payment_url %}
+                setTimeout(function() {
+                    window.location.href = "{{ transaction.payment_url }}";
+                }, 2000);
+                {% endif %}
+            </script>
+            {% endif %}
         </div>
     </div>
 </main>

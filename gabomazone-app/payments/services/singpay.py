@@ -19,12 +19,30 @@ logger = logging.getLogger(__name__)
 class SingPayService:
     """
     Service pour interagir avec l'API SingPay
-    Documentation: https://docs.singpay.com
+    Documentation officielle: https://client.singpay.ga/doc/reference/index.html
+    
+    Ce service gère:
+    - L'initialisation des paiements
+    - La vérification du statut des transactions
+    - L'annulation des paiements
+    - Les remboursements
+    - La vérification des signatures webhook
     """
     
-    # URLs de l'API SingPay (à configurer selon l'environnement)
-    BASE_URL_SANDBOX = "https://api-sandbox.singpay.com"
-    BASE_URL_PRODUCTION = "https://api.singpay.com"
+    # URLs de l'API SingPay selon la documentation officielle
+    # Documentation: https://client.singpay.ga/doc/reference/index.html
+    # L'API Gateway est sur gateway.singpay.ga (pas client.singpay.ga)
+    BASE_URL_SANDBOX = "https://gateway.singpay.ga"
+    BASE_URL_PRODUCTION = "https://gateway.singpay.ga"
+    
+    # Endpoints selon la documentation officielle SingPay
+    # Documentation: https://client.singpay.ga/doc/reference/index.html
+    # 
+    # Endpoints disponibles pour les paiements :
+    # - POST /ext : Récupération du lien permettant d'accéder à l'interface de paiement externe de SingPay
+    # - POST /74/paiement : Lancer le USSD Push chez le client pour le paiement Airtel money
+    # - POST /62/paiement : Lancer le USSD Push chez le client pour le paiement Moov money
+    # - POST /maviance/paiement : Lancer le paiement pour client mobile money maviance
     
     def __init__(self):
         """Initialise le service SingPay avec les credentials"""
@@ -32,7 +50,33 @@ class SingPayService:
         self.api_secret = getattr(settings, 'SINGPAY_API_SECRET', '')
         self.merchant_id = getattr(settings, 'SINGPAY_MERCHANT_ID', '')
         self.environment = getattr(settings, 'SINGPAY_ENVIRONMENT', 'sandbox')  # 'sandbox' ou 'production'
-        self.bypass_api = getattr(settings, 'SINGPAY_BYPASS_API', True)  # Mode test : bypass l'API
+        bypass_setting = getattr(settings, 'SINGPAY_BYPASS_API', None)
+        
+        # Si les credentials sont configurés, désactiver automatiquement le mode bypass
+        if all([self.api_key, self.api_secret, self.merchant_id]):
+            # Credentials présents
+            if bypass_setting is None:
+                # Si SINGPAY_BYPASS_API n'est pas défini dans .env, désactiver automatiquement le bypass
+                self.bypass_api = False
+                logger.info("✅ SingPay API réelle activée - Credentials configurés (bypass désactivé automatiquement)")
+            elif bypass_setting is False:
+                # Explicitement désactivé
+                self.bypass_api = False
+                logger.info("✅ SingPay API réelle activée - Credentials configurés")
+            else:
+                # Explicitement activé (bypass_setting is True)
+                self.bypass_api = True
+                logger.warning("⚠️ SingPay en mode BYPASS malgré les credentials configurés (SINGPAY_BYPASS_API=True dans .env)")
+        else:
+            # Pas de credentials : mode bypass obligatoire
+            self.bypass_api = True
+            logger.warning("⚠️ SingPay credentials manquants - Mode BYPASS activé")
+            if not self.api_key:
+                logger.warning("  - SINGPAY_API_KEY manquant")
+            if not self.api_secret:
+                logger.warning("  - SINGPAY_API_SECRET manquant")
+            if not self.merchant_id:
+                logger.warning("  - SINGPAY_MERCHANT_ID manquant")
         
         if self.environment == 'production':
             self.base_url = self.BASE_URL_PRODUCTION
@@ -66,25 +110,26 @@ class SingPayService:
         
         return signature
     
-    def _get_headers(self, data: Dict) -> Dict[str, str]:
+    def _get_headers(self, data: Dict = None) -> Dict[str, str]:
         """
         Génère les headers pour une requête API
+        Selon la documentation SingPay, les headers sont :
+        - x-client-id : API Key
+        - x-client-secret : API Secret
+        - x-wallet : Merchant ID
         
         Args:
-            data: Données de la requête
+            data: Données de la requête (non utilisé pour l'instant)
             
         Returns:
             Dictionnaire des headers
         """
-        timestamp = str(int(time.time()))
-        signature = self._generate_signature(data, timestamp)
-        
         return {
             'Content-Type': 'application/json',
-            'X-API-Key': self.api_key,
-            'X-Merchant-ID': self.merchant_id,
-            'X-Timestamp': timestamp,
-            'X-Signature': signature,
+            'accept': '*/*',
+            'x-client-id': self.api_key,
+            'x-client-secret': self.api_secret,
+            'x-wallet': self.merchant_id,
         }
     
     def _make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Tuple[bool, Dict]:
@@ -104,9 +149,10 @@ class SingPayService:
         
         # Mode bypass pour les tests
         if self.bypass_api:
-            logger.info(f"SingPay API BYPASS MODE - {method} {endpoint}")
+            logger.warning(f"SingPay API BYPASS MODE ACTIVÉ - {method} {endpoint}")
+            logger.warning("⚠️ ATTENTION: Les paiements sont simulés. Pour utiliser l'API réelle, configurez SINGPAY_BYPASS_API = False dans settings.py")
             # Simuler une réponse réussie
-            if endpoint == '/api/v1/payments/init':
+            if endpoint == '/v1/ext':
                 import uuid
                 from datetime import timedelta
                 transaction_id = f"TEST-{uuid.uuid4().hex[:16].upper()}"
@@ -122,7 +168,7 @@ class SingPayService:
                     'amount': data.get('amount', 0),
                     'currency': data.get('currency', 'XOF'),
                     'order_id': data.get('order_id', ''),
-                    'paid_at': datetime.now().isoformat(),
+                    'paid_at': timezone.now().isoformat(),
                     'payment_method': 'AirtelMoney',  # Simulé
                     'metadata': {},
                 }
@@ -145,14 +191,28 @@ class SingPayService:
             response_data = response.json()
             
             logger.info(f"SingPay API {method} {endpoint} - Success")
+            logger.debug(f"Réponse SingPay: {response_data}")
             return True, response_data
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"SingPay API {method} {endpoint} - Error: {str(e)}")
-            return False, {'error': str(e), 'status_code': getattr(e.response, 'status_code', None)}
+            error_details = {
+                'error': str(e),
+                'status_code': getattr(e.response, 'status_code', None)
+            }
+            # Essayer de récupérer le message d'erreur de la réponse
+            if hasattr(e, 'response') and e.response is not None:
+                try:
+                    error_response = e.response.json()
+                    error_details['api_error'] = error_response
+                    logger.error(f"SingPay API Error Response: {error_response}")
+                except:
+                    error_details['response_text'] = e.response.text[:500]  # Limiter la taille
+            
+            logger.error(f"SingPay API {method} {endpoint} - Error: {error_details}")
+            return False, error_details
         except json.JSONDecodeError as e:
             logger.error(f"SingPay API response JSON decode error: {str(e)}")
-            return False, {'error': 'Invalid JSON response'}
+            return False, {'error': 'Invalid JSON response', 'details': str(e)}
     
     def init_payment(
         self,
@@ -185,32 +245,202 @@ class SingPayService:
         Returns:
             Tuple (success, response_data) avec payment_url et transaction_id
         """
+        # Structure des données selon la documentation SingPay
+        # Documentation: https://client.singpay.ga/doc/reference/index.html
+        # L'endpoint /v1/ext attend les paramètres suivants :
+        # Note: 'portefeuille' doit être le Merchant ID (wallet), pas l'order_id
         data = {
-            'amount': float(amount),
-            'currency': currency.upper(),
-            'order_id': str(order_id),
-            'customer': {
-                'email': customer_email,
-                'phone': customer_phone,
-                'name': customer_name,
-            },
-            'description': description,
-            'callback_url': callback_url,
-            'return_url': return_url,
+            'portefeuille': self.merchant_id,  # Merchant ID (wallet) - requis
+            'reference': f"REF-{order_id}",  # Référence unique de la transaction
+            'redirect_success': return_url,  # URL de redirection en cas de succès
+            'redirect_error': return_url,  # URL de redirection en cas d'erreur
+            'amount': float(amount),  # Montant
+            'disbursement': '',  # Optionnel - pour les virements
+            'logoURL': '',  # Optionnel - URL du logo à afficher
+            'isTransfer': False,  # Type de transaction (False = paiement, True = virement)
+            'order_id': order_id,  # Ajouter order_id pour le mode bypass
         }
         
         if metadata:
-            data['metadata'] = metadata
+            # Ajouter les métadonnées si nécessaire
+            if 'logo_url' in metadata:
+                data['logoURL'] = metadata['logo_url']
+            if 'disbursement' in metadata:
+                data['disbursement'] = metadata['disbursement']
         
-        success, response = self._make_request('POST', '/api/v1/payments/init', data)
+        # Logger les données envoyées pour le débogage
+        logger.info(f"Initialisation paiement SingPay - Order ID: {order_id}, Amount: {amount}, Currency: {currency}")
+        logger.debug(f"Données envoyées à SingPay: {data}")
+        logger.debug(f"URLs - Callback: {callback_url}, Return: {return_url}")
         
-        if success and 'payment_url' in response:
-            return True, {
-                'payment_url': response['payment_url'],
-                'transaction_id': response.get('transaction_id'),
-                'reference': response.get('reference'),
-                'expires_at': response.get('expires_at'),
-            }
+        # Endpoint selon la documentation SingPay officielle
+        # Documentation: https://client.singpay.ga/doc/reference/index.html
+        # Endpoint /v1/ext : Récupération du lien permettant d'accéder à l'interface de paiement externe de SingPay
+        success, response = self._make_request('POST', '/v1/ext', data)
+        
+        if success:
+            # Structure de réponse selon la documentation SingPay
+            # La réponse contient :
+            # - 'link' : URL de paiement
+            # - 'exp' : Date d'expiration
+            payment_url = None
+            transaction_id = None
+            reference = None
+            expires_at = None
+            
+            # Extraire le lien de paiement
+            if 'link' in response:
+                payment_url = response['link']
+                # Extraire l'ID de transaction depuis l'URL si possible
+                # Formats possibles:
+                # - https://gateway.singpay.ga/ext/v1/payment/{transaction_id}
+                # - https://gateway.singpay.ga/payment/{transaction_id}
+                # - https://gateway.singpay.ga/ext?transaction_id={transaction_id}
+                if payment_url:
+                    # Essayer d'extraire depuis /payment/
+                    if '/payment/' in payment_url:
+                        try:
+                            transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
+                            if transaction_id:
+                                logger.info(f"transaction_id extrait de l'URL: {transaction_id}")
+                        except:
+                            pass
+                    # Essayer d'extraire depuis les paramètres de requête
+                    if not transaction_id and 'transaction_id=' in payment_url:
+                        try:
+                            from urllib.parse import urlparse, parse_qs
+                            parsed = urlparse(payment_url)
+                            params = parse_qs(parsed.query)
+                            if 'transaction_id' in params:
+                                transaction_id = params['transaction_id'][0]
+                                logger.info(f"transaction_id extrait des paramètres: {transaction_id}")
+                        except:
+                            pass
+                    # Essayer d'extraire depuis /ext/ ou autres patterns
+                    if not transaction_id:
+                        # Chercher un ID dans l'URL (format UUID ou alphanumérique)
+                        import re
+                        match = re.search(r'/([a-f0-9]{8,}-[a-f0-9]{4,}-[a-f0-9]{4,}-[a-f0-9]{4,}-[a-f0-9]{12,})', payment_url, re.IGNORECASE)
+                        if match:
+                            transaction_id = match.group(1)
+                            logger.info(f"transaction_id extrait par regex: {transaction_id}")
+            elif 'payment_url' in response:
+                payment_url = response['payment_url']
+                # Même logique d'extraction
+                if payment_url and '/payment/' in payment_url:
+                    try:
+                        transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
+                    except:
+                        pass
+            elif 'url' in response:
+                payment_url = response['url']
+                # Même logique d'extraction
+                if payment_url and '/payment/' in payment_url:
+                    try:
+                        transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
+                    except:
+                        pass
+            
+            # Vérifier aussi si transaction_id est directement dans la réponse
+            if not transaction_id and 'transaction_id' in response:
+                transaction_id = response['transaction_id']
+                logger.info(f"transaction_id trouvé directement dans la réponse: {transaction_id}")
+            elif not transaction_id and 'id' in response:
+                transaction_id = response['id']
+                logger.info(f"transaction_id trouvé dans le champ 'id': {transaction_id}")
+            
+            # Extraire la référence et la date d'expiration
+            reference = response.get('reference') or data.get('reference')
+            expires_at_raw = response.get('exp') or response.get('expires_at')
+            
+            # Parser la date d'expiration si elle existe
+            expires_at = None
+            if expires_at_raw:
+                try:
+                    # L'API SingPay retourne 'exp' au format "1/9/2026, 11:41:11 PM" ou "01/09/2026, 11:41:11 PM"
+                    # On doit le convertir en datetime Python
+                    from datetime import datetime
+                    import re
+                    expires_at_str = str(expires_at_raw).strip()
+                    
+                    parsed = False
+                    
+                    # Essayer d'abord avec regex pour gérer les formats avec/sans zéro padding
+                    # Format: "1/9/2026, 11:41:11 PM" ou "01/09/2026, 11:41:11 PM"
+                    match = re.match(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+) (AM|PM)', expires_at_str)
+                    if match:
+                        try:
+                            month, day, year, hour, minute, second, am_pm = match.groups()
+                            hour = int(hour)
+                            if am_pm == 'PM' and hour != 12:
+                                hour += 12
+                            elif am_pm == 'AM' and hour == 12:
+                                hour = 0
+                            expires_at = datetime(int(year), int(month), int(day), hour, int(minute), int(second))
+                            parsed = True
+                        except (ValueError, TypeError) as e:
+                            logger.warning(f"Erreur lors de la construction de la date depuis regex: {e}")
+                    
+                    if not parsed:
+                        # Essayer le format ISO
+                        try:
+                            expires_at = datetime.fromisoformat(expires_at_str.replace('Z', '+00:00'))
+                            parsed = True
+                        except ValueError:
+                            try:
+                                # Essayer le format avec T
+                                expires_at = datetime.strptime(expires_at_str, "%Y-%m-%dT%H:%M:%S")
+                                parsed = True
+                            except ValueError:
+                                logger.warning(f"Impossible de parser la date d'expiration: {expires_at_raw}")
+                                expires_at = None
+                    
+                    if not parsed:
+                        expires_at = None
+                    
+                    # Convertir en timezone-aware si nécessaire
+                    if expires_at and timezone.is_naive(expires_at):
+                        expires_at = timezone.make_aware(expires_at)
+                except Exception as e:
+                    logger.warning(f"Erreur lors du parsing de la date d'expiration: {e}")
+                    expires_at = None
+            
+            # Si pas de transaction_id, utiliser la référence ou générer un ID unique
+            # Vérifier aussi si transaction_id est une chaîne vide
+            if not transaction_id or (isinstance(transaction_id, str) and not transaction_id.strip()):
+                import uuid
+                if reference:
+                    # Utiliser la référence comme base, mais ajouter un suffixe unique pour éviter les collisions
+                    # La référence est déjà unique (REF-ORDER-{order_id})
+                    transaction_id = f"{reference}-{uuid.uuid4().hex[:8].upper()}"
+                else:
+                    # Si pas de référence non plus, utiliser order_id
+                    transaction_id = f"TXN-{order_id}-{uuid.uuid4().hex[:12].upper()}"
+                logger.warning(f"transaction_id manquant ou vide dans la réponse API, génération d'un ID: {transaction_id}")
+                logger.warning(f"Réponse complète de l'API: {response}")
+            
+            if payment_url:
+                logger.info(f"URL de paiement SingPay obtenue: {payment_url}")
+                logger.info(f"transaction_id final: {transaction_id}")
+                logger.info(f"reference: {reference}")
+                # S'assurer que transaction_id est toujours présent et valide
+                if not transaction_id or (isinstance(transaction_id, str) and not transaction_id.strip()):
+                    import uuid
+                    if reference:
+                        transaction_id = f"{reference}-{uuid.uuid4().hex[:8].upper()}"
+                    else:
+                        transaction_id = f"TXN-{order_id}-{uuid.uuid4().hex[:12].upper()}"
+                    logger.error(f"transaction_id toujours manquant ou invalide après extraction! Génération d'urgence: {transaction_id}")
+                
+                return True, {
+                    'payment_url': payment_url,
+                    'transaction_id': transaction_id,
+                    'reference': reference,
+                    'expires_at': expires_at.isoformat() if expires_at else None,
+                }
+            else:
+                logger.warning(f"Réponse SingPay sans lien de paiement: {response}")
+                return False, {'error': 'Lien de paiement manquant dans la réponse', 'response': response}
         
         return False, response
     
@@ -224,7 +454,8 @@ class SingPayService:
         Returns:
             Tuple (success, transaction_data)
         """
-        endpoint = f"/api/v1/payments/{transaction_id}/verify"
+        # Endpoint de vérification selon la documentation SingPay
+        endpoint = f"/api/payments/{transaction_id}/verify"
         success, response = self._make_request('GET', endpoint)
         
         if success:
@@ -250,7 +481,8 @@ class SingPayService:
         Returns:
             Tuple (success, response_data)
         """
-        endpoint = f"/api/v1/payments/{transaction_id}/cancel"
+        # Endpoint d'annulation selon la documentation SingPay
+        endpoint = f"/api/payments/{transaction_id}/cancel"
         success, response = self._make_request('POST', endpoint)
         return success, response
     
@@ -277,7 +509,8 @@ class SingPayService:
         if reason:
             data['reason'] = reason
         
-        endpoint = f"/api/v1/payments/{transaction_id}/refund"
+        # Endpoint de remboursement selon la documentation SingPay
+        endpoint = f"/api/payments/{transaction_id}/refund"
         success, response = self._make_request('POST', endpoint, data)
         return success, response
     

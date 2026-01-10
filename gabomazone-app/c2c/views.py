@@ -598,11 +598,12 @@ def accept_final_price(request, intent_id):
                 'success': True,
                 'order_id': c2c_order.id,
                 'buyer_total': str(c2c_order.buyer_total),
-                'message': 'Prix accepté. Redirection vers le paiement...'
+                'message': 'Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.'
             })
         
-        messages.success(request, "Prix accepté ! Vous allez être redirigé vers le paiement.")
-        return redirect('c2c:init-payment', order_id=c2c_order.id)
+        messages.success(request, "Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.")
+        # Ne pas rediriger automatiquement - l'utilisateur doit cliquer sur le bouton
+        return redirect('accounts:my-messages')
         
     except Exception as e:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -659,68 +660,35 @@ def init_c2c_payment(request, order_id):
     
     # Si GET, afficher la page de paiement
     if request.method == 'GET':
-        from django.conf import settings as django_settings
         # Récupérer les taux de commission pour l'affichage
         platform_settings = PlatformSettings.get_active_settings()
         context = {
             'order': order,
             'commission_rate_buyer': platform_settings.c2c_buyer_commission_rate,
             'commission_rate_seller': platform_settings.c2c_seller_commission_rate,
-            'debug': django_settings.DEBUG,
         }
         return render(request, 'c2c/payment.html', context)
     
     # Si POST, initialiser le paiement
     try:
-        # Initialiser le paiement SingPay
+        # Initialiser le paiement SingPay via l'API réelle
         singpay_transaction = SingPayService.init_c2c_payment(order, request)
         
         # Rediriger vers l'URL de paiement SingPay
         if singpay_transaction.payment_url:
             return redirect(singpay_transaction.payment_url)
-        
-        # Si pas d'URL de paiement (mode sandbox), simuler le paiement
-        messages.info(request, "Mode sandbox: Le paiement sera simulé.")
-        return redirect('c2c:order-detail', order_id=order_id)
+        else:
+            messages.error(request, "URL de paiement non disponible. Veuillez réessayer.")
+            return redirect('c2c:order-detail', order_id=order_id)
         
     except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception(f"Erreur lors de l'initialisation du paiement C2C: {str(e)}")
         messages.error(request, f"Erreur lors de l'initialisation du paiement: {str(e)}")
         return redirect('c2c:order-detail', order_id=order_id)
 
 
-@login_required
-@require_POST
-def simulate_payment(request, order_id):
-    """
-    Simule un paiement réussi pour le mode test/sandbox
-    """
-    from django.conf import settings
-    
-    order = get_object_or_404(C2COrder, id=order_id)
-    
-    # Vérifier que c'est l'acheteur
-    if request.user != order.buyer:
-        messages.error(request, "Seul l'acheteur peut effectuer le paiement.")
-        return redirect('c2c:order-detail', order_id=order_id)
-    
-    # Vérifier que la commande est en attente de paiement
-    if order.status != C2COrder.PENDING_PAYMENT:
-        messages.info(request, "Cette commande a déjà été payée ou traitée.")
-        return redirect('c2c:payment-success', order_id=order_id)
-    
-    # Simuler le paiement réussi
-    order.status = C2COrder.PAID
-    order.paid_at = timezone.now()
-    order.save()
-    
-    # Mettre à jour la transaction si elle existe
-    if order.payment_transaction:
-        order.payment_transaction.status = 'success'
-        order.payment_transaction.paid_at = timezone.now()
-        order.payment_transaction.save()
-    
-    messages.success(request, "Paiement simulé avec succès ! (Mode test)")
-    return redirect('c2c:payment-success', order_id=order_id)
 
 
 @login_required

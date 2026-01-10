@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction
+from django.conf import settings
 from .models import (
     PlatformSettings, PurchaseIntent, Negotiation, C2COrder,
     DeliveryVerification, ProductBoost, SellerBadge
@@ -315,50 +316,207 @@ class SingPayService:
     @staticmethod
     def init_c2c_payment(c2c_order: C2COrder, request):
         """
-        Initialise un paiement SingPay pour une commande C2C
+        Initialise un paiement SingPay pour une commande C2C via l'API réelle
         """
-        from payments.views import init_singpay_payment
+        from payments.services.singpay import singpay_service
+        from accounts.models import Profile
+        import logging
+        
+        logger = logging.getLogger(__name__)
         
         # Préparer les données pour SingPay
         amount = float(c2c_order.buyer_total)
+        currency = 'XOF'
+        order_id = f"C2C-{c2c_order.id}"
         description = f"Paiement C2C - {c2c_order.product.product_name}"
         
-        # Créer la transaction SingPay
-        transaction_data = {
-            'amount': amount,
-            'currency': 'XOF',
-            'customer_email': c2c_order.buyer.email,
-            'customer_phone': c2c_order.buyer.profile.mobile_number if hasattr(c2c_order.buyer, 'profile') else '',
-            'customer_name': c2c_order.buyer.get_full_name() or c2c_order.buyer.username,
-            'description': description,
-            'transaction_type': SingPayTransaction.C2C_PAYMENT,
-            'internal_order_id': f"C2C-{c2c_order.id}",
-            'user': c2c_order.buyer,
-            'peer_product': c2c_order.product,
+        # Récupérer les informations du client
+        customer_email = c2c_order.buyer.email
+        customer_name = c2c_order.buyer.get_full_name() or c2c_order.buyer.username
+        
+        # Formater le numéro de téléphone en format international
+        def format_phone_international(phone):
+            """Formate le numéro de téléphone en format international (+241XXXXXXXXX)"""
+            if not phone:
+                return ''
+            # Supprimer les espaces et caractères spéciaux
+            phone = ''.join(filter(str.isdigit, phone))
+            # Si le numéro commence par 0, remplacer par +241 (Gabon)
+            if phone.startswith('0'):
+                phone = '+241' + phone[1:]
+            # Si le numéro ne commence pas par +, ajouter +241
+            elif not phone.startswith('+'):
+                if phone.startswith('241'):
+                    phone = '+' + phone
+                else:
+                    phone = '+241' + phone
+            return phone
+        
+        # Récupérer le numéro de téléphone
+        customer_phone = ''
+        try:
+            profile = Profile.objects.get(user=c2c_order.buyer)
+            if profile.mobile_number:
+                customer_phone = format_phone_international(profile.mobile_number)
+        except Profile.DoesNotExist:
+            pass
+        
+        # Construire les URLs
+        # En développement (DEBUG=True), utiliser localhost
+        # En production, utiliser le domaine de production
+        if settings.DEBUG:
+            # Mode développement : utiliser localhost
+            base_url = f"{request.scheme}://{request.get_host()}"
+        else:
+            # Mode production : utiliser le domaine de production
+            production_domain = getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')
+            base_url = f"https://{production_domain}"
+        
+        callback_url = f"{base_url}/payments/singpay/callback/"
+        return_url = f"{base_url}/c2c/order/{c2c_order.id}/payment-success/"
+        
+        # Métadonnées
+        metadata = {
+            'order_id': str(c2c_order.id),
+            'user_id': str(c2c_order.buyer.id),
+            'payment_type': 'c2c_payment',
+            'product_id': str(c2c_order.product.id),
         }
         
-        # Utiliser le service SingPay existant (à adapter selon votre implémentation)
-        # Pour l'instant, on simule la création
-        singpay_transaction = SingPayTransaction.objects.create(
-            transaction_id=f"C2C-{c2c_order.id}-{timezone.now().timestamp()}",
-            internal_order_id=transaction_data['internal_order_id'],
+        # Initialiser le paiement via l'API SingPay
+        logger.info(f"Initialisation paiement SingPay pour commande C2C #{c2c_order.id}")
+        success, response = singpay_service.init_payment(
             amount=amount,
-            currency=transaction_data['currency'],
-            customer_email=transaction_data['customer_email'],
-            customer_phone=transaction_data.get('customer_phone', ''),
-            customer_name=transaction_data['customer_name'],
+            currency=currency,
+            order_id=order_id,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            customer_name=customer_name,
             description=description,
-            transaction_type=transaction_data['transaction_type'],
-            user=c2c_order.buyer,
-            peer_product=c2c_order.product,
-            callback_url=request.build_absolute_uri('/payments/singpay/callback/'),
-            return_url=request.build_absolute_uri(f'/c2c/order/{c2c_order.id}/payment-success/'),
-            status=SingPayTransaction.PENDING
+            callback_url=callback_url,
+            return_url=return_url,
+            metadata=metadata
         )
+        
+        if not success:
+            error_message = response.get('error', 'Erreur lors de l\'initialisation du paiement')
+            logger.error(f"Erreur SingPay init_payment pour la commande C2C {c2c_order.id}: {error_message}")
+            raise Exception(f"Erreur lors de l'initialisation du paiement: {error_message}")
+        
+        # Créer la transaction SingPay
+        payment_url = response.get('payment_url')
+        transaction_id = response.get('transaction_id')
+        reference = response.get('reference')
+        expires_at_str = response.get('expires_at')
+        
+        # Parser la date d'expiration si elle existe
+        expires_at = None
+        if expires_at_str:
+            try:
+                from datetime import datetime
+                import re
+                
+                expires_at_str_clean = str(expires_at_str).strip()
+                parsed = False
+                
+                # Essayer d'abord avec regex pour gérer le format américain "1/9/2026, 11:41:11 PM"
+                match = re.match(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+) (AM|PM)', expires_at_str_clean)
+                if match:
+                    try:
+                        month, day, year, hour, minute, second, am_pm = match.groups()
+                        hour = int(hour)
+                        if am_pm == 'PM' and hour != 12:
+                            hour += 12
+                        elif am_pm == 'AM' and hour == 12:
+                            hour = 0
+                        expires_at = datetime(int(year), int(month), int(day), hour, int(minute), int(second))
+                        parsed = True
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Erreur lors de la construction de la date depuis regex: {e}")
+                
+                if not parsed:
+                    # Essayer le format ISO
+                    try:
+                        expires_at = datetime.fromisoformat(expires_at_str_clean.replace('Z', '+00:00'))
+                        parsed = True
+                    except ValueError:
+                        try:
+                            # Essayer le format avec T
+                            expires_at = datetime.strptime(expires_at_str_clean, "%Y-%m-%dT%H:%M:%S")
+                            parsed = True
+                        except ValueError:
+                            logger.warning(f"Impossible de parser expires_at: {expires_at_str}")
+                            expires_at = None
+                
+                # Convertir en timezone-aware si nécessaire
+                if expires_at and timezone.is_naive(expires_at):
+                    expires_at = timezone.make_aware(expires_at)
+            except Exception as e:
+                logger.warning(f"Erreur lors du parsing de expires_at: {e}")
+                expires_at = None
+        
+        # Vérifier si une transaction existe déjà pour cette commande C2C
+        existing_transaction = None
+        
+        # Chercher une transaction existante par transaction_id
+        if transaction_id:
+            try:
+                existing_transaction = SingPayTransaction.objects.get(transaction_id=transaction_id)
+            except SingPayTransaction.DoesNotExist:
+                pass
+        
+        # Si pas trouvée par transaction_id, chercher par commande C2C
+        if not existing_transaction:
+            try:
+                existing_transaction = SingPayTransaction.objects.filter(
+                    peer_product=c2c_order.product,
+                    user=c2c_order.buyer,
+                    transaction_type=SingPayTransaction.C2C_PAYMENT,
+                    status=SingPayTransaction.PENDING
+                ).first()
+            except:
+                pass
+        
+        if existing_transaction:
+            # Mettre à jour la transaction existante
+            logger.info(f"Transaction C2C existante trouvée: {existing_transaction.transaction_id}, mise à jour...")
+            existing_transaction.payment_url = payment_url
+            existing_transaction.callback_url = callback_url
+            existing_transaction.return_url = return_url
+            existing_transaction.expires_at = expires_at
+            if transaction_id and existing_transaction.transaction_id != transaction_id:
+                existing_transaction.transaction_id = transaction_id
+            if reference:
+                existing_transaction.reference = reference
+            existing_transaction.save()
+            singpay_transaction = existing_transaction
+        else:
+            # Créer une nouvelle transaction
+            singpay_transaction = SingPayTransaction.objects.create(
+                transaction_id=transaction_id,
+                reference=reference,
+                internal_order_id=order_id,
+                amount=amount,
+                currency=currency,
+                customer_email=customer_email,
+                customer_phone=customer_phone,
+                customer_name=customer_name,
+                description=description,
+                transaction_type=SingPayTransaction.C2C_PAYMENT,
+                user=c2c_order.buyer,
+                peer_product=c2c_order.product,
+                callback_url=callback_url,
+                return_url=return_url,
+                payment_url=payment_url,
+                status=SingPayTransaction.PENDING,
+                expires_at=expires_at
+            )
         
         # Lier la transaction à la commande C2C
         c2c_order.payment_transaction = singpay_transaction
         c2c_order.save()
+        
+        logger.info(f"Transaction SingPay créée: {transaction_id} pour commande C2C #{c2c_order.id}")
         
         return singpay_transaction
     
@@ -411,8 +569,8 @@ class SingPayService:
             transaction_type=SingPayTransaction.BOOST_PAYMENT,
             user=user,
             peer_product=product,
-            callback_url=request.build_absolute_uri('/payments/singpay/callback/'),
-            return_url=request.build_absolute_uri(f'/c2c/boost/{product.id}/success/'),
+            callback_url=request.build_absolute_uri('/payments/singpay/callback/') if settings.DEBUG else f"https://{getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')}/payments/singpay/callback/",
+            return_url=request.build_absolute_uri(f'/c2c/boost/{product.id}/success/') if settings.DEBUG else f"https://{getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')}/c2c/boost/{product.id}/success/",
             status=SingPayTransaction.PENDING
         )
         

@@ -23,7 +23,6 @@ urlpatterns = [
     path('order/<int:order_id>/', views.c2c_order_detail, name='order-detail'),
     path('order/<int:order_id>/payment/', views.init_c2c_payment, name='init-payment'),
     path('order/<int:order_id>/payment-success/', views.payment_success, name='payment-success'),
-    path('order/<int:order_id>/simulate-payment/', views.simulate_payment, name='simulate-payment'),
     
     # Vérification de livraison
     path('order/<int:order_id>/verify-seller-code/', views.verify_seller_code, name='verify-seller-code'),

@@ -12,8 +12,14 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config, Csv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Charger les variables d'environnement depuis .env
+# Le fichier .env doit être créé à la racine du projet (gabomazone-app/.env)
+# python-decouple cherche automatiquement le fichier .env à la racine du projet
 
 
 # Quick-start development settings - unsuitable for production
@@ -278,3 +284,23 @@ FATOORAHBASURL = "https://apitest.myfatoorah.com/v2"
 FATOORAHBACKURL = f'https://{YOUR_DOMAIN}/en/api/callbacks-myfatoorah/'
 FATOORAHERRORURL = f'https://{YOUR_DOMAIN}/order/cancel/'
 FATOORAH_CURREENCY ='usd'
+
+        ## SingPay account ##
+        # Configuration SingPay selon la documentation: https://client.singpay.ga/doc/reference/index.html
+        # Les clés API sont chargées depuis le fichier .env pour la sécurité
+        # Voir .env.example pour le format attendu
+SINGPAY_API_KEY = config('SINGPAY_API_KEY', default='')
+SINGPAY_API_SECRET = config('SINGPAY_API_SECRET', default='')
+SINGPAY_MERCHANT_ID = config('SINGPAY_MERCHANT_ID', default='')
+SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandbox' ou 'production'
+
+# Mode bypass : si les credentials sont configurés, le service désactivera automatiquement le bypass
+# Pour forcer le mode bypass même avec des credentials, définissez SINGPAY_BYPASS_API=True dans .env
+# Par défaut, si les credentials sont présents, le bypass est désactivé automatiquement
+# Si SINGPAY_BYPASS_API n'est pas défini dans .env, le service utilisera l'API réelle si les credentials sont présents
+# Utiliser default=None pour permettre au service de détecter automatiquement
+SINGPAY_BYPASS_API = config('SINGPAY_BYPASS_API', default=None, cast=lambda v: bool(v.lower() == 'true') if v else None)
+
+# Domaine de production pour les URLs de callback SingPay
+# Les callbacks doivent être accessibles publiquement depuis Internet
+SINGPAY_PRODUCTION_DOMAIN = config('SINGPAY_PRODUCTION_DOMAIN', default='gabomazone.pythonanywhere.com')

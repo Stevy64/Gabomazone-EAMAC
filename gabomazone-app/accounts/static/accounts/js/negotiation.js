@@ -359,7 +359,7 @@ function acceptFinalPrice(intentId, finalPrice) {
     GMModal.show({
         type: 'confirm',
         title: 'Accepter le prix final',
-        message: `Êtes-vous sûr d'accepter le prix final de <strong>${parseFloat(finalPrice).toLocaleString()} FCFA</strong> ?<br><br>Vous serez redirigé vers le paiement.`,
+        message: `Êtes-vous sûr d'accepter le prix final de <strong>${parseFloat(finalPrice).toLocaleString()} FCFA</strong> ?<br><br>Un bouton de paiement apparaîtra après l'acceptation.`,
         showCancel: true,
         confirmText: 'Accepter',
         cancelText: 'Annuler',
@@ -380,7 +380,19 @@ function acceptFinalPrice(intentId, finalPrice) {
                 const data = await response.json();
                 
                 if (data.success) {
-                    window.location.href = `/c2c/order/${data.order_id}/payment/`;
+                    // Afficher un message de succès
+                    GMModal.show({
+                        type: 'success',
+                        title: 'Prix accepté !',
+                        message: data.message || 'Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.',
+                        confirmText: 'OK',
+                        onConfirm: function() {
+                            // Recharger les données pour afficher le bouton de paiement
+                            if (typeof loadPurchaseIntentForConversation === 'function') {
+                                loadPurchaseIntentForConversation(null, null, null, intentId);
+                            }
+                        }
+                    });
                 } else {
                     GMModal.error('Erreur', data.error || 'Erreur lors de l\'acceptation du prix final');
                 }

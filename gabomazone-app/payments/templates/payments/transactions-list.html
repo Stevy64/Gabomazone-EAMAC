@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_template_tags %}
+
+{%block body%}
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+        <!-- Header -->
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; font-family: var(--font-primary);">Mes transactions SingPay</h1>
+            <p style="font-size: 14px; color: #6B7280; margin: 0;">Historique de tous vos paiements via SingPay</p>
+        </div>
+
+        <!-- Statistiques -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;">
+            <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+                <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px;">Total</div>
+                <div style="font-size: 28px; font-weight: 700; color: #1F2937;">{{ total_transactions }}</div>
+            </div>
+            <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+                <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px;">Réussies</div>
+                <div style="font-size: 28px; font-weight: 700; color: #10B981;">{{ successful_transactions }}</div>
+            </div>
+            <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+                <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px;">En attente</div>
+                <div style="font-size: 28px; font-weight: 700; color: #F59E0B;">{{ pending_transactions }}</div>
+            </div>
+            <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+                <div style="font-size: 14px; color: #6B7280; margin-bottom: 8px;">Échouées</div>
+                <div style="font-size: 28px; font-weight: 700; color: #EF4444;">{{ failed_transactions }}</div>
+            </div>
+        </div>
+
+        <!-- Liste des transactions -->
+        <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+            {% if transactions %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #F3F4F6;">
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">ID Transaction</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Montant</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Statut</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Méthode</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Date</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr style="border-bottom: 1px solid #F3F4F6;">
+                            <td style="padding: 16px 12px;">
+                                <div style="font-size: 13px; font-weight: 600; color: #1F2937;">{{ transaction.transaction_id|truncatechars:20 }}</div>
+                                {% if transaction.reference %}
+                                <div style="font-size: 11px; color: #9CA3AF;">{{ transaction.reference }}</div>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <div style="font-size: 15px; font-weight: 700; color: var(--color-orange);">{{ transaction.amount|floatformat:0 }} {{ transaction.currency }}</div>
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                {% if transaction.status == 'success' %}
+                                <span style="padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 6px; font-size: 12px; font-weight: 600;">Réussi</span>
+                                {% elif transaction.status == 'pending' %}
+                                <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600;">En attente</span>
+                                {% elif transaction.status == 'failed' %}
+                                <span style="padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 6px; font-size: 12px; font-weight: 600;">Échoué</span>
+                                {% elif transaction.status == 'cancelled' %}
+                                <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 600;">Annulé</span>
+                                {% else %}
+                                <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 600;">{{ transaction.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <div style="font-size: 13px; color: #6B7280;">{{ transaction.payment_method|default:"Non spécifié" }}</div>
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <div style="font-size: 13px; color: #6B7280;">{{ transaction.created_at|date:"d/m/Y H:i" }}</div>
+                                {% if transaction.paid_at %}
+                                <div style="font-size: 11px; color: #9CA3AF;">Payé: {{ transaction.paid_at|date:"d/m/Y H:i" }}</div>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 16px 12px;">
+                                <button onclick="showTransactionDetails('{{ transaction.transaction_id }}')" style="padding: 8px 16px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">
+                                    <i class="fi-rs-eye" style="margin-right: 4px;"></i>Détails
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="width: 80px; height: 80px; margin: 0 auto 24px; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fi-rs-credit-card" style="font-size: 40px; color: #9CA3AF;"></i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 600; color: #1F2937; margin: 0 0 8px 0;">Aucune transaction</h3>
+                <p style="font-size: 14px; color: #6B7280; margin: 0 0 24px 0;">Vous n'avez pas encore effectué de paiement via SingPay</p>
+                <a href="{% url 'categories:shop' %}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border-radius: 10px; text-decoration: none; font-weight: 600;">
+                    <i class="fi-rs-shopping-bag" style="margin-right: 8px;"></i>Faire des achats
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<script>
+function showTransactionDetails(transactionId) {
+    fetch(`/payments/singpay/details/${transactionId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const transaction = data.transaction;
+                const steps = data.steps;
+                
+                let stepsHtml = steps.map(step => {
+                    let icon = 'fi-rs-circle';
+                    let color = '#9CA3AF';
+                    if (step.status === 'completed') {
+                        icon = 'fi-rs-check';
+                        color = '#10B981';
+                    } else if (step.status === 'active') {
+                        icon = 'fi-rs-clock';
+                        color = '#F59E0B';
+                    } else if (step.status === 'failed') {
+                        icon = 'fi-rs-cross-circle';
+                        color = '#EF4444';
+                    }
+                    
+                    return `
+                        <div style="display: flex; align-items: start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F3F4F6;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: ${color}20; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="${icon}" style="color: ${color}; font-size: 16px;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">${step.name}</div>
+                                <div style="font-size: 12px; color: #6B7280;">${step.description}</div>
+                                ${step.date ? `<div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">${new Date(step.date).toLocaleString('fr-FR')}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                GMModal.show({
+                    type: 'info',
+                    title: `Transaction ${transaction.transaction_id}`,
+                    message: `
+                        <div style="text-align: left;">
+                            <div style="margin-bottom: 16px;">
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Montant</div>
+                                <div style="font-size: 20px; font-weight: 700; color: var(--color-orange);">${transaction.amount} ${transaction.currency}</div>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Statut</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #1F2937;">${transaction.status_display}</div>
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Méthode de paiement</div>
+                                <div style="font-size: 14px; color: #1F2937;">${transaction.payment_method}</div>
+                            </div>
+                            <div style="margin-top: 24px; padding-top: 16px; border-top: 2px solid #F3F4F6;">
+                                <div style="font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 12px; text-transform: uppercase;">Étapes de la transaction</div>
+                                ${stepsHtml}
+                            </div>
+                        </div>
+                    `,
+                    confirmText: 'Fermer'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            GMModal.error('Erreur', 'Impossible de charger les détails de la transaction');
+        });
+}
+</script>
+{%endblock body%}
+
