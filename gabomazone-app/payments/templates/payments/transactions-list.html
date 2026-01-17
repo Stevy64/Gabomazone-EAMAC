@@ -81,9 +81,21 @@
                                 {% endif %}
                             </td>
                             <td style="padding: 16px 12px;">
-                                <button onclick="showTransactionDetails('{{ transaction.transaction_id }}')" style="padding: 8px 16px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">
-                                    <i class="fi-rs-eye" style="margin-right: 4px;"></i>Détails
-                                </button>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button onclick="showTransactionDetails('{{ transaction.transaction_id }}')" style="padding: 8px 16px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'" onmouseout="this.style.background='#F3F4F6'">
+                                        <i class="fi-rs-eye" style="margin-right: 4px;"></i>Détails
+                                    </button>
+                                    {% if transaction.can_be_cancelled %}
+                                    <button onclick="showCancelModal('{{ transaction.transaction_id }}', '{{ transaction.amount }}', '{{ transaction.currency }}')" style="padding: 8px 16px; background: #FEF3C7; color: #92400E; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#FDE68A'" onmouseout="this.style.background='#FEF3C7'">
+                                        <i class="fi-rs-cross-circle" style="margin-right: 4px;"></i>Annuler
+                                    </button>
+                                    {% endif %}
+                                    {% if transaction.can_be_refunded %}
+                                    <button onclick="showRefundModal('{{ transaction.transaction_id }}', '{{ transaction.amount }}', '{{ transaction.currency }}')" style="padding: 8px 16px; background: #DBEAFE; color: #1E40AF; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#BFDBFE'" onmouseout="this.style.background='#DBEAFE'">
+                                        <i class="fi-rs-undo" style="margin-right: 4px;"></i>Rembourser
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -174,6 +186,93 @@ function showTransactionDetails(transactionId) {
             console.error('Error:', error);
             GMModal.error('Erreur', 'Impossible de charger les détails de la transaction');
         });
+}
+
+function showCancelModal(transactionId, amount, currency) {
+    GMModal.show({
+        type: 'warning',
+        title: 'Annuler la transaction',
+        message: `
+            <div style="text-align: left;">
+                <p style="margin-bottom: 16px; color: #6B7280;">Êtes-vous sûr de vouloir annuler cette transaction ?</p>
+                <div style="background: #FEF3C7; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #92400E; margin-bottom: 4px;">Transaction ID</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #92400E;">${transactionId}</div>
+                </div>
+                <div style="background: #FEF3C7; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #92400E; margin-bottom: 4px;">Montant</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #92400E;">${parseFloat(amount).toLocaleString('fr-FR')} ${currency}</div>
+                </div>
+                <form id="cancelForm" method="POST" action="/payments/singpay/transactions/cancel/${transactionId}/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px;">Raison de l'annulation (optionnel)</label>
+                        <textarea name="reason" rows="3" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;" placeholder="Ex: Commande annulée par le client"></textarea>
+                    </div>
+                </form>
+            </div>
+        `,
+        confirmText: 'Annuler la transaction',
+        cancelText: 'Retour',
+        onConfirm: () => {
+            document.getElementById('cancelForm').submit();
+        }
+    });
+}
+
+function showRefundModal(transactionId, amount, currency) {
+    GMModal.show({
+        type: 'info',
+        title: 'Rembourser la transaction',
+        message: `
+            <div style="text-align: left;">
+                <p style="margin-bottom: 16px; color: #6B7280;">Rembourser cette transaction (total ou partiel)</p>
+                <div style="background: #DBEAFE; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #1E40AF; margin-bottom: 4px;">Transaction ID</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #1E40AF;">${transactionId}</div>
+                </div>
+                <div style="background: #DBEAFE; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: #1E40AF; margin-bottom: 4px;">Montant total</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #1E40AF;">${parseFloat(amount).toLocaleString('fr-FR')} ${currency}</div>
+                </div>
+                <form id="refundForm" method="POST" action="/payments/singpay/transactions/refund/${transactionId}/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px;">Montant à rembourser (laisser vide pour remboursement total)</label>
+                        <input type="number" name="amount" step="0.01" min="0" max="${amount}" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;" placeholder="Montant en ${currency}">
+                        <div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">Laissez vide pour rembourser le montant total</div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px;">Raison du remboursement</label>
+                        <textarea name="reason" rows="3" style="width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;" placeholder="Ex: Produit défectueux, retour client" required></textarea>
+                    </div>
+                </form>
+            </div>
+        `,
+        confirmText: 'Confirmer le remboursement',
+        cancelText: 'Annuler',
+        onConfirm: () => {
+            const form = document.getElementById('refundForm');
+            const amountInput = form.querySelector('input[name="amount"]');
+            const reasonInput = form.querySelector('textarea[name="reason"]');
+            
+            if (!reasonInput.value.trim()) {
+                GMModal.error('Erreur', 'Veuillez indiquer la raison du remboursement');
+                return;
+            }
+            
+            if (amountInput.value) {
+                const amount = parseFloat(amountInput.value);
+                const maxAmount = parseFloat('${amount}');
+                if (amount <= 0 || amount > maxAmount) {
+                    GMModal.error('Erreur', 'Le montant doit être entre 0 et ' + maxAmount.toLocaleString('fr-FR') + ' ' + '${currency}');
+                    return;
+                }
+            }
+            
+            form.submit();
+        }
+    });
 }
 </script>
 {%endblock body%}

@@ -18,15 +18,31 @@ logger = logging.getLogger(__name__)
 
 class SingPayService:
     """
-    Service pour interagir avec l'API SingPay
+    Service complet pour interagir avec l'API SingPay
     Documentation officielle: https://client.singpay.ga/doc/reference/index.html
     
     Ce service gère:
-    - L'initialisation des paiements
+    - L'initialisation des paiements (interface externe via /v1/ext)
+    - Les paiements directs via USSD Push (Airtel, Moov, Maviance)
     - La vérification du statut des transactions
     - L'annulation des paiements
-    - Les remboursements
+    - Les remboursements (partiels ou totaux)
+    - Les virements (disbursements)
+    - La récupération de l'historique des transactions
+    - La consultation du solde du portefeuille
     - La vérification des signatures webhook
+    
+    Endpoints disponibles:
+    - POST /v1/ext : Interface de paiement externe
+    - POST /74/paiement : USSD Push Airtel Money
+    - POST /62/paiement : USSD Push Moov Money
+    - POST /maviance/paiement : Paiement Maviance Mobile Money
+    - POST /v1/disbursement : Virement vers un portefeuille
+    - GET /v1/transaction/{id} : Vérifier une transaction
+    - POST /v1/transaction/{id}/cancel : Annuler une transaction
+    - POST /v1/transaction/{id}/refund : Rembourser une transaction
+    - GET /v1/transactions : Historique des transactions
+    - GET /v1/wallet/balance : Solde du portefeuille
     """
     
     # URLs de l'API SingPay selon la documentation officielle
@@ -162,7 +178,7 @@ class SingPayService:
                     'reference': f"REF-{data.get('order_id', 'UNKNOWN')}",
                     'expires_at': (timezone.now() + timedelta(hours=24)).isoformat(),
                 }
-            elif '/verify' in endpoint:
+            elif '/verify' in endpoint or '/transaction/' in endpoint:
                 return True, {
                     'status': 'success',
                     'amount': data.get('amount', 0),
@@ -171,6 +187,34 @@ class SingPayService:
                     'paid_at': timezone.now().isoformat(),
                     'payment_method': 'AirtelMoney',  # Simulé
                     'metadata': {},
+                }
+            elif '/cancel' in endpoint:
+                return True, {
+                    'status': 'cancelled',
+                    'message': 'Transaction annulée avec succès (mode test)',
+                }
+            elif '/refund' in endpoint:
+                import uuid
+                return True, {
+                    'refund_id': f"REFUND-{uuid.uuid4().hex[:16].upper()}",
+                    'status': 'pending',
+                    'amount': data.get('amount', 0),
+                    'message': 'Remboursement initié (mode test)',
+                }
+            elif '/74/paiement' in endpoint or '/62/paiement' in endpoint or '/maviance/paiement' in endpoint:
+                import uuid
+                transaction_id = f"TEST-{uuid.uuid4().hex[:16].upper()}"
+                return True, {
+                    'transaction_id': transaction_id,
+                    'status': 'pending',
+                    'message': 'USSD Push envoyé (mode test)',
+                }
+            elif '/disbursement' in endpoint or '/virement' in endpoint:
+                import uuid
+                return True, {
+                    'disbursement_id': f"DISB-{uuid.uuid4().hex[:16].upper()}",
+                    'status': 'pending',
+                    'message': 'Virement initié (mode test)',
                 }
             else:
                 return True, {'status': 'success', 'message': 'Bypass mode - operation simulated'}
@@ -455,7 +499,8 @@ class SingPayService:
             Tuple (success, transaction_data)
         """
         # Endpoint de vérification selon la documentation SingPay
-        endpoint = f"/api/payments/{transaction_id}/verify"
+        # Documentation: https://client.singpay.ga/doc/reference/index.html
+        endpoint = f"/v1/transaction/{transaction_id}"
         success, response = self._make_request('GET', endpoint)
         
         if success:
@@ -463,28 +508,44 @@ class SingPayService:
                 'status': response.get('status'),  # pending, success, failed, cancelled
                 'amount': response.get('amount'),
                 'currency': response.get('currency'),
-                'order_id': response.get('order_id'),  # ID utilisé par SingPay (peut être différent de internal_order_id)
-                'paid_at': response.get('paid_at'),
-                'payment_method': response.get('payment_method'),
+                'order_id': response.get('order_id') or response.get('reference'),
+                'paid_at': response.get('paid_at') or response.get('paidAt'),
+                'payment_method': response.get('payment_method') or response.get('paymentMethod'),
                 'metadata': response.get('metadata', {}),
+                'transaction_id': response.get('transaction_id') or response.get('id') or transaction_id,
+                'reference': response.get('reference'),
             }
         
         return False, response
     
-    def cancel_payment(self, transaction_id: str) -> Tuple[bool, Dict]:
+    def cancel_payment(self, transaction_id: str, reason: Optional[str] = None) -> Tuple[bool, Dict]:
         """
         Annule une transaction en attente
         
         Args:
             transaction_id: ID de la transaction
+            reason: Raison de l'annulation (optionnel)
             
         Returns:
             Tuple (success, response_data)
         """
         # Endpoint d'annulation selon la documentation SingPay
-        endpoint = f"/api/payments/{transaction_id}/cancel"
-        success, response = self._make_request('POST', endpoint)
-        return success, response
+        # Documentation: https://client.singpay.ga/doc/reference/index.html
+        data = {}
+        if reason:
+            data['reason'] = reason
+        
+        endpoint = f"/v1/transaction/{transaction_id}/cancel"
+        success, response = self._make_request('POST', endpoint, data if data else None)
+        
+        if success:
+            return True, {
+                'status': response.get('status', 'cancelled'),
+                'message': response.get('message', 'Transaction annulée avec succès'),
+                'transaction_id': response.get('transaction_id') or response.get('id') or transaction_id,
+            }
+        
+        return False, response
     
     def refund_payment(
         self,
@@ -501,18 +562,358 @@ class SingPayService:
             reason: Raison du remboursement
             
         Returns:
-            Tuple (success, refund_data)
+            Tuple (success, refund_data) avec refund_id, status, etc.
         """
-        data = {}
+        # Structure des données selon la documentation SingPay
+        # Documentation: https://client.singpay.ga/doc/reference/index.html
+        data = {
+            'portefeuille': self.merchant_id,  # Merchant ID (wallet)
+        }
         if amount:
             data['amount'] = float(amount)
         if reason:
             data['reason'] = reason
         
         # Endpoint de remboursement selon la documentation SingPay
-        endpoint = f"/api/payments/{transaction_id}/refund"
+        endpoint = f"/v1/transaction/{transaction_id}/refund"
         success, response = self._make_request('POST', endpoint, data)
-        return success, response
+        
+        if success:
+            return True, {
+                'refund_id': response.get('refund_id') or response.get('id'),
+                'status': response.get('status', 'pending'),
+                'amount': response.get('amount') or amount,
+                'transaction_id': transaction_id,
+                'message': response.get('message', 'Remboursement initié avec succès'),
+            }
+        
+        return False, response
+    
+    def init_airtel_payment(
+        self,
+        amount: float,
+        currency: str,
+        order_id: str,
+        customer_phone: str,
+        description: str,
+        callback_url: str,
+        metadata: Optional[Dict] = None
+    ) -> Tuple[bool, Dict]:
+        """
+        Initialise un paiement via USSD Push Airtel Money
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Args:
+            amount: Montant à payer
+            currency: Code devise (XOF, XAF, etc.)
+            order_id: ID unique de la commande
+            customer_phone: Téléphone du client (format international, ex: +24101234567)
+            description: Description de la transaction
+            callback_url: URL de callback pour les notifications
+            metadata: Métadonnées supplémentaires
+            
+        Returns:
+            Tuple (success, response_data) avec transaction_id
+        """
+        data = {
+            'portefeuille': self.merchant_id,
+            'reference': f"REF-{order_id}",
+            'amount': float(amount),
+            'phone': customer_phone,
+            'description': description,
+            'callback_url': callback_url,
+        }
+        
+        if metadata:
+            data.update(metadata)
+        
+        logger.info(f"Initialisation paiement Airtel Money - Order ID: {order_id}, Phone: {customer_phone}")
+        success, response = self._make_request('POST', '/74/paiement', data)
+        
+        if success:
+            return True, {
+                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'status': response.get('status', 'pending'),
+                'message': response.get('message', 'USSD Push envoyé'),
+            }
+        
+        return False, response
+    
+    def init_moov_payment(
+        self,
+        amount: float,
+        currency: str,
+        order_id: str,
+        customer_phone: str,
+        description: str,
+        callback_url: str,
+        metadata: Optional[Dict] = None
+    ) -> Tuple[bool, Dict]:
+        """
+        Initialise un paiement via USSD Push Moov Money
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Args:
+            amount: Montant à payer
+            currency: Code devise (XOF, XAF, etc.)
+            order_id: ID unique de la commande
+            customer_phone: Téléphone du client (format international)
+            description: Description de la transaction
+            callback_url: URL de callback pour les notifications
+            metadata: Métadonnées supplémentaires
+            
+        Returns:
+            Tuple (success, response_data) avec transaction_id
+        """
+        data = {
+            'portefeuille': self.merchant_id,
+            'reference': f"REF-{order_id}",
+            'amount': float(amount),
+            'phone': customer_phone,
+            'description': description,
+            'callback_url': callback_url,
+        }
+        
+        if metadata:
+            data.update(metadata)
+        
+        logger.info(f"Initialisation paiement Moov Money - Order ID: {order_id}, Phone: {customer_phone}")
+        success, response = self._make_request('POST', '/62/paiement', data)
+        
+        if success:
+            return True, {
+                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'status': response.get('status', 'pending'),
+                'message': response.get('message', 'USSD Push envoyé'),
+            }
+        
+        return False, response
+    
+    def init_maviance_payment(
+        self,
+        amount: float,
+        currency: str,
+        order_id: str,
+        customer_phone: str,
+        description: str,
+        callback_url: str,
+        metadata: Optional[Dict] = None
+    ) -> Tuple[bool, Dict]:
+        """
+        Initialise un paiement via Maviance Mobile Money
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Args:
+            amount: Montant à payer
+            currency: Code devise (XOF, XAF, etc.)
+            order_id: ID unique de la commande
+            customer_phone: Téléphone du client (format international)
+            description: Description de la transaction
+            callback_url: URL de callback pour les notifications
+            metadata: Métadonnées supplémentaires
+            
+        Returns:
+            Tuple (success, response_data) avec transaction_id
+        """
+        data = {
+            'portefeuille': self.merchant_id,
+            'reference': f"REF-{order_id}",
+            'amount': float(amount),
+            'phone': customer_phone,
+            'description': description,
+            'callback_url': callback_url,
+        }
+        
+        if metadata:
+            data.update(metadata)
+        
+        logger.info(f"Initialisation paiement Maviance - Order ID: {order_id}, Phone: {customer_phone}")
+        success, response = self._make_request('POST', '/maviance/paiement', data)
+        
+        if success:
+            return True, {
+                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'status': response.get('status', 'pending'),
+                'message': response.get('message', 'Paiement Maviance initié'),
+            }
+        
+        return False, response
+    
+    def init_disbursement(
+        self,
+        amount: float,
+        currency: str,
+        recipient_phone: str,
+        recipient_name: str,
+        description: str,
+        reference: Optional[str] = None,
+        callback_url: Optional[str] = None,
+        metadata: Optional[Dict] = None
+    ) -> Tuple[bool, Dict]:
+        """
+        Initialise un virement (disbursement) vers un portefeuille mobile money
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Args:
+            amount: Montant à virer
+            currency: Code devise (XOF, XAF, etc.)
+            recipient_phone: Téléphone du bénéficiaire (format international)
+            recipient_name: Nom du bénéficiaire
+            description: Description du virement
+            reference: Référence unique (générée automatiquement si None)
+            callback_url: URL de callback pour les notifications
+            metadata: Métadonnées supplémentaires
+            
+        Returns:
+            Tuple (success, response_data) avec disbursement_id
+        """
+        if not reference:
+            import uuid
+            reference = f"DISB-{uuid.uuid4().hex[:12].upper()}"
+        
+        data = {
+            'portefeuille': self.merchant_id,
+            'reference': reference,
+            'amount': float(amount),
+            'phone': recipient_phone,
+            'name': recipient_name,
+            'description': description,
+            'isTransfer': True,  # Indique que c'est un virement
+        }
+        
+        if callback_url:
+            data['callback_url'] = callback_url
+        
+        if metadata:
+            data.update(metadata)
+        
+        logger.info(f"Initialisation virement - Reference: {reference}, Amount: {amount}, Recipient: {recipient_phone}")
+        success, response = self._make_request('POST', '/v1/disbursement', data)
+        
+        if success:
+            return True, {
+                'disbursement_id': response.get('disbursement_id') or response.get('id') or reference,
+                'status': response.get('status', 'pending'),
+                'amount': response.get('amount', amount),
+                'message': response.get('message', 'Virement initié avec succès'),
+            }
+        
+        return False, response
+    
+    def get_transaction_history(
+        self,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0
+    ) -> Tuple[bool, Dict]:
+        """
+        Récupère l'historique des transactions
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Args:
+            start_date: Date de début (format ISO ou YYYY-MM-DD)
+            end_date: Date de fin (format ISO ou YYYY-MM-DD)
+            status: Filtrer par statut (pending, success, failed, cancelled)
+            limit: Nombre de résultats à retourner
+            offset: Offset pour la pagination
+            
+        Returns:
+            Tuple (success, response_data) avec liste de transactions
+        """
+        params = {
+            'limit': limit,
+            'offset': offset,
+        }
+        
+        if start_date:
+            params['start_date'] = start_date
+        if end_date:
+            params['end_date'] = end_date
+        if status:
+            params['status'] = status
+        
+        logger.info(f"Récupération historique transactions - Status: {status}, Limit: {limit}")
+        success, response = self._make_request('GET', '/v1/transactions', params)
+        
+        if success:
+            return True, {
+                'transactions': response.get('transactions', []) or response.get('data', []),
+                'total': response.get('total', 0),
+                'limit': limit,
+                'offset': offset,
+            }
+        
+        return False, response
+    
+    def get_balance(self) -> Tuple[bool, Dict]:
+        """
+        Récupère le solde du portefeuille marchand
+        Documentation: https://client.singpay.ga/doc/reference/index.html
+        
+        Returns:
+            Tuple (success, response_data) avec balance, currency, etc.
+        """
+        logger.info("Récupération du solde du portefeuille")
+        success, response = self._make_request('GET', '/v1/wallet/balance')
+        
+        if success:
+            return True, {
+                'balance': response.get('balance', 0),
+                'currency': response.get('currency', 'XOF'),
+                'available_balance': response.get('available_balance', response.get('balance', 0)),
+            }
+        
+        return False, response
+    
+    def pay_commission(
+        self,
+        amount: float,
+        recipient_phone: str,
+        recipient_name: str,
+        order_id: str,
+        commission_type: str = 'seller',
+        description: Optional[str] = None,
+        callback_url: Optional[str] = None
+    ) -> Tuple[bool, Dict]:
+        """
+        Effectue le paiement d'une commission (vendeur, plateforme, etc.)
+        Utilise le système de virement (disbursement) pour payer les commissions
+        
+        Args:
+            amount: Montant de la commission à payer
+            recipient_phone: Téléphone du bénéficiaire (format international)
+            recipient_name: Nom du bénéficiaire
+            order_id: ID de la commande associée
+            commission_type: Type de commission (seller, platform, etc.)
+            description: Description du paiement (générée automatiquement si None)
+            callback_url: URL de callback pour les notifications
+            
+        Returns:
+            Tuple (success, response_data) avec disbursement_id
+        """
+        if not description:
+            description = f"Commission {commission_type} pour commande {order_id}"
+        
+        reference = f"COMM-{commission_type.upper()}-{order_id}"
+        
+        metadata = {
+            'order_id': order_id,
+            'commission_type': commission_type,
+            'is_commission': True,
+        }
+        
+        return self.init_disbursement(
+            amount=amount,
+            currency='XOF',
+            recipient_phone=recipient_phone,
+            recipient_name=recipient_name,
+            description=description,
+            reference=reference,
+            callback_url=callback_url,
+            metadata=metadata
+        )
     
     def verify_webhook_signature(self, payload: str, signature: str, timestamp: str) -> bool:
         """
@@ -526,8 +927,13 @@ class SingPayService:
         Returns:
             True si la signature est valide
         """
-        expected_signature = self._generate_signature(json.loads(payload), timestamp)
-        return hmac.compare_digest(expected_signature, signature)
+        try:
+            payload_data = json.loads(payload) if isinstance(payload, str) else payload
+            expected_signature = self._generate_signature(payload_data, timestamp)
+            return hmac.compare_digest(expected_signature, signature)
+        except Exception as e:
+            logger.error(f"Erreur lors de la vérification de la signature: {e}")
+            return False
 
 
 # Instance globale du service

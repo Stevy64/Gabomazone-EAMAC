@@ -95,6 +95,34 @@ class SingPayTransaction(models.Model):
     paid_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de paiement"))
     expires_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date d'expiration"))
     
+    # Escrow (séquestre) - Mode escrow sans wallet interne
+    ESCROW_PENDING = 'escrow_pending'
+    ESCROW_RELEASED = 'escrow_released'
+    ESCROW_REFUNDED = 'escrow_refunded'
+    ESCROW_NONE = 'none'
+    
+    ESCROW_STATUS_CHOICES = [
+        (ESCROW_NONE, _('Pas d\'escrow')),
+        (ESCROW_PENDING, _('Fonds en escrow')),
+        (ESCROW_RELEASED, _('Fonds libérés')),
+        (ESCROW_REFUNDED, _('Fonds remboursés')),
+    ]
+    
+    escrow_status = models.CharField(
+        max_length=20,
+        choices=ESCROW_STATUS_CHOICES,
+        default=ESCROW_NONE,
+        verbose_name=_("Statut escrow"),
+        help_text=_("Statut des fonds en escrow (séquestre)")
+    )
+    escrow_released_at = models.DateTimeField(
+        blank=True, null=True,
+        verbose_name=_("Date de libération escrow"))
+    disbursement_id = models.CharField(
+        max_length=100, blank=True, null=True,
+        verbose_name=_("ID Disbursement"),
+        help_text=_("ID du virement SingPay pour la libération des fonds"))
+    
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))

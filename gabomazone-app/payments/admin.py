@@ -1,5 +1,8 @@
 from django.contrib import admin
+from django.contrib import messages
+from django.utils import timezone
 from .models import VendorPayments, SingPayTransaction, SingPayWebhookLog
+from .services.singpay import singpay_service
 from accounts.models import BankAccount
 
 
@@ -60,6 +63,78 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
     )
     list_per_page = 25
     date_hierarchy = 'created_at'
+    actions = ['cancel_selected_transactions', 'refund_selected_transactions', 'verify_selected_transactions']
+    
+    def cancel_selected_transactions(self, request, queryset):
+        """Action admin pour annuler des transactions sélectionnées"""
+        cancelled = 0
+        errors = 0
+        
+        for transaction in queryset:
+            if transaction.can_be_cancelled():
+                success, response = singpay_service.cancel_payment(
+                    transaction_id=transaction.transaction_id,
+                    reason='Annulé par l\'administrateur'
+                )
+                if success:
+                    transaction.status = SingPayTransaction.CANCELLED
+                    transaction.save()
+                    cancelled += 1
+                else:
+                    errors += 1
+            else:
+                errors += 1
+        
+        if cancelled > 0:
+            self.message_user(request, f'{cancelled} transaction(s) annulée(s) avec succès', messages.SUCCESS)
+        if errors > 0:
+            self.message_user(request, f'{errors} transaction(s) n\'ont pas pu être annulée(s)', messages.WARNING)
+    cancel_selected_transactions.short_description = "Annuler les transactions sélectionnées"
+    
+    def refund_selected_transactions(self, request, queryset):
+        """Action admin pour rembourser des transactions sélectionnées"""
+        refunded = 0
+        errors = 0
+        
+        for transaction in queryset:
+            if transaction.can_be_refunded():
+                success, response = singpay_service.refund_payment(
+                    transaction_id=transaction.transaction_id,
+                    reason='Remboursement par l\'administrateur'
+                )
+                if success:
+                    transaction.status = SingPayTransaction.REFUNDED
+                    transaction.save()
+                    refunded += 1
+                else:
+                    errors += 1
+            else:
+                errors += 1
+        
+        if refunded > 0:
+            self.message_user(request, f'{refunded} transaction(s) remboursée(s) avec succès', messages.SUCCESS)
+        if errors > 0:
+            self.message_user(request, f'{errors} transaction(s) n\'ont pas pu être remboursée(s)', messages.WARNING)
+    refund_selected_transactions.short_description = "Rembourser les transactions sélectionnées"
+    
+    def verify_selected_transactions(self, request, queryset):
+        """Action admin pour vérifier le statut des transactions sélectionnées"""
+        updated = 0
+        
+        for transaction in queryset:
+            if transaction.status == transaction.PENDING:
+                success, response = singpay_service.verify_payment(transaction.transaction_id)
+                if success:
+                    api_status = response.get('status', '').lower()
+                    if api_status == 'success' and transaction.status != transaction.SUCCESS:
+                        transaction.status = transaction.SUCCESS
+                        transaction.paid_at = timezone.now()
+                        transaction.save()
+                        updated += 1
+        
+        if updated > 0:
+            self.message_user(request, f'{updated} transaction(s) mise(s) à jour', messages.SUCCESS)
+    verify_selected_transactions.short_description = "Vérifier le statut des transactions sélectionnées"
 
 
 @admin.register(SingPayWebhookLog)

@@ -15,10 +15,79 @@ import logging
 
 from .models import SingPayTransaction, SingPayWebhookLog
 from .services.singpay import singpay_service
-from orders.models import Order, Payment as OrderPayment
+from orders.models import Order, Payment as OrderPayment, OrderDetails
 from accounts.models import Profile
+from django.db import transaction as db_transaction
 
 logger = logging.getLogger(__name__)
+
+
+def _pay_order_commissions(order: Order):
+    """
+    Paye les commissions pour une commande B2C après paiement réussi
+    """
+    from c2c.services import CommissionCalculator
+    
+    calculator = CommissionCalculator()
+    order_details = OrderDetails.objects.filter(order=order)
+    
+    for order_detail in order_details:
+        # Calculer les commissions B2C
+        if order_detail.product and order_detail.product.vendor:
+            commissions = calculator.calculate_b2c_commissions(float(order_detail.price))
+            
+            # Récupérer le profil du vendeur
+            try:
+                vendor_profile = Profile.objects.get(user=order_detail.product.vendor)
+                
+                if vendor_profile.phone:
+                    # Payer la commission au vendeur
+                    success, response = singpay_service.pay_commission(
+                        amount=float(commissions['seller_net']),
+                        recipient_phone=vendor_profile.phone,
+                        recipient_name=f"{order_detail.product.vendor.first_name} {order_detail.product.vendor.last_name}",
+                        order_id=f"ORDER-{order.id}",
+                        commission_type='seller',
+                        description=f"Commission vendeur pour commande #{order.id} - {order_detail.product.product_name}"
+                    )
+                    
+                    if success:
+                        logger.info(f"Commission payée au vendeur {order_detail.product.vendor.id} pour commande {order.id}")
+                    else:
+                        logger.error(f"Erreur paiement commission vendeur: {response.get('error')}")
+            except Profile.DoesNotExist:
+                logger.warning(f"Profil vendeur non trouvé pour user {order_detail.product.vendor.id}")
+
+
+def _pay_c2c_commissions(c2c_order):
+    """
+    Paye les commissions pour une commande C2C après paiement réussi
+    """
+    from c2c.models import C2COrder
+    
+    if not isinstance(c2c_order, C2COrder):
+        return
+    
+    # Payer la commission au vendeur (seller_net)
+    try:
+        seller_profile = Profile.objects.get(user=c2c_order.seller)
+        
+        if seller_profile.phone:
+            success, response = singpay_service.pay_commission(
+                amount=float(c2c_order.seller_net),
+                recipient_phone=seller_profile.phone,
+                recipient_name=f"{c2c_order.seller.first_name} {c2c_order.seller.last_name}",
+                order_id=f"C2C-ORDER-{c2c_order.id}",
+                commission_type='seller',
+                description=f"Commission vendeur C2C pour commande #{c2c_order.id}"
+            )
+            
+            if success:
+                logger.info(f"Commission C2C payée au vendeur {c2c_order.seller.id} pour commande {c2c_order.id}")
+            else:
+                logger.error(f"Erreur paiement commission C2C vendeur: {response.get('error')}")
+    except Profile.DoesNotExist:
+        logger.warning(f"Profil vendeur C2C non trouvé pour user {c2c_order.seller.id}")
 
 
 @require_http_methods(["POST"])
@@ -424,6 +493,15 @@ def singpay_callback(request):
                 transaction.order.is_finished = True
                 transaction.order.status = Order.Underway
                 transaction.order.save()
+                
+                # Mode escrow : marquer la transaction comme en escrow au lieu de payer immédiatement
+                # Les fonds seront libérés après confirmation de livraison
+                if transaction.transaction_type == SingPayTransaction.ORDER_PAYMENT:
+                    # Activer le mode escrow pour les commandes B2C
+                    transaction.escrow_status = SingPayTransaction.ESCROW_PENDING
+                    transaction.save()
+                    logger.info(f"Transaction {transaction_id} mise en escrow pour la commande {transaction.order.id}")
+                    # Ne pas payer les commissions immédiatement - elles seront libérées après livraison
             
             # Mettre à jour la commande C2C si applicable
             if hasattr(transaction, 'c2c_orders') and transaction.c2c_orders.exists():
@@ -431,16 +509,47 @@ def singpay_callback(request):
                 c2c_order = transaction.c2c_orders.first()
                 C2CSingPayService.handle_payment_success(transaction)
                 logger.info(f"Paiement C2C réussi pour la commande #{c2c_order.id}")
+                
+                # Mode escrow : marquer la transaction comme en escrow
+                # Les fonds seront libérés après confirmation de livraison (vérification complète)
+                transaction.escrow_status = SingPayTransaction.ESCROW_PENDING
+                transaction.save()
+                logger.info(f"Transaction {transaction_id} mise en escrow pour la commande C2C {c2c_order.id}")
+                # Ne pas payer les commissions immédiatement - elles seront libérées après livraison
             
-            # Gérer le paiement du boost produit C2C
+            # Gérer le paiement du boost produit (C2C ou B2C)
             if transaction.transaction_type == SingPayTransaction.BOOST_PAYMENT:
-                from c2c.services import SingPayService as C2CSingPayService
+                metadata = transaction.metadata or {}
+                boost_type = metadata.get('boost_type', 'c2c')
+                
+                if boost_type == 'c2c':
+                    # Boost C2C
+                    from c2c.services import SingPayService as C2CSingPayService
+                    try:
+                        boost = C2CSingPayService.handle_boost_payment_success(transaction)
+                        if boost:
+                            logger.info(f"Boost C2C activé avec succès pour le produit #{boost.product.id}")
+                    except Exception as e:
+                        logger.error(f"Erreur lors de l'activation du boost C2C: {str(e)}")
+                elif boost_type == 'b2c':
+                    # Boost B2C
+                    from supplier_panel.singpay_services import B2CSingPayService
+                    try:
+                        boost_request = B2CSingPayService.handle_boost_payment_success(transaction)
+                        if boost_request:
+                            logger.info(f"Boost B2C activé avec succès pour le produit #{boost_request.product.id}")
+                    except Exception as e:
+                        logger.error(f"Erreur lors de l'activation du boost B2C: {str(e)}")
+            
+            # Gérer le paiement d'abonnement premium B2C
+            if transaction.transaction_type == SingPayTransaction.SUBSCRIPTION_PAYMENT:
+                from supplier_panel.singpay_services import B2CSingPayService
                 try:
-                    boost = C2CSingPayService.handle_boost_payment_success(transaction)
-                    if boost:
-                        logger.info(f"Boost activé avec succès pour le produit #{boost.product.id}")
+                    subscription = B2CSingPayService.handle_subscription_payment_success(transaction)
+                    if subscription:
+                        logger.info(f"Abonnement premium activé pour vendeur #{subscription.vendor.id}")
                 except Exception as e:
-                    logger.error(f"Erreur lors de l'activation du boost: {str(e)}")
+                    logger.error(f"Erreur lors de l'activation de l'abonnement: {str(e)}")
             
             webhook_log.processed = True
             webhook_log.save()
@@ -807,3 +916,126 @@ def list_singpay_transactions(request):
         logger.exception(f"Erreur dans list_singpay_transactions: {str(e)}")
         messages.error(request, 'Une erreur est survenue')
         return redirect('accounts:dashboard_customer')
+
+
+@login_required
+@require_http_methods(["POST"])
+def cancel_transaction(request, transaction_id):
+    """
+    Annule une transaction en attente
+    """
+    try:
+        transaction = get_object_or_404(
+            SingPayTransaction,
+            transaction_id=transaction_id,
+            user=request.user
+        )
+        
+        # Vérifier que la transaction peut être annulée
+        if not transaction.can_be_cancelled():
+            messages.error(request, "Cette transaction ne peut pas être annulée. Elle est peut-être déjà expirée ou finalisée.")
+            return redirect('payments:transactions')
+        
+        # Récupérer la raison depuis le formulaire
+        reason = request.POST.get('reason', 'Annulé par le client')
+        
+        # Appeler l'API SingPay pour annuler
+        success, response = singpay_service.cancel_payment(
+            transaction_id=transaction.transaction_id,
+            reason=reason
+        )
+        
+        if success:
+            # Mettre à jour la transaction
+            transaction.status = SingPayTransaction.CANCELLED
+            transaction.save()
+            
+            # Mettre à jour la commande si elle existe
+            if transaction.order:
+                transaction.order.status = Order.PENDING  # Remettre en attente si annulée
+                transaction.order.is_finished = False
+                transaction.order.save()
+            
+            messages.success(request, "Transaction annulée avec succès")
+            logger.info(f"Transaction {transaction_id} annulée par l'utilisateur {request.user.id}")
+        else:
+            error_msg = response.get('error', 'Erreur lors de l\'annulation')
+            messages.error(request, f"Erreur lors de l'annulation: {error_msg}")
+            logger.error(f"Erreur annulation transaction {transaction_id}: {error_msg}")
+        
+    except SingPayTransaction.DoesNotExist:
+        messages.error(request, "Transaction non trouvée")
+    except Exception as e:
+        logger.exception(f"Erreur dans cancel_transaction: {str(e)}")
+        messages.error(request, 'Une erreur est survenue lors de l\'annulation')
+    
+    return redirect('payments:transactions')
+
+
+@login_required
+@require_http_methods(["POST"])
+def refund_transaction(request, transaction_id):
+    """
+    Rembourse une transaction réussie (total ou partiel)
+    """
+    try:
+        transaction = get_object_or_404(
+            SingPayTransaction,
+            transaction_id=transaction_id,
+            user=request.user
+        )
+        
+        # Vérifier que la transaction peut être remboursée
+        if not transaction.can_be_refunded():
+            messages.error(request, "Cette transaction ne peut pas être remboursée. Seules les transactions réussies peuvent être remboursées.")
+            return redirect('payments:transactions')
+        
+        # Récupérer les données du formulaire
+        amount = request.POST.get('amount')
+        reason = request.POST.get('reason', 'Remboursement demandé par le client')
+        
+        # Convertir le montant si fourni
+        refund_amount = None
+        if amount:
+            try:
+                refund_amount = float(amount)
+                if refund_amount <= 0 or refund_amount > float(transaction.amount):
+                    messages.error(request, "Le montant de remboursement est invalide")
+                    return redirect('payments:transactions')
+            except ValueError:
+                messages.error(request, "Montant invalide")
+                return redirect('payments:transactions')
+        
+        # Appeler l'API SingPay pour rembourser
+        success, response = singpay_service.refund_payment(
+            transaction_id=transaction.transaction_id,
+            amount=refund_amount,
+            reason=reason
+        )
+        
+        if success:
+            # Mettre à jour la transaction
+            transaction.status = SingPayTransaction.REFUNDED
+            transaction.save()
+            
+            # Mettre à jour la commande si elle existe
+            if transaction.order:
+                transaction.order.status = Order.Refunded
+                transaction.order.is_finished = False
+                transaction.order.save()
+            
+            refund_id = response.get('refund_id', 'N/A')
+            messages.success(request, f"Remboursement initié avec succès. ID: {refund_id}")
+            logger.info(f"Transaction {transaction_id} remboursée par l'utilisateur {request.user.id}, Refund ID: {refund_id}")
+        else:
+            error_msg = response.get('error', 'Erreur lors du remboursement')
+            messages.error(request, f"Erreur lors du remboursement: {error_msg}")
+            logger.error(f"Erreur remboursement transaction {transaction_id}: {error_msg}")
+        
+    except SingPayTransaction.DoesNotExist:
+        messages.error(request, "Transaction non trouvée")
+    except Exception as e:
+        logger.exception(f"Erreur dans refund_transaction: {str(e)}")
+        messages.error(request, 'Une erreur est survenue lors du remboursement')
+    
+    return redirect('payments:transactions')

@@ -878,22 +878,20 @@ def purchase_boost(request, product_id):
             request=request
         )
         
-        # En mode DEBUG, proposer la simulation
-        if settings.DEBUG:
+        # Récupérer l'URL de paiement
+        payment_url = singpay_transaction.payment_url
+        
+        if not payment_url:
             return JsonResponse({
-                'success': True,
-                'boost_id': None,
-                'payment_url': f'/c2c/boost/{product_id}/simulate/?duration={duration}',
-                'message': 'Redirection vers le paiement...'
-            })
+                'success': False,
+                'error': 'URL de paiement non disponible'
+            }, status=400)
         
-        # En production, utiliser l'URL de paiement SingPay
-        # Pour l'instant, on redirige vers la page de paiement SingPay
-        payment_url = singpay_transaction.payment_url or f'/payments/singpay/pay/{singpay_transaction.transaction_id}/'
-        
+        # Rediriger vers la page de paiement SingPay
         return JsonResponse({
             'success': True,
             'payment_url': payment_url,
+            'transaction_id': singpay_transaction.transaction_id,
             'message': 'Redirection vers le paiement...'
         })
         

@@ -39,6 +39,8 @@ urlpatterns = [
     path('settings/store-settings/', views.store_settings, name="store-settings"),
     # Abonnements et services premium - Gestion des abonnements, boosts de produits et badges
     path('settings/subscriptions/', views.subscriptions, name="subscriptions"),
+    path('subscriptions/success/', views.subscription_success, name="subscription-success"),
+    path('subscriptions/boost-success/<int:boost_request_id>/', views.boost_success, name="boost-success"),
     path('settings/delete-account/', views.delete_account, name="delete-account"),
 #     path('page_settings_2/', views.page_settings_2, name="page-settings-2"),
     path('supplier-orders-list-ajax/', views.SupplierOrdersJsonListView.as_view(),

@@ -512,6 +512,12 @@ class SingPayService:
                 expires_at=expires_at
             )
         
+        # Ajouter les métadonnées pour faciliter la recherche d'escrow
+        if not singpay_transaction.metadata:
+            singpay_transaction.metadata = {}
+        singpay_transaction.metadata['c2c_order_id'] = c2c_order.id
+        singpay_transaction.save()
+        
         # Lier la transaction à la commande C2C
         c2c_order.payment_transaction = singpay_transaction
         c2c_order.save()
@@ -545,9 +551,12 @@ class SingPayService:
     @staticmethod
     def init_boost_payment(product: PeerToPeerProduct, user, duration, request):
         """
-        Initialise un paiement SingPay pour un boost de produit
+        Initialise un paiement SingPay pour un boost de produit C2C
+        Utilise l'API SingPay réelle pour créer le paiement
         """
         from payments.models import SingPayTransaction
+        from payments.services.singpay import singpay_service
+        from accounts.models import Profile
         
         # Calculer le prix du boost
         price = BoostService.get_boost_price(duration)
@@ -555,24 +564,132 @@ class SingPayService:
         # Préparer les données pour SingPay
         amount = float(price)
         description = f"Boost produit C2C - {product.product_name} ({duration})"
+        order_id = f"BOOST-C2C-{product.id}-{duration}"
         
-        # Créer la transaction SingPay
-        singpay_transaction = SingPayTransaction.objects.create(
-            transaction_id=f"BOOST-{product.id}-{timezone.now().timestamp()}",
-            internal_order_id=f"BOOST-{product.id}-{duration}",
+        # Récupérer le téléphone du client
+        customer_phone = ''
+        try:
+            profile = Profile.objects.get(user=user)
+            customer_phone = profile.mobile_number or ''
+        except Profile.DoesNotExist:
+            pass
+        
+        # Construire les URLs
+        if settings.DEBUG:
+            base_url = f"{request.scheme}://{request.get_host()}"
+        else:
+            production_domain = getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')
+            base_url = f"https://{production_domain}"
+        
+        callback_url = f"{base_url}/payments/singpay/callback/"
+        return_url = f"{base_url}/c2c/boost/{product.id}/success/"
+        
+        # Initialiser le paiement via l'API SingPay
+        success, response = singpay_service.init_payment(
             amount=amount,
             currency='XOF',
+            order_id=order_id,
             customer_email=user.email,
-            customer_phone=user.profile.mobile_number if hasattr(user, 'profile') else '',
+            customer_phone=customer_phone,
             customer_name=user.get_full_name() or user.username,
             description=description,
-            transaction_type=SingPayTransaction.BOOST_PAYMENT,
-            user=user,
-            peer_product=product,
-            callback_url=request.build_absolute_uri('/payments/singpay/callback/') if settings.DEBUG else f"https://{getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')}/payments/singpay/callback/",
-            return_url=request.build_absolute_uri(f'/c2c/boost/{product.id}/success/') if settings.DEBUG else f"https://{getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')}/c2c/boost/{product.id}/success/",
-            status=SingPayTransaction.PENDING
+            callback_url=callback_url,
+            return_url=return_url,
+            metadata={
+                'product_id': product.id,
+                'product_name': product.product_name,
+                'boost_duration': duration,
+                'boost_type': 'c2c'
+            }
         )
+        
+        if not success:
+            error_message = response.get('error', 'Erreur lors de l\'initialisation du paiement')
+            logger.error(f"Erreur SingPay init_payment pour boost C2C: {error_message}")
+            raise Exception(f"Erreur lors de l'initialisation du paiement: {error_message}")
+        
+        # Extraire les informations de la réponse
+        payment_url = response.get('payment_url')
+        transaction_id = response.get('transaction_id')
+        reference = response.get('reference')
+        expires_at_str = response.get('expires_at')
+        
+        # Parser la date d'expiration
+        expires_at = None
+        if expires_at_str:
+            try:
+                from datetime import datetime
+                import re
+                
+                expires_at_str_clean = str(expires_at_str).strip()
+                parsed = False
+                
+                # Essayer le format "1/9/2026, 11:41:11 PM"
+                match = re.match(r'(\d+)/(\d+)/(\d+), (\d+):(\d+):(\d+) (AM|PM)', expires_at_str_clean)
+                if match:
+                    try:
+                        month, day, year, hour, minute, second, am_pm = match.groups()
+                        hour = int(hour)
+                        if am_pm == 'PM' and hour != 12:
+                            hour += 12
+                        elif am_pm == 'AM' and hour == 12:
+                            hour = 0
+                        expires_at = datetime(int(year), int(month), int(day), hour, int(minute), int(second))
+                        parsed = True
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Erreur lors de la construction de la date depuis regex: {e}")
+                
+                if not parsed:
+                    # Essayer le format ISO
+                    try:
+                        expires_at = datetime.fromisoformat(expires_at_str_clean.replace('Z', '+00:00'))
+                        parsed = True
+                    except ValueError:
+                        try:
+                            expires_at = datetime.strptime(expires_at_str_clean, "%Y-%m-%dT%H:%M:%S")
+                            parsed = True
+                        except ValueError:
+                            logger.warning(f"Impossible de parser expires_at: {expires_at_str}")
+                            expires_at = None
+                
+                if expires_at and timezone.is_naive(expires_at):
+                    expires_at = timezone.make_aware(expires_at)
+            except Exception as e:
+                logger.warning(f"Erreur lors du parsing de expires_at: {e}")
+                expires_at = None
+        
+        # Créer ou mettre à jour la transaction SingPay
+        singpay_transaction, created = SingPayTransaction.objects.get_or_create(
+            transaction_id=transaction_id,
+            defaults={
+                'reference': reference,
+                'internal_order_id': order_id,
+                'amount': amount,
+                'currency': 'XOF',
+                'status': SingPayTransaction.PENDING,
+                'transaction_type': SingPayTransaction.BOOST_PAYMENT,
+                'customer_email': user.email,
+                'customer_phone': customer_phone,
+                'customer_name': user.get_full_name() or user.username,
+                'payment_url': payment_url,
+                'callback_url': callback_url,
+                'return_url': return_url,
+                'user': user,
+                'peer_product': product,
+                'description': description,
+                'expires_at': expires_at
+            }
+        )
+        
+        if not created:
+            # Mettre à jour la transaction existante
+            singpay_transaction.payment_url = payment_url
+            singpay_transaction.callback_url = callback_url
+            singpay_transaction.return_url = return_url
+            singpay_transaction.expires_at = expires_at
+            singpay_transaction.save()
+        
+        logger.info(f"Paiement boost C2C initialisé pour produit #{product.id}, transaction: {transaction_id}")
         
         return singpay_transaction
     

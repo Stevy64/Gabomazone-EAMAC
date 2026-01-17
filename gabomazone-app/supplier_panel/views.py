@@ -1318,10 +1318,37 @@ def subscriptions(request):
             action = request.POST.get('action')
             
             if action == 'toggle_subscription':
-                # Toggle premium subscription (simplified - in production, this would handle payment)
-                # For now, we'll just show a message
-                messages.info(request, 'La fonctionnalité d\'abonnement premium sera bientôt disponible. Contactez-nous pour plus d\'informations.')
-                return redirect('supplier_dashboard:subscriptions')
+                # Initialiser le paiement d'abonnement premium via SingPay
+                from supplier_panel.singpay_services import B2CSingPayService
+                from django.http import JsonResponse
+                
+                try:
+                    success, response = B2CSingPayService.init_subscription_payment(profile, request)
+                    
+                    if success:
+                        # Rediriger vers la page de paiement SingPay
+                        singpay_transaction = response
+                        payment_url = singpay_transaction.payment_url
+                        
+                        # Si c'est une requête AJAX, retourner JSON
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({
+                                'success': True,
+                                'payment_url': payment_url,
+                                'message': 'Redirection vers le paiement...'
+                            })
+                        
+                        # Sinon, rediriger directement
+                        return redirect(payment_url)
+                    else:
+                        error_msg = response.get('error', 'Erreur lors de l\'initialisation du paiement')
+                        messages.error(request, f'Erreur: {error_msg}')
+                        return redirect('supplier_dashboard:subscriptions')
+                        
+                except Exception as e:
+                    logger.exception(f"Erreur lors de l'initialisation du paiement d'abonnement: {str(e)}")
+                    messages.error(request, f'Une erreur est survenue: {str(e)}')
+                    return redirect('supplier_dashboard:subscriptions')
             
             elif action == 'request_boost':
                 product_id = request.POST.get('product_id')
@@ -1366,8 +1393,37 @@ def subscriptions(request):
                             status=ProductBoostRequest.PENDING
                         )
                         
-                        messages.success(request, f'Votre demande de boost pour "{product.product_name}" a été enregistrée avec succès. Elle sera examinée par l\'administrateur pour validation et paiement.')
-                        return redirect('supplier_dashboard:subscriptions')
+                        # Initialiser le paiement SingPay directement
+                        from supplier_panel.singpay_services import B2CSingPayService
+                        from django.http import JsonResponse
+                        
+                        try:
+                            success, response = B2CSingPayService.init_boost_payment(boost_request, request)
+                            
+                            if success:
+                                # Rediriger vers la page de paiement SingPay
+                                singpay_transaction = response
+                                payment_url = singpay_transaction.payment_url
+                                
+                                # Si c'est une requête AJAX, retourner JSON
+                                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                                    return JsonResponse({
+                                        'success': True,
+                                        'payment_url': payment_url,
+                                        'message': 'Redirection vers le paiement...'
+                                    })
+                                
+                                # Sinon, rediriger directement
+                                return redirect(payment_url)
+                            else:
+                                error_msg = response.get('error', 'Erreur lors de l\'initialisation du paiement')
+                                messages.error(request, f'Erreur lors du paiement: {error_msg}')
+                                return redirect('supplier_dashboard:subscriptions')
+                                
+                        except Exception as e:
+                            logger.exception(f"Erreur lors de l'initialisation du paiement de boost: {str(e)}")
+                            messages.error(request, f'Une erreur est survenue lors du paiement: {str(e)}')
+                            return redirect('supplier_dashboard:subscriptions')
                     except Product.DoesNotExist:
                         messages.error(request, 'Produit introuvable.')
                     except Exception as e:
@@ -1493,6 +1549,75 @@ def subscriptions(request):
         
         return render(request, 'supplier-panel/page-subscriptions.html', context)
     
+    else:
+        messages.warning(request, '-Please Login First To see This Page !')
+        return redirect('accounts:login')
+
+
+@vendor_only
+def subscription_success(request):
+    """
+    Page de succès après paiement d'abonnement premium
+    """
+    if request.user.is_authenticated and not request.user.is_anonymous:
+        profile = Profile.objects.get(user=request.user)
+        
+        # Récupérer l'abonnement actif
+        subscription = None
+        try:
+            from accounts.models import PremiumSubscription
+            subscription = PremiumSubscription.objects.filter(
+                vendor=profile,
+                status=PremiumSubscription.ACTIVE
+            ).first()
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erreur lors de la récupération de l'abonnement: {str(e)}")
+        
+        context = {
+            'vendor': profile,
+            'subscription': subscription,
+        }
+        
+        return render(request, 'supplier-panel/subscription-success.html', context)
+    else:
+        messages.warning(request, '-Please Login First To see This Page !')
+        return redirect('accounts:login')
+
+
+@vendor_only
+def boost_success(request, boost_request_id):
+    """
+    Page de succès après paiement de boost
+    """
+    if request.user.is_authenticated and not request.user.is_anonymous:
+        profile = Profile.objects.get(user=request.user)
+        
+        # Récupérer la demande de boost
+        boost_request = None
+        try:
+            from accounts.models import ProductBoostRequest
+            boost_request = ProductBoostRequest.objects.get(
+                id=boost_request_id,
+                vendor=profile
+            )
+        except ProductBoostRequest.DoesNotExist:
+            messages.error(request, 'Demande de boost introuvable.')
+            return redirect('supplier_dashboard:subscriptions')
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Erreur lors de la récupération du boost: {str(e)}")
+            messages.error(request, 'Une erreur est survenue.')
+            return redirect('supplier_dashboard:subscriptions')
+        
+        context = {
+            'vendor': profile,
+            'boost_request': boost_request,
+        }
+        
+        return render(request, 'supplier-panel/boost-success.html', context)
     else:
         messages.warning(request, '-Please Login First To see This Page !')
         return redirect('accounts:login')
