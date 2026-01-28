@@ -18,24 +18,8 @@ urlpatterns = [
      path('order/cancel/', views.CancelView.as_view(), name='cancel'),
      path('order/success/', views.success, name='success'),
      # path('create_payment/', views.create_payment, name='create-payment'),
-     path('create_checkout_session/',
-          views.create_checkout_session, name='create_checkout_session'),
-     path('orders/webhook/', views.my_webhook_view, name='my-webhook'),
      # #     path('mob/', views.my_MOB_view, name='my-mob')
      # path('tracking/', views.tracking, name='tracking'),
-     path('verify-payment/', views.verify_payment_razorpay, name="verify-payment"),
-     path('verify-payment-paypal/', views.verify_payment_paypal,
-          name="verify-payment-paypal"),
-     path('checkout-paymob/<int:id>',
-          views.checkout_payment_paymob, name="checkout-paymob"),
-     path('api/callbacks/', views.my_webhook_view_paymob,
-          name="webhook-view-paymob"),
-          
-     path('checkout-fatoorah/<int:id>',
-         views.send_payment_fatoorah, name="checkout-fatoorah"),
-
-     path('api/callbacks-myfatoorah/', views.callback_url_fatoorah,
-          name="callbacks-myfatoorah"),
     path('api/cart-count/', views.get_cart_count, name="get-cart-count"),
     path('invoice-print/<int:order_id>/', views.invoice_print, name="invoice-print"),
      

@@ -92,13 +92,6 @@ class SiteSetting(models.Model):
         verbose_name = _("Site Setting")
         verbose_name_plural = _("Site Settings")
 
-# class StripeSetting(models.Model):
-#     stripe_public_key = models.CharField(max_length=150 , verbose_name=_("Stripe Public Key"))
-#     stripe_secret_key = models.CharField(max_length=500 , verbose_name=_("Stripe Secret Key"))
-#     stripe_webhook_secret   = models.CharField(max_length=500 , verbose_name=_("Stripe Webhook Secret "))
-#     domain = models.URLField(blank=True, null=True , verbose_name=_("Your Domain"))
-
-
 class HomePageTheme(models.Model):
     page_name = models.CharField(max_length=150, verbose_name=_("Page Name"))
     active = models.BooleanField(default=False)

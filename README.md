@@ -1,44 +1,86 @@
 # GabomaZone
-My multivendor app just like LeBonCoin and Amazon
+Marketplace multi-vendeur (B2C et C2C) avec paiement SingPay.
 
-# Lancer le projet
-Lancer le fichier 'launcher.sh'
-Assurez vous que le fichier est exécutable
+## Prérequis
+- Python 3.10+
+- pip / virtualenv
+- PostgreSQL ou SQLite (défaut local)
 
-# Create venv
-virtualenv venv-gabomazone
-source venv-gabomazone/bin/activate (Linux)
-source venv-gabomazone/Script/activate (Windows)
+## Installation rapide (local)
+1) Créer et activer un venv
+```
+python -m venv venv-gabomazone
+venv-gabomazone\Scripts\activate   # Windows
+source venv-gabomazone/bin/activate # Linux/Mac
+```
 
-# Install Requirements
+2) Installer les dépendances
+```
 pip install -r requirements.txt
+```
 
-# Small fixes to do
-1) Replace 'ugettext' by 'gettext' library
-2) Replace 'force_text' by 'force_str'
-3) Make sure django and pillow libs versions are compatible
+3) Créer le fichier `.env` dans `gabomazone-app/`
+```
+SINGPAY_API_KEY=...
+SINGPAY_API_SECRET=...
+SINGPAY_MERCHANT_ID=...
+SINGPAY_ENVIRONMENT=sandbox   # ou production
+SINGPAY_PRODUCTION_DOMAIN=gabomazone.pythonanywhere.com
+```
 
-# Launch server (in virtualenv)
-python3 manage.py runserver 8001
+4) Migrations + serveur
+```
+python manage.py migrate
+python manage.py runserver 8001
+```
 
-# Docker
-1) Create a Dockerfile with minimal packages based from official Python image
-2) run cmd > ' docker build -t gabomazone-app . ' ## docker build -t <containername> . -f <mycustomdockerfile>.Dockerfile
-3) run cmd > ' docker run -it --rm --name my-running-gabomazone-app my-gabomazone-app '
+## Paiement SingPay (unique moyen de paiement)
+Le flux de paiement utilise uniquement l’API SingPay.
 
+Endpoints clés:
+- Initialisation: `/payments/singpay/init/`
+- Webhook: `/payments/singpay/callback/`
+- Return URL: `/payments/singpay/return/`
 
-# Netlify : Deploy Static Django Site using Distill and CacheKiller
-https://pypi.org/project/django-distill/
+En production, configure les URLs de callback chez SingPay avec ton domaine public:
+```
+https://<ton-domaine>/payments/singpay/callback/
+https://<ton-domaine>/payments/singpay/return/
+```
 
-# PythonAnyWhere Deployment
-1) Deployment steps : https://help.pythonanywhere.com/pages/DeployExistingDjangoProject/
-2) Collect Static files : https://help.pythonanywhere.com/pages/DjangoStaticFiles
+## Workflow C2C (négociation → paiement → validation)
+1) L’acheteur crée une intention d’achat.
+2) Négociation du prix jusqu’à acceptation.
+3) Paiement via SingPay (transaction C2C).
+4) Génération et validation des codes de livraison (acheteur/vendeur).
+5) Libération des fonds + commissions via SingPay.
 
-# Remove an app (module) from the project
-1) Revert all migrations for the app : python manage.py migrate <app_name> zero
-2) Remove app : INSTALLED_apps, urls.py
-3) Deploy : python manage.py makemigrations // python manage.py migrate
-4) Delete the app folder
+## Troubleshooting SingPay
+- **Erreur 401/403**: vérifier `SINGPAY_API_KEY`, `SINGPAY_API_SECRET`, `SINGPAY_MERCHANT_ID`.
+- **Callback non reçu**: vérifier l’URL webhook côté SingPay et l’accessibilité publique.
+- **URL de paiement invalide**: vérifier `SINGPAY_PRODUCTION_DOMAIN` et l’environnement.
+- **Paiement bloqué**: consulter les logs serveur et `SingPayWebhookLog` dans l’admin.
 
-# Loading image (TO BE REMOVED)
-/home/stevy64/Developpement/DjangoDev/Gabomazone-EAMAC/gabomazone-app/static/assets/imgs/theme/loading.gif
+## Check-list mise en production
+- Définir `DEBUG=False` et configurer les hosts autorisés.
+- Configurer les variables d’environnement SingPay en production.
+- Renseigner `SINGPAY_PRODUCTION_DOMAIN` avec le domaine public.
+- Déclarer les URLs webhook/return chez SingPay.
+- Exécuter `python manage.py migrate` et `python manage.py collectstatic`.
+- Vérifier SSL/HTTPS et accessibilité publique des callbacks.
+
+## Docker (optionnel)
+```
+docker build -t gabomazone-app -f Dockerfile.gabomazone .
+docker run -it --rm --name gabomazone-app gabomazone-app
+```
+
+## Déploiement
+- PythonAnywhere (Django): https://help.pythonanywhere.com/pages/DeployExistingDjangoProject/
+- Static files: https://help.pythonanywhere.com/pages/DjangoStaticFiles
+
+## Retirer un module
+1) Revenir à zéro sur les migrations: `python manage.py migrate <app_name> zero`
+2) Retirer l’app de `INSTALLED_APPS` et des URLs
+3) `python manage.py makemigrations` puis `python manage.py migrate`
+4) Supprimer le dossier de l’app

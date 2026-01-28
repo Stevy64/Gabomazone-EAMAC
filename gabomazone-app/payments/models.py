@@ -267,11 +267,9 @@ class VendorPayments(models.Model):
     )
     
     Bank = 'Bank'
-    Paypal = 'Paypal'
     SingPay = 'SingPay'
     method_select = [
         (Bank, 'Bank'),
-        (Paypal, 'Paypal'),
         (SingPay, 'SingPay'),
     ]
     method = models.CharField(

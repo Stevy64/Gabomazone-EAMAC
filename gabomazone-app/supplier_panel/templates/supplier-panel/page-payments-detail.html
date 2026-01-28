@@ -156,13 +156,6 @@
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.country|default:"Non renseigné"}}</div>
             </div>
-            <div class="bank-info-item">
-                <div class="bank-info-label">
-                    <i class="material-icons">email</i>
-                    <span>Email PayPal</span>
-                </div>
-                <div class="bank-info-value">{{bank_info_obj.paypal_email|default:"Non renseigné"}}</div>
-            </div>
         </div>
     </div>
 </div>
@@ -211,10 +204,10 @@
                         </td>
                         <td>
                             <div class="transaction-method">
-                                {% if payment.method == "Paypal" %}
-                                <div class="method-badge method-paypal">
-                                    <i class="material-icons">account_balance_wallet</i>
-                                    <span>PayPal</span>
+                                {% if payment.method == "SingPay" %}
+                                <div class="method-badge method-singpay">
+                                    <i class="material-icons">bolt</i>
+                                    <span>SingPay</span>
                                 </div>
                                 {% else %}
                                 <div class="method-badge method-bank">
@@ -706,8 +699,8 @@
                         Méthode de paiement
                     </label>
                     <select name="method" class="form-select" required>
-                        <option value="Paypal">PayPal</option>
                         <option value="Bank">Banque</option>
+                        <option value="SingPay">SingPay</option>
                                 </select>
                             </div> 
                 
@@ -1553,14 +1546,14 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
     
-    .method-paypal {
-        background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-        color: #D97706;
-    }
-    
     .method-bank {
         background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
         color: #6B46C1;
+    }
+
+    .method-singpay {
+        background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+        color: #047857;
     }
     
     .method-badge i {

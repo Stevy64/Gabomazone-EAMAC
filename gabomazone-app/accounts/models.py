@@ -411,7 +411,6 @@ class BankAccount(models.Model):
     swift_code = models.CharField(max_length=200, blank=True, null=True, )
     account_name = models.CharField(max_length=200, blank=True, null=True, )
     country = models.CharField(max_length=200, blank=True, null=True, )
-    paypal_email = models.CharField(max_length=200, blank=True, null=True, )
     description = models.TextField(blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     date_update = models.DateTimeField(auto_now=True, blank=True, null=True)
