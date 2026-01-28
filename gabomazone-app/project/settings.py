@@ -214,35 +214,6 @@ CKEDITOR_CONFIGS = {
 
 CRISPY_TEMPLATE_PACK = 'uni_form'
 
-## STRIPE SETTINGS ##
-STRIPE_PUBLIC_KEY = "pk_test_51JlJ7SDD5hTsFJUFhRIoCXwo6ubrbkKqzOnyPhM57tf8XeyHYlW5X275q7Ms8zHedBHTsACXHDwuCModpr0n5U05005vBVLepI"
-STRIPE_SECRET_KEY = "sk_test_51JlJ7SDD5hTsFJUFx61JYCnJc8bqc3bW9MVaFdgg0g0tMrsHbsaQitwg5HHZ1e7VwyyXciTedv38GISa88VJDmu900Br72Jj3q"
-STRIPE_WEBHOOK_SECRET = "whsec_1xR7X9MTv6Qjfbt7FQCZh5EMGkcFOuge"
-# domain EX: example.com
-YOUR_DOMAIN = "c8c5-156-209-74-170.ngrok-free.app"
-
-# very important
-# Set your Endpoint_URL in your stripe account WEBHOOK like this : https://YOUR_DOMAIN/orders/webhook/
-# DEBUG_EMAIL_STRIPE
-DEBUG_EMAIL = "info@mohamedselem.com"
-## End Stripe Settings ##
-
-# ClientInfo For Aramex
-ARAMEX_USERNAME = ""
-# ARAMEX_USERNAME = "Nabily@aramex.com"
-ARAMEX_PASSWORD = "Aramex123$"
-ARAMEX_VERSION = "v1.0"
-ARAMEX_ACCOUNTNUMBER = "20016"
-ARAMEX_ACCOUNTPIN = "543543"
-
-ARAMEX_ACCOUNTENTITY = "AMM"
-ARAMEX_ACCOUNTCOUNTRYCODE = "JO"
-ARAMEX_SOURCE = "24"
-
-ARAMEX_PRODUCTGROUP = "EXP"
-ARAMEX_PRODUCTTYPE = "PPX"
-
-
 # #Smtp Email for recovery password
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 #SENDGRID_API_KEY = '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'
@@ -250,40 +221,6 @@ SENDGRID_API_KEY = 'UseTheAbove_SENDGRID_API_KEY_ForThisOneIsFake'
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 EMAIL_SENDGRID = "selemhamed2016@gmail.com"
 
-
-# razorpay account ###
-RAZORPAY_KEY_ID = 'rzp_test_Fo7S7Rh7owOFJQ'
-RAZORPAY_KEY_SECRET = 'pEUUmsqka5XJGIX5RdB7mlwC'
-
-
-## paymob account ##
-API_KEY = "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNkltbHVhWFJwWVd3aUxDSndjbTltYVd4bFgzQnJJam95TkRFNU5qRjkuWGhwWnV0eU83U1BYUnR0Wk5sUkM5d2RpOEFReXhycmdqYmZQOUZ0M3BEcEp6MzVRTjNkYmFDN1VCaGFrQjdVZS1Xcms0aTZmRnNqN3NqdGpHRnIxUnc="
-PAYMENT_INTEGRATIONS_ID = 2405584
-
-
-## paypal account ##
-PAYPAL_CLIENT_ID = "AdvH9io4569_jQt-c4wBxJD85SM4ujhSS1uvkrSgzIdhiO69SlTAZmcVIBlJXUzYQ3apJJ28WBFMCBmq"
-PAYPAL_SECRET = "ENwDJF-kn34uO8yg_V-MxQFr4gbKCYgrd_iCY6fmzR_KKnooB2JlDTIBwrZ4bYsoh7Nyh0-GTEgbbHAq"
-PAYPAL_ACCESS_TOKEN = "A21AAKwFzvBhx4uG4CnQyn34iea3bVSLAzda4-4WMwKLhQw1hq9JlMqhX1VqydwjeFZK_aXZrMUFdSM8OJtxruL0eyLcVZZnw"
-PAYPAL_CURRENCY = "USD"
-# how you can get your PAYPAL_ACCESS_TOKEN
-# https://developer.paypal.com/api/rest/authentication/
-
-
-## Fatoorah account ##
-FATOORAH_API_KEY = 'rLtt6JWvbUHDDhsZnfpAhpYk4dxYDQkbcPTyGaKp2TYqQgG7FGZ5Th_WD53Oq8Ebz6A53njUoo1w3pjU1D4vs_ZMqFiz_j0urb_BH9Oq9VZoKFoJEDAbRZepGcQanImyYrry7Kt6MnMdgfG5jn4HngWoRdKduNNyP4kzcp3mRv7x00ahkm9LAK7ZRieg7k1PDAnBIOG3EyVSJ5kK4WLMvYr7sCwHbHcu4A5WwelxYK0GMJy37bNAarSJDFQsJ2ZvJjvMDmfWwDVFEVe_5tOomfVNt6bOg9mexbGjMrnHBnKnZR1vQbBtQieDlQepzTZMuQrSuKn-t5XZM7V6fCW7oP-uXGX-sMOajeX65JOf6XVpk29DP6ro8WTAflCDANC193yof8-f5_EYY-3hXhJj7RBXmizDpneEQDSaSz5sFk0sV5qPcARJ9zGG73vuGFyenjPPmtDtXtpx35A-BVcOSBYVIWe9kndG3nclfefjKEuZ3m4jL9Gg1h2JBvmXSMYiZtp9MR5I6pvbvylU_PP5xJFSjVTIz7IQSjcVGO41npnwIxRXNRxFOdIUHn0tjQ-7LwvEcTXyPsHXcMD8WtgBh-wxR8aKX7WPSsT1O8d8reb2aR7K3rkV3K82K_0OgawImEpwSvp9MNKynEAJQS6ZHe_J_l77652xwPNxMRTMASk1ZsJL'
-
-'''
-Live API
-For the live API environment, you must use the https://api.myfatoorah.com/v2/ URL and the Live API key.
-
-Live API URL for Saudi Arabia: https://api-sa.myfatoorah.com/v2/
-'''
-FATOORAHBASURL = "https://apitest.myfatoorah.com/v2"
-
-FATOORAHBACKURL = f'https://{YOUR_DOMAIN}/en/api/callbacks-myfatoorah/'
-FATOORAHERRORURL = f'https://{YOUR_DOMAIN}/order/cancel/'
-FATOORAH_CURREENCY ='usd'
 
         ## SingPay account ##
         # Configuration SingPay selon la documentation: https://client.singpay.ga/doc/reference/index.html
@@ -293,13 +230,6 @@ SINGPAY_API_KEY = config('SINGPAY_API_KEY', default='')
 SINGPAY_API_SECRET = config('SINGPAY_API_SECRET', default='')
 SINGPAY_MERCHANT_ID = config('SINGPAY_MERCHANT_ID', default='')
 SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandbox' ou 'production'
-
-# Mode bypass : si les credentials sont configurés, le service désactivera automatiquement le bypass
-# Pour forcer le mode bypass même avec des credentials, définissez SINGPAY_BYPASS_API=True dans .env
-# Par défaut, si les credentials sont présents, le bypass est désactivé automatiquement
-# Si SINGPAY_BYPASS_API n'est pas défini dans .env, le service utilisera l'API réelle si les credentials sont présents
-# Utiliser default=None pour permettre au service de détecter automatiquement
-SINGPAY_BYPASS_API = config('SINGPAY_BYPASS_API', default=None, cast=lambda v: bool(v.lower() == 'true') if v else None)
 
 # Domaine de production pour les URLs de callback SingPay
 # Les callbacks doivent être accessibles publiquement depuis Internet

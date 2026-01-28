@@ -66,40 +66,22 @@ class SingPayService:
         self.api_secret = getattr(settings, 'SINGPAY_API_SECRET', '')
         self.merchant_id = getattr(settings, 'SINGPAY_MERCHANT_ID', '')
         self.environment = getattr(settings, 'SINGPAY_ENVIRONMENT', 'sandbox')  # 'sandbox' ou 'production'
-        bypass_setting = getattr(settings, 'SINGPAY_BYPASS_API', None)
-        
-        # Si les credentials sont configurés, désactiver automatiquement le mode bypass
-        if all([self.api_key, self.api_secret, self.merchant_id]):
-            # Credentials présents
-            if bypass_setting is None:
-                # Si SINGPAY_BYPASS_API n'est pas défini dans .env, désactiver automatiquement le bypass
-                self.bypass_api = False
-                logger.info("✅ SingPay API réelle activée - Credentials configurés (bypass désactivé automatiquement)")
-            elif bypass_setting is False:
-                # Explicitement désactivé
-                self.bypass_api = False
-                logger.info("✅ SingPay API réelle activée - Credentials configurés")
-            else:
-                # Explicitement activé (bypass_setting is True)
-                self.bypass_api = True
-                logger.warning("⚠️ SingPay en mode BYPASS malgré les credentials configurés (SINGPAY_BYPASS_API=True dans .env)")
-        else:
-            # Pas de credentials : mode bypass obligatoire
-            self.bypass_api = True
-            logger.warning("⚠️ SingPay credentials manquants - Mode BYPASS activé")
+        # Les credentials sont obligatoires en production: on bloque les appels si incomplets.
+        if not all([self.api_key, self.api_secret, self.merchant_id]):
+            logger.error("SingPay credentials manquants - l'API ne peut pas être utilisée")
             if not self.api_key:
-                logger.warning("  - SINGPAY_API_KEY manquant")
+                logger.error("  - SINGPAY_API_KEY manquant")
             if not self.api_secret:
-                logger.warning("  - SINGPAY_API_SECRET manquant")
+                logger.error("  - SINGPAY_API_SECRET manquant")
             if not self.merchant_id:
-                logger.warning("  - SINGPAY_MERCHANT_ID manquant")
+                logger.error("  - SINGPAY_MERCHANT_ID manquant")
         
         if self.environment == 'production':
             self.base_url = self.BASE_URL_PRODUCTION
         else:
             self.base_url = self.BASE_URL_SANDBOX
         
-        if not all([self.api_key, self.api_secret, self.merchant_id]) and not self.bypass_api:
+        if not all([self.api_key, self.api_secret, self.merchant_id]):
             logger.warning("SingPay credentials not fully configured")
     
     def _generate_signature(self, data: Dict, timestamp: str) -> str:
@@ -163,62 +145,13 @@ class SingPayService:
         if data is None:
             data = {}
         
-        # Mode bypass pour les tests
-        if self.bypass_api:
-            logger.warning(f"SingPay API BYPASS MODE ACTIVÉ - {method} {endpoint}")
-            logger.warning("⚠️ ATTENTION: Les paiements sont simulés. Pour utiliser l'API réelle, configurez SINGPAY_BYPASS_API = False dans settings.py")
-            # Simuler une réponse réussie
-            if endpoint == '/v1/ext':
-                import uuid
-                from datetime import timedelta
-                transaction_id = f"TEST-{uuid.uuid4().hex[:16].upper()}"
-                return True, {
-                    'payment_url': f'/payments/singpay/test-payment/{transaction_id}/',
-                    'transaction_id': transaction_id,
-                    'reference': f"REF-{data.get('order_id', 'UNKNOWN')}",
-                    'expires_at': (timezone.now() + timedelta(hours=24)).isoformat(),
-                }
-            elif '/verify' in endpoint or '/transaction/' in endpoint:
-                return True, {
-                    'status': 'success',
-                    'amount': data.get('amount', 0),
-                    'currency': data.get('currency', 'XOF'),
-                    'order_id': data.get('order_id', ''),
-                    'paid_at': timezone.now().isoformat(),
-                    'payment_method': 'AirtelMoney',  # Simulé
-                    'metadata': {},
-                }
-            elif '/cancel' in endpoint:
-                return True, {
-                    'status': 'cancelled',
-                    'message': 'Transaction annulée avec succès (mode test)',
-                }
-            elif '/refund' in endpoint:
-                import uuid
-                return True, {
-                    'refund_id': f"REFUND-{uuid.uuid4().hex[:16].upper()}",
-                    'status': 'pending',
-                    'amount': data.get('amount', 0),
-                    'message': 'Remboursement initié (mode test)',
-                }
-            elif '/74/paiement' in endpoint or '/62/paiement' in endpoint or '/maviance/paiement' in endpoint:
-                import uuid
-                transaction_id = f"TEST-{uuid.uuid4().hex[:16].upper()}"
-                return True, {
-                    'transaction_id': transaction_id,
-                    'status': 'pending',
-                    'message': 'USSD Push envoyé (mode test)',
-                }
-            elif '/disbursement' in endpoint or '/virement' in endpoint:
-                import uuid
-                return True, {
-                    'disbursement_id': f"DISB-{uuid.uuid4().hex[:16].upper()}",
-                    'status': 'pending',
-                    'message': 'Virement initié (mode test)',
-                }
-            else:
-                return True, {'status': 'success', 'message': 'Bypass mode - operation simulated'}
+        if not all([self.api_key, self.api_secret, self.merchant_id]):
+            return False, {
+                'error': 'SingPay credentials missing',
+                'details': 'Configure SINGPAY_API_KEY, SINGPAY_API_SECRET, SINGPAY_MERCHANT_ID',
+            }
         
+        # Toutes les requêtes passent par la gateway SingPay
         url = f"{self.base_url}{endpoint}"
         headers = self._get_headers(data)
         
@@ -231,6 +164,7 @@ class SingPayService:
                 logger.error(f"Unsupported HTTP method: {method}")
                 return False, {'error': f'Unsupported method: {method}'}
             
+            # Erreurs HTTP -> exception pour un logging cohérent
             response.raise_for_status()
             response_data = response.json()
             
@@ -302,7 +236,7 @@ class SingPayService:
             'disbursement': '',  # Optionnel - pour les virements
             'logoURL': '',  # Optionnel - URL du logo à afficher
             'isTransfer': False,  # Type de transaction (False = paiement, True = virement)
-            'order_id': order_id,  # Ajouter order_id pour le mode bypass
+            'order_id': order_id,
         }
         
         if metadata:

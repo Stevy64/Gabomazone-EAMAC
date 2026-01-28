@@ -1122,7 +1122,7 @@ def store_settings(request):
     Vue pour gérer les paramètres du magasin du vendeur.
     Permet de modifier :
     - Les informations du magasin (logo, nom, bio, coordonnées)
-    - Les informations bancaires (compte bancaire, PayPal)
+    - Les informations bancaires (compte bancaire)
     - Les informations d'adresse (province, ville, quartier, pays)
     """
     context = None
@@ -1757,7 +1757,7 @@ def request_payment(request):
                 if profile.blance >= request_amount:
                     profile.requested = request_amount
                     profile.blance = profile.blance - request_amount
-                    if method == "Paypal" or method == "Bank":
+                    if method in ("Bank", "SingPay"):
                         VendorPayments.objects.create(
                             vendor_profile=request.user,
                             request_amount=request_amount,

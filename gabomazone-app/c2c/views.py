@@ -936,43 +936,6 @@ def boost_success(request, product_id):
 
 
 @login_required
-def simulate_boost_payment(request, product_id):
-    """
-    Simule le paiement d'un boost (uniquement en mode DEBUG)
-    """
-    if not settings.DEBUG:
-        return JsonResponse({'error': 'Non disponible en production'}, status=403)
-    
-    product = get_object_or_404(PeerToPeerProduct, id=product_id)
-    
-    if request.user != product.seller:
-        return JsonResponse({'error': 'Seul le vendeur peut booster son article'}, status=403)
-    
-    duration = request.GET.get('duration', '24h')
-    
-    if duration not in ['24h', '72h', '7d']:
-        return JsonResponse({'error': 'Durée invalide'}, status=400)
-    
-    try:
-        # Créer directement le boost (simulation)
-        boost = BoostService.create_boost(
-            product=product,
-            buyer=request.user,
-            duration=duration,
-            payment_transaction=None
-        )
-        
-        messages.success(
-            request,
-            f"🎉 Boost {duration} activé avec succès ! (Mode simulation)"
-        )
-        return redirect('accounts:my-published-products')
-    except Exception as e:
-        messages.error(request, f"Erreur: {str(e)}")
-        return redirect('accounts:my-published-products')
-
-
-@login_required
 def seller_dashboard(request):
     """
     Dashboard du vendeur C2C

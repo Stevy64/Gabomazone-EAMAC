@@ -271,12 +271,11 @@
                                 <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
                                 <div style="flex: 1;">
                                     <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Mobile Money via SingPay</div>
-                                    <div style="font-size: 13px; color: #6B7280;">AirtelMoney, MoovMoney, PayPal et autres</div>
+                                    <div style="font-size: 13px; color: #6B7280;">AirtelMoney, MoovMoney et autres</div>
                                 </div>
                                 <div style="display: flex; gap: 6px; align-items: center;">
                                     <span style="padding: 6px 10px; background: #10B981; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">Airtel</span>
                                     <span style="padding: 6px 10px; background: #3B82F6; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">Moov</span>
-                                    <span style="padding: 6px 10px; background: #8B5CF6; color: white; border-radius: 6px; font-size: 11px; font-weight: 600;">PayPal</span>
                                 </div>
                             </label>
                         </div>
@@ -363,55 +362,6 @@ input[type="radio"]:checked ~ label {
                     }
                 });
             }
-
-    // Razorpay options
-    {% if RAZORPAY_KEY_ID %}
-            var options = {
-        "key": '{{RAZORPAY_KEY_ID}}',
-                "image": "{{image}}",
-        "order_id": "{{RAZORPAY_order_id}}",
-                "handler": function (response){
-                    swal({
-                title: "Félicitations!",
-                text: "Votre commande a été passée avec succès. Elle sera livrée bientôt.",
-                    icon: "success",
-                button: "Fermer",
-                    }).then(() => {
-                        location.replace(`{{ request.scheme }}://{{ request.META.HTTP_HOST }}/order/success/`)
-                        });
-
-                    $.ajax({
-                        type: "POST",
-                        url: `{% url 'orders:verify-payment'%}`,
-                        data: {
-                    'csrfmiddlewaretoken': csrftoken,
-                            "razorpay_payment_id": response.razorpay_payment_id,
-                            "razorpay_order_id": response.razorpay_order_id,
-                            "razorpay_signature": response.razorpay_signature,
-                            "order_id": "{{order.id}}"
-                        },
-                        success: function (success_response) {
-                            console.log(success_response.data)
-                        },
-                        error: function (error) {
-                            console.log(error.statusText)
-                        }
-                    })
-                },
-                "prefill": {
-                    "name": "{{payment_info.first_name}} {{payment_info.last_name}}",
-                    "email": "{{payment_info.Email_Address}}",
-                    "contact": "{{payment_info.phone}}"
-                },
-                "notes": {
-                    "order_id": "{{order.id}}"
-                },
-                "theme": {
-            "color": "#FF7B2C"
-                }
-            };
-            var rzp1 = new Razorpay(options);
-    {% endif %}
 
             // Paiement à la livraison
             if (cash) {

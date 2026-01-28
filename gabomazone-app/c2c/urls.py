@@ -32,7 +32,6 @@ urlpatterns = [
     path('boost/<int:product_id>/', views.boost_product, name='boost-product'),
     path('boost/<int:product_id>/purchase/', views.purchase_boost, name='purchase-boost'),
     path('boost/<int:product_id>/success/', views.boost_success, name='boost-success'),
-    path('boost/<int:product_id>/simulate/', views.simulate_boost_payment, name='simulate-boost'),
     
     # Dashboard vendeur
     path('seller/dashboard/', views.seller_dashboard, name='seller-dashboard'),

@@ -16,10 +16,16 @@ import logging
 from .models import SingPayTransaction, SingPayWebhookLog
 from .services.singpay import singpay_service
 from orders.models import Order, Payment as OrderPayment, OrderDetails
+from orders.utils import code_generator
 from accounts.models import Profile
 from django.db import transaction as db_transaction
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_tracking(order: Order) -> None:
+    if order and not order.tracking_no:
+        order.tracking_no = code_generator()
 
 
 def _pay_order_commissions(order: Order):
@@ -125,21 +131,24 @@ def init_singpay_payment(request):
         currency = 'XOF'  # FCFA
         
         # Construire les URLs (absolues pour la production)
-        # En développement (DEBUG=True), utiliser localhost
-        # En production, utiliser le domaine de production
+        # En développement (DEBUG=True), utiliser le host courant
+        # En production, utiliser le domaine public déclaré dans l'environnement
         if settings.DEBUG:
             # Mode développement : utiliser localhost
             base_url = f"{request.scheme}://{request.get_host()}"
         else:
             # Mode production : utiliser le domaine de production
-            production_domain = getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com')
-            base_url = f"https://{production_domain}"
+            production_domain = (getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', 'gabomazone.pythonanywhere.com') or '').strip()
+            if production_domain.startswith('http://') or production_domain.startswith('https://'):
+                base_url = production_domain.rstrip('/')
+            else:
+                base_url = f"https://{production_domain.rstrip('/')}"
         
         callback_url = f"{base_url}/payments/singpay/callback/"
         # URL de retour après paiement - doit être accessible sans authentification
         return_url = f"{base_url}/payments/singpay/return/"
         
-        # Formater le numéro de téléphone en format international
+        # Formater le numéro de téléphone en format international (Gabon)
         def format_phone_international(phone):
             """Formate le numéro de téléphone en format international (+241XXXXXXXXX)"""
             if not phone:
@@ -159,7 +168,7 @@ def init_singpay_payment(request):
         
         customer_phone = format_phone_international(payment_info.phone)
         
-        # Métadonnées
+        # Métadonnées utiles pour le suivi interne
         metadata = {
             'order_id': str(order.id),
             'user_id': str(request.user.id) if request.user.is_authenticated else None,
@@ -184,14 +193,9 @@ def init_singpay_payment(request):
             error_message = response.get('error', 'Erreur lors de l\'initialisation du paiement')
             logger.error(f"Erreur SingPay init_payment pour la commande {order.id}: {error_message}")
             logger.error(f"Détails de la réponse: {response}")
-            
-            # Vérifier si on est en mode bypass
-            bypass_mode = getattr(settings, 'SINGPAY_BYPASS_API', True)
-            if not bypass_mode:
-                # En mode production, donner plus de détails sur l'erreur
-                api_error = response.get('api_error', {})
-                if api_error:
-                    error_message = api_error.get('message', error_message)
+            api_error = response.get('api_error', {})
+            if api_error:
+                error_message = api_error.get('message', error_message)
             
             return JsonResponse({
                 'success': False,
@@ -371,30 +375,17 @@ def init_singpay_payment(request):
         logger.info(f"URL finale renvoyée au client: {payment_url}")
         logger.info(f"Transaction créée: {transaction.transaction_id} - Statut: {transaction.status}")
         
-        # Vérifier si on est en mode bypass (en utilisant le service pour avoir la valeur réelle)
-        bypass_mode = singpay_service.bypass_api
-        
-        # Si on n'est pas en mode bypass, s'assurer que l'URL est bien une URL SingPay réelle
-        if not bypass_mode:
-            if not payment_url or not (payment_url.startswith('http://') or payment_url.startswith('https://')):
-                logger.error(f"URL de paiement invalide en mode production: {payment_url}")
-                return JsonResponse({
-                    'success': False,
-                    'error': 'URL de paiement invalide. Veuillez vérifier la configuration SingPay.'
-                }, status=500)
-            # Vérifier que l'URL n'est pas une URL de test locale
-            if '/test-payment/' in payment_url or 'localhost' in payment_url or '127.0.0.1' in payment_url:
-                logger.error(f"URL de test détectée en mode production: {payment_url}")
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Configuration incorrecte : le mode test est activé alors que l\'API réelle devrait être utilisée. Veuillez vérifier SINGPAY_BYPASS_API dans settings.py.'
-                }, status=500)
+        if not payment_url or not (payment_url.startswith('http://') or payment_url.startswith('https://')):
+            logger.error(f"URL de paiement invalide: {payment_url}")
+            return JsonResponse({
+                'success': False,
+                'error': 'URL de paiement invalide. Veuillez vérifier la configuration SingPay.'
+            }, status=500)
         
         return JsonResponse({
             'success': True,
             'payment_url': payment_url,
             'transaction_id': transaction.transaction_id,
-            'bypass_mode': bypass_mode,  # Informer le frontend du mode
         })
         
     except Exception as e:
@@ -449,7 +440,7 @@ def singpay_callback(request):
             logger.error(f"Transaction {transaction_id} non trouvée")
             return HttpResponse(status=404)
         
-        # Vérifier la signature (peut être vide en mode développement ou si SingPay ne l'envoie pas)
+        # Vérifier la signature (tolérance en DEBUG pour simplifier les tests locaux)
         is_valid = True  # Par défaut, accepter le webhook
         if signature and timestamp:
             is_valid = singpay_service.verify_webhook_signature(payload, signature, timestamp)
@@ -492,6 +483,7 @@ def singpay_callback(request):
                 logger.info(f"Mise à jour de la commande {transaction.order.id} suite au paiement")
                 transaction.order.is_finished = True
                 transaction.order.status = Order.Underway
+                _ensure_tracking(transaction.order)
                 transaction.order.save()
                 
                 # Mode escrow : marquer la transaction comme en escrow au lieu de payer immédiatement
@@ -636,6 +628,7 @@ def singpay_return(request):
                     if transaction.order and not transaction.order.is_finished:
                         transaction.order.is_finished = True
                         transaction.order.status = Order.Underway
+                        _ensure_tracking(transaction.order)
                         transaction.order.save()
                         logger.info(f"Commande {transaction.order.id} mise à jour avec succès")
                     
@@ -663,6 +656,7 @@ def singpay_return(request):
                     if transaction.order and not transaction.order.is_finished:
                         transaction.order.is_finished = True
                         transaction.order.status = Order.Underway
+                        _ensure_tracking(transaction.order)
                         transaction.order.save()
                     
                     if transaction.status != SingPayTransaction.SUCCESS:
@@ -684,6 +678,7 @@ def singpay_return(request):
             if transaction.order and not transaction.order.is_finished:
                 transaction.order.is_finished = True
                 transaction.order.status = Order.Underway
+                _ensure_tracking(transaction.order)
                 transaction.order.save()
             
             # Mettre à jour la transaction si nécessaire
@@ -720,7 +715,7 @@ def verify_singpay_payment(request, transaction_id):
     try:
         transaction = get_object_or_404(SingPayTransaction, transaction_id=transaction_id)
         
-        # Vérifier avec l'API SingPay (ou bypass en mode test)
+        # Vérifier avec l'API SingPay
         success, response = singpay_service.verify_payment(transaction_id)
         
         if success:
@@ -734,6 +729,7 @@ def verify_singpay_payment(request, transaction_id):
                 if transaction.order:
                     transaction.order.is_finished = True
                     transaction.order.status = Order.Underway
+                    _ensure_tracking(transaction.order)
                     transaction.order.save()
                 
                 transaction.save()
@@ -755,92 +751,6 @@ def verify_singpay_payment(request, transaction_id):
             'success': False,
             'error': 'Une erreur est survenue'
         }, status=500)
-
-
-@require_http_methods(["GET", "POST"])
-def test_singpay_payment(request, transaction_id):
-    """
-    Page de test pour simuler le paiement SingPay (mode bypass uniquement)
-    Si l'API réelle est activée, redirige vers l'URL SingPay réelle
-    """
-    try:
-        transaction = get_object_or_404(SingPayTransaction, transaction_id=transaction_id)
-        
-        # Vérifier si on est en mode bypass (en utilisant le service pour avoir la valeur réelle)
-        bypass_mode = singpay_service.bypass_api
-        
-        # Si on n'est pas en mode bypass et qu'on a une URL de paiement réelle, rediriger
-        if not bypass_mode and transaction.payment_url:
-            # Vérifier que l'URL est bien une URL SingPay réelle (pas locale)
-            if transaction.payment_url.startswith('http://') or transaction.payment_url.startswith('https://'):
-                # Rediriger vers l'URL SingPay réelle si elle ne pointe pas vers localhost
-                if 'localhost' not in transaction.payment_url and '127.0.0.1' not in transaction.payment_url and '/test-payment/' not in transaction.payment_url:
-                    logger.info(f"Redirection vers l'URL SingPay réelle: {transaction.payment_url}")
-                    return redirect(transaction.payment_url)
-                elif 'singpay' in transaction.payment_url.lower() or 'client.singpay.ga' in transaction.payment_url:
-                    logger.info(f"Redirection vers l'URL SingPay réelle: {transaction.payment_url}")
-                    return redirect(transaction.payment_url)
-        
-        # Si on est en mode bypass, afficher la page de test
-        if request.method == 'POST':
-            # Simuler un paiement réussi
-            transaction.status = SingPayTransaction.SUCCESS
-            transaction.paid_at = timezone.now()
-            transaction.payment_method = request.POST.get('payment_method', 'AirtelMoney')
-            
-            if transaction.order:
-                transaction.order.is_finished = True
-                transaction.order.status = Order.Underway
-                transaction.order.save()
-                
-                # Créer des notifications pour les vendeurs peer-to-peer
-                from orders.models import OrderDetails
-                from accounts.models import PeerToPeerOrderNotification
-                
-                order_details = OrderDetails.objects.filter(
-                    order=transaction.order,
-                    peer_product__isnull=False
-                )
-                
-                for order_detail in order_details:
-                    if order_detail.peer_product:
-                        # Vérifier si la notification existe déjà
-                        notification, created = PeerToPeerOrderNotification.objects.get_or_create(
-                            order=transaction.order,
-                            order_detail=order_detail,
-                            peer_product=order_detail.peer_product,
-                            defaults={
-                                'seller': order_detail.peer_product.seller,
-                                'buyer': transaction.order.user if transaction.order.user else None,
-                                'status': PeerToPeerOrderNotification.PENDING,
-                                'is_read': False,
-                            }
-                        )
-            
-            transaction.save()
-            
-            # Rediriger vers la page de commande
-            messages.success(request, 'Paiement effectué avec succès !')
-            return redirect('accounts:dashboard_customer')
-        
-        # Afficher la page de test uniquement en mode bypass
-        if not bypass_mode:
-            # Si on arrive ici sans URL de paiement, c'est une erreur
-            messages.error(request, 'URL de paiement non disponible. Veuillez réessayer.')
-            logger.error(f"Transaction {transaction_id} sans URL de paiement en mode production")
-            return redirect('orders:payment')
-        
-        context = {
-            'transaction': transaction,
-            'order': transaction.order,
-            'bypass_mode': bypass_mode,
-        }
-        return render(request, 'payments/test-payment.html', context)
-        
-    except Exception as e:
-        logger.exception(f"Erreur dans test_singpay_payment: {str(e)}")
-        messages.error(request, 'Une erreur est survenue')
-        return redirect('orders:cart')
 
 
 @require_http_methods(["GET"])

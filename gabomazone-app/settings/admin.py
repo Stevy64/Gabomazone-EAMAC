@@ -51,20 +51,6 @@ class HomePageThemeAdmin(admin.ModelAdmin):
     list_per_page = 10
     search_fields = ('page_name',)
 
-# class StripeSettingAdmin(admin.ModelAdmin):
-#     #fields = ("","")
-#     # inlines = [ ]
-#     list_display = ('id', 'stripe_public_key', 'stripe_secret_key',
-#                     'stripe_webhook_secret',  )
-#     # list_filter = ()
-#     list_editable = ('stripe_public_key', 'stripe_secret_key',
-#                      'stripe_webhook_secret', 'domain', )
-#     list_display_links = ("id",)
-#     list_per_page = 10
-#     search_fields = ('domain',)
-
-
-# admin.site.register(StripeSetting)
 admin.site.register(ContactInfo, ContactInfoAdmin)
 admin.site.register(SocailLinks, SocaillinksAdmin)
 admin.site.register(SupportNumber, SupportNumberAdmin)

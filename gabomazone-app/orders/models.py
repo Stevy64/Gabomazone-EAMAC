@@ -47,14 +47,6 @@ class Order(models.Model):
         default=PENDING,
     )
 
-    merchant_order_id = models.CharField(
-        max_length=100,  blank=True, null=True)
-
-    order_id_paymob = models.CharField(max_length=100,  blank=True, null=True)
-
-    auth_token_order = models.TextField(blank=True, null=True)
-    trnx_id = models.CharField(max_length=100,  blank=True, null=True)
-
     def __str__(self):
         # return f"Order ID:{self.id}-{self.user}-{self.user.email}-{self.status}"
         # return f"Order ID:{self.id}"
