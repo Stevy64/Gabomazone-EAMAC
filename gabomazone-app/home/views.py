@@ -1,4 +1,3 @@
-import imp
 from django.shortcuts import render
 from categories.models import SuperCategory, MainCategory
 from .models import (Carousel, HomeAdSidebar, HomeAdMiddlebar,
