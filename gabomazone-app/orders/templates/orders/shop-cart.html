@@ -45,17 +45,16 @@
 {%block body%}
 {% if order_details%}
 <!-- ===== Modern Cart Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+<main class="main pages shop-cart-page" style="padding-bottom: 100px; min-height: calc(100vh - 140px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
 <style>
-    /* Desktop padding-top */
-    main.main.pages {
-        padding-top: 100px !important;
+    /* Panier : espacement réduit sous le header (base.html gère déjà margin-top) */
+    main.main.pages.shop-cart-page {
+        padding-top: 24px !important;
     }
     
-    /* Mobile padding-top */
     @media (max-width: 768px) {
-        main.main.pages {
-            padding-top: 140px !important;
+        main.main.pages.shop-cart-page {
+            padding-top: 20px !important;
         }
     }
 </style>
@@ -808,8 +807,8 @@ select.flavoriz-select option:hover {
 }
 
 @media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
+    .main.pages.shop-cart-page {
+        padding-top: 20px !important;
         padding-bottom: 60px !important;
     }
     
