@@ -31,7 +31,7 @@
         <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css'%}" />
         <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
         <!-- Gabomazone FLAVORIZ Design - DOIT être chargé APRÈS main.css pour écraser NEST -->
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=26.0" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=27.0" />
         <!-- Force FLAVORIZ - Override absolu -->
         <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=26.0" />
 		{%endblock head%}
@@ -1152,9 +1152,9 @@
                 <i class="fi-rs-apps"></i>
                 <span>Catégories</span>
             </a>
-            <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
-                <i class="fi-rs-comment"></i>
-                <span>Messages</span>
+            <a href="{% url 'accounts:sell-product' %}" class="flavoriz-bottom-nav-item flavoriz-bottom-nav-add-btn {% if 'sell-product' in request.path %}active{% endif %}">
+                <span class="add-btn-icon-wrap"><i class="fi-rs-plus"></i></span>
+                <span>Publier</span>
             </a>
             {% if user.is_authenticated %}
                 {% with profile=user.profile %}
@@ -1165,18 +1165,18 @@
                             <span>Assistance</span>
                         </a>
                     {% else %}
-                        <!-- Panier pour les clients normaux -->
-                        <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
-                            <i class="fi-rs-shopping-bag"></i>
-                            <span>Panier</span>
+                        <!-- Messagerie pour les clients normaux -->
+                        <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
+                            <i class="fi-rs-comment"></i>
+                            <span>Messagerie</span>
                         </a>
                     {% endif %}
                 {% endwith %}
             {% else %}
-                <!-- Panier pour les utilisateurs non connectés -->
-                <a href="{% url 'orders:cart'%}" class="flavoriz-bottom-nav-item {% if 'cart' in request.path %}active{% endif %}">
-                    <i class="fi-rs-shopping-bag"></i>
-                    <span>Panier</span>
+                <!-- Messagerie pour les utilisateurs non connectés (redirige vers login) -->
+                <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
+                    <i class="fi-rs-comment"></i>
+                    <span>Messagerie</span>
                 </a>
             {% endif %}
             <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">

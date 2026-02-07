@@ -48,34 +48,32 @@
 {%endblock head%}
 
 {%block body%}
-<!-- ===== Main Category Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<!-- ===== Main Category Page - Design Ayoka, Mobile-First ===== -->
+<main class="main pages ayoka-category-page" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(180deg, #FDF8F3 0%, #FFF9F5 50%, #FAFAFA 100%);">
+    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 16px;">
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
+        <nav style="margin-bottom: 16px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;"><i class="fi-rs-home"></i> <span>Accueil</span></a>
             <span style="color: #9CA3AF;">/</span>
-            <a href="{% url 'categories:shop' %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">Produits</a>
-            <span style="color: #9CA3AF;">/</span>
+            <a href="{% url 'categories:shop' %}" style="color: #6B7280; text-decoration: none;">Produits</a>
             {% if main_category_obj.super_category %}
-            <a href="{% url 'categories:super-category' main_category_obj.super_category.slug %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">{{main_category_obj.super_category.name}}</a>
             <span style="color: #9CA3AF;">/</span>
+            <a href="{% url 'categories:super-category' main_category_obj.super_category.slug %}" style="color: #6B7280; text-decoration: none;">{{main_category_obj.super_category.name}}</a>
             {% endif %}
-            <span style="color: #6B7280; font-weight: 500;">{{main_category_obj.name}}</span>
+            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #1F2937; font-weight: 600;">{{main_category_obj.name}}</span>
         </nav>
 
-        <!-- Page Header -->
-        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">{{main_category_obj.name}}</h1>
+        <!-- En-tête style Ayoka -->
+        <section style="margin-bottom: 24px;">
+            <div style="padding: 24px 20px; background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 16px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); border: 1px solid rgba(255, 255, 255, 0.7);">
+                <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0;">{{main_category_obj.name}}</h1>
                 <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez tous les produits de cette catégorie</p>
             </div>
-        </div>
+        </section>
         
-        <!-- Product Count & Sort -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
+        <!-- Product Count & Sort - barre style Ayoka -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding: 16px 18px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-radius: 14px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.05);">
             <div id="product-num" style="font-size: 14px; color: #6B7280;">
                 <p style="margin: 0; display: flex; align-items: center; gap: 6px;">
                     <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
@@ -159,9 +157,9 @@
                 </div>
             </div>
 
-            <!-- Products Grid -->
+            <!-- Products Grid - Mobile-First 2x2 style Ayoka -->
             <div>
-                <div id="products-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;"
+                <div id="products-list" class="flavoriz-product-grid ayoka-products-grid" style="display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;"
                      hx-get="{% url 'categories:shop-htmx' %}?page=1&order_by=-date&cat_type=main&cat_id={{main_category_obj.id}}"
                      hx-trigger="load"
                      hx-swap="innerHTML"

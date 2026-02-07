@@ -302,6 +302,36 @@
     }
 }
 
+/* Listes déroulantes modernes (style capture) */
+.flavoriz-dropdown { position: relative; width: 100%; }
+.flavoriz-dropdown-trigger {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px;
+    background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease;
+    text-align: left; min-height: 48px; box-sizing: border-box;
+}
+.flavoriz-dropdown-trigger:hover { border-color: #D1D5DB; background: #F9FAFB; }
+.flavoriz-dropdown-trigger:focus { border-color: var(--color-orange); box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.12); }
+.flavoriz-dropdown.open .flavoriz-dropdown-trigger {
+    border-color: var(--color-orange); background: #fff; box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1);
+}
+.flavoriz-dropdown-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flavoriz-dropdown-chevron { font-size: 16px; color: #6B7280; flex-shrink: 0; transition: transform 0.2s ease; }
+.flavoriz-dropdown.open .flavoriz-dropdown-chevron { transform: rotate(180deg); color: var(--color-orange); }
+.flavoriz-dropdown-panel {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff;
+    border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.12), 0 2px 10px rgba(0,0,0,0.06);
+    border: 1px solid #E5E7EB; max-height: 280px; overflow-y: auto; z-index: 1000; padding: 6px 0;
+}
+.flavoriz-dropdown-panel[hidden] { display: none !important; }
+.flavoriz-dropdown-option {
+    padding: 12px 16px; font-size: 14px; color: #1F2937; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease; border: none; width: 100%; text-align: left; background: none;
+}
+.flavoriz-dropdown-option:hover { background: #FDF8F3; color: var(--color-orange); }
+.flavoriz-dropdown-option.selected { background: rgba(255, 123, 44, 0.1); color: var(--color-orange); font-weight: 600; }
+.flavoriz-dropdown-option:focus { outline: none; background: #F3F4F6; }
+
 /* Amélioration des listes déroulantes sur tous les écrans */
 select,
 .custom-select {
@@ -629,6 +659,28 @@ input[type="file"]:active {
                                 </label>
                                 <textarea name="product_description" required rows="4" placeholder="Décrivez votre article en détail..." style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">{% if is_edit %}{{ product.product_description }}{% endif %}</textarea>
                             </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                                    État de l'article <span style="color: #EF4444;">*</span>
+                                </label>
+                                <div class="flavoriz-dropdown" id="dropdown-condition-wrap" style="max-width: 320px;">
+                                    <input type="hidden" name="condition" id="condition_value" value="{% if is_edit %}{{ product.condition|default:'BON ETAT' }}{% else %}BON ETAT{% endif %}" required>
+                                    <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-condition-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="flavoriz-dropdown-label" id="dropdown-condition-label">{% if is_edit %}{{ product.get_condition_display|default:"Bon état" }}{% else %}Bon état{% endif %}</span>
+                                        <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                                    </button>
+                                    <div class="flavoriz-dropdown-panel" id="dropdown-condition-panel" role="listbox" hidden>
+                                        <div class="flavoriz-dropdown-option{% if is_edit and product.condition == 'NEUF' %} selected{% endif %}" role="option" data-value="NEUF" data-label="Neuf" tabindex="0">Neuf</div>
+                                        <div class="flavoriz-dropdown-option{% if is_edit and product.condition == 'COMME NEUF' %} selected{% endif %}" role="option" data-value="COMME NEUF" data-label="Comme neuf" tabindex="0">Comme neuf</div>
+                                        <div class="flavoriz-dropdown-option{% if not is_edit or product.condition == 'BON ETAT' or not product.condition %} selected{% endif %}" role="option" data-value="BON ETAT" data-label="Bon état" tabindex="0">Bon état</div>
+                                        <div class="flavoriz-dropdown-option{% if is_edit and product.condition == 'UTILISABLE' %} selected{% endif %}" role="option" data-value="UTILISABLE" data-label="Utilisable" tabindex="0">Utilisable</div>
+                                    </div>
+                                </div>
+                                <p style="font-size: 12px; color: #6B7280; margin: 6px 0 0 0;">
+                                    Indiquez l'état général de votre article pour les acheteurs.
+                                </p>
+                            </div>
                         </div>
 
                         <!-- Catégories -->
@@ -643,30 +695,51 @@ input[type="file"]:active {
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Super catégorie
                                     </label>
-                                    <select name="product_supercategory" id="super_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onchange="loadMainCategories(this.value)" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                                        <option value="">Sélectionner...</option>
-                                        {% for cat in super_categories %}
-                                        <option value="{{ cat.id }}" {% if is_edit and selected_super == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <div class="flavoriz-dropdown" id="dropdown-super-wrap">
+                                        <input type="hidden" name="product_supercategory" id="super_category" value="{% if is_edit %}{{ selected_super|default:'' }}{% endif %}">
+                                        <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-super-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                            <span class="flavoriz-dropdown-label" id="dropdown-super-label">Sélectionner...</span>
+                                            <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                                        </button>
+                                        <div class="flavoriz-dropdown-panel" id="dropdown-super-panel" role="listbox" hidden>
+                                            <div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>
+                                            {% for cat in super_categories %}
+                                            <div class="flavoriz-dropdown-option{% if is_edit and selected_super == cat.id %} selected{% endif %}" role="option" data-value="{{ cat.id }}" data-label="{{ cat.name }}" tabindex="0">{{ cat.name }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div>
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Catégorie principale
                                     </label>
-                                    <select name="product_maincategory" id="main_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onchange="loadSubCategories(this.value)" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                                        <option value="">Sélectionner...</option>
-                                    </select>
+                                    <div class="flavoriz-dropdown" id="dropdown-main-wrap">
+                                        <input type="hidden" name="product_maincategory" id="main_category" value="{% if is_edit %}{{ selected_main|default:'' }}{% endif %}">
+                                        <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-main-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                            <span class="flavoriz-dropdown-label" id="dropdown-main-label">Sélectionner...</span>
+                                            <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                                        </button>
+                                        <div class="flavoriz-dropdown-panel" id="main_category_panel" role="listbox" hidden>
+                                            <div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <div>
                                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
                                         Sous-catégorie
                                     </label>
-                                    <select name="product_subcategory" id="sub_category" class="custom-select" style="width: 100%; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 14px; transition: all 0.3s; outline: none; background: white; cursor: pointer;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                                        <option value="">Sélectionner...</option>
-                                    </select>
+                                    <div class="flavoriz-dropdown" id="dropdown-sub-wrap">
+                                        <input type="hidden" name="product_subcategory" id="sub_category" value="{% if is_edit %}{{ selected_sub|default:'' }}{% endif %}">
+                                        <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-sub-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                            <span class="flavoriz-dropdown-label" id="dropdown-sub-label">Sélectionner...</span>
+                                            <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                                        </button>
+                                        <div class="flavoriz-dropdown-panel" id="sub_category_panel" role="listbox" hidden>
+                                            <div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -868,32 +941,55 @@ function previewImage(input, previewId) {
     }
 }
 
+function buildDropdownOption(value, label, selected) {
+    const div = document.createElement('div');
+    div.className = 'flavoriz-dropdown-option' + (selected ? ' selected' : '');
+    div.setAttribute('role', 'option');
+    div.dataset.value = value;
+    div.dataset.label = label;
+    div.setAttribute('tabindex', '0');
+    div.textContent = label;
+    return div;
+}
+
 function loadMainCategories(superCategoryId) {
+    const mainInput = document.getElementById('main_category');
+    const mainLabel = document.getElementById('dropdown-main-label');
+    const mainPanel = document.getElementById('main_category_panel');
+    const subInput = document.getElementById('sub_category');
+    const subLabel = document.getElementById('dropdown-sub-label');
+    const subPanel = document.getElementById('sub_category_panel');
+    
+    mainInput.value = '';
+    mainLabel.textContent = 'Sélectionner...';
+    subInput.value = '';
+    subLabel.textContent = 'Sélectionner...';
+    subPanel.innerHTML = '<div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>';
+    
     if (!superCategoryId) {
-        document.getElementById('main_category').innerHTML = '<option value="">Sélectionner...</option>';
-        document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+        mainPanel.innerHTML = '<div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>';
         return;
     }
     
     fetch(`/categories/get-main-categories/?super_category_id=${superCategoryId}`)
         .then(response => response.json())
         .then(data => {
-            const select = document.getElementById('main_category');
-            select.innerHTML = '<option value="">Sélectionner...</option>';
+            mainPanel.innerHTML = '';
+            const opt0 = buildDropdownOption('', 'Sélectionner...', false);
+            mainPanel.appendChild(opt0);
+            const selectedMain = {% if is_edit and selected_main %}{{ selected_main }}{% else %}null{% endif %};
             data.categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = cat.name;
-                {% if is_edit and selected_main %}
-                if (cat.id == {{ selected_main }}) {
-                    option.selected = true;
-                }
-                {% endif %}
-                select.appendChild(option);
+                const opt = buildDropdownOption(cat.id, cat.name, selectedMain === cat.id);
+                mainPanel.appendChild(opt);
             });
-            document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
-            
-            // Si une catégorie principale est sélectionnée, charger les sous-catégories
+            if (selectedMain) {
+                const chosen = data.categories.find(c => c.id === selectedMain);
+                if (chosen) {
+                    mainInput.value = chosen.id;
+                    mainLabel.textContent = chosen.name;
+                }
+            }
+            subPanel.innerHTML = '<div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>';
             {% if is_edit and selected_main %}
             if ({{ selected_main }}) {
                 loadSubCategories({{ selected_main }});
@@ -904,29 +1000,83 @@ function loadMainCategories(superCategoryId) {
 }
 
 function loadSubCategories(mainCategoryId) {
+    const subInput = document.getElementById('sub_category');
+    const subLabel = document.getElementById('dropdown-sub-label');
+    const subPanel = document.getElementById('sub_category_panel');
+    
+    subInput.value = '';
+    subLabel.textContent = 'Sélectionner...';
+    
     if (!mainCategoryId) {
-        document.getElementById('sub_category').innerHTML = '<option value="">Sélectionner...</option>';
+        subPanel.innerHTML = '<div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Sélectionner..." tabindex="0">Sélectionner...</div>';
         return;
     }
     
     fetch(`/categories/get-sub-categories/?main_category_id=${mainCategoryId}`)
         .then(response => response.json())
         .then(data => {
-            const select = document.getElementById('sub_category');
-            select.innerHTML = '<option value="">Sélectionner...</option>';
+            subPanel.innerHTML = '';
+            const opt0 = buildDropdownOption('', 'Sélectionner...', false);
+            subPanel.appendChild(opt0);
+            const selectedSub = {% if is_edit and selected_sub %}{{ selected_sub }}{% else %}null{% endif %};
             data.categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = cat.name;
-                {% if is_edit and selected_sub %}
-                if (cat.id == {{ selected_sub }}) {
-                    option.selected = true;
-                }
-                {% endif %}
-                select.appendChild(option);
+                const opt = buildDropdownOption(cat.id, cat.name, selectedSub === cat.id);
+                subPanel.appendChild(opt);
             });
-        })
+            if (selectedSub) {
+                const chosen = data.categories.find(c => c.id === selectedSub);
+                if (chosen) {
+                    subInput.value = chosen.id;
+                    subLabel.textContent = chosen.name;
+                }
+            }
+            })
         .catch(error => console.error('Error:', error));
+}
+
+function initDropdowns() {
+    document.querySelectorAll('.flavoriz-dropdown').forEach(wrap => {
+        const trigger = wrap.querySelector('.flavoriz-dropdown-trigger');
+        const panel = wrap.querySelector('.flavoriz-dropdown-panel');
+        const input = wrap.querySelector('input[type="hidden"]');
+        const label = wrap.querySelector('.flavoriz-dropdown-label');
+        if (!trigger || !panel) return;
+        
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = wrap.classList.toggle('open');
+            panel.hidden = !isOpen;
+            if (isOpen) trigger.setAttribute('aria-expanded', 'true');
+            else trigger.setAttribute('aria-expanded', 'false');
+        });
+        
+        panel.addEventListener('click', function(e) {
+            const opt = e.target.closest('.flavoriz-dropdown-option');
+            if (!opt) return;
+            e.stopPropagation();
+            const value = opt.dataset.value;
+            const labelText = opt.dataset.label || opt.textContent;
+            if (input) input.value = value;
+            if (label) label.textContent = labelText;
+            panel.querySelectorAll('.flavoriz-dropdown-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            wrap.classList.remove('open');
+            panel.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+            if (wrap.id === 'dropdown-super-wrap' && value) loadMainCategories(value);
+            if (wrap.id === 'dropdown-main-wrap' && value) loadSubCategories(value);
+        });
+    });
+    
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.flavoriz-dropdown.open').forEach(wrap => {
+            wrap.classList.remove('open');
+            const panel = wrap.querySelector('.flavoriz-dropdown-panel');
+            if (panel) panel.hidden = true;
+            const t = wrap.querySelector('.flavoriz-dropdown-trigger');
+            if (t) t.setAttribute('aria-expanded', 'false');
+        });
+    });
 }
 
 // URL de base pour la suppression (générée par Django)
@@ -973,15 +1123,18 @@ function confirmDelete(productId, productName) {
     }
 }
 
-// Charger les catégories principales si une super catégorie est déjà sélectionnée (mode édition)
-{% if is_edit and selected_super %}
 window.addEventListener('DOMContentLoaded', function() {
-    const superSelect = document.getElementById('super_category');
-    if (superSelect && superSelect.value == {{ selected_super }}) {
-        loadMainCategories(superSelect.value);
+    initDropdowns();
+    {% if is_edit and selected_super %}
+    var superInput = document.getElementById('super_category');
+    if (superInput && superInput.value) {
+        var superWrap = document.getElementById('dropdown-super-wrap');
+        var superOpt = superWrap && superWrap.querySelector('.flavoriz-dropdown-option.selected');
+        if (superOpt) document.getElementById('dropdown-super-label').textContent = superOpt.dataset.label || superOpt.textContent;
+        loadMainCategories(superInput.value);
     }
+    {% endif %}
 });
-{% endif %}
 </script>
 
 <!-- Modal de confirmation de suppression -->

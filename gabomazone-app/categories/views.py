@@ -87,6 +87,10 @@ class PeerToPeerProductWrapper:
         self.like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
         self.is_peer_to_peer = True
         self._peer_product = peer_product
+        self.date = getattr(peer_product, 'date', None)
+        self.seller_city = getattr(peer_product, 'seller_city', None)
+        self.condition = getattr(peer_product, 'condition', None) or ''
+        self.condition_display = peer_product.get_condition_display() if getattr(peer_product, 'condition', None) else ''
     
     def get_additional_images(self):
         """Récupère les images supplémentaires"""
@@ -162,6 +166,31 @@ def category_list(request):
         for main in main_cats:
             sub_count = subcategory.filter(main_category=main).count()
             main.sub_count = sub_count  # Ajouter directement à l'objet
+        
+        # Compter les produits (Product + PeerToPeerProduct) pour cette super catégorie
+        product_count = 0
+        try:
+            # Compter les produits normaux
+            product_count += Product.objects.filter(
+                product_supercategory=super,
+                PRDISDeleted=False,
+                PRDISactive=True
+            ).count()
+        except:
+            pass
+        
+        try:
+            # Compter les articles peer-to-peer approuvés
+            product_count += PeerToPeerProduct.objects.filter(
+                product_supercategory=super,
+                status=PeerToPeerProduct.APPROVED
+            ).count()
+        except:
+            pass
+        
+        # Ajouter le compteur à l'objet super
+        super.product_count = product_count
+        
         super_categories_data.append({
             'super': super,
             'main_categories': main_cats,
@@ -234,6 +263,8 @@ def convert_peer_to_peer_to_dict(peer_product):
         'view_count': peer_product.view_count or 0,  # Utiliser le compteur de vues réel
         'like_count': like_count,
         'is_peer_to_peer': True,  # Flag pour identifier les articles C2C
+        'condition': getattr(peer_product, 'condition', None) or '',
+        'condition_display': peer_product.get_condition_display() if getattr(peer_product, 'condition', None) else '',
     }
 
 
@@ -578,16 +609,16 @@ class ProductListHTMXView(View):
                 print(f"DEBUG get_queryset - Erreur conversion cat_id: {e}, cat_id reçu: '{cat_id}'")
                 pass
         
-        # Construire le queryset avec annotation pour like_count
+        # Construire le queryset avec annotation pour like_count et select_related pour le lieu (product_vendor)
         try:
-            queryset = Product.objects.filter(**base_filter).annotate(
+            queryset = Product.objects.filter(**base_filter).select_related('product_vendor').annotate(
                 like_count=Count('favorites')
             ).order_by(order_by)
             print(f"DEBUG get_queryset - queryset count: {queryset.count()}")
         except Exception as e:
             # Si la table favorites n'existe pas encore
             print(f"DEBUG get_queryset - Exception avec favorites: {e}")
-            queryset = Product.objects.filter(**base_filter).order_by(order_by)
+            queryset = Product.objects.filter(**base_filter).select_related('product_vendor').order_by(order_by)
             print(f"DEBUG get_queryset - queryset count (sans favorites): {queryset.count()}")
         
         return queryset
@@ -648,14 +679,14 @@ class ProductListHTMXView(View):
                     shop_queryset = Product.objects.filter(
                         PRDISDeleted=False, 
                         PRDISactive=True
-                    ).annotate(
+                    ).select_related('product_vendor').annotate(
                         like_count=Count('favorites')
                     ).order_by(order_by)
                 except:
                     shop_queryset = Product.objects.filter(
                         PRDISDeleted=False, 
                         PRDISactive=True
-                    ).order_by(order_by)
+                    ).select_related('product_vendor').order_by(order_by)
             else:
                 # Filtrer par catégorie
                 print(f"DEBUG - Filtrage par catégorie (cat_type='{cat_type}', cat_id='{cat_id}')")

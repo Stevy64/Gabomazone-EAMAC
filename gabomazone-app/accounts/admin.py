@@ -17,8 +17,8 @@ admin.site.register(Profile,ProfileAdmin)
 
 
 class PeerToPeerProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product_name', 'seller', 'PRDPrice', 'status', 'date')
-    list_filter = ('status', 'date')
+    list_display = ('id', 'product_name', 'seller', 'PRDPrice', 'get_condition_display', 'status', 'date')
+    list_filter = ('status', 'condition', 'date')
     list_display_links = ('id', 'product_name')
     search_fields = ('product_name', 'seller__username')
     readonly_fields = ('commission_amount', 'seller_amount', 'date', 'date_update', 'approved_date')

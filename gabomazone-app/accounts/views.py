@@ -461,6 +461,7 @@ def sell_product(request):
         product_name = request.POST.get('product_name', '').strip()
         product_description = request.POST.get('product_description', '').strip()
         PRDPrice = request.POST.get('PRDPrice', '0')
+        condition = request.POST.get('condition', PeerToPeerProduct.BON_ETAT).strip()
         seller_phone = request.POST.get('seller_phone', '').strip()
         seller_address = request.POST.get('seller_address', '').strip()
         seller_city = request.POST.get('seller_city', '').strip()
@@ -477,6 +478,9 @@ def sell_product(request):
         additional_image_3 = request.FILES.get('additional_image_3')
         
         # Validation
+        valid_conditions = [c[0] for c in PeerToPeerProduct.CONDITION_CHOICES]
+        if condition not in valid_conditions:
+            condition = PeerToPeerProduct.BON_ETAT
         if not product_name or not product_description or not PRDPrice or not seller_phone or not seller_address or not seller_city:
             messages.error(request, 'Veuillez remplir tous les champs obligatoires.')
             return redirect('accounts:sell-product')
@@ -546,6 +550,7 @@ def sell_product(request):
                 product_name=product_name,
                 product_description=product_description,
                 PRDPrice=PRDPrice,
+                condition=condition,
                 seller_phone=seller_phone,
                 seller_address=seller_address,
                 seller_city=seller_city,
@@ -644,6 +649,7 @@ def edit_peer_product(request, product_id):
         product_name = request.POST.get('product_name', '').strip()
         product_description = request.POST.get('product_description', '').strip()
         PRDPrice = request.POST.get('PRDPrice', '0')
+        condition = request.POST.get('condition', PeerToPeerProduct.BON_ETAT).strip()
         seller_phone = request.POST.get('seller_phone', '').strip()
         seller_address = request.POST.get('seller_address', '').strip()
         seller_city = request.POST.get('seller_city', '').strip()
@@ -697,6 +703,9 @@ def edit_peer_product(request, product_id):
                 pass
         
         # Mettre à jour l'article
+        valid_conditions = [c[0] for c in PeerToPeerProduct.CONDITION_CHOICES]
+        if condition in valid_conditions:
+            product.condition = condition
         product.product_name = product_name
         product.product_description = product_description
         product.PRDPrice = PRDPrice

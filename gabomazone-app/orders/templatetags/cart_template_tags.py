@@ -1,11 +1,58 @@
+from datetime import datetime
 from django import template
+from django.utils import timezone
+
 #from orders.views import Order, OrderDetails
 from orders.models import Order, OrderDetails
-from products.models import Product 
+from products.models import Product
 from django.contrib.auth.models import User
 from decimal import Decimal
 
 register = template.Library()
+
+
+@register.filter(name='relative_date')
+def relative_date(value):
+    """
+    Affiche une date en temps relatif en français (il y a 5h, Hier, il y a 1 mois, etc.).
+    """
+    if value is None:
+        return ""
+    try:
+        now = timezone.now()
+        if hasattr(value, 'date') and not hasattr(value, 'hour'):
+            value = datetime.combine(value, datetime.min.time())
+            if timezone.is_aware(now):
+                value = timezone.make_aware(value)
+        elif timezone.is_naive(value) and timezone.is_aware(now):
+            value = timezone.make_aware(value)
+        delta = now - value
+        total_seconds = int(delta.total_seconds())
+        if total_seconds < 0:
+            return "À l'instant"
+        if total_seconds < 60:
+            return "À l'instant"
+        if total_seconds < 3600:
+            m = total_seconds // 60
+            return f"il y a {m} min"
+        if total_seconds < 86400:
+            h = total_seconds // 3600
+            return f"il y a {h}h" if h < 24 else "Hier"
+        if total_seconds < 172800:
+            return "Hier"
+        if total_seconds < 604800:
+            j = total_seconds // 86400
+            return f"il y a {j} jour{'s' if j > 1 else ''}"
+        if total_seconds < 2592000:
+            s = total_seconds // 604800
+            return f"il y a {s} sem." if s == 1 else f"il y a {s} sem."
+        if total_seconds < 31536000:
+            mo = total_seconds // 2592000
+            return f"il y a {mo} mois"
+        y = total_seconds // 31536000
+        return f"il y a {y} an{'s' if y > 1 else ''}"
+    except (TypeError, AttributeError):
+        return ""
 
 
 @register.filter

@@ -1,232 +1,219 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{%block head%}
+{% block head %}
 {{ block.super }}
 <style>
-    /* Masquer le preloader immédiatement pour cette page */
-    #preloader-active {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
+    #preloader-active { display: none !important; opacity: 0 !important; visibility: hidden !important; }
     body > header.flavoriz-header:not(:first-of-type),
-    body > .flavoriz-header:not(:first-of-type),
     .flavoriz-header ~ .flavoriz-header,
     header.flavoriz-header + header.flavoriz-header {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        opacity: 0 !important;
+        display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important;
+        margin: 0 !important; padding: 0 !important; opacity: 0 !important;
     }
-    
-    /* Forcer le header à rester visible et fixe */
     .flavoriz-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 9999 !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        transform: translateY(0) !important;
+        position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+        z-index: 9999 !important; display: block !important; visibility: visible !important;
+        opacity: 1 !important; transform: translateY(0) !important;
     }
 </style>
-{%endblock head%}
+{% endblock head %}
 
-{%block body%}
-<!-- ===== Category List Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
-        <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
+{% block body %}
+<!-- ===== Page Catégories style Template ===== -->
+<main class="main pages" style="padding-top: 80px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: #FAFAFA;">
+    <div class="category-page-container" style="max-width: 100%; margin: 0 auto; padding: 0;">
+        <!-- Header avec retour et titre -->
+        <div class="category-header" style="background: #fff; padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; margin-bottom: 0;">
+            <a href="{% url 'home:index' %}" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; color: #1F2937; font-size: 20px;">
+                <i class="fi-rs-arrow-left"></i>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Catégories</span>
-        </nav>
+            <h1 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; flex: 1; text-align: center;">
+                Catégories
+            </h1>
+            <div style="width: 40px;"></div>
+        </div>
 
-        <!-- Page Header -->
-        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Catégories</h1>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Explorez toutes nos catégories de produits</p>
-                            </div>
+        <!-- Barre de recherche -->
+        <div style="padding: 16px 20px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: center;">
+            <div class="category-search-bar" style="position: relative; width: 100%; max-width: 500px;">
+                <i class="fi-rs-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 18px; z-index: 1;"></i>
+                <input type="text" id="category-search-input" placeholder="Rechercher une catégorie..." style="width: 100%; padding: 12px 16px 12px 48px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 15px; background: #FAFAFA; color: #1F2937; outline: none; transition: all 0.2s;">
+            </div>
+        </div>
+
+        <!-- Section Toutes catégories -->
+        <div style="padding: 20px; background: #FAFAFA;">
+            <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">
+                Toutes catégories
+            </h2>
+
+            <!-- Grille de catégories (2 colonnes) -->
+            {% if super_categories_data %}
+            <div class="categories-grid" id="categories-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                {% for data in super_categories_data %}
+                {% with super=data.super %}
+                <a href="{% url 'categories:super-category' super.slug %}" class="category-card" data-category-name="{{ super.name|lower }}" style="display: block; background: #fff; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <!-- Image de la catégorie -->
+                    <div class="category-card-image" style="width: 100%; height: 140px; overflow: hidden; background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%); position: relative;">
+                        {% if super.category_image %}
+                        <img src="{{ super.category_image.url }}" alt="{{ super.name }}" style="width: 100%; height: 100%; object-fit: cover;" />
+                        {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            {% if "électronique" in super.name|lower or "electronique" in super.name|lower or "tech" in super.name|lower or "informatique" in super.name|lower %}
+                            <i class="fi-rs-laptop" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% elif "mode" in super.name|lower or "vêtement" in super.name|lower or "vetement" in super.name|lower or "fashion" in super.name|lower %}
+                            <i class="fi-rs-shopping-bag" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% elif "immobilier" in super.name|lower or "maison" in super.name|lower or "logement" in super.name|lower %}
+                            <i class="fi-rs-building" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% elif "scolaire" in super.name|lower or "fourniture" in super.name|lower or "livre" in super.name|lower or "papeterie" in super.name|lower %}
+                            <i class="fi-rs-book" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% elif "loisir" in super.name|lower or "sport" in super.name|lower or "jeu" in super.name|lower or "musique" in super.name|lower %}
+                            <i class="fi-rs-heart" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% elif "service" in super.name|lower or "autre" in super.name|lower or "divers" in super.name|lower %}
+                            <i class="fi-rs-briefcase" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% else %}
+                            <i class="fi-rs-apps" style="font-size: 48px; color: var(--color-orange);"></i>
+                            {% endif %}
                         </div>
-
-        <!-- Categories Grid - Large Image Cards 3x3 -->
-        {% if super_categories_data %}
-        <div class="categories-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-            {% for data in super_categories_data %}
-            {% with super=data.super main_cats=data.main_categories %}
-            <!-- Super Category Card - Large Image Card -->
-            <a href="{% url 'categories:super-category' super.slug %}" class="category-card-large" style="position: relative; display: block; border-radius: 20px; overflow: hidden; background: white; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; height: 220px; min-height: 220px; cursor: pointer;" 
-               onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.15)'" 
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(0, 0, 0, 0.08)'">
-                <!-- Background Image or Gradient -->
-                <div class="category-card-bg" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;">
-                    {% if super.category_image %}
-                    <img src="{{super.category_image.url}}" alt="{{super.name}}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);" 
-                         onmouseover="this.style.transform='scale(1.1)'" 
-                         onmouseout="this.style.transform='scale(1)'" />
-                    {% else %}
-                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 50%, #FF8C42 100%); background-size: 200% 200%; animation: gradientShift 8s ease infinite;"></div>
-                    {% endif %}
-                    <!-- Overlay Gradient - Ajustez les valeurs rgba(0,0,0,X) pour modifier le contraste -->
-                    <!-- Valeurs actuelles: 0% -> 0%, 40% -> 0.1, 70% -> 0.25, 100% -> 0.4 (réduit pour moins d'obscurcissement) -->
-                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.4) 100%); z-index: 2;"></div>
-                </div>
-                
-                <!-- Content Overlay - Zone de texte avec fond semi-transparent -->
-                <div class="category-card-content" style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;">
-                    <!-- Fond semi-transparent pour le texte - Ajustez rgba(0, 0, 0, X) pour modifier le contraste -->
-                    <!-- Valeurs actuelles: 0.35 -> 0.25, 100% -> 0.15 (réduit pour moins d'obscurcissement) -->
-                    <div style="background: linear-gradient(to top, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%); padding: 20px 24px; backdrop-filter: blur(6px);">
-                        <!-- Titre principal -->
-                        <h3 style="font-size: 22px; font-weight: 700; color: #FFFFFF !important; margin: 0 0 8px 0; font-family: var(--font-primary); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8); line-height: 1.3; letter-spacing: -0.3px;">
-                            {{super.name}}
-                        </h3>
-                        
-                        <!-- Informations secondaires -->
-                        <span style="font-size: 13px; color: #FFFFFF !important; font-weight: 500; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6); line-height: 1.4; display: block; opacity: 0.95;">
-                            {{ main_cats.count }} sous-catégorie{% if main_cats.count > 1 %}s{% endif %}
-                        </span>
+                        {% endif %}
                     </div>
-                </div>
-                
-                <!-- Hover Effect Indicator -->
-                <div class="category-card-hover-badge" style="position: absolute; top: 20px; right: 20px; z-index: 4; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; border: 2px solid rgba(255, 255, 255, 0.3);">
-                    <i class="fi-rs-arrow-right" style="color: white; font-size: 18px; font-weight: 700;"></i>
-                </div>
-            </a>
-            {% endwith %}
-            {% endfor %}
+                    <!-- Nom et nombre d'annonces -->
+                    <div style="padding: 12px;">
+                        <h3 style="font-size: 15px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; line-height: 1.3;">
+                            {{ super.name }}
+                        </h3>
+                        <p style="font-size: 12px; color: #6B7280; margin: 0;">
+                            {% if super.product_count %}
+                                {{ super.product_count }} annonce{% if super.product_count > 1 %}s{% endif %}
+                            {% else %}
+                                0 annonce
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" style="text-align: center; padding: 60px 24px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
+                <i class="fi-rs-apps" style="font-size: 56px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
+                <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 10px;">Aucune catégorie disponible</h2>
+                <p style="font-size: 15px; color: #6B7280; margin: 0;">Les catégories seront bientôt disponibles.</p>
+            </div>
+            {% endif %}
+            
+            <!-- Message "Aucun résultat" pour la recherche -->
+            <div id="no-results-message" style="display: none; text-align: center; padding: 60px 24px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); margin-top: 20px;">
+                <i class="fi-rs-search" style="font-size: 56px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
+                <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 10px;">Aucun résultat</h2>
+                <p style="font-size: 15px; color: #6B7280; margin: 0;">Aucune catégorie ne correspond à votre recherche.</p>
+            </div>
         </div>
-        {% else %}
-        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
-            <i class="fi-rs-apps" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
-            <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucune catégorie disponible</h2>
-            <p style="font-size: 16px; color: #6B7280;">Les catégories seront bientôt disponibles.</p>
-        </div>
-        {% endif %}
-        
-        <style>
-            /* Animation pour le gradient */
-            @keyframes gradientShift {
-                0% { background-position: 0% 50%; }
-                50% { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-            }
-            
-            /* Force la couleur blanche pour le texte des catégories */
-            .category-card-content h3,
-            .category-card-content span {
-                color: #FFFFFF !important;
-            }
-            
-            /* Responsive - Mobile First */
-            @media (max-width: 768px) {
-                .categories-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                    gap: 12px !important;
-                }
-                .category-card-large {
-                    height: 200px !important;
-                    min-height: 200px !important;
-                }
-                .category-card-content h3 {
-                    font-size: 16px !important;
-                    margin-bottom: 8px !important;
-                    color: #FFFFFF !important;
-                }
-                .category-card-content > div {
-                    padding: 14px 16px !important;
-                }
-                .category-card-content span {
-                    font-size: 11px !important;
-                    color: #FFFFFF !important;
-                }
-            }
-            
-            @media (min-width: 769px) and (max-width: 1024px) {
-                .categories-grid {
-                    grid-template-columns: repeat(2, 1fr) !important;
-                    gap: 20px !important;
-                }
-                .category-card-large {
-                    height: 260px !important;
-                    min-height: 260px !important;
-                }
-                .category-card-content h3 {
-                    font-size: 20px !important;
-                    color: #FFFFFF !important;
-                }
-                .category-card-content span {
-                    color: #FFFFFF !important;
-                }
-                .category-card-content > div {
-                    padding: 18px 20px !important;
-                }
-            }
-            
-            @media (min-width: 1025px) {
-                .categories-grid {
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 20px !important;
-                }
-                .category-card-large {
-                    height: 220px !important;
-                    min-height: 220px !important;
-                }
-                .category-card-content h3 {
-                    font-size: 20px !important;
-                    color: #FFFFFF !important;
-                }
-                .category-card-content span {
-                    color: #FFFFFF !important;
-                }
-                .category-card-content > div {
-                    padding: 16px 20px !important;
-                }
-            }
-            
-            /* Amélioration de la lisibilité au hover - Ajustez rgba(0, 0, 0, X) pour modifier le contraste au survol */
-            .category-card-large:hover .category-card-content > div {
-                background: linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 100%) !important;
-            }
-            
-            /* Hover effect pour l'icône */
-            .category-card-large:hover .category-card-hover-badge {
-                opacity: 1 !important;
-            }
-            
-            .category-card-large:hover .category-card-content i.fi-rs-arrow-right {
-                transform: translateX(4px);
-            }
-        </style>
-        </div>
-    </main>
-{%endblock body%}
+    </div>
+</main>
 
-{%block script%}
-<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
+<style>
+    /* Hover effect sur les cartes */
+    .category-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Focus sur la barre de recherche */
+    .category-search-bar input:focus {
+        border-color: var(--color-orange) !important;
+        background: #fff !important;
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1);
+    }
+
+    /* Responsive */
+    @media (min-width: 600px) {
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 16px !important;
+        }
+        .category-card-image {
+            height: 160px !important;
+        }
+    }
+    
+    @media (min-width: 900px) {
+        .category-page-container {
+            max-width: 1200px !important;
+            margin: 0 auto !important;
+        }
+        .categories-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 20px !important;
+        }
+        .category-card-image {
+            height: 180px !important;
+        }
+    }
+    
+    @media (max-width: 599px) {
+        .categories-grid {
+            gap: 10px !important;
+        }
+        .category-card-image {
+            height: 120px !important;
+        }
+        .category-header h1 {
+            font-size: 16px !important;
+        }
+    }
+</style>
+{% endblock body %}
+
+{% block script %}
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
 <script>
-    // Animation pour les cartes au survol
     $(document).ready(function() {
-        $('.category-card-large').on('mouseenter', function() {
-            $(this).find('.category-card-bg img').css('transform', 'scale(1.1)');
-            $(this).find('.category-card-content i.fi-rs-arrow-right').css('transform', 'translateX(4px)');
+        // Animation au survol des cartes
+        $('.category-card').on('mouseenter', function() {
+            $(this).css('transform', 'translateY(-2px)');
         }).on('mouseleave', function() {
-            $(this).find('.category-card-bg img').css('transform', 'scale(1)');
-            $(this).find('.category-card-content i.fi-rs-arrow-right').css('transform', 'translateX(0)');
+            $(this).css('transform', 'translateY(0)');
+        });
+
+        // Fonctionnalité de recherche
+        $('#category-search-input').on('input', function() {
+            const searchTerm = $(this).val().toLowerCase().trim();
+            const categoryCards = $('.category-card');
+            let visibleCount = 0;
+
+            categoryCards.each(function() {
+                const categoryName = $(this).attr('data-category-name') || '';
+                
+                if (searchTerm === '' || categoryName.includes(searchTerm)) {
+                    $(this).show();
+                    visibleCount++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            // Afficher/masquer le message "Aucun résultat"
+            const categoriesGrid = $('#categories-grid');
+            const noResultsMessage = $('#no-results-message');
+            
+            if (visibleCount === 0 && searchTerm !== '') {
+                categoriesGrid.hide();
+                noResultsMessage.show();
+            } else {
+                categoriesGrid.show();
+                noResultsMessage.hide();
+            }
+        });
+
+        // Réinitialiser la recherche si l'utilisateur efface tout
+        $('#category-search-input').on('keyup', function() {
+            if ($(this).val() === '') {
+                $('#categories-grid').show();
+                $('#no-results-message').hide();
+            }
         });
     });
 </script>
-{%endblock script%}
+{% endblock script %}

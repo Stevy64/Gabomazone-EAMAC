@@ -3,26 +3,73 @@ from django import views
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
+from django.db.models import Q, Count
 from accounts.models import Profile ,SocialLink
 from django.views.generic import View
-from products.models import Product 
+from products.models import Product
+from categories.models import SuperCategory
 # Create your views here.
 
 
 def supplier_list(request):
-    return render(request, "suppliers/vendors-grid.html")
+    categories = SuperCategory.objects.all().order_by("name")
+    context = {"super_categories": categories}
+    return render(request, "suppliers/vendors-grid.html", context)
+
+
+def _serialize_vendor(v):
+    """Build dict for one vendor for JSON response."""
+    return {
+        "id": v.id,
+        "display_name": v.display_name or (v.user.username if v.user else None),
+        "image": v.image.name if v.image else None,
+        "bio": v.bio or "",
+        "city": v.city or "",
+        "country": v.country or "",
+        "slug": v.slug or "",
+        "date": v.date.isoformat() if v.date else None,
+        "user": {"username": v.user.username if v.user else None},
+    }
 
 
 class VendorsJsonListView(View):
     def get(self, *args, **kwargs):
-
         upper = int(self.request.GET.get("num_vendors", 12))
         lower = upper - 12
-        # Filtrer uniquement les vendors approuvés (admission=True)
-        vendors_queryset = Profile.objects.filter(status="vendor", admission=True).order_by("-date")
-        vendors = list(vendors_queryset.values()[lower:upper])
+        search = (self.request.GET.get("q") or self.request.GET.get("search", "")).strip()
+        city_filter = (self.request.GET.get("city") or "").strip()
+        category_slug = (self.request.GET.get("category") or "").strip()
+        order = (self.request.GET.get("order") or "recent").strip().lower()
+
+        vendors_queryset = (
+            Profile.objects.filter(status="vendor", admission=True)
+            .select_related("user")
+        )
+
+        if search:
+            vendors_queryset = vendors_queryset.filter(
+                Q(display_name__icontains=search) | Q(user__username__icontains=search)
+            )
+        if city_filter:
+            vendors_queryset = vendors_queryset.filter(city__icontains=city_filter)
+        if category_slug:
+            vendors_queryset = vendors_queryset.filter(
+                product_set__product_supercategory__slug=category_slug,
+                product_set__PRDISDeleted=False,
+                product_set__PRDISactive=True,
+            ).distinct()
+
+        if order == "popular":
+            vendors_queryset = vendors_queryset.annotate(
+                product_count=Count("product_set", distinct=True)
+            ).order_by("-product_count", "-date")
+        else:
+            vendors_queryset = vendors_queryset.order_by("-date")
+
         vendors_size = vendors_queryset.count()
-        max_size = True if upper >= vendors_size else False
+        page = list(vendors_queryset[lower:upper])
+        vendors = [_serialize_vendor(v) for v in page]
+        max_size = upper >= vendors_size
         return JsonResponse({"data": vendors, "max": max_size, "vendors_size": vendors_size}, safe=False)
 
 

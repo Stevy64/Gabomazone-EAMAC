@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cart_template_tags %}
+{% load peer_filters %}
 
 {% block body %}
 <style>
@@ -148,6 +149,112 @@
             font-size: 11px;
         }
     }
+    
+    /* Mobile-First: grille 2x2 - Autres articles du vendeur (style Ayoka) */
+    .seller-products-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+    }
+    .seller-product-card {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .seller-product-card-inner {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #E5E7EB;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .seller-product-card:hover .seller-product-card-inner {
+        border-color: var(--color-orange);
+        box-shadow: 0 8px 24px rgba(255, 123, 44, 0.15);
+    }
+    .seller-product-card-image {
+        width: 100%;
+        padding-top: 75%;
+        position: relative;
+        background: #FAFAFA;
+        overflow: hidden;
+    }
+    .seller-product-card-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .seller-product-card:hover .seller-product-card-image img {
+        transform: scale(1.05);
+    }
+    .seller-product-card-body {
+        padding: 14px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .seller-product-card-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .seller-product-card-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--color-orange);
+        margin: 0 0 4px 0;
+    }
+    .seller-product-card-date {
+        font-size: 11px;
+        color: #9CA3AF;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .seller-product-card-date i {
+        font-size: 10px;
+    }
+    @media (min-width: 600px) {
+        .seller-products-grid {
+            gap: 16px;
+        }
+    }
+    @media (max-width: 768px) {
+        .seller-product-card-body {
+            padding: 12px;
+        }
+        .seller-product-card-title {
+            font-size: 13px;
+        }
+        .seller-product-card-price {
+            font-size: 15px;
+        }
+    }
+    @media (max-width: 380px) {
+        .seller-products-grid {
+            gap: 8px;
+        }
+        .seller-product-card-body {
+            padding: 10px;
+        }
+        .seller-product-card-title {
+            font-size: 12px;
+        }
+    }
 </style>
 
 <main class="main pages" style="padding-top: 100px; padding-bottom: 100px; background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
@@ -276,21 +383,36 @@
             {% endif %}
         </div>
         
-        <!-- Seller Products -->
+        <!-- Seller Products (grille 2x2) -->
         {% if seller_products %}
-        <div class="reviews-section" style="margin-top: 24px;">
+        <div class="reviews-section seller-products-section" style="margin-top: 24px;">
             <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0;">
                 <i class="fi-rs-box" style="color: var(--color-orange); margin-right: 8px;"></i>
                 Autres articles de ce vendeur
             </h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+            <div class="seller-products-grid">
                 {% for product in seller_products %}
-                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" style="text-decoration: none; color: inherit;">
-                    <div style="background: #FAFAFA; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 150px; object-fit: cover;">
-                        <div style="padding: 12px;">
-                            <h4 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ product.product_name }}</h4>
-                            <p style="font-size: 16px; font-weight: 700; color: var(--color-orange); margin: 0;">{{ product.PRDPrice|format_price }} FCFA</p>
+                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" class="seller-product-card">
+                    <div class="seller-product-card-inner">
+                        <div class="seller-product-card-image">
+                            {% if product.product_image %}
+                            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                            {% else %}
+                            <div style="width:100%;height:100%;background:linear-gradient(135deg,#F3F4F6,#E5E7EB);display:flex;align-items:center;justify-content:center;"><i class="fi-rs-picture" style="font-size:32px;color:#9CA3AF;"></i></div>
+                            {% endif %}
+                        </div>
+                        <div class="seller-product-card-body">
+                            {% if product.condition %}
+                            <span class="peer-condition-badge peer-condition-{{ product.condition|condition_slug }}" style="margin-bottom: 6px;">{{ product.get_condition_display }}</span>
+                            {% endif %}
+                            <h4 class="seller-product-card-title">{{ product.product_name }}</h4>
+                            <p class="seller-product-card-price">{{ product.PRDPrice|format_price }} FCFA</p>
+                            {% if product.seller_city %}
+                            <p class="seller-product-card-location" style="font-size: 12px; color: #6B7280; margin: 4px 0; display: flex; align-items: center; gap: 4px;"><i class="fi-rs-marker" style="font-size: 11px;"></i>{{ product.seller_city }}</p>
+                            {% endif %}
+                            {% if product.date %}
+                            <span class="seller-product-card-date" style="font-size: 12px; color: #9CA3AF;">{{ product.date|relative_date }}</span>
+                            {% endif %}
                         </div>
                     </div>
                 </a>

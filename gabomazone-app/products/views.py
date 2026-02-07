@@ -165,23 +165,27 @@ def product_search(request):
         if category_select == "All Categories":
             try:
                 queryset = Product.objects.filter(
-                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).annotate(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
+                ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
             except:
                 queryset = Product.objects.filter(
-                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).order_by('-date').distinct()
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
+                ).select_related('product_vendor').order_by('-date').distinct()
         else:
             try:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
-                    product_supercategory__name=category_select).annotate(
+                    product_supercategory__name=category_select
+                ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
             except:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
-                    product_supercategory__name=category_select).order_by('-date').distinct()
+                    product_supercategory__name=category_select
+                ).select_related('product_vendor').order_by('-date').distinct()
         
         request.session["products_count"] = queryset.count()
         paginator = Paginator(queryset, 12)
@@ -200,23 +204,27 @@ def product_search(request):
         if category_select == "All Categories":
             try:
                 queryset = Product.objects.filter(
-                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).annotate(
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
+                ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
             except:
                 queryset = Product.objects.filter(
-                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True).order_by('-date').distinct()
+                    product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
+                ).select_related('product_vendor').order_by('-date').distinct()
         else:
             try:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
-                    product_supercategory__name=category_select).annotate(
+                    product_supercategory__name=category_select
+                ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
             except:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
-                    product_supercategory__name=category_select).order_by('-date').distinct()
+                    product_supercategory__name=category_select
+                ).select_related('product_vendor').order_by('-date').distinct()
         
         paginator = Paginator(queryset, 12)
         page = request.GET.get('page', 1)

@@ -72,7 +72,7 @@ def home_page(request):
         popular_products_queryset = Product.objects.filter(
             PRDISactive=True, 
             PRDISDeleted=False
-        ).annotate(
+        ).select_related('product_vendor').annotate(
             like_count=Count('favorites', distinct=True),
             # Compter les commandes terminées via OrderDetails
             order_count=Count(
@@ -164,7 +164,7 @@ def home_page(request):
             fallback_products = Product.objects.filter(
                 PRDISactive=True, 
                 PRDISDeleted=False
-            ).order_by('-date')[:12]
+            ).select_related('product_vendor').order_by('-date')[:12]
             for product in fallback_products:
                 all_popular_products.append({
                     'product': product,
@@ -179,7 +179,7 @@ def home_page(request):
     new_products_queryset = Product.objects.filter(
         PRDISactive=True, 
         PRDISDeleted=False
-    ).order_by('-date')[:12]
+    ).select_related('product_vendor').order_by('-date')[:12]
     
     # Préparer les données des produits populaires avec images multiples
     popular_products_data = []

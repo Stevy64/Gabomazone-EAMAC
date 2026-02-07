@@ -103,6 +103,25 @@ class PeerToPeerProduct(models.Model):
         verbose_name=_("Statut")
     )
     
+    # État de l'article (occasion) — valeurs sans tiret (ex. BON ETAT)
+    NEUF = 'NEUF'
+    COMME_NEUF = 'COMME NEUF'
+    BON_ETAT = 'BON ETAT'
+    UTILISABLE = 'UTILISABLE'
+    CONDITION_CHOICES = [
+        (NEUF, _('Neuf')),
+        (COMME_NEUF, _('Comme neuf')),
+        (BON_ETAT, _('Bon état')),
+        (UTILISABLE, _('Utilisable')),
+    ]
+    condition = models.CharField(
+        max_length=20,
+        choices=CONDITION_CHOICES,
+        default=BON_ETAT,
+        blank=True,
+        verbose_name=_("État de l'article")
+    )
+
     # Informations de contact
     seller_phone = models.CharField(max_length=20, verbose_name=_("Téléphone du vendeur"))
     seller_address = models.TextField(verbose_name=_("Adresse du vendeur"))

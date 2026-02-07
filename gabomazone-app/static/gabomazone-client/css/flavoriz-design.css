@@ -1054,7 +1054,7 @@ footer.main:not(.flavoriz-footer),
     overflow: hidden !important;
     background: #FAFAFA !important;
     width: 100% !important;
-    padding-top: 65% !important;
+    padding-top: 58% !important;
 }
 
 .flavoriz-product-card > div:first-child > img {
@@ -1071,7 +1071,7 @@ footer.main:not(.flavoriz-footer),
 }
 
 .flavoriz-product-body {
-    padding: 14px !important;
+    padding: 10px 12px !important;
     flex: 1 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1083,16 +1083,32 @@ footer.main:not(.flavoriz-footer),
     gap: 4px !important;
     color: var(--text-light) !important;
     font-size: 11px !important;
-    margin-bottom: var(--spacing-sm) !important;
+    margin-bottom: 4px !important;
+}
+
+/* Détails carte plus compacts : espacements réduits */
+.flavoriz-product-body > div {
+    margin-bottom: 4px !important;
+}
+.flavoriz-product-body > div:last-child {
+    margin-bottom: 0 !important;
+    margin-top: auto !important;
+    gap: 6px !important;
+}
+.flavoriz-product-body .flavoriz-product-title + div {
+    margin-bottom: 4px !important;
+}
+.flavoriz-product-price {
+    font-size: 16px !important;
 }
 
 .flavoriz-product-title {
-    font-size: 14px !important;
+    font-size: 13px !important;
     font-weight: 600 !important;
     color: #1F2937 !important;
-    margin-bottom: 10px !important;
-    line-height: 1.4 !important;
-    min-height: 40px !important;
+    margin-bottom: 6px !important;
+    line-height: 1.35 !important;
+    min-height: 36px !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: -webkit-box !important;
@@ -1103,7 +1119,7 @@ footer.main:not(.flavoriz-footer),
 
 .flavoriz-product-card-btn {
     width: 100% !important;
-    padding: 8px 14px !important;
+    padding: 7px 12px !important;
     background: #1F2937 !important;
     color: var(--color-white) !important;
     border: none !important;
@@ -1126,6 +1142,52 @@ footer.main:not(.flavoriz-footer),
     background: var(--color-orange) !important;
     transform: translateY(-1px) translateZ(0) !important;
     box-shadow: 0 3px 10px rgba(255, 87, 34, 0.25) !important;
+}
+
+/* Badges État des articles occasion — même style que "Occasion", couleurs par condition */
+.flavoriz-product-card .peer-condition-badge,
+.peer-condition-badge {
+    display: inline-block !important;
+    border: none !important;
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+/* Bleu = Neuf */
+.flavoriz-product-card .peer-condition-badge.peer-condition-neuf,
+.peer-condition-badge.peer-condition-neuf {
+    background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%) !important;
+    background-color: #3B82F6 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+}
+/* Vert = Comme neuf */
+.flavoriz-product-card .peer-condition-badge.peer-condition-comme_neuf,
+.peer-condition-badge.peer-condition-comme_neuf {
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
+    background-color: #059669 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4) !important;
+}
+/* Jaune = Bon état */
+.flavoriz-product-card .peer-condition-badge.peer-condition-bon_etat,
+.peer-condition-badge.peer-condition-bon_etat {
+    background: linear-gradient(135deg, #EAB308 0%, #FACC15 100%) !important;
+    background-color: #EAB308 !important;
+    color: #1F2937 !important;
+    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.4) !important;
+}
+/* Orange = Utilisable */
+.flavoriz-product-card .peer-condition-badge.peer-condition-utilisable,
+.peer-condition-badge.peer-condition-utilisable {
+    background: linear-gradient(135deg, #F97316 0%, #FB923C 100%) !important;
+    background-color: #F97316 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4) !important;
 }
 
 /* Styles pour le bouton favoris */
@@ -1514,6 +1576,31 @@ footer.main:not(.flavoriz-footer),
     text-overflow: ellipsis !important;
     max-width: 100% !important;
     line-height: 1.2 !important;
+}
+
+/* ===== BOUTON PUBLIER : icône + entourée d’un cercle (outline) ===== */
+.flavoriz-bottom-nav-add-btn .add-btn-icon-wrap {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid currentColor !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 0 !important;
+    transition: all 0.2s ease !important;
+    color: inherit !important;
+}
+
+.flavoriz-bottom-nav-add-btn .add-btn-icon-wrap i {
+    font-size: 18px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.flavoriz-bottom-nav-add-btn.active .add-btn-icon-wrap {
+    color: var(--color-orange) !important;
+    border-color: var(--color-orange) !important;
 }
 
 /* ===== RESPONSIVE - MOBILE FIRST ===== */

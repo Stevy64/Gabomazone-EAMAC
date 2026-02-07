@@ -55,11 +55,64 @@
 
         <!-- Page Header -->
         <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-                                <div>
+            <div>
                 <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Magasins Partenaires</h1>
                 <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos magasins partenaires</p>
-                                    </div>
-                                </div>
+            </div>
+        </div>
+
+        <!-- Barre de recherche moderne (style liste d'articles) -->
+        <div class="vendors-search-form-container" style="max-width: 900px; margin: 0 auto 28px;">
+            <form id="vendors-search-form" class="vendors-search-form" style="background: white; border-radius: 20px; padding: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 2px solid #F3F4F6; transition: all 0.3s ease;">
+                <div class="vendors-search-row" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <div class="vendors-search-input-wrapper" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #FAFAFA; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.2s ease;">
+                        <i class="fi-rs-search" style="font-size: 18px; color: var(--color-orange); flex-shrink: 0;"></i>
+                        <input type="text" id="vendor-search-q" name="q" placeholder="Rechercher un magasin..."
+                               class="vendors-search-input" autocomplete="off"
+                               style="flex: 1; border: none; outline: none; font-size: 15px; padding: 12px 0; color: #1F2937; font-family: var(--font-secondary); background: transparent;">
+                    </div>
+                    <input type="text" id="vendor-filter-city" name="city" placeholder="Ville"
+                           style="width: 120px; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 13px; background: #FAFAFA; color: #1F2937; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary);"
+                           autocomplete="off">
+                    <!-- Liste déroulante Catégorie (custom) -->
+                    <div class="flavoriz-dropdown" id="dropdown-category-wrap" style="position: relative; min-width: 180px;">
+                        <input type="hidden" id="vendor-filter-category" name="category" value="">
+                        <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-category-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="dropdown-category-label">
+                            <span class="flavoriz-dropdown-label" id="dropdown-category-label">Toutes les catégories</span>
+                            <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                        </button>
+                        <div class="flavoriz-dropdown-panel" id="dropdown-category-panel" role="listbox" hidden>
+                            <div class="flavoriz-dropdown-option" role="option" data-value="" data-label="Toutes les catégories" tabindex="0">Toutes les catégories</div>
+                            {% for cat in super_categories %}
+                            <div class="flavoriz-dropdown-option" role="option" data-value="{{ cat.slug }}" data-label="{{ cat.name }}" tabindex="0">{{ cat.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Liste déroulante Tri (custom) -->
+                    <div class="flavoriz-dropdown" id="dropdown-order-wrap" style="position: relative; min-width: 160px;">
+                        <input type="hidden" id="vendor-filter-order" name="order" value="recent">
+                        <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-order-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="dropdown-order-label">
+                            <span class="flavoriz-dropdown-label" id="dropdown-order-label">Plus récents</span>
+                            <i class="fi-rs-angle-small-down flavoriz-dropdown-chevron"></i>
+                        </button>
+                        <div class="flavoriz-dropdown-panel" id="dropdown-order-panel" role="listbox" hidden>
+                            <div class="flavoriz-dropdown-option" role="option" data-value="recent" data-label="Plus récents" tabindex="0">Plus récents</div>
+                            <div class="flavoriz-dropdown-option" role="option" data-value="popular" data-label="Plus populaires" tabindex="0">Plus populaires</div>
+                        </div>
+                    </div>
+                    <button type="submit" id="vendor-search-btn" class="vendors-search-submit-btn" style="background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 16px; padding: 12px 28px; cursor: pointer; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); white-space: nowrap;">
+                        <i class="fi-rs-search" style="font-size: 16px;"></i>
+                        <span>Rechercher</span>
+                    </button>
+                </div>
+                <div style="margin-top: 10px; text-align: right;">
+                    <button type="button" id="vendor-reset-filters" style="background: none; border: none; color: #6B7280; font-size: 13px; cursor: pointer; padding: 4px 8px; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s ease;">
+                        <i class="fi-rs-cross-small" style="font-size: 14px;"></i>
+                        <span>Réinitialiser les filtres</span>
+                    </button>
+                </div>
+            </form>
+        </div>
 
         <!-- Results Count -->
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
@@ -69,8 +122,8 @@
             </p>
                             </div>
 
-        <!-- Vendors Grid -->
-        <div id="vendors-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; gap: 24px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
+        <!-- Vendors Grid (2x2) -->
+        <div id="vendors-list" class="flavoriz-vendors-grid" style="display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
             <!-- Vendors will be loaded here via AJAX -->
                 </div>
                 
@@ -111,38 +164,158 @@
     box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
 }
 
+/* Barre de recherche magasins - style moderne */
+.vendors-search-form-container { width: 100%; }
+.vendors-search-form:focus-within,
+.vendors-search-form:hover {
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+.vendors-search-form:has(.vendors-search-input-wrapper:focus-within) {
+    box-shadow: 0 6px 24px rgba(255, 123, 44, 0.12) !important;
+    border-color: var(--color-orange) !important;
+}
+.vendors-search-input-wrapper:focus-within {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+.vendors-search-input-wrapper:hover {
+    border-color: #D1D5DB !important;
+}
+.vendors-search-form input[type="text"][name="city"]:hover {
+    border-color: #D1D5DB !important;
+}
+.vendors-search-form input[type="text"][name="city"]:focus {
+    border-color: var(--color-orange) !important;
+    outline: none !important;
+}
+
+/* Listes déroulantes personnalisées */
+.flavoriz-dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    font-size: 13px;
+    background: #FAFAFA;
+    color: #1F2937;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: var(--font-secondary);
+    text-align: left;
+    min-height: 44px;
+}
+.flavoriz-dropdown-trigger:hover {
+    border-color: #D1D5DB;
+    background: #F9FAFB;
+}
+.flavoriz-dropdown-trigger:focus {
+    border-color: var(--color-orange);
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.12);
+}
+.flavoriz-dropdown.open .flavoriz-dropdown-trigger {
+    border-color: var(--color-orange);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1);
+}
+.flavoriz-dropdown-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.flavoriz-dropdown-chevron {
+    font-size: 16px;
+    color: #6B7280;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+.flavoriz-dropdown.open .flavoriz-dropdown-chevron {
+    transform: rotate(180deg);
+    color: var(--color-orange);
+}
+.flavoriz-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #E5E7EB;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 6px 0;
+}
+.flavoriz-dropdown-panel[hidden] {
+    display: none !important;
+}
+.flavoriz-dropdown-option {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #1F2937;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: var(--font-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    background: none;
+}
+.flavoriz-dropdown-option:hover {
+    background: #FDF8F3;
+    color: var(--color-orange);
+}
+.flavoriz-dropdown-option.selected {
+    background: rgba(255, 123, 44, 0.1);
+    color: var(--color-orange);
+    font-weight: 600;
+}
+.flavoriz-dropdown-option:focus {
+    outline: none;
+    background: #F3F4F6;
+}
+.flavoriz-dropdown-option:focus:hover,
+.flavoriz-dropdown-option.selected:hover {
+    background: #FDF8F3;
+}
+.vendors-search-submit-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
+}
+#vendor-reset-filters:hover { color: var(--color-orange) !important; }
+
 @media (max-width: 768px) {
     .main.pages {
         padding-top: 80px !important;
         padding-bottom: 60px !important;
     }
-    
-    h1 {
-        font-size: 24px !important;
-    }
-    
+    h1 { font-size: 24px !important; }
     #vendors-list {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 16px !important;
     }
+    .vendors-search-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .vendors-search-input-wrapper { min-width: 100% !important; }
+    #vendor-filter-city { width: 100% !important; box-sizing: border-box !important; }
+    #dropdown-category-wrap,
+    #dropdown-order-wrap { min-width: 100% !important; }
+    .vendors-search-submit-btn { width: 100% !important; justify-content: center !important; }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-    #vendors-list {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
-}
-
-@media (min-width: 1025px) {
-    #vendors-list {
-        grid-template-columns: repeat(3, 1fr) !important;
-    }
-}
-
-@media (min-width: 1400px) {
-    #vendors-list {
-        grid-template-columns: repeat(4, 1fr) !important;
-    }
+@media (min-width: 769px) {
+    #vendors-list { grid-template-columns: repeat(2, 1fr) !important; }
 }
 </style>
 {%endblock body%}
@@ -161,6 +334,101 @@
     const loadingBox = document.getElementById('loading-box');
     const loadBtn = document.getElementById('load-btn');
     const vendorsNumber = document.getElementById('vendors-number');
+    const searchForm = document.getElementById('vendors-search-form');
+    const searchInput = document.getElementById('vendor-search-q');
+    const cityInput = document.getElementById('vendor-filter-city');
+    const categorySelect = document.getElementById('vendor-filter-category');
+    const orderSelect = document.getElementById('vendor-filter-order');
+    const resetBtn = document.getElementById('vendor-reset-filters');
+    
+    function initCustomDropdowns() {
+        var dropdowns = [
+            { wrap: 'dropdown-category-wrap', trigger: 'dropdown-category-trigger', panel: 'dropdown-category-panel', hidden: 'vendor-filter-category', labelEl: 'dropdown-category-label' },
+            { wrap: 'dropdown-order-wrap', trigger: 'dropdown-order-trigger', panel: 'dropdown-order-panel', hidden: 'vendor-filter-order', labelEl: 'dropdown-order-label' }
+        ];
+        dropdowns.forEach(function(d) {
+            var wrap = document.getElementById(d.wrap);
+            var trigger = document.getElementById(d.trigger);
+            var panel = document.getElementById(d.panel);
+            var hidden = document.getElementById(d.hidden);
+            var labelEl = document.getElementById(d.labelEl);
+            if (!wrap || !trigger || !panel || !hidden) return;
+            function close() {
+                wrap.classList.remove('open');
+                panel.setAttribute('hidden', '');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+            function open() {
+                wrap.classList.add('open');
+                panel.removeAttribute('hidden');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var isOpen = wrap.classList.contains('open');
+                document.querySelectorAll('.flavoriz-dropdown.open').forEach(function(w) {
+                    if (w !== wrap) {
+                        w.classList.remove('open');
+                        var p = w.querySelector('.flavoriz-dropdown-panel');
+                        if (p) p.setAttribute('hidden', '');
+                    }
+                });
+                if (isOpen) close(); else open();
+            });
+            panel.querySelectorAll('.flavoriz-dropdown-option').forEach(function(opt) {
+                opt.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var val = opt.getAttribute('data-value');
+                    var label = opt.getAttribute('data-label');
+                    hidden.value = val || '';
+                    if (labelEl) labelEl.textContent = label;
+                    panel.querySelectorAll('.flavoriz-dropdown-option').forEach(function(o) { o.classList.remove('selected'); });
+                    opt.classList.add('selected');
+                    close();
+                });
+                opt.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        opt.click();
+                    }
+                });
+            });
+            wrap.querySelectorAll('.flavoriz-dropdown-option').forEach(function(opt) {
+                if (opt.getAttribute('data-value') === (hidden.value || '')) opt.classList.add('selected');
+            });
+        });
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.flavoriz-dropdown.open').forEach(function(w) {
+                w.classList.remove('open');
+                var p = w.querySelector('.flavoriz-dropdown-panel');
+                if (p) p.setAttribute('hidden', '');
+            });
+        });
+        document.querySelectorAll('.flavoriz-dropdown').forEach(function(w) {
+            w.addEventListener('click', function(e) { e.stopPropagation(); });
+        });
+    }
+    
+    function getSearchParams() {
+        const q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
+        const city = (cityInput && cityInput.value) ? cityInput.value.trim() : '';
+        const category = (categorySelect && categorySelect.value) ? categorySelect.value.trim() : '';
+        const order = (orderSelect && orderSelect.value) ? orderSelect.value.trim() : 'recent';
+        return { q: q, city: city, category: category, order: order };
+    }
+    
+    function buildVendorsUrl(numVendors) {
+        const base = '{% url "suppliers:vendors-ajax" %}';
+        const params = new URLSearchParams();
+        params.set('num_vendors', String(numVendors));
+        const sp = getSearchParams();
+        if (sp.q) params.set('q', sp.q);
+        if (sp.city) params.set('city', sp.city);
+        if (sp.category) params.set('category', sp.category);
+        if (sp.order) params.set('order', sp.order);
+        return base + '?' + params.toString();
+    }
     
     function handleGetVendors(sorted) {
         if (window.isLoadingVendors) {
@@ -177,8 +445,7 @@
         emptyBox.classList.add('not-visible');
         loadingBox.classList.add('not-visible');
         
-        // Utiliser l'URL Django correcte
-        const url = '{% url "suppliers:vendors-ajax" %}?num_vendors=' + visible;
+        const url = buildVendorsUrl(visible);
         
         fetch(url, {
             method: 'GET',
@@ -287,6 +554,41 @@
         
         return card;
     }
+    
+    // Form submit: search with filters
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            visible = 12;
+            handleGetVendors(true);
+        });
+    }
+    
+    // Reset filters
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (cityInput) cityInput.value = '';
+            if (categorySelect) categorySelect.value = '';
+            if (orderSelect) orderSelect.value = 'recent';
+            var catLabel = document.getElementById('dropdown-category-label');
+            var orderLabel = document.getElementById('dropdown-order-label');
+            if (catLabel) catLabel.textContent = 'Toutes les catégories';
+            if (orderLabel) orderLabel.textContent = 'Plus récents';
+            document.querySelectorAll('#dropdown-category-panel .flavoriz-dropdown-option').forEach(function(o) {
+                o.classList.remove('selected');
+                if ((o.getAttribute('data-value') || '') === '') o.classList.add('selected');
+            });
+            document.querySelectorAll('#dropdown-order-panel .flavoriz-dropdown-option').forEach(function(o) {
+                o.classList.remove('selected');
+                if (o.getAttribute('data-value') === 'recent') o.classList.add('selected');
+            });
+            visible = 12;
+            handleGetVendors(true);
+        });
+    }
+    
+    initCustomDropdowns();
     
     // Initial load
     if (document.readyState === 'loading') {
