@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cart_template_tags %}
-{% load peer_filters %}
+{% load category_icons %}
 
 {%block body%}
 <main class="main">
@@ -1048,17 +1048,26 @@
     }
 }
 
-/* Grille 2x2 page d'accueil (même rendu que page Produits) - 2 colonnes sur tous les écrans */
+/* Grille articles page d'accueil : même affichage que la page Produits (4 cols desktop, 3 tablette, 2 mobile) */
 .home-products-grid.flavoriz-product-grid {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 14px !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
     width: 100% !important;
     max-width: 100% !important;
     margin-bottom: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+}
+@media (max-width: 1024px) {
+    .home-products-grid.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 16px !important;
+    }
 }
 @media (max-width: 768px) {
     .home-products-grid.flavoriz-product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px !important;
     }
 }

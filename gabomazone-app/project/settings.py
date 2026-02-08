@@ -229,6 +229,7 @@ EMAIL_SENDGRID = "selemhamed2016@gmail.com"
 SINGPAY_API_KEY = config('SINGPAY_API_KEY', default='')
 SINGPAY_API_SECRET = config('SINGPAY_API_SECRET', default='')
 SINGPAY_MERCHANT_ID = config('SINGPAY_MERCHANT_ID', default='')
+SINGPAY_DISBURSEMENT_ID = config('SINGPAY_DISBURSEMENT_ID', default='')  # ID portefeuille pour les virements (disbursement)
 SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandbox' ou 'production'
 
 # Domaine de production pour les URLs de callback SingPay

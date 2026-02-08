@@ -15,6 +15,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Préfixe pour filtrer les logs du flux de paiement SingPay
+LOG_PREFIX = "[SingPay]"
+
+
+def _sanitize_for_log(data: Optional[Dict], max_len: int = 200) -> Dict:
+    """Retourne une copie des données safe pour les logs (sans secrets, champs tronqués)."""
+    if not data:
+        return {}
+    safe = {}
+    skip_keys = {'x-client-secret', 'api_secret', 'password', 'token'}
+    for k, v in data.items():
+        key_lower = k.lower() if isinstance(k, str) else str(k)
+        if any(s in key_lower for s in skip_keys):
+            safe[k] = "***"
+        elif isinstance(v, str) and len(v) > max_len:
+            safe[k] = v[:max_len] + "..."
+        else:
+            safe[k] = v
+    return safe
+
 
 class SingPayService:
     """
@@ -65,6 +85,7 @@ class SingPayService:
         self.api_key = getattr(settings, 'SINGPAY_API_KEY', '')
         self.api_secret = getattr(settings, 'SINGPAY_API_SECRET', '')
         self.merchant_id = getattr(settings, 'SINGPAY_MERCHANT_ID', '')
+        self.disbursement_id = getattr(settings, 'SINGPAY_DISBURSEMENT_ID', '')  # ID portefeuille pour disbursement (requête paiement/virement)
         self.environment = getattr(settings, 'SINGPAY_ENVIRONMENT', 'sandbox')  # 'sandbox' ou 'production'
         # Les credentials sont obligatoires en production: on bloque les appels si incomplets.
         if not all([self.api_key, self.api_secret, self.merchant_id]):
@@ -155,21 +176,29 @@ class SingPayService:
         url = f"{self.base_url}{endpoint}"
         headers = self._get_headers(data)
         
+        logger.info(
+            f"{LOG_PREFIX} REQUEST phase=api_call method={method} endpoint={endpoint} "
+            f"payload={_sanitize_for_log(data)}"
+        )
+        
         try:
             if method.upper() == 'GET':
                 response = requests.get(url, headers=headers, params=data, timeout=30)
             elif method.upper() == 'POST':
                 response = requests.post(url, headers=headers, json=data, timeout=30)
             else:
-                logger.error(f"Unsupported HTTP method: {method}")
+                logger.error(f"{LOG_PREFIX} REQUEST phase=api_call error=unsupported_method method={method}")
                 return False, {'error': f'Unsupported method: {method}'}
             
             # Erreurs HTTP -> exception pour un logging cohérent
             response.raise_for_status()
             response_data = response.json()
             
-            logger.info(f"SingPay API {method} {endpoint} - Success")
-            logger.debug(f"Réponse SingPay: {response_data}")
+            logger.info(
+                f"{LOG_PREFIX} RESPONSE phase=api_call method={method} endpoint={endpoint} "
+                f"status={response.status_code} success=True response_keys={list(response_data.keys()) if isinstance(response_data, dict) else 'n/a'}"
+            )
+            logger.debug(f"{LOG_PREFIX} RESPONSE body: {_sanitize_for_log(response_data)}")
             return True, response_data
             
         except requests.exceptions.RequestException as e:
@@ -182,14 +211,17 @@ class SingPayService:
                 try:
                     error_response = e.response.json()
                     error_details['api_error'] = error_response
-                    logger.error(f"SingPay API Error Response: {error_response}")
-                except:
-                    error_details['response_text'] = e.response.text[:500]  # Limiter la taille
+                except Exception:
+                    error_details['response_text'] = (e.response.text or '')[:500]
             
-            logger.error(f"SingPay API {method} {endpoint} - Error: {error_details}")
+            logger.error(
+                f"{LOG_PREFIX} RESPONSE phase=api_call method={method} endpoint={endpoint} "
+                f"success=False error={error_details.get('error')} status_code={error_details.get('status_code')} "
+                f"api_error={error_details.get('api_error')} response_text={error_details.get('response_text', '')[:100]}"
+            )
             return False, error_details
         except json.JSONDecodeError as e:
-            logger.error(f"SingPay API response JSON decode error: {str(e)}")
+            logger.error(f"{LOG_PREFIX} RESPONSE phase=api_call endpoint={endpoint} success=False error=json_decode details={e}")
             return False, {'error': 'Invalid JSON response', 'details': str(e)}
     
     def init_payment(
@@ -223,6 +255,13 @@ class SingPayService:
         Returns:
             Tuple (success, response_data) avec payment_url et transaction_id
         """
+        _phone = (customer_phone or '')[:6] + '***' if customer_phone else 'n/a'
+        _cb = (callback_url or '')[:60] + ('...' if len(callback_url or '') > 60 else '')
+        _ret = (return_url or '')[:60] + ('...' if len(return_url or '') > 60 else '')
+        logger.info(
+            f"{LOG_PREFIX} phase=init_payment order_id={order_id} amount={amount} currency={currency} "
+            f"customer_phone={_phone} callback_url={_cb} return_url={_ret}"
+        )
         # Structure des données selon la documentation SingPay
         # Documentation: https://client.singpay.ga/doc/reference/index.html
         # L'endpoint /v1/ext attend les paramètres suivants :
@@ -233,7 +272,7 @@ class SingPayService:
             'redirect_success': return_url,  # URL de redirection en cas de succès
             'redirect_error': return_url,  # URL de redirection en cas d'erreur
             'amount': float(amount),  # Montant
-            'disbursement': '',  # Optionnel - pour les virements
+            'disbursement': self.disbursement_id or '',  # ID portefeuille disbursement (SINGPAY_DISBURSEMENT_ID)
             'logoURL': '',  # Optionnel - URL du logo à afficher
             'isTransfer': False,  # Type de transaction (False = paiement, True = virement)
             'order_id': order_id,
@@ -246,10 +285,7 @@ class SingPayService:
             if 'disbursement' in metadata:
                 data['disbursement'] = metadata['disbursement']
         
-        # Logger les données envoyées pour le débogage
-        logger.info(f"Initialisation paiement SingPay - Order ID: {order_id}, Amount: {amount}, Currency: {currency}")
-        logger.debug(f"Données envoyées à SingPay: {data}")
-        logger.debug(f"URLs - Callback: {callback_url}, Return: {return_url}")
+        logger.debug(f"{LOG_PREFIX} phase=init_payment payload={_sanitize_for_log(data)}")
         
         # Endpoint selon la documentation SingPay officielle
         # Documentation: https://client.singpay.ga/doc/reference/index.html
@@ -398,9 +434,10 @@ class SingPayService:
                 logger.warning(f"Réponse complète de l'API: {response}")
             
             if payment_url:
-                logger.info(f"URL de paiement SingPay obtenue: {payment_url}")
-                logger.info(f"transaction_id final: {transaction_id}")
-                logger.info(f"reference: {reference}")
+                logger.info(
+                    f"{LOG_PREFIX} phase=init_payment_result order_id={order_id} success=True "
+                    f"transaction_id={transaction_id} reference={reference} payment_url={payment_url[:60]}..."
+                )
                 # S'assurer que transaction_id est toujours présent et valide
                 if not transaction_id or (isinstance(transaction_id, str) and not transaction_id.strip()):
                     import uuid
@@ -417,9 +454,15 @@ class SingPayService:
                     'expires_at': expires_at.isoformat() if expires_at else None,
                 }
             else:
-                logger.warning(f"Réponse SingPay sans lien de paiement: {response}")
+                logger.warning(
+                    f"{LOG_PREFIX} phase=init_payment_result order_id={order_id} success=False "
+                    f"error=no_payment_link response={response}"
+                )
                 return False, {'error': 'Lien de paiement manquant dans la réponse', 'response': response}
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=init_payment_result order_id={order_id} success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def verify_payment(self, transaction_id: str) -> Tuple[bool, Dict]:
@@ -432,12 +475,17 @@ class SingPayService:
         Returns:
             Tuple (success, transaction_data)
         """
+        logger.info(f"{LOG_PREFIX} phase=verify_payment transaction_id={transaction_id}")
         # Endpoint de vérification selon la documentation SingPay
         # Documentation: https://client.singpay.ga/doc/reference/index.html
         endpoint = f"/v1/transaction/{transaction_id}"
         success, response = self._make_request('GET', endpoint)
         
         if success:
+            status = response.get('status')
+            logger.info(
+                f"{LOG_PREFIX} phase=verify_payment_result transaction_id={transaction_id} success=True status={status}"
+            )
             return True, {
                 'status': response.get('status'),  # pending, success, failed, cancelled
                 'amount': response.get('amount'),
@@ -450,6 +498,9 @@ class SingPayService:
                 'reference': response.get('reference'),
             }
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=verify_payment_result transaction_id={transaction_id} success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def cancel_payment(self, transaction_id: str, reason: Optional[str] = None) -> Tuple[bool, Dict]:
@@ -463,6 +514,7 @@ class SingPayService:
         Returns:
             Tuple (success, response_data)
         """
+        logger.info(f"{LOG_PREFIX} phase=cancel_payment transaction_id={transaction_id} reason={reason}")
         # Endpoint d'annulation selon la documentation SingPay
         # Documentation: https://client.singpay.ga/doc/reference/index.html
         data = {}
@@ -473,12 +525,16 @@ class SingPayService:
         success, response = self._make_request('POST', endpoint, data if data else None)
         
         if success:
+            logger.info(f"{LOG_PREFIX} phase=cancel_payment_result transaction_id={transaction_id} success=True")
             return True, {
                 'status': response.get('status', 'cancelled'),
                 'message': response.get('message', 'Transaction annulée avec succès'),
                 'transaction_id': response.get('transaction_id') or response.get('id') or transaction_id,
             }
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=cancel_payment_result transaction_id={transaction_id} success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def refund_payment(
@@ -498,6 +554,9 @@ class SingPayService:
         Returns:
             Tuple (success, refund_data) avec refund_id, status, etc.
         """
+        logger.info(
+            f"{LOG_PREFIX} phase=refund_payment transaction_id={transaction_id} amount={amount} reason={reason}"
+        )
         # Structure des données selon la documentation SingPay
         # Documentation: https://client.singpay.ga/doc/reference/index.html
         data = {
@@ -513,6 +572,10 @@ class SingPayService:
         success, response = self._make_request('POST', endpoint, data)
         
         if success:
+            logger.info(
+                f"{LOG_PREFIX} phase=refund_payment_result transaction_id={transaction_id} success=True "
+                f"refund_id={response.get('refund_id') or response.get('id')}"
+            )
             return True, {
                 'refund_id': response.get('refund_id') or response.get('id'),
                 'status': response.get('status', 'pending'),
@@ -521,6 +584,9 @@ class SingPayService:
                 'message': response.get('message', 'Remboursement initié avec succès'),
             }
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=refund_payment_result transaction_id={transaction_id} success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def init_airtel_payment(
@@ -561,16 +627,21 @@ class SingPayService:
         if metadata:
             data.update(metadata)
         
-        logger.info(f"Initialisation paiement Airtel Money - Order ID: {order_id}, Phone: {customer_phone}")
+        logger.info(
+            f"{LOG_PREFIX} phase=init_airtel_payment order_id={order_id} amount={amount} phone={(customer_phone or '')[:6]}***"
+        )
         success, response = self._make_request('POST', '/74/paiement', data)
         
         if success:
+            txn_id = response.get('transaction_id') or response.get('id')
+            logger.info(f"{LOG_PREFIX} phase=init_airtel_payment_result order_id={order_id} success=True transaction_id={txn_id}")
             return True, {
-                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'transaction_id': txn_id,
                 'status': response.get('status', 'pending'),
                 'message': response.get('message', 'USSD Push envoyé'),
             }
         
+        logger.warning(f"{LOG_PREFIX} phase=init_airtel_payment_result order_id={order_id} success=False response={_sanitize_for_log(response)}")
         return False, response
     
     def init_moov_payment(
@@ -611,16 +682,21 @@ class SingPayService:
         if metadata:
             data.update(metadata)
         
-        logger.info(f"Initialisation paiement Moov Money - Order ID: {order_id}, Phone: {customer_phone}")
+        logger.info(
+            f"{LOG_PREFIX} phase=init_moov_payment order_id={order_id} amount={amount} phone={(customer_phone or '')[:6]}***"
+        )
         success, response = self._make_request('POST', '/62/paiement', data)
         
         if success:
+            txn_id = response.get('transaction_id') or response.get('id')
+            logger.info(f"{LOG_PREFIX} phase=init_moov_payment_result order_id={order_id} success=True transaction_id={txn_id}")
             return True, {
-                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'transaction_id': txn_id,
                 'status': response.get('status', 'pending'),
                 'message': response.get('message', 'USSD Push envoyé'),
             }
         
+        logger.warning(f"{LOG_PREFIX} phase=init_moov_payment_result order_id={order_id} success=False response={_sanitize_for_log(response)}")
         return False, response
     
     def init_maviance_payment(
@@ -661,16 +737,21 @@ class SingPayService:
         if metadata:
             data.update(metadata)
         
-        logger.info(f"Initialisation paiement Maviance - Order ID: {order_id}, Phone: {customer_phone}")
+        logger.info(
+            f"{LOG_PREFIX} phase=init_maviance_payment order_id={order_id} amount={amount} phone={(customer_phone or '')[:6]}***"
+        )
         success, response = self._make_request('POST', '/maviance/paiement', data)
         
         if success:
+            txn_id = response.get('transaction_id') or response.get('id')
+            logger.info(f"{LOG_PREFIX} phase=init_maviance_payment_result order_id={order_id} success=True transaction_id={txn_id}")
             return True, {
-                'transaction_id': response.get('transaction_id') or response.get('id'),
+                'transaction_id': txn_id,
                 'status': response.get('status', 'pending'),
                 'message': response.get('message', 'Paiement Maviance initié'),
             }
         
+        logger.warning(f"{LOG_PREFIX} phase=init_maviance_payment_result order_id={order_id} success=False response={_sanitize_for_log(response)}")
         return False, response
     
     def init_disbursement(
@@ -705,6 +786,10 @@ class SingPayService:
             import uuid
             reference = f"DISB-{uuid.uuid4().hex[:12].upper()}"
         
+        logger.info(
+            f"{LOG_PREFIX} phase=init_disbursement reference={reference} amount={amount} currency={currency} "
+            f"recipient_phone={(recipient_phone or '')[:6]}*** recipient_name={recipient_name}"
+        )
         data = {
             'portefeuille': self.merchant_id,
             'reference': reference,
@@ -712,6 +797,7 @@ class SingPayService:
             'phone': recipient_phone,
             'name': recipient_name,
             'description': description,
+            'disbursement': self.disbursement_id or '',  # ID portefeuille disbursement (SINGPAY_DISBURSEMENT_ID)
             'isTransfer': True,  # Indique que c'est un virement
         }
         
@@ -721,17 +807,24 @@ class SingPayService:
         if metadata:
             data.update(metadata)
         
-        logger.info(f"Initialisation virement - Reference: {reference}, Amount: {amount}, Recipient: {recipient_phone}")
         success, response = self._make_request('POST', '/v1/disbursement', data)
         
         if success:
+            disb_id = response.get('disbursement_id') or response.get('id') or reference
+            logger.info(
+                f"{LOG_PREFIX} phase=init_disbursement_result reference={reference} success=True "
+                f"disbursement_id={disb_id} status={response.get('status')}"
+            )
             return True, {
-                'disbursement_id': response.get('disbursement_id') or response.get('id') or reference,
+                'disbursement_id': disb_id,
                 'status': response.get('status', 'pending'),
                 'amount': response.get('amount', amount),
                 'message': response.get('message', 'Virement initié avec succès'),
             }
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=init_disbursement_result reference={reference} success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def get_transaction_history(
@@ -768,10 +861,17 @@ class SingPayService:
         if status:
             params['status'] = status
         
-        logger.info(f"Récupération historique transactions - Status: {status}, Limit: {limit}")
+        logger.info(
+            f"{LOG_PREFIX} phase=get_transaction_history status={status} limit={limit} offset={offset} "
+            f"start_date={start_date} end_date={end_date}"
+        )
         success, response = self._make_request('GET', '/v1/transactions', params)
         
         if success:
+            count = len(response.get('transactions', []) or response.get('data', []))
+            logger.info(
+                f"{LOG_PREFIX} phase=get_transaction_history_result success=True count={count} total={response.get('total')}"
+            )
             return True, {
                 'transactions': response.get('transactions', []) or response.get('data', []),
                 'total': response.get('total', 0),
@@ -779,6 +879,9 @@ class SingPayService:
                 'offset': offset,
             }
         
+        logger.warning(
+            f"{LOG_PREFIX} phase=get_transaction_history_result success=False response={_sanitize_for_log(response)}"
+        )
         return False, response
     
     def get_balance(self) -> Tuple[bool, Dict]:
@@ -799,6 +902,7 @@ class SingPayService:
                 'available_balance': response.get('available_balance', response.get('balance', 0)),
             }
         
+        logger.warning(f"{LOG_PREFIX} phase=get_balance_result success=False response={_sanitize_for_log(response)}")
         return False, response
     
     def pay_commission(
@@ -831,7 +935,10 @@ class SingPayService:
             description = f"Commission {commission_type} pour commande {order_id}"
         
         reference = f"COMM-{commission_type.upper()}-{order_id}"
-        
+        logger.info(
+            f"{LOG_PREFIX} phase=pay_commission order_id={order_id} commission_type={commission_type} "
+            f"amount={amount} reference={reference}"
+        )
         metadata = {
             'order_id': order_id,
             'commission_type': commission_type,
@@ -864,9 +971,16 @@ class SingPayService:
         try:
             payload_data = json.loads(payload) if isinstance(payload, str) else payload
             expected_signature = self._generate_signature(payload_data, timestamp)
-            return hmac.compare_digest(expected_signature, signature)
+            is_valid = hmac.compare_digest(expected_signature, signature)
+            logger.info(
+                f"{LOG_PREFIX} phase=webhook_verify_signature valid={is_valid} "
+                f"payload_keys={list(payload_data.keys()) if isinstance(payload_data, dict) else 'n/a'}"
+            )
+            return is_valid
         except Exception as e:
-            logger.error(f"Erreur lors de la vérification de la signature: {e}")
+            logger.error(
+                f"{LOG_PREFIX} phase=webhook_verify_signature valid=False error={e} payload_preview={(payload[:200] if isinstance(payload, str) else str(payload)[:200])}..."
+            )
             return False
 
 

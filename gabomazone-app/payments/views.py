@@ -96,6 +96,9 @@ def _pay_c2c_commissions(c2c_order):
         logger.warning(f"Profil vendeur C2C non trouvé pour user {c2c_order.seller.id}")
 
 
+LOG_PREFIX = "[SingPay]"
+
+
 @require_http_methods(["POST"])
 def init_singpay_payment(request):
     """
@@ -103,9 +106,11 @@ def init_singpay_payment(request):
     Endpoint pour Flutter WebView et web
     """
     try:
+        logger.info(f"{LOG_PREFIX} phase=view_init_payment entry")
         # Récupérer la commande
         order_id = request.session.get('order_id')
         if not order_id:
+            logger.warning(f"{LOG_PREFIX} phase=view_init_payment error=no_order_id session_keys={list(request.session.keys())}")
             return JsonResponse({
                 'success': False,
                 'error': 'Aucune commande trouvée'
@@ -175,6 +180,10 @@ def init_singpay_payment(request):
             'payment_type': 'order_payment',
         }
         
+        logger.info(
+            f"{LOG_PREFIX} phase=view_init_payment order_id={order_id} amount={amount} currency={currency} "
+            f"callback_url={callback_url[:50]}... calling singpay_service.init_payment"
+        )
         # Initialiser le paiement SingPay
         success, response = singpay_service.init_payment(
             amount=amount,
@@ -191,8 +200,10 @@ def init_singpay_payment(request):
         
         if not success:
             error_message = response.get('error', 'Erreur lors de l\'initialisation du paiement')
-            logger.error(f"Erreur SingPay init_payment pour la commande {order.id}: {error_message}")
-            logger.error(f"Détails de la réponse: {response}")
+            logger.error(
+                f"{LOG_PREFIX} phase=view_init_payment_result order_id={order.id} success=False "
+                f"error={error_message} response={response}"
+            )
             api_error = response.get('api_error', {})
             if api_error:
                 error_message = api_error.get('message', error_message)
@@ -261,8 +272,11 @@ def init_singpay_payment(request):
         
         # S'assurer que l'URL de paiement est absolue
         payment_url = response.get('payment_url', '')
-        logger.info(f"URL de paiement reçue: {payment_url}")
-        logger.info(f"Base URL du serveur: {base_url}")
+        transaction_id = response.get('transaction_id')
+        logger.info(
+            f"{LOG_PREFIX} phase=view_init_payment_result order_id={order.id} success=True "
+            f"transaction_id={transaction_id} payment_url={payment_url[:60] if payment_url else 'n/a'}..."
+        )
         
         if payment_url:
             # Si l'URL est relative, la rendre absolue avec le base_url du serveur Django
@@ -420,18 +434,21 @@ def singpay_callback(request):
     Callback webhook de SingPay
     """
     try:
+        payload = request.body.decode('utf-8')
+        payload_data = json.loads(payload)
+        transaction_id = payload_data.get('transaction_id')
+        status = payload_data.get('status', '')
+        logger.info(
+            f"{LOG_PREFIX} phase=view_callback entry transaction_id={transaction_id} status={status} "
+            f"payload_keys={list(payload_data.keys()) if isinstance(payload_data, dict) else 'n/a'}"
+        )
         # Récupérer les headers
         signature = request.headers.get('X-Signature', '')
         timestamp = request.headers.get('X-Timestamp', '')
         
-        # Lire le payload
-        payload = request.body.decode('utf-8')
-        payload_data = json.loads(payload)
-        
         # Récupérer la transaction
-        transaction_id = payload_data.get('transaction_id')
         if not transaction_id:
-            logger.error("Transaction ID manquant dans le callback SingPay")
+            logger.error(f"{LOG_PREFIX} phase=view_callback error=transaction_id_missing payload={payload_data}")
             return HttpResponse(status=400)
         
         try:
@@ -469,7 +486,10 @@ def singpay_callback(request):
         
         # Traiter le statut
         status = payload_data.get('status', '').lower()
-        logger.info(f"Callback SingPay reçu pour transaction {transaction_id} avec statut: {status}")
+        logger.info(
+            f"{LOG_PREFIX} phase=view_callback processing transaction_id={transaction_id} status={status} "
+            f"transaction_type={getattr(transaction, 'transaction_type', 'n/a')}"
+        )
         
         if status == 'success':
             logger.info(f"Mise à jour de la transaction {transaction_id} en SUCCESS")
@@ -582,20 +602,29 @@ def singpay_return(request):
     SingPay redirige vers cette URL après le paiement
     """
     try:
-        # Récupérer les paramètres de la requête
         transaction_id = request.GET.get('transaction_id')
         status = request.GET.get('status', '').lower()
+        logger.info(
+            f"{LOG_PREFIX} phase=view_return entry transaction_id={transaction_id} status={status} "
+            f"user_id={getattr(request.user, 'id', None)}"
+        )
         
         if not transaction_id:
+            logger.warning(f"{LOG_PREFIX} phase=view_return error=transaction_id_missing GET={dict(request.GET)}")
             messages.error(request, 'Transaction ID manquant')
             return redirect('orders:cart')
         
         try:
             transaction = SingPayTransaction.objects.get(transaction_id=transaction_id)
         except SingPayTransaction.DoesNotExist:
+            logger.error(f"{LOG_PREFIX} phase=view_return error=transaction_not_found transaction_id={transaction_id}")
             messages.error(request, 'Transaction non trouvée')
             return redirect('orders:cart')
         
+        logger.info(
+            f"{LOG_PREFIX} phase=view_return transaction_id={transaction_id} db_status={transaction.status} "
+            f"should_verify={transaction.status == SingPayTransaction.PENDING or not status or status not in ['success', 'failed', 'cancelled']}"
+        )
         # Vérifier que la transaction appartient à l'utilisateur
         if transaction.user and transaction.user != request.user:
             messages.error(request, 'Vous n\'avez pas accès à cette transaction')
@@ -610,7 +639,7 @@ def singpay_return(request):
         )
         
         if should_verify:
-            logger.info(f"Vérification du statut de la transaction {transaction_id} avec l'API SingPay")
+            logger.info(f"{LOG_PREFIX} phase=view_return verifying transaction_id={transaction_id} with API")
             success, response = singpay_service.verify_payment(transaction_id)
             if success:
                 api_status = response.get('status', '').lower()
@@ -702,7 +731,7 @@ def singpay_return(request):
             return redirect('orders:payment')
         
     except Exception as e:
-        logger.exception(f"Erreur dans singpay_return: {str(e)}")
+        logger.exception(f"{LOG_PREFIX} phase=view_return exception transaction_id={request.GET.get('transaction_id')} error={e}")
         messages.error(request, 'Une erreur est survenue lors du traitement du retour')
         return redirect('orders:cart')
 
