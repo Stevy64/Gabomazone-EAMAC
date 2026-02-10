@@ -1,0 +1,2515 @@
+/* ============================================
+   GABOMAZONE - FLAVORIZ DESIGN SYSTEM
+   Design moderne: Noir, Orange, Blanc
+   Style lifestyle avec bords arrondis
+   REMPLACE COMPLÈTEMENT NEST
+   ============================================ */
+
+/* ===== IMPORT FONTS - Optimisées E-commerce ===== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ===== CSS Variables ===== */
+:root {
+    /* Couleurs Principales */
+    --color-black: #1A1A1A;
+    --color-black-light: #2C2C2C;
+    --color-orange: #FF7B2C;
+    --color-orange-light: #FFB37A;
+    --color-orange-dark: #E55A00;
+    --color-white: #FFFFFF;
+    --color-beige: #FDF8F3;
+    --color-beige-light: #FFF9F5;
+    
+    /* Couleurs Texte */
+    --text-dark: #1A1A1A;
+    --text-gray: #6B7280;
+    --text-light: #9CA3AF;
+    
+    /* Bordures */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-full: 9999px;
+    
+    /* Ombres */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+    --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.2);
+    
+    /* Espacements */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    
+    /* Typography - Optimisées E-commerce */
+    --font-primary: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===== RESET COMPLET NEST ===== */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: var(--font-secondary) !important;
+    color: var(--text-dark) !important;
+    background: var(--color-white) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+    overflow-x: hidden !important;
+    font-size: 13px !important;
+    letter-spacing: -0.01em !important;
+}
+
+body {
+    padding-top: 0 !important;
+}
+
+/* ===== MARGIN TOP POUR TOUTES LES PAGES - COMPENSER LE HEADER FIXE ===== */
+/* Assure que le contenu ne se chevauche pas avec le header fixe */
+main.main {
+    margin-top: 80px !important;
+    padding-top: 0 !important;
+}
+
+main.main .container,
+.flavoriz-hero,
+.flavoriz-section,
+section.flavoriz-section,
+.page-content,
+.content-wrapper,
+.container:not(.flavoriz-hero):not(.flavoriz-section) {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Hero section - première section visible */
+.flavoriz-hero {
+    padding-top: 20px !important;
+    margin-top: 0 !important;
+}
+
+/* Pages de compte et autres pages avec classe .pages */
+main.main.pages {
+    margin-top: 80px !important;
+    padding-top: 20px !important;
+}
+
+/* Mobile : ajuster le margin-top - header plus haut sur mobile */
+@media (max-width: 768px) {
+    main.main {
+        margin-top: 140px !important;
+    }
+    
+    main.main.pages {
+        margin-top: 140px !important;
+        padding-top: 15px !important;
+    }
+    
+    .flavoriz-hero {
+        padding-top: 15px !important;
+    }
+    
+    main.main .container {
+        padding-top: 0 !important;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary) !important;
+    font-weight: 600 !important;
+    color: var(--text-dark) !important;
+    margin: 0 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.3 !important;
+}
+
+/* ===== CACHER TOUS LES ÉLÉMENTS NEST ===== */
+.header-area,
+.header-top,
+.header-middle,
+.header-bottom,
+.header-wrap,
+.mobile-promotion,
+.home-slider,
+.section-padding,
+.product-cart-wrap:not(.flavoriz-product-card),
+.banner-img,
+footer.main:not(.flavoriz-footer),
+.footer-top,
+.footer-middle,
+.footer-bottom,
+.mobile-header-active,
+.mobile-header-wrapper-style,
+.page-header:not(.flavoriz-page-header),
+.archive-header {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ===== Header Complet - Style FLAVORIZ ===== */
+.flavoriz-header {
+    background: var(--color-white) !important;
+    box-shadow: var(--shadow-sm) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    padding: 14px 0 !important;
+    width: 100% !important;
+    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform: translateY(0) translateZ(0) !important;
+    will-change: padding, box-shadow !important;
+    backface-visibility: hidden !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.flavoriz-header.scrolled {
+    padding: 12px 0 !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(0) translateZ(0) !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.flavoriz-header.scrolled .flavoriz-header-top {
+    padding: 0 var(--spacing-lg) !important;
+}
+
+.flavoriz-header.scrolled .flavoriz-logo {
+    font-size: 20px !important;
+}
+
+.flavoriz-header.scrolled .flavoriz-nav a {
+    font-size: 11px !important;
+    padding: 4px 0 !important;
+}
+
+.flavoriz-header-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 var(--spacing-lg) !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    flex-wrap: nowrap !important;
+    gap: var(--spacing-sm) !important;
+    width: 100% !important;
+}
+
+.flavoriz-logo {
+    font-family: var(--font-primary) !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    letter-spacing: -0.3px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: baseline !important;
+    transition: font-size 0.3s ease !important;
+    flex-shrink: 0 !important;
+    margin-right: auto !important;
+}
+
+.flavoriz-logo-part1 {
+    color: var(--color-black) !important;
+}
+
+.flavoriz-logo-part2 {
+    color: var(--color-orange) !important;
+}
+
+.flavoriz-nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-md) !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-wrap: wrap !important;
+}
+
+.flavoriz-nav li {
+    margin: 0 !important;
+}
+
+.flavoriz-nav a {
+    color: var(--text-gray) !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    transition: color 0.2s ease !important;
+    position: relative !important;
+    padding: 6px 0 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.3px !important;
+}
+
+.flavoriz-nav a:hover,
+.flavoriz-nav a.active {
+    color: var(--color-black) !important;
+}
+
+.flavoriz-nav a.active::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 2px !important;
+    background: var(--color-orange) !important;
+    border-radius: var(--radius-full) !important;
+}
+
+.flavoriz-nav a.active::before {
+    content: '•' !important;
+    color: var(--color-orange) !important;
+    margin-right: 6px !important;
+    font-size: 12px !important;
+    display: inline-block !important;
+}
+
+.flavoriz-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-sm) !important;
+    flex-wrap: nowrap !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+}
+
+/* Navigation Desktop */
+.flavoriz-nav-desktop {
+    display: block !important;
+    flex: 1 !important;
+    margin: 0 var(--spacing-md) !important;
+}
+
+/* Navigation Mobile - Cachée par défaut */
+.flavoriz-nav-mobile {
+    display: none !important;
+}
+
+/* Actions Header Desktop - Visible par défaut */
+.flavoriz-header-actions-desktop {
+    display: flex !important;
+}
+
+/* Actions Header Mobile - Caché par défaut */
+.flavoriz-header-actions-mobile {
+    display: none !important;
+}
+
+.flavoriz-search {
+    position: relative !important;
+    width: 200px !important;
+    min-width: 160px !important;
+    max-width: 280px !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.flavoriz-search input {
+    width: 100% !important;
+    padding: 7px 32px 7px 12px !important;
+    border: 2px solid #E5E7EB !important;
+    border-radius: var(--radius-full) !important;
+    font-size: 12px !important;
+    transition: all 0.3s ease !important;
+    background: var(--color-white) !important;
+    font-family: var(--font-secondary) !important;
+    height: 36px !important;
+    line-height: 1.4 !important;
+}
+
+.flavoriz-search input:focus {
+    outline: none !important;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+
+/* Optimisation performance - Styles globaux pour la grille */
+#products-list.flavoriz-grid-initialized > *,
+.flavoriz-product-grid.flavoriz-grid-initialized > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.flavoriz-search button {
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-gray) !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+    font-size: 16px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.flavoriz-search button:hover {
+    background: rgba(255, 123, 44, 0.1) !important;
+    color: var(--color-orange) !important;
+}
+
+.flavoriz-icon-btn {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    color: var(--text-gray) !important;
+    text-decoration: none !important;
+    position: relative !important;
+    font-size: 18px !important;
+}
+
+.flavoriz-icon-btn:hover {
+    background: rgba(255, 123, 44, 0.1) !important;
+    color: var(--color-orange) !important;
+}
+
+/* Account Dropdown Menu */
+.flavoriz-account-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+.flavoriz-account-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    background: white !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16) !important;
+    min-width: 200px !important;
+    z-index: 10000 !important;
+    padding: 8px 0 !important;
+    overflow: hidden !important;
+    display: none !important;
+}
+
+.flavoriz-account-menu.show {
+    display: block !important;
+}
+
+.flavoriz-account-menu a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    color: var(--text-dark) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.flavoriz-account-menu a:hover {
+    background: var(--color-beige) !important;
+}
+
+.flavoriz-account-menu a i {
+    margin-right: 12px !important;
+    font-size: 16px !important;
+    width: 20px !important;
+    text-align: center !important;
+}
+
+/* Account Dropdown Menu Mobile */
+.flavoriz-account-dropdown-mobile {
+    position: static !important;
+    display: inline-block !important;
+}
+
+.flavoriz-account-menu-mobile {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    background: white !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    min-width: 240px !important;
+    max-width: calc(100vw - 32px) !important;
+    z-index: 10001 !important;
+    padding: 12px 0 !important;
+    overflow: hidden !important;
+    display: none !important;
+}
+
+.flavoriz-account-menu-mobile.show {
+    display: block !important;
+}
+
+.flavoriz-account-menu-mobile a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 16px 20px !important;
+    color: var(--text-dark) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+.flavoriz-account-menu-mobile a:hover {
+    background: var(--color-beige) !important;
+}
+
+.flavoriz-account-menu-mobile a i {
+    margin-right: 14px !important;
+    font-size: 18px !important;
+    width: 24px !important;
+    text-align: center !important;
+}
+
+/* S'assurer que le header n'a pas overflow hidden qui coupe le menu */
+.flavoriz-header {
+    overflow: visible !important;
+}
+
+.flavoriz-header-top {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions-mobile {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+.flavoriz-header-actions-desktop {
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* ===== Hero Section ===== */
+.flavoriz-hero {
+    background: var(--color-white) !important;
+    padding: var(--spacing-xl) var(--spacing-lg) !important;
+    max-width: 1400px !important;
+    margin: var(--spacing-md) auto var(--spacing-xl) !important;
+    border-radius: var(--radius-xl) !important;
+    box-shadow: var(--shadow-md) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.flavoriz-hero-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: var(--spacing-2xl) !important;
+    align-items: center !important;
+    padding: var(--spacing-lg) !important;
+}
+
+.flavoriz-hero-text {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.flavoriz-hero-title {
+    font-size: 56px !important;
+    font-weight: 700 !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    color: var(--color-black) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+}
+
+.flavoriz-hero-highlight {
+    color: var(--color-orange) !important;
+    display: block !important;
+}
+
+.flavoriz-hero-image {
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-md) !important;
+    position: relative !important;
+    height: 420px !important;
+}
+
+.flavoriz-hero-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.flavoriz-hero-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-light) 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--color-white) !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-lg) !important;
+}
+
+/* ===== Section ===== */
+.flavoriz-section {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 var(--spacing-lg) !important;
+    margin-bottom: var(--spacing-2xl) !important;
+}
+
+.flavoriz-section-title {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: var(--color-black) !important;
+    margin-bottom: var(--spacing-md) !important;
+}
+
+/* ===== Filter Section - Design Moderne ===== */
+.flavoriz-filter-section {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: var(--spacing-md) !important;
+    padding: 20px 24px !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(253, 248, 243, 0.95) 100%) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid rgba(255, 123, 44, 0.1) !important;
+    margin-bottom: var(--spacing-xl) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 100 !important;
+}
+
+.flavoriz-filter-section::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    background: linear-gradient(90deg, var(--color-orange) 0%, var(--color-orange-light) 100%) !important;
+    border-radius: 20px 20px 0 0 !important;
+}
+
+.flavoriz-filter-section:hover {
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-2px) !important;
+}
+
+.flavoriz-filter-count {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    color: var(--text-dark) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: var(--font-secondary) !important;
+}
+
+.flavoriz-filter-count strong {
+    color: var(--color-orange) !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-light) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.flavoriz-filter-sort {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+.flavoriz-filter-sort-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: var(--text-gray) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    font-family: var(--font-secondary) !important;
+}
+
+.flavoriz-filter-sort-label i {
+    font-size: 15px !important;
+    color: var(--color-orange) !important;
+    opacity: 0.8 !important;
+}
+
+.flavoriz-filter-select {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+/* Cacher le select natif quand le dropdown personnalisé est présent */
+.flavoriz-filter-select select,
+.flavoriz-custom-dropdown select {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* S'assurer que le wrapper du dropdown est visible */
+.flavoriz-custom-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+    min-width: 220px !important;
+    z-index: 100 !important;
+}
+
+.flavoriz-dropdown-trigger {
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+.flavoriz-filter-select select:hover {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 6px 20px rgba(255, 123, 44, 0.2), 0 2px 6px rgba(255, 123, 44, 0.15) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 179, 122, 0.1) 100%) !important;
+}
+
+.flavoriz-filter-select select:focus {
+    outline: none !important;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 5px rgba(255, 123, 44, 0.15), 0 6px 20px rgba(255, 123, 44, 0.25), 0 2px 6px rgba(255, 123, 44, 0.15) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 179, 122, 0.15) 100%) !important;
+}
+
+.flavoriz-filter-select select:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* ===== Custom Dropdown - Design Moderne ===== */
+
+.flavoriz-dropdown-trigger {
+    width: 100% !important;
+    padding: 14px 18px !important;
+    border: 2px solid rgba(229, 231, 235, 0.6) !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(253, 248, 243, 0.95) 100%) !important;
+    backdrop-filter: blur(10px) !important;
+    color: var(--text-dark) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    font-family: var(--font-secondary) !important;
+    cursor: pointer !important;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    letter-spacing: 0.3px !important;
+    text-align: left !important;
+}
+
+.flavoriz-dropdown-trigger:hover {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 6px 20px rgba(255, 123, 44, 0.2), 0 2px 6px rgba(255, 123, 44, 0.15) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 179, 122, 0.1) 100%) !important;
+}
+
+.flavoriz-dropdown-trigger.open {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 5px rgba(255, 123, 44, 0.15), 0 6px 20px rgba(255, 123, 44, 0.25), 0 2px 6px rgba(255, 123, 44, 0.15) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 179, 122, 0.15) 100%) !important;
+}
+
+.flavoriz-dropdown-text {
+    flex: 1 !important;
+    color: var(--text-dark) !important;
+}
+
+.flavoriz-dropdown-icon {
+    width: 20px !important;
+    height: 20px !important;
+    color: var(--color-orange) !important;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    flex-shrink: 0 !important;
+}
+
+.flavoriz-dropdown-trigger.open .flavoriz-dropdown-icon {
+    transform: rotate(180deg) !important;
+}
+
+.flavoriz-dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: var(--color-white) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border: 2px solid rgba(255, 123, 44, 0.1) !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) scale(0.95) !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    z-index: 101 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+.flavoriz-dropdown-menu.open {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+.flavoriz-dropdown-item {
+    padding: 14px 18px !important;
+    color: var(--text-dark) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-family: var(--font-secondary) !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5) !important;
+    position: relative !important;
+}
+
+.flavoriz-dropdown-item:last-child {
+    border-bottom: none !important;
+}
+
+.flavoriz-dropdown-item:hover {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 179, 122, 0.05) 100%) !important;
+    color: var(--color-orange) !important;
+    padding-left: 22px !important;
+}
+
+.flavoriz-dropdown-item.active {
+    background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-light) 100%) !important;
+    color: var(--color-white) !important;
+    font-weight: 600 !important;
+}
+
+.flavoriz-dropdown-item.active::before {
+    content: '✓' !important;
+    position: absolute !important;
+    left: 18px !important;
+    font-weight: 700 !important;
+}
+
+.flavoriz-dropdown-item.active:hover {
+    background: linear-gradient(135deg, var(--color-orange-dark) 0%, var(--color-orange) 100%) !important;
+    padding-left: 18px !important;
+}
+
+/* Scrollbar personnalisée pour le menu */
+.flavoriz-dropdown-menu::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.flavoriz-dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(229, 231, 235, 0.3) !important;
+    border-radius: 10px !important;
+}
+
+.flavoriz-dropdown-menu::-webkit-scrollbar-thumb {
+    background: var(--color-orange) !important;
+    border-radius: 10px !important;
+}
+
+.flavoriz-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: var(--color-orange-dark) !important;
+}
+
+.flavoriz-category-tags {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-xl) !important;
+    width: 100% !important;
+    align-items: start !important;
+}
+
+@media (max-width: 768px) {
+    .flavoriz-category-tags {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .flavoriz-category-tags {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .flavoriz-category-tags {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+.flavoriz-tag {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 10px 16px !important;
+    border-radius: var(--radius-full) !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    border: 2px solid transparent !important;
+    background: #F3F4F6 !important;
+    color: var(--text-dark) !important;
+    box-shadow: var(--shadow-sm) !important;
+    text-decoration: none !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.flavoriz-tag i {
+    color: var(--color-orange) !important;
+    font-size: 15px !important;
+}
+
+.flavoriz-tag:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+    background: #E5E7EB !important;
+}
+
+.flavoriz-tag.active {
+    background: var(--color-black) !important;
+    color: var(--color-white) !important;
+    border-color: var(--color-black) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.flavoriz-tag.active i {
+    color: var(--color-white) !important;
+}
+
+/* ===== Product Cards ===== */
+.flavoriz-product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    margin-bottom: var(--spacing-xl) !important;
+    position: relative !important;
+    width: 100% !important;
+    justify-items: stretch !important;
+    align-items: stretch !important;
+}
+
+/* Responsive pour la grille */
+@media (max-width: 1199px) and (min-width: 769px) {
+    .flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 16px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 15px !important;
+        min-height: 44px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .flavoriz-product-card-btn,
+    .flavoriz-add-cart-btn {
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+    }
+    
+    .flavoriz-add-cart-btn {
+        min-width: 50px !important;
+    }
+}
+
+.flavoriz-product-grid > * {
+    width: 100% !important;
+}
+
+/* Réduire la taille des cartes pour en afficher plus */
+.flavoriz-product-card {
+    min-height: auto !important;
+}
+
+.flavoriz-product-image {
+    height: 200px !important;
+}
+
+.flavoriz-product-body {
+    padding: 10px 12px !important;
+}
+
+.flavoriz-product-title {
+    font-size: 13px !important;
+    min-height: 38px !important;
+    margin-bottom: 6px !important;
+    line-height: 1.25 !important;
+    font-weight: 600 !important;
+}
+
+.flavoriz-product-card {
+    background: var(--color-white) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    transform: translateZ(0) !important;
+    will-change: transform, box-shadow !important;
+    backface-visibility: hidden !important;
+}
+
+.flavoriz-product-card:hover {
+    transform: translateY(-4px) translateZ(0) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.flavoriz-product-image {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+    transition: transform 0.3s ease-out !important;
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+}
+
+.flavoriz-product-card > div:first-child {
+    position: relative !important;
+    overflow: hidden !important;
+    background: #FAFAFA !important;
+    width: 100% !important;
+    padding-top: 58% !important;
+}
+
+.flavoriz-product-card > div:first-child > img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.flavoriz-product-card:hover .flavoriz-product-image {
+    transform: scale(1.03) translateZ(0) !important;
+}
+
+.flavoriz-product-body {
+    padding: 10px 12px !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flavoriz-product-views {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    color: var(--text-light) !important;
+    font-size: 11px !important;
+    margin-bottom: 4px !important;
+}
+
+/* Détails carte plus compacts : espacements réduits */
+.flavoriz-product-body > div {
+    margin-bottom: 4px !important;
+}
+.flavoriz-product-body > div:last-child {
+    margin-bottom: 0 !important;
+    margin-top: auto !important;
+    gap: 6px !important;
+}
+.flavoriz-product-body .flavoriz-product-title + div {
+    margin-bottom: 4px !important;
+}
+.flavoriz-product-price {
+    font-size: 16px !important;
+}
+
+.flavoriz-product-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1F2937 !important;
+    margin-bottom: 6px !important;
+    line-height: 1.35 !important;
+    min-height: 36px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    flex-shrink: 0 !important;
+}
+
+.flavoriz-product-card-btn {
+    width: 100% !important;
+    padding: 7px 12px !important;
+    background: #1F2937 !important;
+    color: var(--color-white) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin-top: auto !important;
+    font-family: var(--font-secondary) !important;
+    letter-spacing: 0.2px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.flavoriz-product-card-btn:hover {
+    background: var(--color-orange) !important;
+    transform: translateY(-1px) translateZ(0) !important;
+    box-shadow: 0 3px 10px rgba(255, 87, 34, 0.25) !important;
+}
+
+/* Badges État des articles occasion — même style que "Occasion", couleurs par condition */
+.flavoriz-product-card .peer-condition-badge,
+.peer-condition-badge {
+    display: inline-block !important;
+    border: none !important;
+    padding: 6px 10px !important;
+    border-radius: 12px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+/* Bleu = Neuf */
+.flavoriz-product-card .peer-condition-badge.peer-condition-neuf,
+.peer-condition-badge.peer-condition-neuf {
+    background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%) !important;
+    background-color: #3B82F6 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+}
+/* Vert = Comme neuf */
+.flavoriz-product-card .peer-condition-badge.peer-condition-comme_neuf,
+.peer-condition-badge.peer-condition-comme_neuf {
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
+    background-color: #059669 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4) !important;
+}
+/* Jaune = Bon état */
+.flavoriz-product-card .peer-condition-badge.peer-condition-bon_etat,
+.peer-condition-badge.peer-condition-bon_etat {
+    background: linear-gradient(135deg, #EAB308 0%, #FACC15 100%) !important;
+    background-color: #EAB308 !important;
+    color: #1F2937 !important;
+    box-shadow: 0 2px 8px rgba(234, 179, 8, 0.4) !important;
+}
+/* Orange = Utilisable */
+.flavoriz-product-card .peer-condition-badge.peer-condition-utilisable,
+.peer-condition-badge.peer-condition-utilisable {
+    background: linear-gradient(135deg, #F97316 0%, #FB923C 100%) !important;
+    background-color: #F97316 !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4) !important;
+}
+
+/* Styles pour le bouton favoris */
+.flavoriz-favorite-btn {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    padding: 6px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 10px !important;
+    color: #6B7280 !important;
+    font-weight: 600 !important;
+    backdrop-filter: blur(4px) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    z-index: 10 !important;
+}
+
+.flavoriz-favorite-btn:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: scale(1.05) !important;
+}
+
+.flavoriz-favorite-btn i {
+    font-size: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+.flavoriz-favorite-btn.liked i,
+.flavoriz-favorite-btn i.liked {
+    color: #EF4444 !important;
+    transform: scale(1.2) !important;
+}
+
+/* Styles pour le bouton panier */
+.flavoriz-add-cart-btn {
+    padding: 8px 12px !important;
+    background: white !important;
+    color: #1F2937 !important;
+    border: 1px solid #1F2937 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+    min-width: 44px !important;
+}
+
+.flavoriz-add-cart-btn:hover {
+    background: #1F2937 !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.flavoriz-add-cart-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Styles pour la popup d'aperçu d'image */
+#flavoriz-image-preview {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.95) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: zoom-out !important;
+    animation: fadeIn 0.3s ease !important;
+}
+
+#flavoriz-image-preview img {
+    max-width: 90% !important;
+    max-height: 90% !important;
+    object-fit: contain !important;
+    border-radius: 8px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    animation: zoomIn 0.3s ease !important;
+    cursor: zoom-out !important;
+}
+
+#flavoriz-image-preview button {
+    position: absolute !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 48px !important;
+    height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(10px) !important;
+    z-index: 10001 !important;
+}
+
+/* Styles pour les boutons de navigation (flèches) */
+#flavoriz-image-preview .preview-nav-btn {
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 10001 !important;
+}
+
+#flavoriz-image-preview .preview-prev-btn {
+    left: 20px !important;
+    right: auto !important;
+}
+
+#flavoriz-image-preview .preview-next-btn {
+    right: 20px !important;
+    left: auto !important;
+}
+
+#flavoriz-image-preview .preview-nav-btn:hover {
+    transform: translateY(-50%) scale(1.1) !important;
+}
+
+#flavoriz-image-preview button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.1) !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* ===== Pagination ===== */
+.flavoriz-pagination {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: var(--spacing-sm) !important;
+    margin-top: var(--spacing-xl) !important;
+}
+
+.flavoriz-pagination-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid #E5E7EB !important;
+    background: var(--color-white) !important;
+    color: var(--text-gray) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-weight: 600 !important;
+}
+
+.flavoriz-pagination-btn:hover,
+.flavoriz-pagination-btn.active {
+    background: var(--color-black) !important;
+    color: var(--color-white) !important;
+    border-color: var(--color-black) !important;
+}
+
+/* ===== Newsletter ===== */
+.flavoriz-newsletter {
+    background: var(--color-white) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--spacing-2xl) !important;
+    box-shadow: var(--shadow-lg) !important;
+    margin: var(--spacing-2xl) auto !important;
+    max-width: 1400px !important;
+    text-align: center !important;
+}
+
+.flavoriz-newsletter-logo {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: var(--color-black) !important;
+    margin-bottom: var(--spacing-md) !important;
+}
+
+.flavoriz-newsletter-text {
+    font-size: 14px !important;
+    color: var(--text-gray) !important;
+    margin-bottom: var(--spacing-lg) !important;
+    max-width: 600px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    line-height: 1.5 !important;
+}
+
+.flavoriz-newsletter-form {
+    display: flex !important;
+    gap: var(--spacing-sm) !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+}
+
+.flavoriz-newsletter-input {
+    flex: 1 !important;
+    padding: 14px 18px !important;
+    border: 2px solid #E5E7EB !important;
+    border-radius: var(--radius-full) !important;
+    font-size: 13px !important;
+    transition: all 0.3s ease !important;
+    font-family: var(--font-secondary) !important;
+}
+
+.flavoriz-newsletter-input:focus {
+    outline: none !important;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.1) !important;
+}
+
+.flavoriz-newsletter-btn {
+    padding: 14px 28px !important;
+    background: var(--color-orange) !important;
+    color: var(--color-white) !important;
+    border: none !important;
+    border-radius: var(--radius-full) !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap !important;
+    font-family: var(--font-secondary) !important;
+}
+
+.flavoriz-newsletter-btn:hover {
+    background: var(--color-orange-dark) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ===== Footer ===== */
+.flavoriz-footer {
+    background: var(--color-black) !important;
+    color: var(--color-white) !important;
+    padding: var(--spacing-2xl) var(--spacing-lg) !important;
+    margin-top: var(--spacing-2xl) !important;
+}
+
+.flavoriz-footer-content {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: var(--spacing-xl) !important;
+}
+
+.flavoriz-footer-column h4 {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    margin-bottom: var(--spacing-md) !important;
+    color: var(--color-white) !important;
+}
+
+.flavoriz-footer-column ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.flavoriz-footer-column li {
+    margin-bottom: var(--spacing-sm) !important;
+}
+
+.flavoriz-footer-column a {
+    color: rgba(255, 255, 255, 0.7) !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    transition: color 0.2s ease !important;
+}
+
+.flavoriz-footer-column a:hover {
+    color: var(--color-orange) !important;
+}
+
+.flavoriz-footer-bottom {
+    max-width: 1400px !important;
+    margin: var(--spacing-xl) auto 0 !important;
+    padding-top: var(--spacing-lg) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 14px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    flex-wrap: wrap !important;
+    gap: var(--spacing-md) !important;
+}
+
+/* ===== Mobile Bottom Navigation ===== */
+.flavoriz-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+    display: none !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom)) !important;
+    z-index: 9999 !important;
+    border-top: 1px solid rgba(229, 231, 235, 0.5) !important;
+    width: 100% !important;
+    min-height: 60px !important;
+    max-height: 70px !important;
+    border-radius: 20px 20px 0 0 !important;
+    overflow: hidden !important;
+}
+
+.flavoriz-bottom-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    color: var(--text-light) !important;
+    transition: all 0.2s ease !important;
+    padding: 6px 12px !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    gap: 2px !important;
+}
+
+.flavoriz-bottom-nav-item.active {
+    color: var(--color-orange) !important;
+}
+
+.flavoriz-bottom-nav-item i {
+    font-size: 20px !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.flavoriz-bottom-nav-item span {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    line-height: 1.2 !important;
+}
+
+/* ===== BOUTON PUBLIER : icône + entourée d’un cercle (outline) ===== */
+.flavoriz-bottom-nav-add-btn .add-btn-icon-wrap {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    border: 2px solid currentColor !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 0 !important;
+    transition: all 0.2s ease !important;
+    color: inherit !important;
+}
+
+.flavoriz-bottom-nav-add-btn .add-btn-icon-wrap i {
+    font-size: 18px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.flavoriz-bottom-nav-add-btn.active .add-btn-icon-wrap {
+    color: var(--color-orange) !important;
+    border-color: var(--color-orange) !important;
+}
+
+/* ===== RESPONSIVE - MOBILE FIRST ===== */
+#products-list.flavoriz-product-grid {
+    width: 100% !important;
+}
+
+@media (min-width: 1200px) {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
+    }
+    
+    .flavoriz-product-card {
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+        justify-content: stretch !important;
+        padding: 0 !important;
+    }
+    
+    .flavoriz-product-card {
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+    .flavoriz-hero-content {
+        grid-template-columns: 1fr !important;
+        padding: var(--spacing-md) !important;
+    }
+    
+    .flavoriz-hero-title {
+        font-size: 42px !important;
+    }
+    
+    .flavoriz-hero-image {
+        height: 280px !important;
+    }
+    
+    .flavoriz-product-grid,
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+    }
+    
+    .flavoriz-footer-content {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Responsive Filter Section */
+@media (max-width: 768px) {
+    .flavoriz-filter-section {
+        padding: 16px 18px !important;
+        border-radius: 16px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+    
+    .flavoriz-filter-count {
+        font-size: 14px !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-filter-count strong {
+        font-size: 15px !important;
+    }
+    
+    .flavoriz-filter-sort {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    
+    .flavoriz-filter-sort-label {
+        justify-content: center !important;
+        font-size: 13px !important;
+    }
+    
+    .flavoriz-filter-select,
+    .flavoriz-custom-dropdown {
+        width: 100% !important;
+    }
+    
+    .flavoriz-filter-select select {
+        width: 100% !important;
+        min-width: auto !important;
+        padding: 12px 44px 12px 16px !important;
+        border-radius: 12px !important;
+        font-size: 13px !important;
+    }
+    
+    .flavoriz-dropdown-trigger {
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+        border-radius: 12px !important;
+    }
+    
+    .flavoriz-dropdown-icon {
+        width: 18px !important;
+        height: 18px !important;
+    }
+    
+    .flavoriz-dropdown-item {
+        padding: 12px 16px !important;
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 85px !important;
+    }
+    
+    .flavoriz-header {
+        padding: 20px 0 !important;
+        transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) translateZ(0) !important;
+    }
+    
+    .flavoriz-header.scrolled {
+        padding: 12px 0 !important;
+        transform: translateY(0) translateZ(0) !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-header-top {
+        padding: 0 16px !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-logo {
+        font-size: 20px !important;
+        transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .flavoriz-header.scrolled .flavoriz-icon-btn-mobile,
+    .flavoriz-header.scrolled .flavoriz-search-trigger-mobile {
+        font-size: 18px !important;
+        width: 36px !important;
+        height: 36px !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .flavoriz-header-top {
+        flex-direction: row !important;
+        align-items: center !important;
+        padding: 0 16px !important;
+        gap: 10px !important;
+        min-height: 50px !important;
+        transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .flavoriz-logo {
+        font-size: 26px !important;
+        flex-shrink: 0 !important;
+        margin-right: auto !important;
+        font-weight: 700 !important;
+        transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* Cacher navigation desktop sur mobile */
+    .flavoriz-nav-desktop {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* CACHER ABSOLUMENT la barre de recherche desktop sur mobile */
+    .flavoriz-header-actions-desktop {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    
+    .flavoriz-header-actions-desktop .flavoriz-search {
+        display: none !important;
+    }
+    
+    /* Afficher navigation mobile */
+    .flavoriz-nav-mobile {
+        display: block !important;
+        border-top: 1px solid #E5E7EB !important;
+        padding: 6px 12px !important;
+        background: var(--color-white) !important;
+    }
+    
+    .flavoriz-nav-mobile-list {
+        display: flex !important;
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        gap: 8px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+    
+    .flavoriz-nav-mobile-list::-webkit-scrollbar {
+        display: none !important;
+    }
+    
+    .flavoriz-nav-mobile-list li {
+        flex-shrink: 0 !important;
+    }
+    
+    .flavoriz-nav-mobile-list a {
+        color: var(--text-gray) !important;
+        text-decoration: none !important;
+        font-weight: 500 !important;
+        font-size: 11px !important;
+        padding: 5px 10px !important;
+        border-radius: 20px !important;
+        transition: all 0.2s ease !important;
+        white-space: nowrap !important;
+        display: block !important;
+    }
+    
+    .flavoriz-nav-mobile-list a:hover,
+    .flavoriz-nav-mobile-list a.active {
+        color: var(--color-white) !important;
+        background: var(--color-orange) !important;
+    }
+    
+    /* Cacher actions desktop sur mobile */
+    .flavoriz-header-actions-desktop {
+        display: none !important;
+    }
+    
+    /* Afficher actions mobile */
+    .flavoriz-header-actions-mobile {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .flavoriz-logo {
+        flex-shrink: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Barre de recherche mobile avec expansion */
+    .flavoriz-search-mobile {
+        position: relative !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Icône de recherche (visible par défaut) */
+    .flavoriz-search-trigger-mobile {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-gray) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        padding: 0 !important;
+    }
+    
+    .flavoriz-search-trigger-mobile:hover {
+        background: rgba(255, 123, 44, 0.1) !important;
+        color: var(--color-orange) !important;
+    }
+    
+    .flavoriz-search-trigger-mobile i {
+        font-size: 20px !important;
+    }
+    
+    /* Cacher l'icône quand le formulaire est ouvert */
+    .flavoriz-search-mobile.expanded .flavoriz-search-trigger-mobile {
+        display: none !important;
+    }
+    
+    .flavoriz-search-form-mobile {
+        display: none !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    
+    /* Afficher le formulaire quand expanded */
+    .flavoriz-search-mobile.expanded .flavoriz-search-form-mobile {
+        display: flex !important;
+    }
+    
+    .flavoriz-search-mobile input {
+        flex: 1 !important;
+        padding: 12px 44px 12px 16px !important;
+        border: 2px solid #E5E7EB !important;
+        border-radius: var(--radius-full) !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+        background: var(--color-white) !important;
+        font-family: var(--font-secondary) !important;
+        width: 100% !important;
+        height: 42px !important;
+    }
+    
+    .flavoriz-search-mobile input:focus {
+        outline: none !important;
+        border-color: var(--color-orange) !important;
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    }
+    
+    .flavoriz-search-submit-mobile {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-gray) !important;
+        cursor: pointer !important;
+        padding: 8px !important;
+        border-radius: 50% !important;
+        transition: all 0.2s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
+    }
+    
+    .flavoriz-search-submit-mobile:hover {
+        background: rgba(255, 123, 44, 0.1) !important;
+        color: var(--color-orange) !important;
+    }
+    
+    .flavoriz-search-close-mobile {
+        position: absolute !important;
+        right: 46px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-gray) !important;
+        cursor: pointer !important;
+        padding: 8px !important;
+        border-radius: 50% !important;
+        transition: all 0.2s ease !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 1 !important;
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
+    }
+    
+    .flavoriz-search-close-mobile:hover {
+        background: rgba(255, 123, 44, 0.1) !important;
+        color: var(--color-orange) !important;
+    }
+    
+    /* Icônes mobile */
+    .flavoriz-icon-btn-mobile {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        background: transparent !important;
+        border: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        color: var(--text-gray) !important;
+        text-decoration: none !important;
+        position: relative !important;
+        font-size: 20px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .flavoriz-icon-btn-mobile:hover {
+        background: rgba(255, 123, 44, 0.1) !important;
+        color: var(--color-orange) !important;
+    }
+    
+    /* FORCER le menu compte mobile en bas de l'écran - RÈGLE ULTRA AGRESSIVE */
+    .flavoriz-account-dropdown-mobile {
+        position: static !important;
+    }
+    
+    .flavoriz-account-menu-mobile,
+    .flavoriz-account-menu-mobile.show,
+    #account-dropdown-menu-mobile,
+    div.flavoriz-account-menu-mobile {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 80px !important;
+        right: 16px !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: auto !important;
+        max-width: calc(100vw - 32px) !important;
+    }
+    
+    .flavoriz-badge-mobile {
+        position: absolute !important;
+        top: -2px !important;
+        right: -2px !important;
+        background: var(--color-orange) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Expansion de la recherche */
+    .flavoriz-search-mobile.expanded {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 10000 !important;
+        background: var(--color-white) !important;
+        padding: 10px 14px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .flavoriz-search-mobile.expanded input {
+        font-size: 14px !important;
+        padding: 10px 44px 10px 14px !important;
+        height: 36px !important;
+    }
+    
+    .flavoriz-search-mobile.expanded .flavoriz-search-submit-mobile {
+        right: 8px !important;
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .flavoriz-search-mobile.expanded .flavoriz-search-close-mobile {
+        display: flex !important;
+        right: 46px !important;
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .flavoriz-search-mobile.expanded .flavoriz-icon-btn-mobile {
+        transition: all 0.3s ease !important;
+    }
+    
+    /* FORCER 2 colonnes sur mobile - RÈGLE ULTRA SPÉCIFIQUE */
+    #products-list.flavoriz-product-grid,
+    .flavoriz-product-grid,
+    div#products-list,
+    div.flavoriz-product-grid,
+    #products-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+        margin-bottom: 80px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 0 !important;
+    }
+    
+    /* FORCER les cartes à prendre 100% de largeur dans la grille */
+    .flavoriz-product-grid > .flavoriz-product-card,
+    #products-list > .flavoriz-product-card,
+    .flavoriz-product-grid .flavoriz-product-card,
+    #products-list > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    .flavoriz-product-card {
+        border-radius: 12px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .flavoriz-product-card:hover {
+        transform: translateY(-3px) translateZ(0) !important;
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .flavoriz-product-card > div:first-child {
+        padding-top: 75% !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 14px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 40px !important;
+        margin-bottom: 8px !important;
+        line-height: 1.4 !important;
+        font-weight: 600 !important;
+    }
+    
+    .flavoriz-product-views {
+        font-size: 8px !important;
+        margin-bottom: 3px !important;
+    }
+    
+    .flavoriz-product-views i {
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-product-card-btn {
+        padding: 10px 14px !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+        gap: 6px !important;
+        font-weight: 600 !important;
+    }
+    
+    .flavoriz-product-card-btn i {
+        font-size: 10px !important;
+    }
+    
+    .flavoriz-product-card-btn span {
+        font-size: 9px !important;
+    }
+    
+    /* Prix plus petit sur mobile */
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) {
+        margin-bottom: 6px !important;
+    }
+    
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) span:first-child {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+    
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) span:last-child {
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-hero {
+        padding: var(--spacing-md) var(--spacing-md) !important;
+        margin: var(--spacing-sm) auto !important;
+        border-radius: var(--radius-lg) !important;
+    }
+    
+    .flavoriz-hero-content {
+        grid-template-columns: 1fr !important;
+        gap: var(--spacing-md) !important;
+        padding: var(--spacing-sm) !important;
+    }
+    
+    .flavoriz-hero-title {
+        font-size: 32px !important;
+    }
+    
+    .flavoriz-hero-image {
+        height: 280px !important;
+    }
+    
+    .flavoriz-hero-placeholder {
+        font-size: 20px !important;
+    }
+    
+    .flavoriz-section {
+        padding: 0 var(--spacing-md) !important;
+    }
+    
+    /* Filter Section Mobile */
+    .flavoriz-filter-section {
+        padding: 16px 18px !important;
+        border-radius: 16px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+    
+    .flavoriz-filter-count {
+        font-size: 14px !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-filter-count strong {
+        font-size: 15px !important;
+    }
+    
+    .flavoriz-filter-sort {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    
+    .flavoriz-filter-sort-label {
+        justify-content: center !important;
+        font-size: 13px !important;
+    }
+    
+    .flavoriz-filter-select {
+        width: 100% !important;
+    }
+    
+    .flavoriz-filter-select select {
+        width: 100% !important;
+        min-width: auto !important;
+        padding: 12px 44px 12px 16px !important;
+        font-size: 13px !important;
+        border-radius: 12px !important;
+    }
+    
+    .flavoriz-filter-select::before {
+        right: 14px !important;
+        width: 18px !important;
+        height: 18px !important;
+    }
+    
+    .flavoriz-section-title {
+        font-size: 22px !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+    
+    .flavoriz-category-tags {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .flavoriz-tag {
+        padding: 8px 12px !important;
+        font-size: 11px !important;
+        gap: 6px !important;
+    }
+    
+    .flavoriz-tag i {
+        font-size: 14px !important;
+    }
+    
+    
+    .flavoriz-section {
+        margin-bottom: 100px !important;
+    }
+    
+    .flavoriz-footer-content {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: var(--spacing-md) !important;
+    }
+    
+    .flavoriz-footer-column h4 {
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-footer-column a {
+        font-size: 11px !important;
+    }
+    
+    .flavoriz-footer-bottom {
+        flex-direction: column !important;
+        text-align: center !important;
+        font-size: 11px !important;
+    }
+    
+    .flavoriz-bottom-nav {
+        display: flex !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* Assurer que la bottom nav est toujours visible */
+    .flavoriz-bottom-nav {
+        display: flex !important;
+        visibility: visible !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .flavoriz-bottom-nav {
+        display: flex !important;
+        padding: 6px 2px calc(6px + env(safe-area-inset-bottom)) !important;
+        min-height: 56px !important;
+        max-height: 64px !important;
+        border-radius: 20px 20px 0 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .flavoriz-bottom-nav-item {
+        padding: 4px 8px !important;
+        font-size: 10px !important;
+        gap: 2px !important;
+    }
+    
+    .flavoriz-bottom-nav-item i {
+        font-size: 18px !important;
+    }
+    
+    .flavoriz-bottom-nav-item span {
+        font-size: 9px !important;
+    }
+    
+    body {
+        padding-bottom: 64px !important;
+    }
+    
+    html {
+        padding-bottom: 0 !important;
+    }
+    
+    .flavoriz-newsletter {
+        padding: var(--spacing-md) var(--spacing-md) !important;
+    }
+    
+    .flavoriz-newsletter-logo {
+        font-size: 24px !important;
+    }
+    
+    .flavoriz-newsletter-text {
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-newsletter-form {
+        flex-direction: column !important;
+    }
+    
+    .flavoriz-newsletter-input {
+        font-size: 12px !important;
+        padding: 12px 16px !important;
+    }
+    
+    .flavoriz-newsletter-btn {
+        width: 100% !important;
+        font-size: 12px !important;
+        padding: 12px 24px !important;
+    }
+    
+    .flavoriz-pagination-btn {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .flavoriz-hero-text h1 {
+        font-size: 24px !important;
+    }
+    
+    .flavoriz-section-title {
+        font-size: 22px !important;
+    }
+    
+    .flavoriz-tag {
+        padding: 10px 16px !important;
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 18px !important;
+    }
+    
+    .flavoriz-nav {
+        flex-wrap: wrap !important;
+    }
+    
+    .flavoriz-nav a {
+        font-size: 12px !important;
+        padding: 4px 8px !important;
+    }
+}
+
+/* ===== Reset Container NEST ===== */
+.container {
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 0 var(--spacing-lg) !important;
+}
+
+.main {
+    padding-top: 0 !important;
+    background: var(--color-white) !important;
+    min-height: 100vh !important;
+}
+
+/* ===== Utilities ===== */
+.text-orange {
+    color: var(--color-orange) !important;
+}
+
+.bg-black {
+    background: var(--color-black) !important;
+}
+
+.bg-orange {
+    background: var(--color-orange) !important;
+}
+
+.rounded-full {
+    border-radius: var(--radius-full) !important;
+}
+
+/* ===== Lazy Loading Images ===== */
+.lazy-load {
+    opacity: 0.7 !important;
+    transition: opacity 0.3s ease !important;
+    background: #F3F4F6 !important;
+}
+
+.lazy-load.loaded {
+    opacity: 1 !important;
+}
+
+/* ===== Spinner Orange Global ===== */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.flavoriz-spinner {
+    display: inline-block !important;
+    width: 40px !important;
+    height: 40px !important;
+    border: 4px solid #E5E7EB !important;
+    border-top-color: var(--color-orange) !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+}
+
+.flavoriz-spinner-sm {
+    width: 24px !important;
+    height: 24px !important;
+    border-width: 3px !important;
+}
+
+.flavoriz-spinner-lg {
+    width: 60px !important;
+    height: 60px !important;
+    border-width: 5px !important;
+}
+
+/* Remplacer tous les spinners Bootstrap par le spinner orange */
+.spinner-border,
+.spinner-border-sm,
+.spinner-grow,
+.spinner-grow-sm {
+    display: inline-block !important;
+    width: 40px !important;
+    height: 40px !important;
+    border: 4px solid #E5E7EB !important;
+    border-top-color: var(--color-orange) !important;
+    border-right-color: transparent !important;
+    border-bottom-color: transparent !important;
+    border-left-color: transparent !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+    vertical-align: text-bottom !important;
+}
+
+.spinner-border-sm {
+    width: 24px !important;
+    height: 24px !important;
+    border-width: 3px !important;
+}
