@@ -34,6 +34,7 @@ sendgrid==6.9.5
 six==1.15.0
 soupsieve==2.3.1
 sqlparse==0.4.2
+setuptools>=65.0.0,<82
 starkbank-ecdsa==2.0.3
 tzdata==2022.1
 ua-parser==0.10.0
