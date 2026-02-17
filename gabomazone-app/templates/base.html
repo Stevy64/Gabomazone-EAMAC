@@ -318,9 +318,9 @@
 										<li>
 											<div class="shopping-cart-img">
 												{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
-													<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
+													<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" loading="lazy" decoding="async" /></a>
 												{% elif order.product and order.product.PRDSlug|length > 0 %}
-												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+												<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" loading="lazy" decoding="async" /></a>
 												{% else %}
 													<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
 												{% endif %}
@@ -551,9 +551,9 @@
 									<li>
 										<div class="shopping-cart-img">
 											{% if order.peer_product and order.peer_product.PRDSlug|length > 0 %}
-												<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" /></a>
+												<a href="{% url 'accounts:peer-product-details' order.peer_product.PRDSlug %}"><img alt="{{order.peer_product.product_name|truncatechars:17}}" src="{{order.peer_product.product_image.url}}" loading="lazy" decoding="async" /></a>
 											{% elif order.product and order.product.PRDSlug|length > 0 %}
-											<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" /></a>
+											<a href="{% url 'products:product-details' order.product.PRDSlug %}"><img alt="{{order.product.product_name|truncatechars:17}}" src="{{order.product.product_image.url}}" loading="lazy" decoding="async" /></a>
 											{% else %}
 												<img alt="Produit" src="{% static 'gabomazone-client/imgs/placeholder.png' %}" />
 											{% endif %}
@@ -705,7 +705,7 @@
 				<a href="{{link.youtube}}"><img src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg'%}" alt="" /></a>
 				{%endfor%}
 			</div>
-			<div class="site-copyright">Copyright 2024 Gabomazone © tous droits réservés.  Gabomazone</div>
+			<div class="site-copyright">Copyright {% now "Y" %} Gabomazone © tous droits réservés.  Gabomazone</div>
 		</div>
 	</div>
 </div>
@@ -829,10 +829,10 @@
                     <ul style="list-style: none; padding: 0; margin: 0;">
                         {% for page_obj in pages_list|slice:"0:5"%}
                         <li style="margin-bottom: 10px;">
-                            <a href="{%url 'pages:pages-name' page_obj.slug %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{{page_obj.name}}</a>
+                            <a href="{% url 'pages:pages-name' page_obj.slug %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{% if page_obj.slug == 'about-us' or page_obj.slug == 'a-propos' or 'about' in page_obj.slug %}À propos{% elif 'terms' in page_obj.slug or 'conditions' in page_obj.slug %}Conditions d'utilisation{% elif 'refund' in page_obj.slug or 'remboursement' in page_obj.slug %}Politique de remboursement{% else %}{{ page_obj.name }}{% endif %}</a>
                         </li>
-								{%endfor%}
-							</ul>
+                        {% endfor %}
+                            </ul>
                     	</div>
                 <div class="flavoriz-footer-column" style="color: white !important;">
                     <h4 style="font-size: 16px; font-weight: 700; margin-bottom: var(--spacing-md); color: white !important;">Support</h4>
@@ -847,7 +847,7 @@
                             <a href="{%url 'contact:contact'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Nous contacter</a>
                         </li>
                         <li style="margin-bottom: 10px;">
-                            <a href="#" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">FAQ</a>
+                            <a href="{% url 'pages:faq' %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">FAQ</a>
                         </li>
                         </ul>
                     </div>
@@ -899,7 +899,7 @@
                         </div>
                     </div>
             <div class="flavoriz-footer-bottom" style="max-width: 1400px; margin: 0 auto; font-size: 13px; padding-top: var(--spacing-md); border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: #9CA3AF !important;">
-                <p style="margin: 0; color: #9CA3AF !important;">Copyright 2024 {{site_info.site_name|default:'GabomaZone'}} © Tous droits réservés.</p>
+                <p style="margin: 0; color: #9CA3AF !important;">Copyright {% now "Y" %} {{site_info.site_name|default:'GabomaZone'}} © Tous droits réservés.</p>
                 </div>
             
             <style>
@@ -1156,29 +1156,11 @@
                 <span class="add-btn-icon-wrap"><i class="fi-rs-plus"></i></span>
                 <span>Publier</span>
             </a>
-            {% if user.is_authenticated %}
-                {% with profile=user.profile %}
-                    {% if profile.status == 'vendor' and profile.admission %}
-                        <!-- WhatsApp Assistance pour les vendeurs -->
-                        <a href="https://wa.me/241074040000?text=Bonjour,%20j'ai%20besoin%20d'assistance%20en%20tant%20que%20vendeur%20sur%20GabomaZone" target="_blank" class="flavoriz-bottom-nav-item">
-                            <i class="fab fa-whatsapp"></i>
-                            <span>Assistance</span>
-                        </a>
-                    {% else %}
-                        <!-- Messagerie pour les clients normaux -->
-                        <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
-                            <i class="fi-rs-comment"></i>
-                            <span>Messagerie</span>
-                        </a>
-                    {% endif %}
-                {% endwith %}
-            {% else %}
-                <!-- Messagerie pour les utilisateurs non connectés (redirige vers login) -->
-                <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
-                    <i class="fi-rs-comment"></i>
-                    <span>Messagerie</span>
-                </a>
-            {% endif %}
+            <!-- Messagerie (tous les utilisateurs) -->
+            <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
+                <i class="fi-rs-comment"></i>
+                <span>Messagerie</span>
+            </a>
             <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">
                 <i class="fi-rs-user"></i>
                 <span>Compte</span>

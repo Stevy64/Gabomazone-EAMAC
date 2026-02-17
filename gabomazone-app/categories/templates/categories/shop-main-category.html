@@ -49,8 +49,8 @@
 
 {%block body%}
 <!-- ===== Main Category Page - Design Ayoka, Mobile-First ===== -->
-<main class="main pages ayoka-category-page" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(180deg, #FDF8F3 0%, #FFF9F5 50%, #FAFAFA 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 16px;">
+<main class="main pages ayoka-category-page shop-page-main" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(180deg, #FDF8F3 0%, #FFF9F5 50%, #FAFAFA 100%);">
+    <div class="container shop-page-container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px; box-sizing: border-box;">
         <!-- Breadcrumb -->
         <nav style="margin-bottom: 16px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
             <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;"><i class="fi-rs-home"></i> <span>Accueil</span></a>
@@ -72,51 +72,43 @@
             </div>
         </section>
         
-        <!-- Product Count & Sort - barre style Ayoka -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding: 16px 18px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-radius: 14px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.05);">
-            <div id="product-num" style="font-size: 14px; color: #6B7280;">
-                <p style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                    <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
-                    <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">0</strong> articles pour vous !</span>
-                </p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 13px; color: #6B7280; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                    <i class="fi-rs-apps-sort" style="font-size: 16px; color: var(--color-orange);"></i> Trier par:
+        <!-- Section rétractable : Résultats + Tri + Sous-catégories (masquée par défaut) -->
+        <div class="shop-filters-collapsible collapsed" style="margin-bottom: 24px; background: white; border-radius: 14px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; overflow: hidden;">
+            <div class="shop-filters-collapse-header" id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" style="padding: 16px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.03) 100%); border-bottom: 1px solid #F3F4F6;">
+                <span style="font-size: 16px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 10px;">
+                    <i class="fi-rs-filter" style="color: var(--color-orange); font-size: 20px;"></i>
+                    Résultats et filtres
                 </span>
-                <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); min-width: 200px;"
-                        hx-get="{% url 'categories:shop-htmx' %}"
-                        hx-target="#products-list"
-                        hx-swap="innerHTML"
-                        hx-trigger="change"
-                        hx-include="[name='cat_type'], [name='cat_id']"
-                        name="order_by">
-                    <option value="-date" selected>Date, nouveau à ancien</option>
-                    <option value="date">Date, ancien à nouveau</option>
-                    <option value="PRDPrice">Prix, bas à haut</option>
-                    <option value="-PRDPrice">Prix, haut à bas</option>
-                </select>
-                <input type="hidden" name="cat_type" id="cat_type_input" value="main" />
-                <input type="hidden" name="cat_id" id="cat_id_input" value="{{main_category_obj.id}}" />
-                            </div>
-                        </div>
-
-        <!-- Main Content -->
-        <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;">
-            <!-- Collapsible Categories Card -->
-            <div class="flavoriz-filters-card" style="background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; overflow: hidden;">
-                <!-- Header avec bouton toggle -->
-                <div class="flavoriz-filters-header" style="padding: 18px 24px; border-bottom: 2px solid #F3F4F6; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(255, 123, 44, 0.05) 0%, rgba(255, 123, 44, 0.02) 100%); transition: all 0.2s ease;" onclick="toggleFilters()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fi-rs-apps" style="color: var(--color-orange); font-size: 20px;"></i>
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; font-family: var(--font-primary);">Sous-catégories</h3>
+                <i class="fi-rs-angle-small-down" id="shop-filters-toggle-icon" style="font-size: 20px; color: var(--color-orange); transition: transform 0.3s ease;"></i>
+            </div>
+            <div class="shop-filters-collapse-body" id="shop-filters-collapse-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 20px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6;">
+                    <div id="product-num" style="font-size: 14px; color: #6B7280;">
+                        <p style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                            <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
+                            <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">0</strong> articles pour vous !</span>
+                        </p>
                     </div>
-                    <i class="fi-rs-angle-down" id="filters-toggle-icon" style="color: var(--color-orange); font-size: 20px; transition: transform 0.3s ease;"></i>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 13px; color: #6B7280; font-weight: 600;">Trier par:</span>
+                        <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; font-family: var(--font-secondary); min-width: 200px;"
+                                hx-get="{% url 'categories:shop-htmx' %}"
+                                hx-target="#products-list"
+                                hx-swap="innerHTML"
+                                hx-trigger="change"
+                                hx-include="[name='cat_type'], [name='cat_id']"
+                                name="order_by">
+                            <option value="-date" selected>Date, nouveau à ancien</option>
+                            <option value="date">Date, ancien à nouveau</option>
+                            <option value="PRDPrice">Prix, bas à haut</option>
+                            <option value="-PRDPrice">Prix, haut à bas</option>
+                        </select>
+                        <input type="hidden" name="cat_type" id="cat_type_input" value="main" />
+                        <input type="hidden" name="cat_id" id="cat_id_input" value="{{main_category_obj.id}}" />
+                    </div>
                 </div>
-                
-                <!-- Contenu dépliable -->
-                <div class="flavoriz-filters-content" id="filters-content" style="display: none; padding: 24px;">
-                    <!-- Grille des sous-catégories -->
+                <div class="flavoriz-filters-card" style="padding: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 16px 0;">Sous-catégories</h4>
                     <div class="category-filter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px;">
                         <!-- Option "Toutes les sous-catégories" -->
                         <a href="#" class="category-filter-link active" data-cat-type="main" data-cat-id="{{main_category_obj.id}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 12px; border-radius: 12px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 13px; font-weight: 500; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 2px solid rgba(255, 123, 44, 0.3); text-align: center; min-height: 100px;">
@@ -156,15 +148,19 @@
                     {%endif%}
                 </div>
             </div>
+        </div>
 
+        <!-- Main Content -->
+        <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;">
             <!-- Products Grid - Mobile-First 2x2 style Ayoka -->
             <div>
                 <div id="products-list" class="flavoriz-product-grid ayoka-products-grid" style="display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;"
                      hx-get="{% url 'categories:shop-htmx' %}?page=1&order_by=-date&cat_type=main&cat_id={{main_category_obj.id}}"
                      hx-trigger="load"
                      hx-swap="innerHTML"
-                     hx-target="this">
-                    <!-- Products will be loaded here via HTMX -->
+                     hx-target="this"
+                     hx-indicator="#loading-indicator">
+                    <!-- Produits chargés en lazy loading via HTMX -->
                 </div>
                 
                 <!-- Loading Spinner -->
@@ -214,6 +210,14 @@
 #filters-toggle-icon.rotated {
     transform: rotate(180deg) !important;
 }
+
+.shop-page-main .shop-page-container { padding-left: 24px !important; padding-right: 24px !important; box-sizing: border-box !important; }
+@media (max-width: 768px) { .shop-page-main .shop-page-container { padding-left: 16px !important; padding-right: 16px !important; } }
+.shop-filters-collapse-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+.shop-filters-collapsible:not(.collapsed) .shop-filters-collapse-body { max-height: 2000px; opacity: 1; transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; }
+.shop-filters-collapsible.collapsed #shop-filters-toggle-icon { transform: rotate(-90deg); transition: transform 0.35s ease; }
+.shop-filters-collapsible:not(.collapsed) #shop-filters-toggle-icon { transform: rotate(180deg); transition: transform 0.35s ease; }
+.shop-filters-collapse-header:hover { background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.05) 100%) !important; }
 
 .more_categories:hover {
     color: #E65A1F !important;
@@ -277,14 +281,19 @@ select.mySelect:focus {
         min-width: 0 !important;
     }
     
-    .flavoriz-product-image {
-        height: 160px !important;
+    /* Mobile : même style cartes que magasins (image carrée, padding 12px) */
+    .flavoriz-product-image-wrap {
+        aspect-ratio: 1 !important;
+        min-height: 0 !important;
     }
-    
+    .flavoriz-product-image-wrap .flavoriz-product-image {
+        height: 100% !important;
+        position: absolute !important;
+        top: 0; left: 0; width: 100%; object-fit: cover !important;
+    }
     .flavoriz-product-body {
         padding: 12px !important;
     }
-    
     .flavoriz-product-title {
         font-size: 13px !important;
         min-height: 36px !important;
@@ -328,12 +337,21 @@ select.mySelect:focus {
 
 .flavoriz-product-card:hover {
     transform: translateY(-4px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    border-color: rgba(255, 123, 44, 0.3) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15) !important;
+    border-color: rgba(255, 123, 44, 0.25) !important;
 }
 
-.flavoriz-product-card:hover .flavoriz-product-image {
-    transform: scale(1.05) !important;
+.flavoriz-product-image-wrap {
+    width: 100% !important;
+    aspect-ratio: 1 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.flavoriz-product-image-wrap .flavoriz-product-image {
+    transition: transform 0.35s ease !important;
+}
+.flavoriz-product-card:hover .flavoriz-product-image-wrap .flavoriz-product-image {
+    transform: scale(1.06) !important;
 }
 
 .flavoriz-product-card-btn:hover {
@@ -410,30 +428,27 @@ select.mySelect:focus {
             }
         });
         
-        // Restaurer l'état des filtres depuis localStorage
-        const filtersExpanded = localStorage.getItem('filtersExpanded');
-        const filtersContent = document.getElementById('filters-content');
-        if (filtersExpanded === 'true' && filtersContent) {
-            filtersContent.style.setProperty('display', 'block', 'important');
-            document.getElementById('filters-toggle-icon').classList.add('rotated');
+        const filtersExpanded = sessionStorage.getItem('shop-filters-expanded');
+        const wrapper = document.querySelector('.shop-filters-collapsible');
+        if (filtersExpanded === '1' && wrapper) {
+            wrapper.classList.remove('collapsed');
+            document.getElementById('shop-filters-collapse-header')?.setAttribute('aria-expanded', 'true');
+        }
+        const header = document.getElementById('shop-filters-collapse-header');
+        if (header) {
+            header.addEventListener('click', toggleShopFilters);
+            header.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleShopFilters(); }
+            });
         }
     });
     
-    // Fonction pour toggle les filtres
-    function toggleFilters() {
-        const content = document.getElementById('filters-content');
-        const icon = document.getElementById('filters-toggle-icon');
-        if (content.style.display === 'none' || !content.style.display || window.getComputedStyle(content).display === 'none') {
-            content.style.setProperty('display', 'block', 'important');
-            icon.classList.add('rotated');
-            icon.style.transform = 'rotate(180deg)';
-            localStorage.setItem('filtersExpanded', 'true');
-        } else {
-            content.style.setProperty('display', 'none', 'important');
-            icon.classList.remove('rotated');
-            icon.style.transform = 'rotate(0deg)';
-            localStorage.setItem('filtersExpanded', 'false');
-        }
+    function toggleShopFilters() {
+        const wrapper = document.querySelector('.shop-filters-collapsible');
+        if (!wrapper) return;
+        const isCollapsed = wrapper.classList.toggle('collapsed');
+        document.getElementById('shop-filters-collapse-header')?.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+        sessionStorage.setItem('shop-filters-expanded', isCollapsed ? '0' : '1');
     }
     
     // Filtrage HTMX des sous-catégories
@@ -477,7 +492,7 @@ select.mySelect:focus {
         
         // Masquer les filtres après sélection sur mobile
         if (window.innerWidth <= 768) {
-            toggleFilters();
+            toggleShopFilters();
         }
     });
     
@@ -522,7 +537,7 @@ select.mySelect:focus {
         
         // Masquer les filtres après sélection sur mobile
         if (window.innerWidth <= 768) {
-            toggleFilters();
+            toggleShopFilters();
         }
     });
         

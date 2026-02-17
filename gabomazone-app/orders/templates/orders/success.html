@@ -6,15 +6,17 @@
 {{ block.super }}
 <style>
     .flavoriz-success-page {
-        padding: 40px 0 80px 0;
+        padding: 120px 24px 80px 24px;
         background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);
-        min-height: calc(100vh - 200px);
+        min-height: calc(100vh - 80px);
+        margin-top: 0;
+        box-sizing: border-box;
     }
     
     .flavoriz-success-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 24px;
+        padding: 0;
     }
     
     .flavoriz-success-header {
@@ -315,8 +317,104 @@
             opacity: 1;
         }
     }
+
+    /* Bloc WhatsApp en haut - appel à l'action principal */
+    .flavoriz-whatsapp-cta {
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 32px;
+        border: 2px solid #25D366;
+        box-shadow: 0 8px 32px rgba(37, 211, 102, 0.25);
+        animation: fadeInUp 0.6s ease-out 0.25s both;
+        position: relative;
+        overflow: hidden;
+    }
+    .flavoriz-whatsapp-cta::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #25D366, #128C7E);
+    }
+    .flavoriz-whatsapp-cta .whatsapp-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(37, 211, 102, 0.2);
+        color: #1B5E20;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .flavoriz-whatsapp-cta h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1B5E20;
+        margin: 0 0 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .flavoriz-whatsapp-cta h2 .wa-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
+    .flavoriz-whatsapp-cta .whatsapp-desc {
+        font-size: 15px;
+        color: #2E7D32;
+        margin: 0 0 20px 0;
+        line-height: 1.6;
+    }
+    .flavoriz-whatsapp-cta .whatsapp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: #25D366;
+        color: white !important;
+        padding: 16px 28px;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .flavoriz-whatsapp-cta .whatsapp-btn:hover {
+        background: #128C7E;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+    }
+    .flavoriz-whatsapp-cta .whatsapp-note {
+        font-size: 13px;
+        color: #388E3C;
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
     
     @media (max-width: 768px) {
+        .flavoriz-whatsapp-cta {
+            padding: 20px 20px;
+        }
+        .flavoriz-whatsapp-cta h2 {
+            font-size: 18px;
+            flex-wrap: wrap;
+        }
+        .flavoriz-whatsapp-cta .whatsapp-btn {
+            width: 100%;
+            justify-content: center;
+        }
         .flavoriz-invoice-details {
             grid-template-columns: 1fr;
         }
@@ -343,141 +441,122 @@
             justify-content: center;
         }
     }
+
+    /* Facture au format standard (réutilise le style invoice-print) */
+    .flavoriz-success-page .invoice-container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #FFFFFF;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 0;
+    }
+    .flavoriz-success-page .invoice-header {
+        background: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+        padding: 40px 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 3px solid #0EA5E9;
+    }
+    .flavoriz-success-page .invoice-header-left h1 { font-size: 48px; font-weight: 700; color: #0C4A6E; margin-bottom: 16px; font-family: Georgia, serif; letter-spacing: -1px; }
+    .flavoriz-success-page .invoice-header-left .invoice-meta { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #075985; font-weight: 500; }
+    .flavoriz-success-page .invoice-header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+    .flavoriz-success-page .invoice-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .flavoriz-success-page .invoice-logo-icon { width: 40px; height: 40px; background: #0EA5E9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700; overflow: hidden; }
+    .flavoriz-success-page .invoice-logo-text { font-size: 24px; font-weight: 600; color: #0C4A6E; font-style: italic; }
+    .flavoriz-success-page .invoice-header-right .company-info { font-size: 12px; color: #075985; line-height: 1.6; text-align: right; }
+    .flavoriz-success-page .invoice-info { padding: 40px 50px; background: #FFF; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; border-bottom: 1px solid #E5E7EB; }
+    .flavoriz-success-page .info-section h3 { font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB; }
+    .flavoriz-success-page .info-section p { font-size: 14px; color: #1F2937; margin: 6px 0; line-height: 1.6; }
+    .flavoriz-success-page .invoice-products { padding: 40px 50px; background: #FFF; }
+    .flavoriz-success-page .products-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    .flavoriz-success-page .products-table thead { background: linear-gradient(135deg, #0C4A6E 0%, #075985 100%); }
+    .flavoriz-success-page .products-table th { padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 700; color: #FFF; text-transform: uppercase; letter-spacing: 0.5px; }
+    .flavoriz-success-page .products-table th:nth-child(2), .flavoriz-success-page .products-table th:nth-child(3), .flavoriz-success-page .products-table th:nth-child(4) { text-align: right; }
+    .flavoriz-success-page .products-table tbody tr { border-bottom: 1px solid #F3F4F6; }
+    .flavoriz-success-page .products-table tbody tr:nth-child(even) { background: #F9FAFB; }
+    .flavoriz-success-page .products-table td { padding: 20px; font-size: 14px; color: #1F2937; }
+    .flavoriz-success-page .products-table td:nth-child(2), .flavoriz-success-page .products-table td:nth-child(3), .flavoriz-success-page .products-table td:nth-child(4) { text-align: right; }
+    .flavoriz-success-page .product-info { display: flex; align-items: center; gap: 12px; }
+    .flavoriz-success-page .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #E5E7EB; }
+    .flavoriz-success-page .product-name { font-weight: 600; color: #1F2937; }
+    .flavoriz-success-page .product-sku { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+    .flavoriz-success-page .invoice-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: #FFF; }
+    .flavoriz-success-page .invoice-payment { padding: 40px 50px; background: #FFF; border-right: 1px solid #E5E7EB; }
+    .flavoriz-success-page .invoice-payment h3 { font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB; }
+    .flavoriz-success-page .invoice-payment p { font-size: 13px; color: #1F2937; margin: 8px 0; line-height: 1.6; }
+    .flavoriz-success-page .invoice-payment .payment-method { font-weight: 600; color: #075985; margin-top: 12px; }
+    .flavoriz-success-page .invoice-payment .terms { margin-top: 24px; padding-top: 20px; border-top: 1px solid #E5E7EB; font-size: 11px; color: #6B7280; line-height: 1.6; }
+    .flavoriz-success-page .invoice-totals { padding: 40px 50px; background: #FFF; }
+    .flavoriz-success-page .total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 14px; }
+    .flavoriz-success-page .total-row.final { margin-top: 20px; padding-top: 20px; border-top: 2px solid #E5E7EB; font-size: 20px; font-weight: 700; }
+    .flavoriz-success-page .total-row .label { color: #6B7280; font-weight: 500; }
+    .flavoriz-success-page .total-row .value { font-weight: 600; color: #1F2937; }
+    .flavoriz-success-page .total-row.final .label { font-size: 18px; color: #0C4A6E; }
+    .flavoriz-success-page .total-row.final .value { font-size: 24px; color: #0EA5E9; }
+    .flavoriz-success-page .discount-value { color: #10B981; }
+    .flavoriz-success-page .invoice-footer { padding: 20px 50px; background: linear-gradient(135deg, #0C4A6E 0%, #075985 100%); color: #FFF; text-align: center; }
+    .flavoriz-success-page .invoice-footer p { font-size: 11px; color: rgba(255,255,255,0.9); margin: 2px 0; }
+    .flavoriz-success-page .products-table-mobile { display: none; }
+    @media (max-width: 768px) {
+        .flavoriz-success-page .invoice-header { flex-direction: column; padding: 24px 16px; gap: 20px; }
+        .flavoriz-success-page .invoice-header-left h1 { font-size: 36px; }
+        .flavoriz-success-page .invoice-info { grid-template-columns: 1fr; padding: 24px 16px; }
+        .flavoriz-success-page .invoice-products { padding: 24px 16px; }
+        .flavoriz-success-page .products-table { display: none; }
+        .flavoriz-success-page .products-table-mobile { display: block; }
+        .flavoriz-success-page .product-card-mobile { background: #F9FAFB; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #E5E7EB; }
+        .flavoriz-success-page .product-card-mobile-header { display: flex; gap: 12px; margin-bottom: 12px; }
+        .flavoriz-success-page .product-card-mobile-image { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #E5E7EB; flex-shrink: 0; }
+        .flavoriz-success-page .product-card-mobile-name { font-size: 14px; font-weight: 600; color: #1F2937; }
+        .flavoriz-success-page .product-card-mobile-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 12px; border-top: 1px solid #E5E7EB; }
+        .flavoriz-success-page .invoice-bottom { grid-template-columns: 1fr; }
+        .flavoriz-success-page .invoice-payment { border-right: none; border-bottom: 1px solid #E5E7EB; padding: 24px 16px; }
+        .flavoriz-success-page .invoice-totals { padding: 24px 16px; }
+        .flavoriz-success-page .invoice-footer { padding: 16px; }
+    }
+    @media print {
+        .no-print { display: none !important; }
+        .flavoriz-success-page { padding: 0 !important; background: #fff !important; }
+        .flavoriz-success-page .invoice-container { box-shadow: none; }
+        .flavoriz-success-page .invoice-header, .flavoriz-success-page .invoice-footer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .flavoriz-success-page .products-table-mobile { display: none !important; }
+        .flavoriz-success-page .products-table { display: table !important; }
+    }
 </style>
 {%endblock head%}
 
 {%block body%}
 <div class="flavoriz-success-page">
     <div class="flavoriz-success-container">
-        <!-- Success Header -->
-        <div class="flavoriz-success-header">
+        <!-- Success Header (masqué à l'impression) -->
+        <div class="flavoriz-success-header no-print">
             <div class="flavoriz-success-icon">
                 <i class="fi-rs-check"></i>
             </div>
-            <h1 class="flavoriz-success-title">Commande confirmée !</h1>
-            <p class="flavoriz-success-subtitle">Merci pour votre achat. Votre commande a été enregistrée avec succès.</p>
+            <h1 class="flavoriz-success-title">Commande enregistrée !</h1>
+            {% if whatsapp_url %}
+            <p class="flavoriz-success-subtitle">Merci pour votre achat. Consultez votre facture ci-dessous, puis validez votre commande via WhatsApp en bas de page pour qu'elle soit prise en charge.</p>
+            {% else %}
+            <p class="flavoriz-success-subtitle">Merci pour votre achat. Votre commande a été enregistrée. Consultez votre facture et le récapitulatif ci-dessous.</p>
+            {% endif %}
+        </div>
+
+        <!-- Facture au format standard (ébauche + impression) -->
+        <div class="flavoriz-success-invoice-wrap" style="margin-bottom: 24px;">
+            {% include "orders/_invoice_standard_content.html" %}
         </div>
         
-        <!-- Invoice Card -->
-        <div class="flavoriz-invoice-card">
-            <!-- Invoice Header -->
-            <div class="flavoriz-invoice-header">
-                <div class="flavoriz-invoice-info">
-                    <h3>Facture</h3>
-                    <p><strong>N° de commande:</strong> <span class="flavoriz-invoice-number">#{{order_success.id}}</span></p>
-                    {% if order_success.tracking_no %}
-                    <p><strong>N° de suivi:</strong> {{order_success.tracking_no}}</p>
-                    {% endif %}
-                    <p><strong>Date:</strong> {{order_success.date_update|date:"d/m/Y à H:i"}}</p>
-                </div>
-                <div style="text-align: right;">
-                    <img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" style="max-height: 60px; margin-bottom: 12px;" />
-                    {%for info in contact_info|slice:":1"%}
-                    <p style="font-size: 12px; color: #6B7280; margin: 4px 0;">{{info.full_address}}</p>
-                    {%endfor%}
-                </div>
-            </div>
-            
-            <!-- Invoice Details -->
-            <div class="flavoriz-invoice-details">
-                <div class="flavoriz-detail-section">
-                    <h4><i class="fi-rs-user" style="color: var(--color-orange);"></i> Facturé à</h4>
-                    <p><strong>{{payment_info.first_name}} {{payment_info.last_name}}</strong></p>
-                    <p>{{payment_info.Email_Address}}</p>
-                    <p>{{payment_info.post_code}}, {{payment_info.street_address}}</p>
-                    <p>{{payment_info.state}}, {{payment_info.country}}</p>
-                </div>
-                <div class="flavoriz-detail-section">
-                    <h4><i class="fi-rs-credit-card" style="color: var(--color-orange);"></i> Méthode de paiement</h4>
-                    <p><strong>{{payment_info.payment_method|default:"Non spécifiée"}}</strong></p>
-                    <p style="margin-top: 16px;"><strong>Date d'échéance:</strong></p>
-                    <p>{{order_success.date_update|date:"d/m/Y"}}</p>
-                </div>
-            </div>
-            
-            <!-- Products Table -->
-            <div style="overflow-x: auto;">
-                <table class="flavoriz-products-table">
-                    <thead>
-                        <tr>
-                            <th>Article</th>
-                            <th style="text-align: center;">Prix unitaire</th>
-                            <th style="text-align: center;">Quantité</th>
-                            <th style="text-align: right;">Montant</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in order_details_success %}
-                        <tr>
-                            <td>
-                                <div class="flavoriz-product-info">
-                                    {% if item.peer_product and item.peer_product.product_image %}
-                                    <img src="{{item.peer_product.product_image.url}}" alt="{{item.peer_product.product_name}}" class="flavoriz-product-image" />
-                                    {% elif item.product and item.product.product_image %}
-                                    <img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}" class="flavoriz-product-image" />
-                                    {% else %}
-                                    <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" class="flavoriz-product-image" />
-                                    {% endif %}
-                                    <div>
-                                        <div class="flavoriz-product-name">
-                                            {% if item.peer_product %}
-                                                {{item.peer_product.product_name}}
-                                            {% else %}
-                                                {{item.product.product_name}}
-                                            {% endif %}
-                                        </div>
-                                        {% if item.product and item.product.PRDSKU %}
-                                        <div class="flavoriz-product-sku">SKU: {{item.product.PRDSKU}}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="text-align: center;">{{item.price|format_price}} FCFA</td>
-                            <td style="text-align: center;">{{item.quantity}}</td>
-                            <td style="text-align: right; font-weight: 600;">{{ item.price|multiply_and_format:item.quantity }} FCFA</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Totals -->
-            <div class="flavoriz-totals">
-                <div class="flavoriz-total-row">
-                    <span>Sous-total</span>
-                    <strong>{{order_success.sub_total|format_price}} FCFA</strong>
-                </div>
-                <div class="flavoriz-total-row">
-                    <span>Articles</span>
-                    <strong>{{order_details_success.count}}</strong>
-                </div>
-                {% if order_success.coupon %}
-                <div class="flavoriz-total-row">
-                    <span>Code promo ({{order_success.coupon}})</span>
-                    <strong style="color: #10B981;">-{{order_success.discount|format_price}} FCFA</strong>
-                </div>
-                {% endif %}
-                <div class="flavoriz-total-row">
-                    <span>Poids total</span>
-                    <strong>{{order_success.weight|floatformat:"2"}} KG</strong>
-                </div>
-                {% if order_success.shipping %}
-                <div class="flavoriz-total-row">
-                    <span>Livraison</span>
-                    <strong>+{{order_success.shipping|format_price}} FCFA</strong>
-                </div>
-                {% endif %}
-                <div class="flavoriz-total-row final">
-                    <span>Total</span>
-                    <strong>{{order_success.amount|format_price}} FCFA</strong>
-                </div>
-            </div>
-            
-            <!-- Actions -->
-            <div class="flavoriz-actions">
+        <!-- Actions et notes (masqués à l'impression) -->
+        <div class="no-print">
+            <div class="flavoriz-actions" style="margin-bottom: 24px;">
                 <a href="javascript:window.print()" class="flavoriz-btn flavoriz-btn-primary">
                     <i class="fi-rs-print"></i>
-                    Imprimer
+                    Imprimer la facture
+                </a>
+                <a href="{% url 'orders:invoice-print' order_success.id %}" target="_blank" rel="noopener noreferrer" class="flavoriz-btn flavoriz-btn-secondary">
+                    <i class="fi-rs-print"></i>
+                    Ouvrir la facture (nouvel onglet)
                 </a>
                 <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-btn flavoriz-btn-secondary">
                     <i class="fi-rs-shopping-bag"></i>
@@ -488,17 +567,35 @@
                     Continuer les achats
                 </a>
             </div>
-            
-            <!-- Important Notes -->
             <div class="flavoriz-notes">
-                <h4><i class="fi-rs-info" style="color: var(--color-orange);"></i> Notes importantes</h4>
+                <h4><i class="fi-rs-info" style="color: var(--color-orange);"></i> À propos de votre commande</h4>
                 <ul>
-                    <li>Tous les montants indiqués sur cette facture sont en FCFA</li>
-                    <li>Une fois la commande effectuée, le remboursement n'est pas possible</li>
-                    <li>La livraison peut être retardée en raison de dépendances externes</li>
-                    <li>Vous recevrez un email de confirmation avec les détails de votre commande</li>
+                    <li>Conservez cette page ou imprimez la facture pour votre suivi.</li>
+                    {% if whatsapp_url %}
+                    <li><strong>Paiement à la livraison :</strong> validez votre commande via le bouton WhatsApp ci-dessous pour que l'équipe Gabomazone la prenne en charge.</li>
+                    {% else %}
+                    <li>Votre commande a été enregistrée et sera traitée par nos équipes.</li>
+                    {% endif %}
+                    <li>Pour toute question, contactez-nous via la page Contact du site.</li>
                 </ul>
             </div>
+
+            <!-- CTA WhatsApp en bas de page (paiement à la livraison) : après lecture de la facture -->
+            {% if whatsapp_url %}
+            <div class="flavoriz-whatsapp-cta no-print" style="margin-top: 32px;">
+                <div class="whatsapp-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Dernière étape
+                </div>
+                <h2><svg class="wa-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Validez et envoyez votre commande à Gabomazone</h2>
+                <p class="whatsapp-desc">Vous avez consulté votre facture. Pour que votre commande soit validée et transmise à l'équipe Gabomazone, cliquez sur le bouton ci-dessous. Un message prérempli s'ouvrira sur WhatsApp : il suffit de l'envoyer pour finaliser.</p>
+                <a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="whatsapp-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Ouvrir WhatsApp et valider ma commande
+                </a>
+                <p class="whatsapp-note"><i class="fi-rs-info" style="font-size: 14px;"></i> Après envoi du message, l'équipe Gabomazone prendra en charge votre commande et vous contactera si besoin.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -42,8 +42,8 @@
 
 {%block body%}
 <!-- ===== Suppliers List Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<main class="main pages shop-page-main" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container shop-page-container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px; box-sizing: border-box;">
         <!-- Breadcrumb -->
         <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
             <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
@@ -61,9 +61,17 @@
             </div>
         </div>
 
-        <!-- Barre de recherche moderne (style liste d'articles) -->
-        <div class="vendors-search-form-container" style="max-width: 900px; margin: 0 auto 28px;">
-            <form id="vendors-search-form" class="vendors-search-form" style="background: white; border-radius: 20px; padding: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 2px solid #F3F4F6; transition: all 0.3s ease;">
+        <!-- Section de recherche rétractable (masquée par défaut) -->
+        <div class="vendors-search-form-container collapsed" style="max-width: 900px; margin: 0 auto 28px;">
+            <div class="vendors-search-collapse-header" id="vendors-search-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vendors-search-collapse-body" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 2px solid #F3F4F6; cursor: pointer; transition: all 0.3s ease; margin-bottom: 0;">
+                <span style="font-size: 15px; font-weight: 600; color: #1F2937; display: flex; align-items: center; gap: 10px;">
+                    <i class="fi-rs-search" style="color: var(--color-orange); font-size: 18px;"></i>
+                    Recherche et filtres
+                </span>
+                <i class="fi-rs-angle-small-down vendors-search-collapse-chevron" id="vendors-search-collapse-chevron" style="font-size: 20px; color: #6B7280; transition: transform 0.3s ease;"></i>
+            </div>
+            <div class="vendors-search-collapse-body" id="vendors-search-collapse-body" style="overflow: hidden;">
+            <form id="vendors-search-form" class="vendors-search-form" style="background: white; border-radius: 0 0 20px 20px; padding: 12px 12px 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 2px solid #F3F4F6; border-top: none; transition: all 0.3s ease;">
                 <div class="vendors-search-row" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <div class="vendors-search-input-wrapper" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #FAFAFA; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.2s ease;">
                         <i class="fi-rs-search" style="font-size: 18px; color: var(--color-orange); flex-shrink: 0;"></i>
@@ -112,6 +120,7 @@
                     </button>
                 </div>
             </form>
+            </div>
         </div>
 
         <!-- Results Count -->
@@ -122,10 +131,10 @@
             </p>
                             </div>
 
-        <!-- Vendors Grid (2x2) -->
-        <div id="vendors-list" class="flavoriz-vendors-grid" style="display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;">
+        <!-- Vendors Grid (cartes de taille articles, comme la grille produits) -->
+        <div id="vendors-list" class="vendors-grid flavoriz-vendors-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; width: 100%; max-width: 100%; box-sizing: border-box; padding: 0;">
             <!-- Vendors will be loaded here via AJAX -->
-                </div>
+        </div>
                 
         <!-- Loading Spinner -->
         <div id="spinner-box" class="not-visible" style="text-align: center; padding: 60px 20px;">
@@ -162,6 +171,45 @@
     background: #E65A1F !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
+}
+
+/* Section recherche rétractable */
+.vendors-search-collapse-header:hover {
+    border-color: rgba(255, 123, 44, 0.3) !important;
+    background: #FDFCFB !important;
+}
+.vendors-search-collapse-header:focus {
+    outline: none;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.12);
+}
+.vendors-search-form-container.collapsed .vendors-search-collapse-header {
+    border-radius: 20px;
+    margin-bottom: 0;
+}
+.vendors-search-form-container.collapsed .vendors-search-collapse-chevron {
+    transform: rotate(-90deg);
+}
+/* Marges horizontales */
+.shop-page-main .shop-page-container { padding-left: 24px !important; padding-right: 24px !important; box-sizing: border-box !important; }
+@media (max-width: 768px) {
+    .shop-page-main .shop-page-container { padding-left: 16px !important; padding-right: 16px !important; }
+}
+
+/* Transition fluide section recherche magasins */
+.vendors-search-collapse-body {
+    overflow: hidden;
+    max-height: 420px;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+}
+.vendors-search-form-container.collapsed .vendors-search-collapse-body {
+    max-height: 0 !important;
+    opacity: 0;
+    margin-top: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.vendors-search-collapse-chevron {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Barre de recherche magasins - style moderne */
@@ -293,15 +341,118 @@
 }
 #vendor-reset-filters:hover { color: var(--color-orange) !important; }
 
+/* Grille magasins desktop : même taille que les cartes articles (4 colonnes, gap 20px) */
+.flavoriz-vendors-grid {
+    display: grid !important;
+    gap: 20px !important;
+    margin-bottom: 24px !important;
+}
+@media (min-width: 1200px) {
+    .flavoriz-vendors-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+    .flavoriz-vendors-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+    .flavoriz-vendors-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+@media (min-width: 600px) and (max-width: 767px) {
+    .flavoriz-vendors-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+}
+@media (max-width: 599px) {
+    .flavoriz-vendors-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+/* Cartes magasins : style article (comme flavoriz-product-card) */
+.vendor-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #F3F4F6 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+.vendor-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15) !important;
+    border-color: rgba(255, 123, 44, 0.25) !important;
+}
+.vendor-card-image {
+    width: 100% !important;
+    aspect-ratio: 1 !important;
+    overflow: hidden !important;
+    background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%) !important;
+    position: relative !important;
+}
+.vendor-card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.35s ease !important;
+}
+.vendor-card:hover .vendor-card-image img {
+    transform: scale(1.06) !important;
+}
+.vendor-card-body {
+    padding: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+.vendor-card-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #1F2937 !important;
+    margin: 0 0 6px 0 !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+.vendor-card-meta {
+    font-size: 12px !important;
+    color: #6B7280 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+@media (max-width: 599px) {
+    .vendor-card-image { aspect-ratio: 1 !important; }
+    .vendor-card-body { padding: 12px !important; }
+    .vendor-card-title { font-size: 14px !important; }
+}
+
 @media (max-width: 768px) {
     .main.pages {
         padding-top: 80px !important;
         padding-bottom: 60px !important;
     }
     h1 { font-size: 24px !important; }
-    #vendors-list {
+    .vendors-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 16px !important;
+        gap: 12px !important;
     }
     .vendors-search-row {
         flex-direction: column !important;
@@ -312,10 +463,6 @@
     #dropdown-category-wrap,
     #dropdown-order-wrap { min-width: 100% !important; }
     .vendors-search-submit-btn { width: 100% !important; justify-content: center !important; }
-}
-
-@media (min-width: 769px) {
-    #vendors-list { grid-template-columns: repeat(2, 1fr) !important; }
 }
 </style>
 {%endblock body%}
@@ -340,6 +487,31 @@
     const categorySelect = document.getElementById('vendor-filter-category');
     const orderSelect = document.getElementById('vendor-filter-order');
     const resetBtn = document.getElementById('vendor-reset-filters');
+    const collapseHeader = document.getElementById('vendors-search-collapse-header');
+    const collapseBody = document.getElementById('vendors-search-collapse-body');
+    const collapseContainer = document.querySelector('.vendors-search-form-container');
+    
+    function initSearchCollapse() {
+        if (!collapseHeader || !collapseBody || !collapseContainer) return;
+        var stored = sessionStorage.getItem('vendors-search-collapsed');
+        if (stored !== '0') {
+            collapseContainer.classList.add('collapsed');
+            collapseHeader.setAttribute('aria-expanded', 'false');
+        } else {
+            collapseHeader.setAttribute('aria-expanded', 'true');
+        }
+        collapseHeader.addEventListener('click', function() {
+            var isCollapsed = collapseContainer.classList.toggle('collapsed');
+            collapseHeader.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+            sessionStorage.setItem('vendors-search-collapsed', isCollapsed ? '1' : '0');
+        });
+        collapseHeader.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                collapseHeader.click();
+            }
+        });
+    }
     
     function initCustomDropdowns() {
         var dropdowns = [
@@ -497,61 +669,34 @@
     }
     
     function createVendorCard(vendor) {
-        const card = document.createElement('div');
-        card.className = 'flavoriz-product-card';
-        card.style.cssText = 'cursor: pointer; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; height: 100%;';
-        
         const imageUrl = vendor.image ? '/media/' + vendor.image : '{% static "assets/imgs/theme/icons/icon-store.svg" %}';
-        const displayName = vendor.display_name || (vendor.user ? vendor.user.username : 'Magasin');
-        const bio = vendor.bio || 'Aucune description disponible';
-        const city = vendor.city || '';
+        const displayName = (vendor.display_name || (vendor.user && vendor.user.username) || 'Magasin').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const slug = vendor.slug || '';
-        
+        const sinceText = vendor.since_text || '';
+        const avgRating = vendor.average_rating != null ? Number(vendor.average_rating) : 0;
+        const totalRatings = vendor.total_ratings != null ? parseInt(vendor.total_ratings, 10) : 0;
+        const ratingLabel = totalRatings > 0
+            ? (avgRating.toFixed(1).replace('.', ',') + ' ★ · ' + totalRatings + ' avis')
+            : 'Aucun avis';
+        const metaText = sinceText ? sinceText + (totalRatings > 0 ? ' · ' + ratingLabel : '') : (totalRatings > 0 ? ratingLabel : 'Nouveau');
+
+        const card = document.createElement('a');
+        card.href = '/suppliers/vendor-details/' + (slug || '');
+        card.className = 'vendor-card';
+
         card.innerHTML = `
-            <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%); width: 100%; padding-top: 60%;">
-                <img src="${imageUrl}" 
-                     alt="${displayName}" 
-                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
-                     onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #FF7B2C 0%, #FFB37A 100%)'; this.parentElement.innerHTML='<div style=\\'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 48px;\\'><i class=\\'fi-rs-store\\'></i></div>';" />
+            <div class="vendor-card-image">
+                <img src="${imageUrl}" alt="${displayName}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%);">
+                    <i class="fi-rs-store" style="font-size: 48px; color: var(--color-orange);"></i>
+                </div>
             </div>
-            <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
-                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.3;">
-                    ${displayName}
-                </h3>
-                ${city ? `<p style="font-size: 13px; color: #6B7280; margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;"><i class="fi-rs-marker" style="font-size: 12px; color: var(--color-orange);"></i>${city}</p>` : ''}
-                <p style="font-size: 13px; color: #6B7280; margin: 0 0 16px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
-                    ${bio}
-                </p>
-                <a href="/suppliers/vendor-details/${slug}" 
-                   style="padding: 12px 20px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; text-align: center; text-decoration: none; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);"
-                   onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'"
-                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 123, 44, 0.3)'">
-                    <i class="fi-rs-eye"></i>
-                    <span>Voir le magasin</span>
-                </a>
+            <div class="vendor-card-body">
+                <h3 class="vendor-card-title">${displayName}</h3>
+                <p class="vendor-card-meta">${metaText}</p>
             </div>
         `;
-        
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-4px)';
-            this.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.12)';
-            this.style.borderColor = 'rgba(255, 123, 44, 0.3)';
-            const img = this.querySelector('img');
-            if (img && img.style.display !== 'none') {
-                img.style.transform = 'scale(1.1)';
-            }
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.08)';
-            this.style.borderColor = 'rgba(0, 0, 0, 0.05)';
-            const img = this.querySelector('img');
-            if (img && img.style.display !== 'none') {
-                img.style.transform = 'scale(1)';
-            }
-        });
-        
+
         return card;
     }
     
@@ -589,6 +734,7 @@
     }
     
     initCustomDropdowns();
+    initSearchCollapse();
     
     // Initial load
     if (document.readyState === 'loading') {

@@ -436,7 +436,7 @@ def sell_product(request):
             table_exists = cursor.fetchone() is not None
         
         if table_exists:
-            user_products = PeerToPeerProduct.objects.filter(seller=request.user).order_by('-date')
+            user_products = PeerToPeerProduct.objects.filter(seller=request.user).exclude(status=PeerToPeerProduct.SOLD).order_by('-date')
             # Vérifier si les produits sont boostés
             from c2c.models import ProductBoost
             from django.utils import timezone
@@ -476,6 +476,7 @@ def sell_product(request):
         additional_image_1 = request.FILES.get('additional_image_1')
         additional_image_2 = request.FILES.get('additional_image_2')
         additional_image_3 = request.FILES.get('additional_image_3')
+        additional_image_4 = request.FILES.get('additional_image_4')
         
         # Validation
         valid_conditions = [c[0] for c in PeerToPeerProduct.CONDITION_CHOICES]
@@ -561,6 +562,7 @@ def sell_product(request):
                 additional_image_1=additional_image_1,
                 additional_image_2=additional_image_2,
                 additional_image_3=additional_image_3,
+                additional_image_4=additional_image_4,
                 PRDSlug=slug,
                 status=PeerToPeerProduct.PENDING
             )
@@ -664,6 +666,7 @@ def edit_peer_product(request, product_id):
         additional_image_1 = request.FILES.get('additional_image_1')
         additional_image_2 = request.FILES.get('additional_image_2')
         additional_image_3 = request.FILES.get('additional_image_3')
+        additional_image_4 = request.FILES.get('additional_image_4')
         
         # Validation
         if not product_name or not product_description or not PRDPrice or not seller_phone or not seller_address or not seller_city:
@@ -725,6 +728,8 @@ def edit_peer_product(request, product_id):
             product.additional_image_2 = additional_image_2
         if additional_image_3:
             product.additional_image_3 = additional_image_3
+        if additional_image_4:
+            product.additional_image_4 = additional_image_4
         
         # Si le nom a changé, mettre à jour le slug
         old_name = product.product_name
@@ -746,8 +751,8 @@ def edit_peer_product(request, product_id):
         messages.success(request, f'Votre article "{product_name}" a été modifié avec succès. Il sera réexaminé par notre équipe.')
         return redirect('accounts:sell-product')
     
-    # Récupérer les articles de l'utilisateur pour l'affichage
-    user_products = PeerToPeerProduct.objects.filter(seller=request.user).order_by('-date')
+    # Récupérer les articles de l'utilisateur pour l'affichage (exclure les vendus)
+    user_products = PeerToPeerProduct.objects.filter(seller=request.user).exclude(status=PeerToPeerProduct.SOLD).order_by('-date')
     
     context = {
         'product': product,
@@ -826,7 +831,7 @@ def my_published_products(request):
             table_exists = cursor.fetchone() is not None
         
         if table_exists:
-            user_products = PeerToPeerProduct.objects.filter(seller=request.user).order_by('-date')
+            user_products = PeerToPeerProduct.objects.filter(seller=request.user).exclude(status=PeerToPeerProduct.SOLD).order_by('-date')
             # Calculer le nombre de messages non lus et vérifier si le produit est boosté
             from .models import ProductConversation
             from c2c.models import ProductBoost
@@ -1191,6 +1196,27 @@ def unarchive_conversation(request, conversation_id):
 
 
 @login_required(login_url='accounts:login')
+@require_POST
+def delete_conversation(request, conversation_id):
+    """
+    Supprime une conversation et tous ses messages. Seul un participant (vendeur ou acheteur) peut supprimer.
+    """
+    from django.http import JsonResponse
+    from .models import ProductConversation
+
+    try:
+        conversation = ProductConversation.objects.get(id=conversation_id)
+    except ProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+
+    if request.user not in [conversation.seller, conversation.buyer]:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+
+    conversation.delete()
+    return JsonResponse({'success': True, 'message': 'Conversation supprimée'})
+
+
+@login_required(login_url='accounts:login')
 def mark_conversation_messages_read(request, conversation_id):
     """
     Vue pour marquer les messages d'une conversation comme lus (API JSON)
@@ -1343,36 +1369,22 @@ def my_messages(request):
             conv.other_user = conv.buyer
             conv.user_role = 'seller'
             conv.last_message = conv.messages.order_by('-created_at').first()
-            # Ajouter les infos C2C
             conv.c2c_order = conv.get_c2c_order()
             conv.purchase_intent = conv.get_purchase_intent()
-            conv.is_archived = conv.is_archived_by_seller
-            
-            if conv.is_archived_by_seller:
-                archived_conversations.append(conv)
-            else:
-                active_conversations.append(conv)
+            active_conversations.append(conv)
         
         for conv in buyer_conversations:
             conv.unread_count = conv.get_unread_count_for_buyer()
             conv.other_user = conv.seller
             conv.user_role = 'buyer'
             conv.last_message = conv.messages.order_by('-created_at').first()
-            # Ajouter les infos C2C
             conv.c2c_order = conv.get_c2c_order()
             conv.purchase_intent = conv.get_purchase_intent()
-            conv.is_archived = conv.is_archived_by_buyer
-            
-            if conv.is_archived_by_buyer:
-                archived_conversations.append(conv)
-            else:
-                active_conversations.append(conv)
+            active_conversations.append(conv)
         
-        # Combiner toutes les conversations actives
+        # Toutes les conversations (archivage désactivé)
         all_conversations = active_conversations
-        # Trier par date du dernier message
-        all_conversations.sort(key=lambda x: x.last_message_at, reverse=True)
-        archived_conversations.sort(key=lambda x: x.last_message_at, reverse=True)
+        all_conversations.sort(key=lambda x: (x.last_message_at is None, x.last_message_at), reverse=True)
         
         # Récupérer les notifications de commandes
         try:
@@ -1429,22 +1441,17 @@ def my_messages(request):
             peer_notifications = []
             orders_unread_count = 0
     
-    # Définir archived_conversations si non défini
-    try:
-        archived_conversations
-    except NameError:
-        archived_conversations = []
-    
     context = {
         'conversations': all_conversations,
-        'archived_conversations': archived_conversations,
         'total_unread': total_unread,
+        'messages_count': total_unread,  # pour le badge "Ma messagerie" dans _mon_compte_card.html
         'peer_notifications': peer_notifications,
         'orders_unread_count': orders_unread_count,
         'purchase_intents': purchase_intents,
         'purchase_intents_unread': purchase_intents_unread,
         'auto_open_product_id': auto_open_product_id,
         'auto_open_conversation_id': auto_open_conversation_id,
+        'archived_conversations': [],  # option d'archivage supprimée
     }
     return render(request, 'accounts/my-messages.html', context)
 
@@ -1481,16 +1488,21 @@ def peer_product_details(request, slug):
         from c2c.models import SellerReview
         seller_stats = SellerReview.get_seller_stats(peer_product.seller)
     except Exception as e:
-        # Si la table n'existe pas encore (migrations non appliquées)
         seller_stats = {
             'average_rating': 0,
             'total_reviews': 0,
         }
     
+    # Nombre d'articles publiés par le vendeur (annonces approuvées)
+    seller_products_count = PeerToPeerProduct.objects.filter(
+        seller=peer_product.seller, status=PeerToPeerProduct.APPROVED
+    ).count()
+    
     context = {
         'peer_product': peer_product,
         'similar_products': similar_products,
         'seller_stats': seller_stats,
+        'seller_products_count': seller_products_count,
     }
     return render(request, 'accounts/peer-product-details.html', context)
 

@@ -13,7 +13,7 @@ urlpatterns = [
     path('vendor-details/<str:slug>/', views.vendor_details, name="vendor-details-alt"),  # Alias pour compatibilité
     path('vendor-details-ajax/',
          views.VendorDetailsJsonListView.as_view(), name="orders-ajax"),
-
+    path('vendor-products-htmx/', views.VendorProductListHTMXView.as_view(), name='vendor-products-htmx'),
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

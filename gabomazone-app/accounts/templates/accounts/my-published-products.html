@@ -34,13 +34,13 @@
         border-radius: 16px !important;
     }
     
-    .flavoriz-dashboard-menu ul {
+    .flavoriz-dashboard-menu .mon-compte-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
     }
     
-    .flavoriz-dashboard-menu li a {
+    .flavoriz-dashboard-menu .mon-compte-grid li a {
         padding: 10px 12px !important;
         font-size: 13px !important;
         flex-direction: column !important;
@@ -48,7 +48,7 @@
         text-align: center !important;
     }
     
-    .flavoriz-dashboard-menu li a i {
+    .flavoriz-dashboard-menu .mon-compte-grid li a i {
         font-size: 18px !important;
         width: auto !important;
     }
@@ -71,11 +71,12 @@
         gap: 4px !important;
     }
     
-    nav a span {
+    /* Masquer uniquement le texte du fil d'Ariane (pas la barre du bas) */
+    main .container > nav a span {
         display: none !important;
     }
     
-    nav span:not(:last-child) {
+    main .container > nav span:not(:last-child) {
         display: none !important;
     }
     
@@ -115,57 +116,9 @@
         </nav>
 
         <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
-            <!-- Sidebar Menu -->
+            <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->
             <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
-                <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
-                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
-                            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
-                            Mon compte
-                        </h3>
-                    </div>
-                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
-                        <li>
-                            <a href="{% url 'accounts:dashboard_customer'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Mes commandes</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:sell-product' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Vendre un article</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-orange); text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);">
-                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center; color: var(--color-orange);"></i>
-                                <span>Mes articles publiés</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500; position: relative;">
-                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Ma messagerie</span>
-                                {% if messages_count and messages_count > 0 %}
-                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Mot de passe</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:account_details'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Paramètres</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                {% include 'accounts/_mon_compte_card.html' with active_page='my-published-products' %}
             </div>
 
             <!-- Main Content -->
@@ -207,22 +160,9 @@
                                     <span>Boosté</span>
                                 </div>
                                 {% endif %}
-                                {% if product.status == 'APPROVED' %}
-                                <button type="button" onclick="openChatbot({{ product.id }})" class="chatbot-trigger-btn" data-product-id="{{ product.id }}" style="position: absolute; top: 8px; right: 8px; background: {% if product.unread_messages_count > 0 %}rgba(255, 123, 44, 0.95){% else %}rgba(255, 255, 255, 0.95){% endif %}; padding: 8px; border: none; border-radius: 50%; color: {% if product.unread_messages_count > 0 %}white{% else %}#9CA3AF{% endif %}; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.3s; position: relative;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
-                                    <i class="fi-rs-comment" style="font-size: 18px;"></i>
-                                    {% if product.unread_messages_count > 0 %}
-                                    <span class="message-badge" style="position: absolute; top: -4px; right: -4px; background: #EF4444; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border: 2px solid white;">{{ product.unread_messages_count }}</span>
-                                    {% endif %}
-                                </button>
-                                {% endif %}
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                                 <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0; line-height: 1.4; flex: 1;">{{ product.product_name|truncatechars:50 }}</h4>
-                                {% if product.status == 'APPROVED' %}
-                                <button type="button" onclick="openChatbot({{ product.id }})" title="Voir toutes les discussions" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 4px 8px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 123, 44, 0.1)'; this.style.transform='scale(1.1)'" onmouseout="this.style.background='none'; this.style.transform='scale(1)'">
-                                    <i class="fi-rs-list" style="font-size: 18px;"></i>
-                                </button>
-                                {% endif %}
                             </div>
                             <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
@@ -254,6 +194,9 @@
                             <!-- Actions CRUD -->
                             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
                                 {% if product.status == 'APPROVED' %}
+                                <button type="button" onclick="openChatbot({{ product.id }}, '{{ product.product_name|escapejs }}')" title="Consulter l'historique des discussions liées à cet article" style="width: 100%; padding: 10px 16px; background: #F3F4F6; color: #1F2937; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255, 123, 44, 0.1)'; this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'" onmouseout="this.style.background='#F3F4F6'; this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'">
+                                    <i class="fi-rs-comment" style="font-size: 14px;"></i> Historique des discussions
+                                </button>
                                 <button type="button" onclick="openBoostModal({{ product.id }}, '{{ product.product_name|escapejs }}')" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; border: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                                     <i class="fi-rs-rocket" style="font-size: 14px;"></i> Booster cet article
                                 </button>
@@ -319,7 +262,7 @@
     </div>
     
     <!-- Active Conversation View -->
-    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white;">
+    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; min-height: 0; background: white;">
         <!-- Conversation Header -->
         <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB;">
             <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
@@ -414,9 +357,11 @@ let currentProductId = null;
 let currentConversationId = null;
 let conversationsData = [];
 
-function openChatbot(productId) {
+function openChatbot(productId, productName) {
     currentProductId = productId;
     const popup = document.getElementById('chatbotPopup');
+    const nameEl = document.getElementById('chatbotProductName');
+    if (nameEl) nameEl.textContent = productName || '';
     popup.style.display = 'flex';
     
     // Charger les conversations
@@ -564,6 +509,7 @@ function sendMessage(event) {
             'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
+            conversation_id: currentConversationId,
             buyer_id: conversation.buyer_id,
             message: message
         })
@@ -605,10 +551,7 @@ function markConversationAsRead(conversationId) {
 }
 
 function updateMessageBadges() {
-    // Recharger la page pour mettre à jour les badges
-    if (currentProductId) {
-        location.reload();
-    }
+    // Les badges de messages non lus ne sont plus affichés sur cette page ; pas de rechargement pour éviter de fermer le popup.
 }
 
 function escapeHtml(text) {

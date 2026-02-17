@@ -81,6 +81,8 @@ class PeerToPeerProduct(models.Model):
         upload_to='peer_to_peer/imgs/', blank=True, null=True, max_length=500, verbose_name=_("Image supplémentaire 2"))
     additional_image_3 = models.ImageField(
         upload_to='peer_to_peer/imgs/', blank=True, null=True, max_length=500, verbose_name=_("Image supplémentaire 3"))
+    additional_image_4 = models.ImageField(
+        upload_to='peer_to_peer/imgs/', blank=True, null=True, max_length=500, verbose_name=_("Image supplémentaire 4"))
     
     # Statut
     PENDING = 'PENDING'

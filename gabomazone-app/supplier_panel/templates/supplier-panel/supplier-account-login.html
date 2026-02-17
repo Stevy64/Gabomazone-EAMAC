@@ -53,8 +53,21 @@
                 </div>
             </header>
 
-            <section class="content-main" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 80px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); padding: var(--spacing-2xl) var(--spacing-lg); margin: 0;">
-                <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto;">
+            <section class="content-main supplier-login-section" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 80px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); padding: var(--spacing-2xl) var(--spacing-lg); margin: 0; position: relative; overflow: hidden;">
+                <!-- Arrière-plan animé : formes géométriques -->
+                <div class="supplier-login-bg-shapes" aria-hidden="true">
+                    <span class="shape shape-circle shape-1"></span>
+                    <span class="shape shape-circle shape-2"></span>
+                    <span class="shape shape-circle shape-3"></span>
+                    <span class="shape shape-square shape-4"></span>
+                    <span class="shape shape-square shape-5"></span>
+                    <span class="shape shape-diamond shape-6"></span>
+                    <span class="shape shape-circle shape-7"></span>
+                    <span class="shape shape-square shape-8"></span>
+                    <span class="shape shape-circle shape-9"></span>
+                    <span class="shape shape-diamond shape-10"></span>
+                </div>
+                <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto; position: relative; z-index: 1;">
                     <div class="login-card" style="background: var(--color-white); border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); overflow: hidden; position: relative;">
                         
                         <!-- Login Form Panel -->
@@ -162,8 +175,88 @@
                     --color-black: #1F2937;
                 }
                 
-                 /* Responsive Mobile */
+                /* Formes géométriques animées en arrière-plan */
+                .supplier-login-bg-shapes {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 0;
+                }
+                .supplier-login-bg-shapes .shape {
+                    position: absolute;
+                    border-radius: 4px;
+                    opacity: 0.35;
+                }
+                .supplier-login-bg-shapes .shape-circle {
+                    border-radius: 50%;
+                    background: rgba(255, 123, 44, 0.12);
+                }
+                .supplier-login-bg-shapes .shape-square {
+                    background: rgba(31, 41, 55, 0.06);
+                    transform: rotate(45deg);
+                }
+                .supplier-login-bg-shapes .shape-diamond {
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 123, 44, 0.1);
+                    transform: rotate(45deg);
+                }
+                /* Positions et tailles (desktop) */
+                .supplier-login-bg-shapes .shape-1 { width: 120px; height: 120px; top: 8%; left: 5%; animation: floatShape 14s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-2 { width: 60px; height: 60px; top: 25%; right: 12%; animation: floatShape 10s ease-in-out infinite 1s; }
+                .supplier-login-bg-shapes .shape-3 { width: 90px; height: 90px; bottom: 20%; left: 8%; animation: floatShape 12s ease-in-out infinite 2s; }
+                .supplier-login-bg-shapes .shape-4 { width: 40px; height: 40px; top: 15%; right: 25%; animation: floatShape 11s ease-in-out infinite 0.5s; }
+                .supplier-login-bg-shapes .shape-5 { width: 55px; height: 55px; bottom: 35%; right: 8%; animation: floatShape 13s ease-in-out infinite 1.5s; }
+                .supplier-login-bg-shapes .shape-6 { top: 45%; left: 3%; animation: floatShape 9s ease-in-out infinite 2.5s; }
+                .supplier-login-bg-shapes .shape-7 { width: 70px; height: 70px; bottom: 10%; right: 20%; animation: floatShape 15s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-8 { width: 30px; height: 30px; top: 60%; left: 15%; animation: floatShape 10s ease-in-out infinite 3s; }
+                .supplier-login-bg-shapes .shape-9 { width: 45px; height: 45px; top: 70%; right: 28%; animation: floatShape 12s ease-in-out infinite 0.8s; }
+                .supplier-login-bg-shapes .shape-10 { top: 12%; left: 22%; animation: floatShape 11s ease-in-out infinite 1.2s; }
+                @keyframes floatShape {
+                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+                    25% { transform: translate(8px, -12px) scale(1.02); opacity: 0.45; }
+                    50% { transform: translate(-6px, 8px) scale(0.98); opacity: 0.3; }
+                    75% { transform: translate(10px, 6px) scale(1.01); opacity: 0.4; }
+                }
+                .supplier-login-bg-shapes .shape-square,
+                .supplier-login-bg-shapes .shape-diamond {
+                    animation: floatShapeRotate 16s ease-in-out infinite;
+                }
+                @keyframes floatShapeRotate {
+                    0%, 100% { transform: translate(0, 0) rotate(45deg); opacity: 0.35; }
+                    33% { transform: translate(6px, -8px) rotate(60deg); opacity: 0.42; }
+                    66% { transform: translate(-8px, 4px) rotate(30deg); opacity: 0.38; }
+                }
+                
+                 /* Responsive Mobile : visibilité optimisée des formes */
                  @media (max-width: 767px) {
+                     .supplier-login-bg-shapes .shape {
+                         opacity: 0.4;
+                     }
+                     .supplier-login-bg-shapes .shape-circle {
+                         background: rgba(255, 123, 44, 0.15);
+                     }
+                     .supplier-login-bg-shapes .shape-square {
+                         background: rgba(31, 41, 55, 0.08);
+                     }
+                     .supplier-login-bg-shapes .shape-diamond {
+                         background: rgba(255, 123, 44, 0.12);
+                     }
+                     /* Tailles légèrement réduites et positions recentrées pour éviter les bords */
+                     .supplier-login-bg-shapes .shape-1 { width: 80px; height: 80px; top: 5%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-2 { width: 45px; height: 45px; top: 18%; right: 5%; }
+                     .supplier-login-bg-shapes .shape-3 { width: 65px; height: 65px; bottom: 15%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-4 { width: 28px; height: 28px; top: 12%; right: 15%; }
+                     .supplier-login-bg-shapes .shape-5 { width: 38px; height: 38px; bottom: 28%; right: 3%; }
+                     .supplier-login-bg-shapes .shape-6 { width: 16px; height: 16px; top: 40%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-7 { width: 50px; height: 50px; bottom: 8%; right: 12%; }
+                     .supplier-login-bg-shapes .shape-8 { width: 22px; height: 22px; top: 55%; left: 8%; }
+                     .supplier-login-bg-shapes .shape-9 { width: 32px; height: 32px; top: 65%; right: 18%; }
+                     .supplier-login-bg-shapes .shape-10 { width: 16px; height: 16px; top: 10%; left: 18%; }
+                 
                      .content-main {
                          padding: var(--spacing-lg) var(--spacing-md) !important;
                          min-height: calc(100vh - 80px) !important;

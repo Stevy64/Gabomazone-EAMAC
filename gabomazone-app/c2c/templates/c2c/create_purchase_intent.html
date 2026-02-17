@@ -4,194 +4,302 @@
 
 {% block body %}
 <style>
-    .c2c-purchase-intent-container {
-        max-width: 800px;
-        margin: 100px auto 60px;
+    .pi-page {
+        min-height: 100vh;
+        padding-top: 100px;
+        padding-bottom: 40px;
+        background: linear-gradient(180deg, rgba(255, 123, 44, 0.06) 0%, #FAFAFA 35%);
+    }
+    .pi-container {
+        max-width: 520px;
+        margin: 0 auto;
         padding: 0 20px;
     }
-    
-    .c2c-purchase-intent-card {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        padding: 32px;
-        margin-bottom: 24px;
+    .pi-hero {
+        text-align: center;
+        margin-bottom: 28px;
     }
-    
-    .c2c-product-preview {
-        display: flex;
-        gap: 20px;
-        padding: 20px;
-        background: #F9FAFB;
-        border-radius: 12px;
-        margin-bottom: 24px;
+    .pi-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 123, 44, 0.12);
+        color: var(--color-orange);
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 16px;
     }
-    
-    .c2c-product-preview img {
-        width: 120px;
-        height: 120px;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-    
-    .c2c-product-info h3 {
-        font-size: 20px;
+    .pi-hero h1 {
+        font-size: 26px;
         font-weight: 700;
         color: #1F2937;
         margin: 0 0 8px 0;
+        line-height: 1.3;
     }
-    
-    .c2c-product-info .price {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--color-orange);
-        margin: 8px 0;
+    .pi-hero p {
+        font-size: 15px;
+        color: #6B7280;
+        margin: 0;
+        line-height: 1.5;
     }
-    
-    .c2c-info-box {
-        background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%);
-        border: 2px solid rgba(255, 123, 44, 0.2);
-        border-radius: 12px;
-        padding: 20px;
+    .pi-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
         margin-bottom: 24px;
     }
-    
-    .c2c-info-box i {
-        color: var(--color-orange);
-        font-size: 24px;
-        margin-right: 12px;
-    }
-    
-    .c2c-info-box p {
-        margin: 0;
-        color: #6B7280;
-        line-height: 1.6;
-    }
-    
-    .c2c-action-buttons {
+    .pi-product {
         display: flex;
-        gap: 12px;
-        margin-top: 24px;
+        gap: 20px;
+        padding: 24px;
+        align-items: center;
     }
-    
-    .c2c-btn {
+    .pi-product-image-wrap {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #F3F4F6;
+    }
+    .pi-product-image-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .pi-product-body {
         flex: 1;
-        padding: 14px 24px;
-        border: none;
-        border-radius: 10px;
-        font-size: 15px;
+        min-width: 0;
+    }
+    .pi-product-body h2 {
+        font-size: 17px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 6px 0;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .pi-product-seller {
+        font-size: 13px;
+        color: #6B7280;
+        margin-bottom: 8px;
+    }
+    .pi-product-price {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--color-orange);
+    }
+    .pi-steps {
+        padding: 0 24px 24px;
+    }
+    .pi-steps-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .pi-steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .pi-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        color: #4B5563;
+        line-height: 1.5;
+    }
+    .pi-step-num {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .pi-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 8px;
+    }
+    .pi-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 24px;
+        border-radius: 14px;
+        font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        border: none;
+        font-family: inherit;
+        width: 100%;
+    }
+    .pi-btn-primary {
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%);
+        color: white;
+        box-shadow: 0 4px 20px rgba(255, 123, 44, 0.4);
+    }
+    .pi-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(255, 123, 44, 0.5);
+        color: white;
+    }
+    .pi-btn-primary:disabled {
+        opacity: 0.8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .pi-btn-secondary {
+        background: #fff;
+        color: #6B7280;
+        border: 2px solid #E5E7EB;
+    }
+    .pi-btn-secondary:hover {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
+        color: #374151;
+    }
+    .pi-secure {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+        font-size: 13px;
+        color: #9CA3AF;
+        margin-top: 20px;
     }
-    
-    .c2c-btn-primary {
-        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
-        color: white;
-        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
-    }
-    
-    .c2c-btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
-    }
-    
-    .c2c-btn-secondary {
-        background: #F3F4F6;
-        color: #6B7280;
-    }
-    
-    .c2c-btn-secondary:hover {
-        background: #E5E7EB;
-    }
-    
     @media (max-width: 768px) {
-        .c2c-purchase-intent-container {
-            margin-top: 80px;
+        .pi-page {
+            padding-top: 120px;
+            padding-bottom: 32px;
+        }
+        .pi-container {
             padding: 0 16px;
         }
-        
-        .c2c-purchase-intent-card {
-            padding: 24px 16px;
+        .pi-hero h1 {
+            font-size: 22px;
         }
-        
-        .c2c-product-preview {
-            flex-direction: column;
+        .pi-product {
+            padding: 20px;
+            gap: 16px;
         }
-        
-        .c2c-product-preview img {
-            width: 100%;
-            height: 200px;
+        .pi-product-image-wrap {
+            width: 88px;
+            height: 88px;
+            border-radius: 12px;
         }
-        
-        .c2c-action-buttons {
-            flex-direction: column;
+        .pi-product-body h2 {
+            font-size: 16px;
+        }
+        .pi-product-price {
+            font-size: 20px;
+        }
+        .pi-steps {
+            padding: 0 20px 20px;
         }
     }
 </style>
 
-<main class="c2c-purchase-intent-container">
-    <div class="c2c-purchase-intent-card">
-        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 12px;">
-            <i class="fi-rs-money" style="color: var(--color-orange);"></i>
-            Négocier l'achat
-        </h1>
-        
-        <!-- Aperçu du produit -->
-        <div class="c2c-product-preview">
-            {% if product.product_image %}
-            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
-            {% else %}
-            <img src="{% static 'assets/imgs/theme/no-image.png' %}" alt="Pas d'image">
-            {% endif %}
-            <div class="c2c-product-info">
-                <h3>{{ product.product_name }}</h3>
-                <p style="color: #6B7280; margin: 8px 0;">Vendeur: <strong>{{ product.seller.get_full_name|default:product.seller.username }}</strong></p>
-                <div class="price">{{ initial_price|floatformat:0 }} FCFA</div>
+<main class="pi-page">
+    <div class="pi-container">
+        <div class="pi-hero">
+            <div class="pi-hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Achat sécurisé
             </div>
+            <h1>Un clic pour négocier et acheter</h1>
+            <p>Ouvrez une conversation avec le vendeur et convenez du prix en quelques messages.</p>
         </div>
-        
-        <!-- Information sur le processus -->
-        <div class="c2c-info-box">
-            <div style="display: flex; align-items: start;">
-                <i class="fi-rs-info"></i>
-                <div>
-                    <p style="font-weight: 600; color: #1F2937; margin-bottom: 8px;">Comment ça fonctionne ?</p>
-                    <p>1. Cliquez sur "Créer une intention d'achat" pour ouvrir une conversation avec le vendeur</p>
-                    <p>2. Négociez le prix directement dans la messagerie</p>
-                    <p>3. Une fois le prix accepté, vous serez redirigé vers le paiement</p>
-                    <p>4. Le paiement est sécurisé via SingPay</p>
+
+        <div class="pi-card">
+            <div class="pi-product">
+                <div class="pi-product-image-wrap">
+                    {% if product.product_image %}
+                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                    {% else %}
+                    <img src="{% static 'assets/imgs/theme/no-image.png' %}" alt="">
+                    {% endif %}
+                </div>
+                <div class="pi-product-body">
+                    <h2>{{ product.product_name }}</h2>
+                    <p class="pi-product-seller">Vendeur : <strong>{{ product.seller.get_full_name|default:product.seller.username }}</strong></p>
+                    <p class="pi-product-price">{{ initial_price|floatformat:0 }} FCFA</p>
+                </div>
+            </div>
+
+            <div class="pi-steps">
+                <p class="pi-steps-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    En 3 étapes
+                </p>
+                <div class="pi-steps-list">
+                    <div class="pi-step">
+                        <span class="pi-step-num">1</span>
+                        <span>Créez votre intention d'achat pour ouvrir une conversation avec le vendeur.</span>
+                    </div>
+                    <div class="pi-step">
+                        <span class="pi-step-num">2</span>
+                        <span>Négociez le prix directement dans la messagerie GabomaZone.</span>
+                    </div>
+                    <div class="pi-step">
+                        <span class="pi-step-num">3</span>
+                        <span>Une fois le prix accepté, finalisez le paiement de manière sécurisée.</span>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Boutons d'action -->
+
         <form method="POST" id="purchaseIntentForm">
             {% csrf_token %}
-            <div class="c2c-action-buttons">
-                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" class="c2c-btn c2c-btn-secondary" style="text-decoration: none;">
-                    <i class="fi-rs-arrow-left"></i>
-                    Retour
-                </a>
-                <button type="submit" class="c2c-btn c2c-btn-primary">
-                    <i class="fi-rs-comment"></i>
-                    Créer une intention d'achat
+            <div class="pi-actions">
+                <button type="submit" class="pi-btn pi-btn-primary" id="piSubmitBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Créer mon intention d'achat
                 </button>
+                <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" class="pi-btn pi-btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Retour à l'annonce
+                </a>
             </div>
         </form>
+
+        <p class="pi-secure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Paiement sécurisé · Données protégées
+        </p>
     </div>
 </main>
 
 <script>
 document.getElementById('purchaseIntentForm').addEventListener('submit', function(e) {
-    const btn = this.querySelector('button[type="submit"]');
+    var btn = document.getElementById('piSubmitBtn');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fi-rs-spinner"></i> Création en cours...';
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: pi-spin 0.8s linear infinite;"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"/></svg> Création en cours...';
 });
 </script>
+<style>
+@keyframes pi-spin { to { transform: rotate(360deg); } }
+</style>
 {% endblock %}
-

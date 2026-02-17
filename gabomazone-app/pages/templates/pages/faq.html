@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load pages_extras %}
+
+{% block body %}
+<section class="flavoriz-faq-section" style="padding: 0; padding-top: 100px; min-height: 100vh;">
+    <!-- Hero épuré -->
+    <div class="faq-hero" style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.03) 100%); padding: 36px 20px 32px; border-radius: 0 0 24px 24px;">
+        <div style="max-width: 720px; margin: 0 auto; text-align: center;">
+            <nav style="display: flex; align-items: center; justify-content: center; gap: 8px; color: #6B7280; font-size: 14px; margin-bottom: 20px;">
+                <a href="{% url 'home:index' %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#6B7280'">Accueil</a>
+                <span aria-hidden="true">/</span>
+                <span style="color: var(--color-orange); font-weight: 600;">FAQ</span>
+            </nav>
+            <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 10px 0; letter-spacing: -0.02em; line-height: 1.25;">
+                Foire aux questions
+            </h1>
+            <p style="font-size: 16px; color: #6B7280; line-height: 1.55; margin: 0;">
+                Retrouvez les réponses aux questions les plus fréquentes pour acheter, vendre et utiliser GabomaZone en toute sérénité.
+            </p>
+        </div>
+    </div>
+
+    <!-- Contenu FAQ -->
+    <div class="faq-content" style="max-width: 780px; margin: 0 auto; padding: 32px 16px 56px;">
+        <div class="flavoriz-faq-accordion">
+
+            <!-- Section : Découvrir la plateforme -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </span>
+                    Découvrir la plateforme
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a1" id="faq-q1" onclick="toggleFaq('faq-a1', this)">
+                        <span>Qu’est-ce que GabomaZone et qu’y trouve-t-on ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a1" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q1" hidden>
+                        <p>GabomaZone est une <strong>marketplace en ligne au Gabon</strong>. Vous y trouvez à la fois des <strong>produits neufs</strong> vendus par des professionnels (magasins, vendeurs) et des <strong>articles d’occasion</strong> proposés par des particuliers. Vous pouvez acheter, vendre, comparer les offres et contacter les vendeurs directement sur la plateforme.</p>
+                    </div>
+                </div>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a2" id="faq-q2" onclick="toggleFaq('faq-a2', this)">
+                        <span>Quelle est la différence entre B2C et C2C ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a2" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q2" hidden>
+                        <p><strong>B2C</strong> (Business to Consumer) : vous achetez auprès de <strong>vendeurs professionnels</strong>. Les produits sont en général neufs, avec des stocks gérés par le vendeur. La commande et la livraison suivent le processus classique du site.</p>
+                        <p><strong>C2C</strong> (Consumer to Consumer) : vous achetez ou vendez <strong>entre particuliers</strong> (articles d’occasion, objets à revendre, etc.). Vous pouvez discuter avec le vendeur par messagerie, proposer un prix et convenir ensemble des modalités de livraison et de paiement.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Acheter sur GabomaZone -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    </span>
+                    Acheter sur GabomaZone
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a3" id="faq-q3" onclick="toggleFaq('faq-a3', this)">
+                        <span>Comment acheter un produit neuf (B2C) ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a3" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q3" hidden>
+                        <p>1. Parcourez les <strong>catégories</strong> ou utilisez la <strong>recherche</strong> pour trouver un produit.<br>2. Cliquez sur l’article qui vous intéresse, choisissez la quantité puis <strong>« Ajouter au panier »</strong>.<br>3. Allez dans votre <strong>panier</strong>, vérifiez les articles et validez la commande.<br>4. Suivez les étapes (adresse, mode de paiement). Vous recevrez une <strong>confirmation</strong> et les informations de livraison.</p>
+                    </div>
+                </div>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a4" id="faq-q4" onclick="toggleFaq('faq-a4', this)">
+                        <span>Comment acheter un article d’occasion (C2C) ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a4" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q4" hidden>
+                        <p>Consultez les annonces dans la section <strong>entre particuliers (C2C)</strong>. Sur la fiche de l’article vous pouvez : <strong>« Voir »</strong> les détails, <strong>« Proposer une offre »</strong> pour négocier le prix, ou contacter le vendeur via la <strong>messagerie</strong>. Une fois d’accord, vous finalisez le paiement et la livraison selon les modalités convenues avec le vendeur (lieu de remise, envoi, etc.).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Vendre sur GabomaZone -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </span>
+                    Vendre sur GabomaZone
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a5" id="faq-q5" onclick="toggleFaq('faq-a5', this)">
+                        <span>Comment vendre un article en tant que particulier (C2C) ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a5" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q5" hidden>
+                        <p>Utilisez le bouton <strong>« Publier »</strong> (icône + en bas de l’écran sur mobile, ou menu). Créez une annonce en renseignant : <strong>photos</strong> du produit, <strong>titre</strong>, <strong>description</strong>, <strong>prix</strong> en FCFA et <strong>état</strong> (neuf, comme neuf, bon, etc.). Une fois validée, votre annonce sera visible. Les acheteurs pourront vous contacter par messagerie ou via « Proposer une offre ».</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Prix et paiement -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </span>
+                    Prix et paiement
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a6" id="faq-q6" onclick="toggleFaq('faq-a6', this)">
+                        <span>Dans quelle devise sont les prix ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a6" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q6" hidden>
+                        <p>Tous les prix sur GabomaZone sont affichés en <strong>FCFA</strong> (Franc CFA), que ce soit pour les produits des professionnels (B2C) ou les annonces entre particuliers (C2C).</p>
+                    </div>
+                </div>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a7" id="faq-q7" onclick="toggleFaq('faq-a7', this)">
+                        <span>Quels moyens de paiement sont acceptés ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a7" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q7" hidden>
+                        <p>Les moyens de paiement dépendent du <strong>vendeur</strong> et du type d’achat (B2C ou C2C). Ils peuvent inclure : <strong>paiement à la livraison</strong>, <strong>mobile money</strong>, virement ou autres options. Les modalités exactes sont indiquées sur la fiche produit et au moment de la <strong>validation de la commande</strong>. Pour le C2C, le paiement est souvent convenu directement avec le vendeur (espèces, mobile money, etc.).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Livraison -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </span>
+                    Livraison
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a8" id="faq-q8" onclick="toggleFaq('faq-a8', this)">
+                        <span>Comment et quand serai-je livré ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a8" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q8" hidden>
+                        <p>Pour les <strong>commandes B2C</strong>, les délais et modes de livraison (domicile, point relais, etc.) sont indiqués sur la fiche produit et dans l’e-mail de confirmation. Pour les <strong>ventes C2C</strong>, la livraison ou le rendez-vous de remise sont organisés <strong>directement avec le vendeur</strong> via la messagerie (lieu, date, éventuels frais). Pensez à convenir clairement des modalités avant de finaliser l’achat.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Problèmes et litiges -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </span>
+                    Problèmes et litiges
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a9" id="faq-q9" onclick="toggleFaq('faq-a9', this)">
+                        <span>J’ai un problème avec ma commande, que faire ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a9" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q9" hidden>
+                        <p><strong>Commande B2C</strong> : contactez d’abord le <strong>vendeur</strong> via la messagerie ou les coordonnées indiquées. Si le problème persiste, notre <strong>support</strong> peut vous aider (voir « Comment nous contacter ? »).<br><strong>Commande C2C</strong> : la première étape est d’<strong>échanger avec le vendeur</strong> par messagerie. En cas de blocage, vous pouvez nous solliciter pour une médiation.</p>
+                    </div>
+                </div>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a10" id="faq-q10" onclick="toggleFaq('faq-a10', this)">
+                        <span>Produit non reçu, non conforme ou endommagé : que faire ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a10" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q10" hidden>
+                        <p>Signalez le problème au <strong>vendeur</strong> en lui envoyant des <strong>preuves</strong> (photos, numéro de commande) via la messagerie. Si aucune solution n’est trouvée, contactez notre <strong>support</strong> avec les mêmes éléments. Nous examinons la situation et pouvons proposer une médiation, un échange ou un remboursement selon notre <a href="{% url 'pages:pages-name' 'refund-policy' %}" style="color: var(--color-orange); font-weight: 600; text-decoration: none;">politique de remboursement</a>.</p>
+                    </div>
+                </div>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a11" id="faq-q11" onclick="toggleFaq('faq-a11', this)">
+                        <span>Puis-je annuler ou modifier une commande ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a11" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q11" hidden>
+                        <p>Oui, dans la limite du possible. Contactez <strong>rapidement</strong> le vendeur ou notre support. L’annulation ou la modification dépend du <strong>statut</strong> de la commande (non expédiée, en préparation, etc.). Pour le <strong>C2C</strong>, les modalités se font directement avec le vendeur.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section : Nous contacter -->
+            <div class="faq-group">
+                <h2 class="faq-group-title">
+                    <span class="faq-group-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </span>
+                    Nous contacter
+                </h2>
+                <div class="flavoriz-faq-item">
+                    <button type="button" class="flavoriz-faq-question" aria-expanded="false" aria-controls="faq-a12" id="faq-q12" onclick="toggleFaq('faq-a12', this)">
+                        <span>Comment contacter le support GabomaZone ?</span>
+                        <span class="faq-chevron" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div id="faq-a12" class="flavoriz-faq-answer" role="region" aria-labelledby="faq-q12" hidden>
+                        <p>Vous pouvez nous joindre par <strong>téléphone</strong> ou <strong>WhatsApp</strong> (numéros en bas de page), ou via la page <a href="{% url 'contact:contact' %}" style="color: var(--color-orange); font-weight: 600; text-decoration: none;">Nous contacter</a>. Notre équipe vous répond dans les meilleurs délais.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="faq-cta">
+            <p class="faq-cta-text">Vous n’avez pas trouvé la réponse à votre question ?</p>
+            {% for number_obj in support_number|slice:"0:1" %}
+            <a href="{{ number_obj.number|phone_to_whatsapp }}" target="_blank" rel="noopener noreferrer" class="faq-cta-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Nous contacter par WhatsApp
+            </a>
+            {% empty %}
+            <a href="{% url 'contact:contact' %}" class="faq-cta-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Nous contacter
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .flavoriz-faq-item {
+        background: #F3F4F6;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        box-shadow: none;
+        border: 1px solid #E5E7EB;
+        overflow: hidden;
+    }
+    .flavoriz-faq-question {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 20px;
+        text-align: left;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1F2937;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+        font-family: inherit;
+    }
+    .flavoriz-faq-question:hover {
+        background: #E5E7EB;
+    }
+    .flavoriz-faq-question[aria-expanded="true"] {
+        color: var(--color-orange);
+    }
+    .flavoriz-faq-question[aria-expanded="true"] .faq-chevron {
+        transform: rotate(180deg);
+        color: var(--color-orange);
+    }
+    .faq-chevron {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9CA3AF;
+        transition: transform 0.25s ease, color 0.2s ease;
+    }
+    .flavoriz-faq-answer {
+        padding: 0 20px 18px;
+        background: #F9FAFB;
+    }
+    .flavoriz-faq-answer p {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+        color: #4B5563;
+        padding-top: 14px;
+        border-top: 1px solid #E5E7EB;
+    }
+    .flavoriz-faq-answer p + p { margin-top: 12px; }
+    .flavoriz-faq-answer a:hover { text-decoration: underline; }
+
+    .faq-group {
+        margin-bottom: 0;
+        padding-bottom: 28px;
+        border-bottom: 1px solid #E5E7EB;
+    }
+    .faq-group:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .faq-group-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 16px 0;
+    }
+    .faq-group-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .faq-group-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .faq-cta {
+        margin-top: 40px;
+        padding: 28px 24px;
+        background: #FAFAFA;
+        border: 1px solid #E5E7EB;
+        border-radius: 20px;
+        text-align: center;
+    }
+    .faq-cta-text {
+        font-size: 16px;
+        color: #374151;
+        margin: 0 0 18px 0;
+        font-weight: 500;
+    }
+    .faq-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: var(--color-orange);
+        color: white;
+        padding: 14px 26px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 2px 12px rgba(255, 123, 44, 0.25);
+    }
+    .faq-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(255, 123, 44, 0.35);
+        color: white;
+    }
+    .faq-cta-btn svg { flex-shrink: 0; }
+
+    @media (max-width: 768px) {
+        .flavoriz-faq-section {
+            padding-top: 130px !important;
+            margin-top: 0 !important;
+        }
+        .faq-hero {
+            padding: 28px 16px 24px !important;
+            border-radius: 0 0 20px 20px !important;
+        }
+        .faq-hero h1 { font-size: 24px !important; }
+        .faq-hero p { font-size: 15px !important; }
+        .faq-content {
+            padding: 24px 12px 40px !important;
+            max-width: 100% !important;
+        }
+        .faq-group {
+            padding-bottom: 24px !important;
+            margin-bottom: 24px !important;
+        }
+        .faq-group:last-child { margin-bottom: 0 !important; }
+        .faq-group-title { font-size: 16px !important; margin-bottom: 12px !important; }
+        .faq-group-icon {
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 10px !important;
+        }
+        .faq-group-icon svg { width: 18px !important; height: 18px !important; }
+        .flavoriz-faq-question { font-size: 15px !important; padding: 16px 16px !important; }
+        .flavoriz-faq-answer { padding: 0 16px 14px !important; }
+        .flavoriz-faq-answer p { font-size: 14px !important; line-height: 1.65 !important; padding-top: 12px !important; }
+        .faq-cta {
+            margin-top: 32px !important;
+            padding: 22px 18px !important;
+            border-radius: 16px !important;
+        }
+        .faq-cta-text { font-size: 15px !important; margin-bottom: 14px !important; }
+        .faq-cta-btn { padding: 12px 22px !important; font-size: 15px !important; }
+    }
+    @media (max-width: 480px) {
+        .faq-content { padding: 20px 10px 32px !important; }
+        .flavoriz-faq-question { padding: 14px 14px !important; font-size: 14px !important; }
+        .flavoriz-faq-answer p { font-size: 13px !important; }
+    }
+</style>
+
+<script>
+    function toggleFaq(answerId, button) {
+        var answer = document.getElementById(answerId);
+        var isOpen = !answer.hidden;
+        answer.hidden = isOpen;
+        button.setAttribute('aria-expanded', !isOpen);
+    }
+</script>
+{% endblock %}

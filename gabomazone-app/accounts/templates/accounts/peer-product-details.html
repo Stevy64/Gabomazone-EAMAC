@@ -299,18 +299,185 @@
         font-size: 14px;
     }
     
-    /* Bloc Vendeur style Ayoka */
-    .ayoka-seller-block {
-        background: #FFFFFF;
+    /* Cartes Vendeur & Détails (style moderne + grille 2x2) */
+    .peer-card {
+        background: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
         border: 1px solid #E5E7EB;
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
         margin-bottom: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     }
-    .ayoka-seller-block .ayoka-infos-title {
+    .peer-card-header {
         padding: 16px 20px;
-        background: #F9FAFB;
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.03) 100%);
         border-bottom: 1px solid #E5E7EB;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1F2937;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .peer-card-header i {
+        color: var(--color-orange);
+        font-size: 20px;
+    }
+    .peer-card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+    }
+    .peer-card-cell {
+        padding: 16px 20px;
+        border-bottom: 1px solid #F3F4F6;
+        border-right: 1px solid #F3F4F6;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .peer-card-cell:nth-child(2n) { border-right: none; }
+    .peer-card-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .peer-card-label {
+        font-size: 12px;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+    .peer-card-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1F2937;
+    }
+    .peer-card-value.status-ok { color: #059669; }
+    .peer-card-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(255, 123, 44, 0.25);
+    }
+    .peer-card-cta:hover { color: white; opacity: 0.95; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35); }
+    .flavoriz-propose-offer-btn-top:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255, 123, 44, 0.45); }
+    
+    /* Modal vendeur : toujours centré (desktop + mobile) */
+    .peer-seller-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .peer-seller-modal-backdrop.is-open { display: flex !important; }
+    .peer-seller-modal {
+        background: white;
+        border-radius: 20px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        overflow: hidden;
+        margin: auto;
+        flex-shrink: 0;
+    }
+    .peer-seller-modal-header {
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid #E5E7EB;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .peer-seller-modal-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #1F2937; }
+    .peer-seller-modal-close {
+        background: none; border: none; padding: 8px; cursor: pointer; color: #6B7280; font-size: 24px; line-height: 1;
+    }
+    .peer-seller-modal-close:hover { color: #1F2937; }
+    .peer-seller-modal-body {
+        padding: 24px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    .peer-seller-modal-stat {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+    .peer-seller-modal-stat .val { font-size: 22px; font-weight: 700; color: var(--color-orange); display: block; margin-bottom: 4px; }
+    .peer-seller-modal-stat .lbl { font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .peer-seller-modal-footer {
+        padding: 16px 24px 24px;
+    }
+    .peer-seller-modal-footer a {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+        color: white; text-decoration: none; font-weight: 600; border-radius: 12px;
+        transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.3);
+    }
+    .peer-seller-modal-footer a:hover { color: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 123, 44, 0.4); }
+    
+    /* Mode smartphone : même disposition (titre + bouton à droite, grilles 2x2, modal adapté) */
+    @media (max-width: 600px) {
+        .flavoriz-product-info h1 { font-size: 18px !important; line-height: 1.35; }
+        .flavoriz-product-title-row {
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 12px !important;
+        }
+        .flavoriz-propose-offer-btn-top {
+            padding: 10px 14px !important;
+            font-size: 13px !important;
+            white-space: nowrap !important;
+        }
+        .flavoriz-propose-offer-btn-top i { font-size: 16px !important; }
+        .peer-card { border-radius: 14px; margin-bottom: 20px; }
+        .peer-card-header { padding: 14px 16px; font-size: 15px; }
+        .peer-card-header i { font-size: 18px; }
+        .peer-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        .peer-card-cell { padding: 12px 14px; gap: 4px; }
+        .peer-card-label { font-size: 11px; }
+        .peer-card-value { font-size: 14px; }
+        .peer-card-cta { padding: 14px 16px; font-size: 14px; }
+        .peer-seller-modal-backdrop {
+            padding: 12px;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .peer-seller-modal-backdrop.is-open {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .peer-seller-modal {
+            max-height: min(85vh, 90%);
+            overflow-y: auto;
+            border-radius: 16px;
+            margin: auto !important;
+        }
+        .peer-seller-modal-header { padding: 20px 20px 14px; }
+        .peer-seller-modal-header h3 { font-size: 18px; }
+        .peer-seller-modal-body { padding: 20px; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+        .peer-seller-modal-stat { padding: 12px; }
+        .peer-seller-modal-stat .val { font-size: 18px; }
+        .peer-seller-modal-footer { padding: 14px 20px 20px; }
+        .peer-seller-modal-footer a { padding: 12px 20px; font-size: 15px; }
     }
     
     .flavoriz-related-products {
@@ -403,11 +570,18 @@
                     
                     <!-- Product Info (style Ayoka listing) -->
                     <div class="flavoriz-product-info">
-                        <span class="flavoriz-peer-badge">Article d'occasion</span>
                         {% if peer_product.condition %}
-                        <span class="peer-condition-badge peer-condition-{{ peer_product.condition|condition_slug }}" style="margin-left: 8px; vertical-align: middle;">{{ peer_product.get_condition_display }}</span>
+                        <span class="peer-condition-badge peer-condition-{{ peer_product.condition|condition_slug }}" style="margin-bottom: 12px; vertical-align: middle;">{{ peer_product.get_condition_display }}</span>
                         {% endif %}
-                        <h1>{{peer_product.product_name}}</h1>
+                        <div class="flavoriz-product-title-row" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
+                            <h1 style="flex: 1; min-width: 0; margin: 0;">{{ peer_product.product_name }}</h1>
+                            {% if user.id != peer_product.seller.id %}
+                            <button type="button" id="peer-propose-offer-btn-top" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="flavoriz-propose-offer-btn-top" style="flex-shrink: 0; padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35); transition: all 0.3s ease; white-space: nowrap;">
+                                <i class="fi-rs-comment" style="font-size: 18px;"></i>
+                                <span>Proposer une offre</span>
+                            </button>
+                            {% endif %}
+                        </div>
                         
                         <div class="flavoriz-product-price-section">
                             <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
@@ -426,74 +600,98 @@
                             </div>
                         </div>
                         
-                        <!-- Bloc Vendeur (style Ayoka) -->
-                        <div class="ayoka-seller-block">
-                            <div class="ayoka-infos-title">
+                        <!-- Bloc Vendeur (grille 2x2 + style moderne) -->
+                        <div class="peer-card peer-card-seller">
+                            <div class="peer-card-header">
                                 <i class="fi-rs-user"></i>
                                 <span>Vendeur</span>
                             </div>
-                            <div style="padding: 20px;">
-                                <div class="flavoriz-seller-detail" style="margin-bottom: 12px;">
-                                    <i class="fi-rs-user"></i>
-                                    <span><strong>Vendeur:</strong> 
-                                        <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">
-                                            {{peer_product.seller.username}}
-                                        </a>
-                                        {% if seller_stats %}
-                                        <span style="margin-left: 8px; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 14px;"></i>
-                                            <span style="font-weight: 600; color: #1F2937;">{{ seller_stats.average_rating|floatformat:1 }}</span>
-                                            <span style="color: #6B7280; font-size: 12px;">({{ seller_stats.total_reviews }})</span>
-                                        </span>
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <div class="flavoriz-seller-detail" style="margin-bottom: 12px;">
-                                    <i class="fi-rs-marker"></i>
-                                    <span><strong>Ville:</strong> {{peer_product.seller_city}}</span>
-                                </div>
-                                <div class="flavoriz-seller-detail" style="margin-bottom: 16px;">
-                                    <i class="fi-rs-home"></i>
-                                    <span><strong>Adresse:</strong> {{peer_product.seller_address}}</span>
-                                </div>
-                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" style="flex: 1; min-width: 0; padding: 14px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 123, 44, 0.3)'">
-                                        <i class="fi-rs-user-check" style="font-size: 16px;"></i>
-                                        <span>Voir le profil</span>
-                                    </a>
-                                    <button id="peer-propose-offer-btn" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" style="flex: 1; min-width: 0; padding: 14px 20px; background: white; border: 2px solid #1F2937; color: #1F2937; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" onmouseover="this.style.background='#1F2937'; this.style.color='white'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.2)'" onmouseout="this.style.background='white'; this.style.color='#1F2937'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)'">
-                                        <i class="fi-rs-comment" style="font-size: 16px;"></i>
-                                        <span>Proposer une offre</span>
+                            <div class="peer-card-grid">
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Vendeur</span>
+                                    <button type="button" class="peer-seller-name-btn" onclick="openSellerModal()" style="background: none; border: none; padding: 0; color: var(--color-orange); font-weight: 600; cursor: pointer; font-size: 15px; text-align: left; display: inline-flex; align-items: center; gap: 6px;">
+                                        {{ peer_product.seller.username }}
+                                        <i class="fi-rs-angle-right" style="font-size: 14px; opacity: 0.8;"></i>
                                     </button>
                                 </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Ville</span>
+                                    <span class="peer-card-value"><i class="fi-rs-marker" style="margin-right: 6px; color: var(--color-orange);"></i>{{ peer_product.seller_city|default:"—" }}</span>
+                                </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Note</span>
+                                    <span class="peer-card-value"><i class="fi-rs-star" style="color: #FFD700; margin-right: 4px;"></i>{{ seller_stats.average_rating|floatformat:1|default:"0" }}/5</span>
+                                </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Avis reçus</span>
+                                    <span class="peer-card-value">{{ seller_stats.total_reviews|default:0 }}</span>
+                                </div>
                             </div>
+                            <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="peer-card-cta">
+                                <i class="fi-rs-user-check"></i>
+                                <span>Voir le profil</span>
+                            </a>
                         </div>
                         
-                        <!-- Détails de l'annonce (style Ayoka listing) -->
-                        <div class="ayoka-listing-infos">
-                            <div class="ayoka-infos-title">
+                        <!-- Détails de l'annonce (grille 2x2 + style moderne) -->
+                        <div class="peer-card peer-card-details">
+                            <div class="peer-card-header">
                                 <i class="fi-rs-info"></i>
                                 <span>Détails de l'annonce</span>
                             </div>
-                            <ul class="ayoka-infos-list">
-                                <li>
-                                    <span class="ayoka-infos-label"><i class="fi-rs-apps"></i> Catégorie</span>
-                                    <span class="ayoka-infos-value">{{peer_product.product_supercategory|default:"—"}}</span>
-                                </li>
-                                <li>
-                                    <span class="ayoka-infos-label"><i class="fi-rs-folder"></i> Sous-catégorie</span>
-                                    <span class="ayoka-infos-value">{{peer_product.product_subcategory|default:"—"}}</span>
-                                </li>
-                                <li>
-                                    <span class="ayoka-infos-label"><i class="fi-rs-calendar"></i> Date de publication</span>
-                                    <span class="ayoka-infos-value">{{peer_product.date|date:"d/m/Y"}}</span>
-                                </li>
-                                <li>
-                                    <span class="ayoka-infos-label"><i class="fi-rs-check-circle"></i> Statut</span>
-                                    <span class="ayoka-infos-value status-ok">Approuvé</span>
-                                </li>
-                            </ul>
+                            <div class="peer-card-grid">
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Catégorie</span>
+                                    <span class="peer-card-value">{{ peer_product.product_supercategory|default:"—" }}</span>
+                                </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Sous-catégorie</span>
+                                    <span class="peer-card-value">{{ peer_product.product_subcategory|default:"—" }}</span>
+                                </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Date de publication</span>
+                                    <span class="peer-card-value">{{ peer_product.date|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="peer-card-cell">
+                                    <span class="peer-card-label">Statut</span>
+                                    <span class="peer-card-value status-ok">Approuvé</span>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal infos vendeur -->
+            <div id="seller-modal-backdrop" class="peer-seller-modal-backdrop" onclick="closeSellerModal(event)">
+                <div class="peer-seller-modal" onclick="event.stopPropagation()">
+                    <div class="peer-seller-modal-header">
+                        <h3>{{ peer_product.seller.username }}</h3>
+                        <button type="button" class="peer-seller-modal-close" onclick="closeSellerModal()" aria-label="Fermer">&times;</button>
+                    </div>
+                    <div class="peer-seller-modal-body">
+                        <div class="peer-seller-modal-stat">
+                            <span class="val">{{ seller_stats.average_rating|floatformat:1|default:"0" }}/5</span>
+                            <span class="lbl">Note</span>
+                        </div>
+                        <div class="peer-seller-modal-stat">
+                            <span class="val">{{ seller_products_count|default:0 }}</span>
+                            <span class="lbl">Articles publiés</span>
+                        </div>
+                        <div class="peer-seller-modal-stat">
+                            <span class="val">{{ seller_stats.total_reviews|default:0 }}</span>
+                            <span class="lbl">Avis reçus</span>
+                        </div>
+                        <div class="peer-seller-modal-stat">
+                            <span class="val" style="font-size: 16px;"><i class="fi-rs-marker" style="font-size: 14px; color: var(--color-orange); margin-right: 4px;"></i>{{ peer_product.seller_city|default:"—" }}</span>
+                            <span class="lbl">Ville</span>
+                        </div>
+                    </div>
+                    <div class="peer-seller-modal-footer">
+                        <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}">
+                            <i class="fi-rs-user-check"></i>
+                            <span>Voir le profil</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -505,8 +703,8 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
                     {% for similar in similar_products %}
                     <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;" onclick="window.location.href='{% url 'accounts:peer-product-details' similar.PRDSlug %}'">
-                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
-                            <img src="{{similar.product_image.url}}" alt="{{similar.product_name}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;">
+                            <img src="{{similar.product_image.url}}" alt="{{similar.product_name}}" loading="lazy" decoding="async" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
                         </div>
                         <div style="padding: 14px;">
                             <h3 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{similar.product_name}}</h3>
@@ -691,6 +889,16 @@ function proposeOfferToSeller(productId, productSlug, productPrice) {
     // Rediriger vers la création d'intention d'achat C2C
     const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
     window.location.href = createIntentUrl;
+}
+
+function openSellerModal() {
+    document.getElementById('seller-modal-backdrop').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+}
+function closeSellerModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    document.getElementById('seller-modal-backdrop').classList.remove('is-open');
+    document.body.style.overflow = '';
 }
 
 // Initialiser l'index de l'image actuelle au chargement

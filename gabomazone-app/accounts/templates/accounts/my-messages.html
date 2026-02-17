@@ -105,7 +105,8 @@ nav {
     margin-bottom: 16px !important;
 }
 
-nav a span {
+/* Masquer uniquement le texte du fil d'Ariane (pas la barre du bas) */
+main .container > nav a span {
     display: none !important;
 }
 
@@ -135,9 +136,12 @@ nav span:not(:last-child) {
 .conversations-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
     width: 100%;
     box-sizing: border-box;
+}
+.msg-card {
+    border-radius: 16px;
 }
 
 /* Cards de conversation - Mobile */
@@ -285,11 +289,11 @@ nav span:not(:last-child) {
         margin-bottom: 20px !important;
     }
     
-    nav a span {
+    main .container > nav a span {
         display: inline !important;
     }
     
-    nav span:not(:last-child) {
+    main .container > nav span:not(:last-child) {
         display: inline !important;
     }
     
@@ -372,57 +376,9 @@ nav span:not(:last-child) {
         </nav>
 
         <div class="row">
-            <!-- Sidebar Menu -->
+            <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->
             <div class="col-md-3">
-                <div class="flavoriz-dashboard-menu" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px;">
-                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; display: flex; align-items: center; gap: 8px;">
-                            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
-                            Mon compte
-                        </h3>
-                    </div>
-                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
-                        <li>
-                            <a href="{% url 'accounts:dashboard_customer'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Mes commandes</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:sell-product' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Vendre un article</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:my-published-products' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Mes articles publiés</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-orange); text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2); position: relative;">
-                                <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center; color: var(--color-orange);"></i>
-                                <span>Ma messagerie</span>
-                                {% if messages_count and messages_count > 0 %}
-                                <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
-                                {% endif %}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:change_password' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Mot de passe</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'accounts:account_details'%}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #6B7280; text-decoration: none; border-radius: 10px; transition: all 0.25s; font-size: 14px; font-weight: 500;">
-                                <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center;"></i>
-                                <span>Paramètres</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                {% include 'accounts/_mon_compte_card.html' with active_page='my-messages' %}
             </div>
 
             <!-- Main Content -->
@@ -514,14 +470,14 @@ nav span:not(:last-child) {
                     </div>
                     {% endif %}
 
-                    <!-- Liste des conversations actives -->
+                    <!-- Liste des conversations -->
                     {% if conversations %}
                     <div class="conversations-grid">
                         {% for conversation in conversations %}
-                        <div class="conversation-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: white; border: 2px solid #E5E7EB; transition: all 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                            <!-- Bouton d'archivage -->
-                            <button onclick="event.stopPropagation(); archiveConversation({{ conversation.id }})" title="Archiver" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#FEF3C7'; this.style.color='#D97706'" onmouseout="this.style.background='rgba(255, 255, 255, 0.95)'; this.style.color='#9CA3AF'">
-                                <i class="fi-rs-archive" style="font-size: 14px;"></i>
+                        <div class="conversation-card msg-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: white; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.25s ease; cursor: pointer; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'">
+                            <!-- Actions : supprimer -->
+                            <button onclick="event.stopPropagation(); deleteConversation({{ conversation.id }}, '{{ conversation.other_user.get_full_name|default:conversation.other_user.username|escapejs }}')" title="Supprimer la conversation" style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); border: none; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,0.08);" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='rgba(255,255,255,0.95)'; this.style.color='#9CA3AF'">
+                                <i class="fi-rs-trash" style="font-size: 14px;"></i>
                             </button>
                             
                             <!-- Badge de statut C2C -->
@@ -546,33 +502,33 @@ nav span:not(:last-child) {
                             {% endif %}
                             
                             <!-- En-tête de conversation -->
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: {% if conversation.c2c_order or conversation.purchase_intent %}28px{% else %}0{% endif %};">
-                                <div class="conversation-avatar" style="border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; margin-top: {% if conversation.c2c_order or conversation.purchase_intent %}32px{% else %}8px{% endif %}; padding-right: 36px;">
+                                <div class="conversation-avatar" style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; flex-shrink: 0;">
                                     {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
-                                    <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; font-size: 16px; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
                                     </h4>
                                     <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">
-                                        {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %}
+                                        {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %} · {{ conversation.product.product_name|truncatechars:30 }}
                                     </p>
                                 </div>
                                 {% if conversation.unread_count > 0 %}
-                                <span style="background: #EF4444; color: white; border-radius: 50%; min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; padding: 0 6px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);">
+                                <span style="background: #EF4444; color: white; border-radius: 10px; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; flex-shrink: 0;">
                                     {{ conversation.unread_count }}
                                 </span>
                                 {% endif %}
                             </div>
                             
                             <!-- Informations sur l'article -->
-                            <div style="background: #F9FAFB; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center;">
-                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" style="object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+                            <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; gap: 14px; align-items: center;">
+                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" style="width: 56px; height: 56px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">
                                 <div style="flex: 1; min-width: 0;">
-                                    <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; font-size: 14px; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         {{ conversation.product.product_name|truncatechars:40 }}
                                     </h5>
-                                    <p style="margin: 0; font-size: 13px; font-weight: 700; color: var(--color-orange);">
+                                    <p style="margin: 0; font-size: 14px; font-weight: 700; color: var(--color-orange);">
                                         {{ conversation.product.PRDPrice|format_price }} FCFA
                                     </p>
                                 </div>
@@ -580,16 +536,16 @@ nav span:not(:last-child) {
                             
                             <!-- Dernier message -->
                             {% if conversation.last_message %}
-                            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid #E5E7EB;">
-                                <p style="margin: 0 0 4px 0; font-size: 13px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    <strong>{% if conversation.last_message.sender == user %}Vous: {% endif %}</strong>{{ conversation.last_message.message|truncatechars:60 }}
+                            <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid #F3F4F6;">
+                                <p style="margin: 0 0 4px 0; font-size: 13px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4;">
+                                    {% if conversation.last_message.sender == user %}<span style="color: var(--color-orange); font-weight: 600;">Vous :</span> {% endif %}{{ conversation.last_message.message|truncatechars:55 }}
                                 </p>
                                 <p style="margin: 0; font-size: 11px; color: #9CA3AF;">
                                     {{ conversation.last_message.created_at|date:"d/m/Y à H:i" }}
                                 </p>
                             </div>
                             {% else %}
-                            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+                            <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid #F3F4F6;">
                                 <p style="margin: 0; font-size: 13px; color: #9CA3AF; font-style: italic;">
                                     Aucun message
                                 </p>
@@ -599,80 +555,10 @@ nav span:not(:last-child) {
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <i class="fi-rs-inbox" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune conversation active</h3>
-                        <p style="font-size: 15px; color: #9CA3AF; margin: 0 0 24px 0;">Vous n'avez pas encore de messages.</p>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Section des conversations archivées -->
-                    {% if archived_conversations %}
-                    <div style="margin-top: 32px;">
-                        <div onclick="toggleArchivedSection()" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #F9FAFB; border-radius: 12px; cursor: pointer; margin-bottom: 16px; border: 1px solid #E5E7EB; transition: all 0.2s;" onmouseover="this.style.background='#F3F4F6'" onmouseout="this.style.background='#F9FAFB'">
-                            <i class="fi-rs-archive" style="font-size: 20px; color: #6B7280;"></i>
-                            <span style="font-size: 16px; font-weight: 700; color: #6B7280;">Archives</span>
-                            <span style="background: #E5E7EB; color: #6B7280; border-radius: 12px; padding: 2px 10px; font-size: 12px; font-weight: 700;">{{ archived_conversations|length }}</span>
-                            <i id="archivedToggleIcon" class="fi-rs-angle-down" style="margin-left: auto; font-size: 14px; color: #9CA3AF; transition: transform 0.3s;"></i>
-                        </div>
-                        
-                        <div id="archivedConversationsSection" style="display: none;">
-                            <div class="conversations-grid">
-                                {% for conversation in archived_conversations %}
-                                <div class="conversation-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: #FAFAFA; border: 2px dashed #D1D5DB; transition: all 0.3s; cursor: pointer; position: relative; display: flex; flex-direction: column; opacity: 0.85;" onmouseover="this.style.borderColor='#9CA3AF'; this.style.opacity='1'" onmouseout="this.style.borderColor='#D1D5DB'; this.style.opacity='0.85'">
-                                    <!-- Bouton de désarchivage -->
-                                    <button onclick="event.stopPropagation(); unarchiveConversation({{ conversation.id }})" title="Désarchiver" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='#DBEAFE'; this.style.color='#2563EB'" onmouseout="this.style.background='rgba(255, 255, 255, 0.95)'; this.style.color='#9CA3AF'">
-                                        <i class="fi-rs-inbox-in" style="font-size: 14px;"></i>
-                                    </button>
-                                    
-                                    <!-- Badge Archivé -->
-                                    <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; background: #F3F4F6; color: #6B7280; z-index: 10;">
-                                        📁 Archivé
-                                    </div>
-                                    
-                                    <!-- En-tête de conversation -->
-                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 28px;">
-                                        <div class="conversation-avatar" style="border-radius: 50%; background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">
-                                            {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
-                                        </div>
-                                        <div style="flex: 1; min-width: 0;">
-                                            <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
-                                            </h4>
-                                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #9CA3AF;">
-                                                {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Informations sur l'article -->
-                                    <div style="background: #F3F4F6; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center;">
-                                        <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" style="object-fit: cover; border-radius: 6px; flex-shrink: 0; filter: grayscale(30%);">
-                                        <div style="flex: 1; min-width: 0;">
-                                            <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                {{ conversation.product.product_name|truncatechars:40 }}
-                                            </h5>
-                                            <p style="margin: 0; font-size: 13px; font-weight: 700; color: #9CA3AF;">
-                                                {{ conversation.product.PRDPrice|format_price }} FCFA
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Dernier message -->
-                                    {% if conversation.last_message %}
-                                    <div style="margin-top: auto; padding-top: 12px; border-top: 1px dashed #D1D5DB;">
-                                        <p style="margin: 0 0 4px 0; font-size: 13px; color: #9CA3AF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                            {{ conversation.last_message.message|truncatechars:60 }}
-                                        </p>
-                                        <p style="margin: 0; font-size: 11px; color: #9CA3AF;">
-                                            {{ conversation.last_message.created_at|date:"d/m/Y à H:i" }}
-                                        </p>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+                    <div style="text-align: center; padding: 64px 24px; border-radius: 16px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);">
+                        <i class="fi-rs-inbox" style="font-size: 56px; color: #D1D5DB; margin-bottom: 20px;"></i>
+                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune conversation</h3>
+                        <p style="font-size: 15px; color: #9CA3AF; margin: 0;">Vos échanges avec vendeurs et acheteurs apparaîtront ici.</p>
                     </div>
                     {% endif %}
                 </div>
@@ -681,22 +567,7 @@ nav span:not(:last-child) {
     </div>
 </main>
 
-<script>
-function toggleArchivedSection() {
-    const section = document.getElementById('archivedConversationsSection');
-    const icon = document.getElementById('archivedToggleIcon');
-    
-    if (section.style.display === 'none') {
-        section.style.display = 'block';
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        section.style.display = 'none';
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
-</script>
-
-<!-- Chatbot Popup (réutilisé depuis my-published-products.html) -->
+<!-- Chatbot Popup -->
 <div id="chatbotPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); height: 600px; max-height: calc(100vh - 40px); background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; flex-direction: column; overflow: hidden;">
     <!-- Chatbot Header -->
     <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; border-radius: 20px 20px 0 0;">
@@ -730,14 +601,17 @@ function toggleArchivedSection() {
     <!-- Active Conversation View -->
     <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white; min-height: 0; overflow: hidden;">
         <!-- Conversation Header -->
-        <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB; flex-shrink: 0;">
-            <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
+        <div style="padding: 14px 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB; flex-shrink: 0;">
+            <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 10px;" onmouseover="this.style.background='rgba(255,123,44,0.1)'" onmouseout="this.style.background='none'">
                 <i class="fi-rs-arrow-left" style="font-size: 18px;"></i>
             </button>
-            <div style="flex: 1;">
-                <h4 id="activeConversationBuyer" style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937;"></h4>
+            <div style="flex: 1; min-width: 0;">
+                <h4 id="activeConversationBuyer" style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></h4>
                 <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">Acheteur</p>
             </div>
+            <button id="deleteConversationBtnInPopup" onclick="deleteConversationFromPopup()" title="Supprimer la conversation" style="background: none; border: none; color: #9CA3AF; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0;" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='none'; this.style.color='#9CA3AF'">
+                <i class="fi-rs-trash" style="font-size: 16px;"></i>
+            </button>
         </div>
         
         <!-- Scrollable Content: Messages + Negotiation -->
@@ -1110,13 +984,17 @@ function displayMessages(messages) {
         msgDiv.className = `message-bubble ${msg.is_sender ? 'message-sent' : 'message-received'}`;
         msgDiv.style.display = 'flex';
         msgDiv.style.flexDirection = 'column';
+        msgDiv.style.alignItems = msg.is_sender ? 'flex-end' : 'flex-start';
         
+        const deleteBtn = msg.is_sender
+            ? `<button type="button" onclick="event.stopPropagation(); deleteMessage(${msg.id})" title="Supprimer ce message" style="margin-top:8px; padding:4px 10px; background:rgba(255,255,255,0.25); border:none; border-radius:8px; color:white; font-size:11px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'"><i class="fi-rs-trash" style="font-size:11px;"></i> Supprimer</button>`
+            : '';
         msgDiv.innerHTML = `
-            <div style="font-size: 12px; color: ${msg.is_sender ? 'white' : '#6B7280'}; margin-bottom: 6px;">
-                ${msg.sender || ''} ${msg.created_at ? '• ' + msg.created_at : ''}
+            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 4px;">
+                ${msg.sender || ''} ${msg.created_at ? '· ' + msg.created_at : ''}
             </div>
-            <div style="font-size: 14px; line-height: 1.5;">${escapeHtml(msg.message)}</div>
-            ${msg.is_sender ? `<button onclick="deleteMessage(${msg.id})" style="margin-top:6px; background:none; border:none; color:${msg.is_sender ? '#FEE2E2' : '#EF4444'}; font-size:12px; cursor:pointer;">Supprimer</button>` : ''}
+            <div style="font-size: 14px; line-height: 1.5; word-break: break-word;">${escapeHtml(msg.message)}</div>
+            ${deleteBtn}
         `;
         
         container.appendChild(msgDiv);
@@ -1129,36 +1007,88 @@ function displayMessages(messages) {
 }
 
 function deleteMessage(messageId) {
-    GMModal.show({
-        type: 'warning',
-        title: 'Supprimer le message',
-        message: 'Êtes-vous sûr de vouloir supprimer ce message ?',
-        showCancel: true,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
-        onConfirm: function() {
-            fetch(`/delete-product-message/${messageId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (currentConversationId && typeof showActiveConversation === 'function') {
-                        showActiveConversation(currentConversationId);
-                    }
-                } else {
-                    GMModal.error('Erreur', data.error || 'Erreur lors de la suppression');
-                }
-            })
-            .catch(e => {
-                console.error(e);
-                GMModal.error('Erreur', 'Erreur lors de la suppression');
-            });
+    if (typeof GMModal !== 'undefined' && GMModal.show) {
+        GMModal.show({
+            type: 'warning',
+            title: 'Supprimer le message',
+            message: 'Êtes-vous sûr de vouloir supprimer ce message ?',
+            showCancel: true,
+            confirmText: 'Supprimer',
+            cancelText: 'Annuler',
+            onConfirm: function() {
+                doDeleteMessage(messageId);
+            }
+        });
+    } else if (confirm('Supprimer ce message ?')) {
+        doDeleteMessage(messageId);
+    }
+}
+function doDeleteMessage(messageId) {
+    fetch(`/delete-product-message/${messageId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && currentConversationId && typeof showActiveConversation === 'function') {
+            showActiveConversation(currentConversationId);
+        } else if (data.error && typeof GMModal !== 'undefined' && GMModal.error) {
+            GMModal.error('Erreur', data.error);
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        if (typeof GMModal !== 'undefined' && GMModal.error) GMModal.error('Erreur', 'Erreur lors de la suppression');
+    });
+}
+
+function deleteConversation(conversationId, otherUserName) {
+    const msg = 'Supprimer toute la conversation avec ' + (otherUserName || 'cet utilisateur') + ' ? Les messages seront définitivement effacés.';
+    if (typeof GMModal !== 'undefined' && GMModal.show) {
+        GMModal.show({
+            type: 'warning',
+            title: 'Supprimer la conversation',
+            message: msg,
+            showCancel: true,
+            confirmText: 'Supprimer',
+            cancelText: 'Annuler',
+            onConfirm: function() {
+                doDeleteConversation(conversationId);
+            }
+        });
+    } else if (confirm(msg)) {
+        doDeleteConversation(conversationId);
+    }
+}
+function deleteConversationFromPopup() {
+    if (currentConversationId) {
+        const conv = conversationsData.find(c => c.id === currentConversationId);
+        deleteConversation(currentConversationId, conv ? conv.buyer_name : null);
+    }
+}
+function doDeleteConversation(conversationId) {
+    fetch(`/delete-conversation/${conversationId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeChatbot();
+            location.reload();
+        } else if (data.error && typeof GMModal !== 'undefined' && GMModal.error) {
+            GMModal.error('Erreur', data.error);
+        }
+    })
+    .catch(e => {
+        console.error(e);
+        if (typeof GMModal !== 'undefined' && GMModal.error) GMModal.error('Erreur', 'Erreur lors de la suppression');
     });
 }
 

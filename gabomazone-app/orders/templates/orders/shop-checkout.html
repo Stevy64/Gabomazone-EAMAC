@@ -3,8 +3,7 @@
 {% load cart_template_tags %}
 
 {% block headextra%}
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    
+    <!-- Modals homogènes via GMModal (base.html) -->
     <style>
         /* Masquer le preloader immédiatement pour cette page */
         #preloader-active {
@@ -65,17 +64,7 @@
             </div>
         </div>
 
-        <!-- Messages -->
-                {% if messages %}
-        <div style="margin-bottom: 24px;">
-                {% for message in messages %}
-            <div class="flavoriz-alert-toast" style="padding: 14px 18px; background: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#EF4444{% else %}#3B82F6{% endif %}; color: white; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-                <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}alert-circle{% else %}info{% endif %}" style="font-size: 18px;"></i>
-                <span style="font-size: 14px; font-weight: 500;">{{message}}</span>
-                </div>
-                {% endfor %}
-        </div>
-                {% endif %}
+        <!-- Notification verte supprimée : seule la notification blanche (toast avec flèche) de base.html est conservée -->
 
         <!-- Main Content -->
         <div style="display: grid; grid-template-columns: 1fr 480px; gap: 24px; align-items: start;">
@@ -181,9 +170,9 @@
                         <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
                             <div style="flex-shrink: 0;">
                                 {% if item.peer_product %}
-                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" loading="lazy" decoding="async" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
                                 {% elif item.product %}
-                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" loading="lazy" decoding="async" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
                                 {% else %}
                                     <img src="{% static 'assets/imgs/shop/thumbnail-1.jpg'%}" alt="Produit" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
                                 {% endif %}
@@ -263,7 +252,7 @@
                                     <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Paiement à la livraison</div>
                                     <div style="font-size: 13px; color: #6B7280;">Payez en espèces à la réception de votre commande</div>
                                 </div>
-                                <i class="fi-rs-money" style="font-size: 24px; color: var(--color-orange);"></i>
+                                <i class="fi-rs-package" style="font-size: 24px; color: var(--color-orange);"></i>
                             </label>
 
                             <!-- SingPay Mobile Money -->
@@ -391,18 +380,23 @@ input[type="radio"]:checked ~ label {
                 
                 const selectedPayment = document.querySelector('input[name="payment_option"]:checked');
                 if (!selectedPayment) {
-                    swal({
-                        title: "Erreur",
-                        text: "Veuillez sélectionner une méthode de paiement",
-                        icon: "error",
-                        button: "OK",
-                    });
+                    GMModal.error('Erreur', "Veuillez sélectionner une méthode de paiement");
                     return;
                 }
 
                 if (selectedPayment.value === 'cash') {
-                    // Paiement à la livraison - redirection directe
-                    window.location.href = "{% url 'orders:payment-cash' %}";
+                    // Paiement à la livraison - modal homogène (GMModal) puis redirection
+                    GMModal.show({
+                        type: 'success',
+                        title: 'Un dernier pas pour finaliser ✨',
+                        message: "Excellente nouvelle : votre commande est prête ! Pour qu'elle soit envoyée à nos vendeurs et préparée pour vous, notre équipe Gabomazone vous contactera pour une rapide confirmation. Simple, rassurant et sans engagement — vous ne payez qu'à la réception de votre colis. On continue ?",
+                        showCancel: true,
+                        cancelText: 'Plus tard',
+                        confirmText: 'Oui, je confirme ma commande',
+                        onConfirm: function() {
+                            window.location.href = "{% url 'orders:payment-cash' %}";
+                        }
+                    });
                 } else if (selectedPayment.value === 'singpay') {
                     // Paiement SingPay - initialiser le paiement
                     checkoutButton.disabled = true;
@@ -423,24 +417,14 @@ input[type="radio"]:checked ~ label {
                         } else {
                             checkoutButton.disabled = false;
                             checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
-                            swal({
-                                title: "Erreur",
-                                text: data.error || "Erreur lors de l'initialisation du paiement",
-                                icon: "error",
-                                button: "OK",
-                            });
+                            GMModal.error('Erreur', data.error || "Erreur lors de l'initialisation du paiement");
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         checkoutButton.disabled = false;
                         checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
-                        swal({
-                            title: "Erreur",
-                            text: "Une erreur est survenue. Veuillez réessayer.",
-                            icon: "error",
-                            button: "OK",
-                        });
+                        GMModal.error('Erreur', "Une erreur est survenue. Veuillez réessayer.");
                     });
                 }
             });

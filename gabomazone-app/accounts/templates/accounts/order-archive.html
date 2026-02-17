@@ -3,29 +3,30 @@
 {% load cart_template_tags %}
 
 {%block body%}
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<main class="main pages order-detail-page" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 50%, #FFF 100%);">
+    <div class="container order-detail-container" style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 32px; font-size: 14px; color: #6B7280; display: flex; align-items: center; gap: 8px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="order-detail-breadcrumb" style="margin-bottom: 28px; font-size: 14px; color: #64748B; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
+            <span style="color: #CBD5E1;">/</span>
             <a href="{% url 'accounts:dashboard_customer' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; transition: all 0.2s ease;">Mes commandes</a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Commande #{{order.id}}</span>
+            <span style="color: #CBD5E1;">/</span>
+            <span style="color: #334155; font-weight: 600;">Commande #{{order.id}}</span>
         </nav>
 
         <!-- Header de la commande -->
-        <div style="background: linear-gradient(135deg, #1F2937 0%, #111827 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); color: white;">
+        <div class="order-detail-hero" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 20px; padding: 28px 32px; margin-bottom: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255,255,255,0.05) inset; position: relative; overflow: hidden; color: #ffffff;">
+            <div style="position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: radial-gradient(ellipse at 100% 0%, rgba(255, 123, 44, 0.12) 0%, transparent 60%); pointer-events: none;"></div>
             <!-- Header compact avec titre, date et statut -->
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
                 <div style="flex: 1; min-width: 200px;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                        <i class="fi-rs-shopping-bag" style="font-size: 24px; color: var(--color-orange);"></i>
-                        <h1 style="font-size: 24px; font-weight: 700; color: white; margin: 0;">Commande #{{order.id}}</h1>
+                        <i class="fi-rs-shopping-bag order-detail-hero-icon" style="font-size: 24px; color: #F97316;"></i>
+                        <h1 class="order-detail-hero-title" style="font-size: 24px; font-weight: 700; margin: 0;">Commande #{{order.id}}</h1>
                     </div>
-                    <p style="font-size: 13px; color: rgba(255, 255, 255, 0.75); margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <p class="order-detail-hero-date" style="font-size: 13px; margin: 0; display: flex; align-items: center; gap: 6px;">
                         <i class="fi-rs-calendar" style="font-size: 12px;"></i>
                         {{order.order_date|date:"d F Y à H:i"}}
                     </p>
@@ -62,61 +63,72 @@
             </div>
             
             <!-- Informations rapides - Layout compact -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="order-detail-hero-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                        <i class="fi-rs-shopping-cart"></i>
-                    </div>
+                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-shopping-cart"></i></div>
                     <div style="min-width: 0;">
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Articles</div>
-                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap;">{{order_details.count}}</div>
+                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Articles</div>
+                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap;">{{order_details.count}}</div>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                        <i class="fi-rs-money"></i>
-                    </div>
+                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-money"></i></div>
                     <div style="min-width: 0;">
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Total</div>
-                        <div style="font-size: 15px; font-weight: 700; color: var(--color-orange); white-space: nowrap;">{{order.amount|floatformat:0}} FCFA</div>
+                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Total</div>
+                        <div class="order-detail-hero-stat-value order-detail-hero-total" style="font-size: 15px; font-weight: 700; white-space: nowrap;">{{order.amount|floatformat:0}} FCFA</div>
                     </div>
                 </div>
                 {% if payment_info %}
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                        <i class="fi-rs-credit-card"></i>
-                    </div>
+                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-credit-card"></i></div>
                     <div style="min-width: 0;">
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Paiement</div>
-                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{payment_info.payment_method|default:"Non spécifié"}}</div>
+                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Paiement</div>
+                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{payment_info.payment_method|default:"Non spécifié"}}</div>
                     </div>
                 </div>
                 {% endif %}
                 {% if order.tracking_no %}
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                        <i class="fi-rs-truck"></i>
-                    </div>
+                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-truck"></i></div>
                     <div style="min-width: 0;">
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap;">Suivi</div>
-                        <div style="font-size: 15px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{order.tracking_no}}</div>
+                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Suivi</div>
+                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{order.tracking_no}}</div>
                     </div>
                 </div>
                 {% endif %}
             </div>
+            <!-- Barre de progression du statut -->
+            <div class="order-status-stepper" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <div class="status-step {% if order.status == 'PENDING' or order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'PENDING' %}rgba(255, 123, 44, 0.25){% else %}rgba(16, 185, 129, 0.3){% endif %}; border: 2px solid {% if order.status == 'PENDING' %}var(--color-orange){% else %}#10B981{% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-{% if order.status == 'PENDING' %}clock{% else %}check{% endif %}" style="font-size: 14px; color: white;"></i></div>
+                        <span style="font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9);">Commandée</span>
+                    </div>
+                    <div style="flex: 0 0 24px; height: 2px; background: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.5){% else %}rgba(255,255,255,0.15){% endif %}; border-radius: 1px;"></div>
+                    <div class="status-step {% if order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'Underway' %}rgba(255, 123, 44, 0.25){% elif order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.3){% else %}rgba(255,255,255,0.08){% endif %}; border: 2px solid {% if order.status == 'Underway' %}var(--color-orange){% elif order.status == 'COMPLETE' %}#10B981{% else %}rgba(255,255,255,0.2){% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-{% if order.status == 'COMPLETE' %}check{% else %}truck{% endif %}" style="font-size: 14px; color: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}white{% else %}rgba(255,255,255,0.4){% endif %};"></i></div>
+                        <span style="font-size: 11px; font-weight: 600; color: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}rgba(255,255,255,0.95){% else %}rgba(255,255,255,0.5){% endif %};">En cours</span>
+                    </div>
+                    <div style="flex: 0 0 24px; height: 2px; background: {% if order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.5){% else %}rgba(255,255,255,0.15){% endif %}; border-radius: 1px;"></div>
+                    <div class="status-step {% if order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.3){% else %}rgba(255,255,255,0.08){% endif %}; border: 2px solid {% if order.status == 'COMPLETE' %}#10B981{% else %}rgba(255,255,255,0.2){% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-check" style="font-size: 14px; color: {% if order.status == 'COMPLETE' %}white{% else %}rgba(255,255,255,0.4){% endif %};"></i></div>
+                        <span style="font-size: 11px; font-weight: 600; color: {% if order.status == 'COMPLETE' %}rgba(255,255,255,0.95){% else %}rgba(255,255,255,0.5){% endif %};">Terminée</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start;">
+        <div class="order-detail-grid" style="display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start;">
             <!-- Liste des articles -->
-            <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
-                <h2 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
-                    <i class="fi-rs-shopping-bag" style="color: var(--color-orange);"></i>
+            <div class="order-detail-products-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
+                <h2 style="font-size: 22px; font-weight: 700; color: #0F172A; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em;">
+                    <i class="fi-rs-shopping-bag" style="color: var(--color-orange); font-size: 24px;"></i>
                     Articles commandés ({{order_details.count}})
                 </h2>
                 
-                <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="order-detail-products-list" style="display: flex; flex-direction: column; gap: 16px;">
                     {% for item in order_details %}
-                    <div style="display: flex; gap: 20px; padding: 20px; background: #F9FAFB; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.15)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                    <div class="order-item-card" style="display: flex; gap: 20px; padding: 20px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0; transition: all 0.25s ease;">
                         <!-- Image du produit -->
                         <div style="flex-shrink: 0;">
                             {% if item.peer_product %}
@@ -152,18 +164,18 @@
                                 <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 14px; color: #6B7280;">
                                     {% if item.size %}
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-ruler" style="font-size: 14px;"></i>
+                                        <i class="fi-rs-scale" style="font-size: 14px; color: #6B7280;"></i>
                                         <span>Taille: <strong>{{item.size}}</strong></span>
                                     </div>
                                     {% endif %}
                                     {% if item.weight %}
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-weight" style="font-size: 14px;"></i>
+                                        <i class="fi-rs-package" style="font-size: 14px; color: #6B7280;"></i>
                                         <span>Poids: <strong>{{item.weight}} kg</strong></span>
                                     </div>
                                     {% endif %}
                                     <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-shopping-cart-add" style="font-size: 14px;"></i>
+                                        <i class="fi-rs-shopping-cart-add" style="font-size: 14px; color: #6B7280;"></i>
                                         <span>Quantité: <strong>{{item.quantity}}</strong></span>
                                     </div>
                                 </div>
@@ -183,19 +195,18 @@
                     </div>
                     {% empty %}
                     <div style="text-align: center; padding: 60px 20px;">
-                        <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px; color: #6B7280;">Aucun article dans cette commande</p>
+                        <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #CBD5E1; margin-bottom: 16px;"></i>
+                        <p style="font-size: 16px; color: #64748B;">Aucun article dans cette commande</p>
                     </div>
                     {% endfor %}
                 </div>
             </div>
 
-            <!-- Section résumé et informations -->
-            <div class="order-info-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
-                <!-- Colonne gauche : Résumé de la commande -->
-                <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Section résumé et informations (une colonne pour éviter les cartes imbriquées) -->
+            <div class="order-info-section order-detail-sidebar" style="display: flex; flex-direction: column; gap: 28px; align-items: stretch;">
+                <div class="order-detail-sidebar-inner" style="display: flex; flex-direction: column; gap: 24px;">
                     <!-- Résumé de la commande -->
-                    <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <div class="order-summary-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
                         <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-receipt" style="color: var(--color-orange);"></i>
                             Résumé de la commande
@@ -229,29 +240,29 @@
                     </div>
 
                     <!-- Actions -->
-                    <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                    <div class="order-actions-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <a href="{% url 'accounts:dashboard_customer' %}" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #F3F4F6; color: #374151; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease;">
+                            <a href="{% url 'accounts:dashboard_customer' %}" class="order-action-btn order-action-back" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: #F1F5F9; color: #475569; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; border: 1px solid #E2E8F0;">
                                 <i class="fi-rs-arrow-left"></i>
                                 Retour aux commandes
                             </a>
-                            <a href="{% url 'orders:invoice-print' order.id %}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: var(--color-orange); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
+                            <a href="{% url 'orders:invoice-print' order.id %}" target="_blank" class="order-action-btn order-action-invoice" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35);">
                                 <i class="fi-rs-print"></i>
                                 Voir la facture
                             </a>
-                            <a href="{% url 'orders:invoice-print' order.id %}?format=pdf" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; background: #DC2626; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); margin-top: 8px;">
-                                <i class="fi-rs-file-pdf"></i>
+                            <a href="{% url 'orders:invoice-print' order.id %}?format=pdf" target="_blank" class="order-action-btn order-action-pdf" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);">
+                                <i class="fi-rs-document"></i>
                                 Télécharger PDF
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Colonne droite : Adresse de livraison et Informations de paiement -->
+                <!-- Adresse de livraison et Informations de paiement -->
                 <div class="info-cards-container" style="display: flex; flex-direction: column; gap: 24px;">
                     <!-- Informations de livraison -->
                     {% if payment_info %}
-                    <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); flex: 1;">
+                    <div class="order-info-card" style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0; flex: 1;">
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 20px;"></i>
                             Adresse de livraison
@@ -263,7 +274,7 @@
                                 <span><strong>{{payment_info.first_name}} {{payment_info.last_name}}</strong></span>
                             </div>
                             <div style="display: flex; align-items: start; gap: 8px;">
-                                <i class="fi-rs-map-pin" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
+                                <i class="fi-rs-marker" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
                                 <span>{{payment_info.street_address}}<br>
                                 {% if payment_info.City %}{{payment_info.City}}{% endif %}
                                 {% if payment_info.state %}, {{payment_info.state}}{% endif %}
@@ -271,7 +282,7 @@
                                 {% if payment_info.country %}, {{payment_info.country}}{% endif %}</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fi-rs-phone" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
+                                <i class="fi-rs-mobile" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
                                 <span>{{payment_info.phone}}</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -284,7 +295,7 @@
 
                     <!-- Informations de paiement -->
                     {% if transaction %}
-                    <div style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); flex: 1;">
+                    <div class="order-info-card" style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0; flex: 1;">
                         <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-credit-card" style="color: var(--color-orange); font-size: 20px;"></i>
                             <span style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Informations de paiement</span>
@@ -332,22 +343,62 @@
 
 <style>
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.order-detail-page .order-detail-container {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Bandeau hero : texte et icônes toujours clairs sur fond sombre */
+.order-detail-hero,
+.order-detail-hero .order-detail-hero-title,
+.order-detail-hero .order-detail-hero-date,
+.order-detail-hero .order-detail-hero-stat-label,
+.order-detail-hero .order-detail-hero-stat-value {
+    color: #ffffff !important;
+}
+.order-detail-hero .order-detail-hero-date,
+.order-detail-hero .order-detail-hero-stat-label {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+.order-detail-hero .order-detail-hero-total {
+    color: #F97316 !important;
+}
+.order-detail-hero .order-detail-hero-stat-icon i,
+.order-detail-hero .order-status-stepper span,
+.order-detail-hero [class*="status-step"] span {
+    color: inherit !important;
+}
+.order-detail-hero .order-detail-hero-stat-icon {
+    color: #ffffff !important;
+}
+.order-detail-hero i:not(.order-detail-hero-icon) {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+.order-detail-hero .order-detail-hero-icon {
+    color: #F97316 !important;
+}
+
+/* Grille principale : liste des articles à gauche, sidebar à droite sur desktop */
+@media (min-width: 1024px) {
+    .order-detail-grid {
+        grid-template-columns: 1fr 360px !important;
+        gap: 32px !important;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .order-detail-sidebar-inner {
+        position: sticky;
+        top: 100px;
     }
 }
 
-/* Amélioration du layout desktop pour utiliser l'espace disponible */
+/* Sidebar : une seule colonne (pas de cartes imbriquées) */
 .order-info-section {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 32px !important;
-    align-items: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+    align-items: stretch !important;
 }
 
 .info-cards-container {
@@ -357,91 +408,100 @@
 }
 
 .info-cards-container > div {
-    flex: 1 !important;
+    flex: 0 0 auto !important;
     min-height: auto !important;
+}
+
+/* Cartes articles : hover */
+.order-item-card:hover {
+    border-color: rgba(255, 123, 44, 0.35) !important;
+    box-shadow: 0 8px 24px -4px rgba(255, 123, 44, 0.12) !important;
+}
+
+/* Boutons d'action */
+.order-action-back:hover {
+    background: #E2E8F0 !important;
+    color: #334155 !important;
+}
+.order-action-invoice:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 123, 44, 0.4) !important;
+}
+.order-action-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35) !important;
 }
 
 /* Responsive */
 @media (max-width: 1200px) {
     .order-info-section {
-        grid-template-columns: 1fr !important;
         gap: 24px !important;
     }
 }
 
 @media (max-width: 992px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
+    .order-detail-page.main.pages {
+        padding-top: 88px !important;
+        padding-bottom: 80px !important;
     }
-    
-    .container {
+    .order-detail-container {
         padding: 0 16px !important;
     }
-    
-    div[style*="grid-template-columns: 1fr"] {
-        grid-template-columns: 1fr !important;
+    .order-detail-hero {
+        padding: 22px 24px !important;
     }
-    
-    div[style*="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))"] {
-        grid-template-columns: repeat(2, 1fr) !important;
+    .order-status-stepper .status-step span {
+        font-size: 10px !important;
     }
-    
     .info-cards-container {
         flex-direction: column !important;
     }
 }
 
 @media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 40px !important;
+    .order-detail-page.main.pages {
+        padding-top: 84px !important;
+        padding-bottom: 88px !important;
     }
-    
-    .container {
-        padding: 0 12px !important;
+    .order-detail-container {
+        padding: 0 14px !important;
     }
-    
-    div[style*="grid-template-columns: 1fr 400px"] {
-        grid-template-columns: 1fr !important;
-        gap: 24px !important;
+    .order-detail-hero {
+        padding: 20px 18px !important;
+        margin-bottom: 20px !important;
     }
-    
-    div[style*="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))"] {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
+    .order-detail-products-card {
+        padding: 20px 18px !important;
     }
-    
-    .info-cards-container {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-    }
-    
-    div[style*="padding: 24px"] {
-        padding: 20px 16px !important;
-    }
-    
-    h1[style*="font-size: 24px"] {
+    .order-detail-products-card h2 {
         font-size: 20px !important;
     }
-    
-    div[style*="display: flex; gap: 20px"] {
+    .order-item-card {
         flex-direction: column !important;
+        gap: 16px !important;
+        padding: 16px !important;
     }
-    
-    img[style*="width: 120px"] {
-        width: 100px !important;
-        height: 100px !important;
+    .order-item-card img[style*="width: 120px"] {
+        width: 100% !important;
+        max-width: 200px !important;
+        height: 180px !important;
+        margin: 0 auto;
     }
-    
-    div[style*="margin-bottom: 20px"] {
-        margin-bottom: 16px !important;
+    .order-summary-card,
+    .order-actions-card,
+    .order-info-card {
+        padding: 22px 18px !important;
     }
-    
-    div[style*="padding-top: 20px"] {
+    .order-status-stepper {
+        margin-top: 18px !important;
         padding-top: 16px !important;
     }
-    
+    .order-status-stepper > div {
+        gap: 4px !important;
+    }
+    .order-status-stepper .status-step span {
+        font-size: 9px !important;
+    }
     #transaction-modal > div {
         max-width: 95% !important;
         margin: 10px !important;
@@ -450,14 +510,13 @@
 }
 
 @media print {
-    .main.pages {
+    .order-detail-page.main.pages {
         background: white !important;
         padding: 20px !important;
     }
-    
-    button[onclick*="print"],
     button[onclick*="showTransaction"],
-    a[href*="dashboard_customer"] {
+    .order-action-back,
+    .order-detail-breadcrumb a {
         display: none !important;
     }
 }

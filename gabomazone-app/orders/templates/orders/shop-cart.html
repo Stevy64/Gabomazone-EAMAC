@@ -57,6 +57,36 @@
             padding-top: 20px !important;
         }
     }
+    
+    /* Section Détails de livraison rétractable */
+    .cart-delivery-card .cart-delivery-body {
+        max-height: 1200px;
+        opacity: 1;
+        padding: 0 24px 24px 24px;
+        box-sizing: border-box;
+    }
+    .cart-delivery-card.collapsed .cart-delivery-body {
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        overflow: hidden;
+    }
+    .cart-delivery-card .cart-delivery-chevron {
+        transform: rotate(0deg);
+    }
+    .cart-delivery-card.collapsed .cart-delivery-chevron {
+        transform: rotate(-90deg);
+    }
+    .cart-delivery-toggle:hover,
+    .cart-delivery-toggle:focus {
+        background: #F3F4F6 !important;
+        outline: none;
+    }
+    .cart-delivery-toggle:focus-visible {
+        box-shadow: 0 0 0 2px rgba(255, 123, 44, 0.4);
+    }
 </style>
     <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
         <!-- Breadcrumb -->
@@ -91,11 +121,11 @@
                         <div style="flex-shrink: 0;">
                             {% if item.peer_product %}
                                 <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}">
-                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" loading="lazy" decoding="async" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
                                 </a>
                             {% else %}
                                 <a href="{% url 'products:product-details' item.product.PRDSlug %}">
-                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/product-1-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" loading="lazy" decoding="async" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; border: 1px solid #F3F4F6;" />
                                 </a>
                             {% endif %}
                         </div>
@@ -171,21 +201,23 @@
                     </div>
                 </div>
                 
-                <!-- Delivery Form Card -->
-                <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #F3F4F6;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fi-rs-package" style="font-size: 20px; color: var(--color-orange); display: block; line-height: 1;"></i>
+                <!-- Delivery Form Card (section rétractable) -->
+                <div class="cart-delivery-card" id="cart-delivery-card" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); border: 1px solid #F3F4F6; overflow: hidden;">
+                    <button type="button" class="cart-delivery-toggle" id="cart-delivery-toggle" aria-expanded="true" aria-controls="cart-delivery-body" style="width: 100%; display: flex; align-items: center; gap: 14px; margin: 0; padding: 20px 24px; border: none; background: #FAFAFA; cursor: pointer; text-align: left; font-family: inherit; transition: background 0.2s ease;">
+                        <div style="width: 44px; height: 44px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.06) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fi-rs-package" style="font-size: 22px; color: var(--color-orange); display: block; line-height: 1;"></i>
                         </div>
-                        <div>
-                            <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0;">Détails de livraison</h4>
-                            <p style="font-size: 13px; color: #6B7280; margin: 2px 0 0 0;">Remplissez vos informations pour la livraison</p>
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0;">Détails de livraison</h4>
+                            <p class="cart-delivery-toggle-hint" style="font-size: 13px; color: #6B7280; margin: 4px 0 0 0;">Cliquez pour afficher ou masquer le formulaire</p>
                         </div>
-                    </div>
-                        
-                    <form method="post" action="{% url 'orders:payment' %}">
+                        <span class="cart-delivery-toggle-label" style="font-size: 13px; font-weight: 600; color: var(--color-orange); flex-shrink: 0;">Masquer</span>
+                        <i class="fi-rs-angle-small-down cart-delivery-chevron" style="font-size: 22px; color: var(--color-orange); transition: transform 0.3s ease; flex-shrink: 0;"></i>
+                    </button>
+                    <form method="post" action="{% url 'orders:payment' %}" id="cart-delivery-form">
                         {% csrf_token %}
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="cart-delivery-body" id="cart-delivery-body" style="overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; padding-top: 20px;">
                             <div>
                                 <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">Prénom *</label>
                                 <input type="text" required name="first_name" value="{% if profile %}{{ profile.user.first_name }}{% endif %}" placeholder="Votre prénom" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
@@ -241,7 +273,9 @@
                                 <input type="email" name="email_address" value="{% if profile %}{{ profile.user.email }}{% endif %}" placeholder="Votre email" class="flavoriz-input" style="width: 100%; padding: 12px 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); background: #FAFAFA;" />
                         </div>
                                 </div>
-                        <button type="submit" style="width: 100%; padding: 14px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-primary);">
+                        </div>
+                        <!-- Bouton toujours visible (hors zone rétractable) -->
+                        <button type="submit" style="width: 100%; padding: 14px; margin-top: 20px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-primary);">
                             <span>Procéder au paiement</span>
                             <i class="fi-rs-arrow-right"></i>
                         </button>
@@ -366,6 +400,62 @@
         });
     })();
     </script>
+<script>
+    (function() {
+        var toggle = document.getElementById('cart-delivery-toggle');
+        var card = document.getElementById('cart-delivery-card');
+        var body = document.getElementById('cart-delivery-body');
+        var form = document.getElementById('cart-delivery-form');
+        var labelEl = card && card.querySelector('.cart-delivery-toggle-label');
+        var hintEl = card && card.querySelector('.cart-delivery-toggle-hint');
+        var key = 'cart-delivery-collapsed';
+        function setLabelAndHint(collapsed) {
+            if (labelEl) labelEl.textContent = collapsed ? 'Afficher' : 'Masquer';
+            if (hintEl) hintEl.textContent = collapsed ? 'Cliquez pour afficher le formulaire de livraison' : 'Cliquez pour afficher ou masquer le formulaire';
+        }
+        function expandSection() {
+            if (card && card.classList.contains('collapsed')) {
+                card.classList.remove('collapsed');
+                if (toggle) toggle.setAttribute('aria-expanded', 'true');
+                sessionStorage.setItem(key, '0');
+                setLabelAndHint(false);
+            }
+        }
+        if (toggle && card && body) {
+            var collapsed = sessionStorage.getItem(key) === '1';
+            if (window.location.search.indexOf('expand_delivery=1') !== -1) collapsed = false;
+            if (collapsed) {
+                card.classList.add('collapsed');
+                toggle.setAttribute('aria-expanded', 'false');
+                setLabelAndHint(true);
+            } else {
+                setLabelAndHint(false);
+            }
+            toggle.addEventListener('click', function() {
+                collapsed = card.classList.toggle('collapsed');
+                toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                sessionStorage.setItem(key, collapsed ? '1' : '0');
+                setLabelAndHint(collapsed);
+            });
+        }
+        if (form && card) {
+            form.addEventListener('submit', function(e) {
+                var deliveryBody = document.getElementById('cart-delivery-body');
+                if (!deliveryBody) return;
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    expandSection();
+                    form.reportValidity();
+                    var firstInvalid = deliveryBody.querySelector('input:invalid, select:invalid');
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                        setTimeout(function() { firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                    }
+                }
+            });
+        }
+    })();
+</script>
 <script>
     /**
      * ============================================================================

@@ -4,30 +4,30 @@
 
 {%block body%}
 <style>
-    /* ===== Vendor Details Page - Design Moderne FLAVORIZ ===== */
+    /* ===== Vendor Details Page - Design épuré et moderne ===== */
     .flavoriz-vendor-page {
         padding: 0;
-        background: #FAFAFA;
+        background: linear-gradient(180deg, #FDF8F3 0%, #FFFFFF 180px);
         min-height: calc(100vh - 200px);
     }
     
     .flavoriz-vendor-container {
-        max-width: 1400px;
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 24px;
     }
     
-    /* Breadcrumb */
     .flavoriz-vendor-breadcrumb {
-        padding: 16px 0;
+        padding: 20px 0 16px;
         font-size: 13px;
         color: #6B7280;
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
     
     .flavoriz-vendor-breadcrumb a {
         color: var(--color-orange);
         text-decoration: none;
+        font-weight: 500;
         transition: color 0.2s ease;
     }
     
@@ -35,212 +35,179 @@
         color: #E65A1F;
     }
     
-    /* Vendor Header Card */
+    /* Bannière magasin – design soigné */
     .flavoriz-vendor-header {
-        background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
-        border-radius: 20px;
-        padding: 40px;
+        background: linear-gradient(165deg, #FFFFFF 0%, #FFF9F6 45%, #FFF5EF 100%);
+        border-radius: 24px;
+        padding: 0;
         margin-bottom: 32px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 123, 44, 0.06);
+        border: 1px solid rgba(255, 123, 44, 0.12);
         position: relative;
         overflow: hidden;
     }
-    
     .flavoriz-vendor-header::before {
         content: '';
         position: absolute;
         top: 0;
+        left: 0;
         right: 0;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255, 123, 44, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-orange) 0%, #FFB088 50%, var(--color-orange) 100%);
+        opacity: 0.9;
     }
-    
     .flavoriz-vendor-header-content {
-        display: grid;
-        grid-template-columns: auto 1fr;
+        display: flex;
+        flex-wrap: wrap;
         gap: 32px;
-        align-items: start;
-        position: relative;
-        z-index: 1;
+        align-items: flex-start;
+        padding: 36px 40px 40px;
     }
-    
     .flavoriz-vendor-avatar {
         width: 140px;
         height: 140px;
-        border-radius: 20px;
+        border-radius: 24px;
         overflow: hidden;
-        border: 4px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        background: white;
+        border: 4px solid white;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+        background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%);
         flex-shrink: 0;
     }
-    
     .flavoriz-vendor-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    
     .flavoriz-vendor-info {
         flex: 1;
-        color: white !important;
+        min-width: 0;
     }
-    
-    .flavoriz-vendor-info * {
-        color: white !important;
+    .flavoriz-vendor-info-top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 20px;
+        margin-bottom: 14px;
     }
-    
-    .flavoriz-vendor-info span,
-    .flavoriz-vendor-info p,
-    .flavoriz-vendor-info div {
-        color: rgba(255, 255, 255, 0.95) !important;
+    .flavoriz-vendor-name {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+        color: #1F2937;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
     }
-    
     .flavoriz-vendor-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 8px 14px;
-        background: rgba(255, 123, 44, 0.2);
+        padding: 7px 14px;
+        background: rgba(255, 123, 44, 0.12);
         color: var(--color-orange);
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 0;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 123, 44, 0.3);
-        transition: all 0.3s ease;
     }
-    
-    .flavoriz-vendor-badge:hover {
-        background: rgba(255, 123, 44, 0.3);
+    .flavoriz-vendor-badge.premium {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: #1F2937;
+        box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+    }
+    .flavoriz-vendor-meta-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 20px 28px;
+        font-size: 14px;
+        color: #6B7280;
+        margin-bottom: 18px;
+    }
+    .flavoriz-vendor-meta-line span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .flavoriz-vendor-meta-line i {
+        color: var(--color-orange);
+        font-size: 15px;
+    }
+    .flavoriz-vendor-description {
+        font-size: 15px;
+        line-height: 1.65;
+        color: #4B5563;
+        margin: 0 0 20px 0;
+        max-width: 640px;
+    }
+    .flavoriz-vendor-details-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 0;
+    }
+    .flavoriz-vendor-detail-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #6B7280;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 123, 44, 0.15);
+    }
+    .flavoriz-vendor-detail-item i {
+        font-size: 16px;
+        color: var(--color-orange);
+        flex-shrink: 0;
+    }
+    .flavoriz-vendor-detail-item span {
+        line-height: 1.4;
+    }
+    .flavoriz-vendor-social {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255, 123, 44, 0.12);
+    }
+    .flavoriz-vendor-social-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6B7280;
+        margin-right: 4px;
+    }
+    .flavoriz-vendor-social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 123, 44, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6B7280;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+    .flavoriz-vendor-social-link:hover {
+        background: var(--color-orange);
+        color: white;
+        border-color: var(--color-orange);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
     }
     
-    .flavoriz-vendor-name {
-        font-size: 32px;
-        font-weight: 700;
-        margin: 0 0 8px 0;
-        color: white;
-    }
-    
-    .flavoriz-vendor-meta {
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        width: fit-content;
-        backdrop-filter: blur(10px);
-    }
-    
-    .flavoriz-vendor-meta i {
-        color: var(--color-orange);
-        font-size: 16px;
-    }
-    
-    .flavoriz-vendor-description {
-        font-size: 15px;
-        line-height: 1.7;
-        color: rgba(255, 255, 255, 0.95);
-        margin-bottom: 24px;
-        max-width: 600px;
-        padding: 16px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border-left: 3px solid var(--color-orange);
-        backdrop-filter: blur(10px);
-    }
-    
-    .flavoriz-vendor-details-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-    
-    .flavoriz-vendor-detail-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.9);
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-    }
-    
-    .flavoriz-vendor-detail-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-    }
-    
-    .flavoriz-vendor-detail-item i {
-        font-size: 18px;
-        color: var(--color-orange);
-        width: 24px;
-        text-align: center;
-        flex-shrink: 0;
-    }
-    
-    .flavoriz-vendor-detail-item span {
-        flex: 1;
-        word-break: break-word;
-        line-height: 1.5;
-    }
-    
-    .flavoriz-vendor-social {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-    
-    .flavoriz-vendor-social-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
-        margin-right: 8px;
-    }
-    
-    .flavoriz-vendor-social-link {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-    }
-    
-    .flavoriz-vendor-social-link:hover {
-        background: var(--color-orange);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.4);
-    }
-    
-    /* Products Section */
+    /* Section Produits */
     .flavoriz-vendor-products-section {
         background: white;
         border-radius: 20px;
-        padding: 32px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 28px 32px 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #F3F4F6;
         margin-bottom: 32px;
     }
     
@@ -254,7 +221,7 @@
     }
     
     .flavoriz-vendor-section-title {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 700;
         color: #1F2937;
         margin: 0;
@@ -298,33 +265,107 @@
         font-weight: 500;
     }
     
-    .flavoriz-vendor-products-grid {
+    /* Grille produits : même style que page Produits (4 colonnes desktop) */
+    .flavoriz-vendor-products-grid.flavoriz-product-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 24px;
+        padding: 0;
+    }
+    .flavoriz-vendor-products-grid.flavoriz-product-grid > * {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    /* Cartes produits : identiques à la page Produits */
+    .flavoriz-vendor-products-section .flavoriz-product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #F3F4F6;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15);
+        border-color: rgba(255, 123, 44, 0.25);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-image-wrap {
+        width: 100%;
+        aspect-ratio: 1;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-image-wrap .flavoriz-product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card:hover .flavoriz-product-image-wrap .flavoriz-product-image {
+        transform: scale(1.06);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-body {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 6px 0;
+        line-height: 1.35;
+        min-height: 36px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--color-orange);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card-btn:hover {
+        background: var(--color-orange);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
     }
     
-    /* Sidebar */
     .flavoriz-vendor-sidebar {
         display: flex;
         flex-direction: column;
         gap: 20px;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .flavoriz-vendor-sidebar:empty {
+        display: none;
     }
     
     .flavoriz-vendor-sidebar-card {
         background: white;
         border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    
-    .flavoriz-vendor-sidebar-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1F2937;
-        margin: 0 0 20px 0;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #F3F4F6;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid #F3F4F6;
     }
     
     .flavoriz-vendor-ad-banner {
@@ -343,66 +384,6 @@
         width: 100%;
         height: auto;
         display: block;
-    }
-    
-    .flavoriz-vendor-new-products {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    
-    .flavoriz-vendor-new-product-item {
-        display: flex;
-        gap: 12px;
-        padding: 12px;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .flavoriz-vendor-new-product-item:hover {
-        background: #F9FAFB;
-        transform: translateX(4px);
-    }
-    
-    .flavoriz-vendor-new-product-image {
-        width: 80px;
-        height: 80px;
-        border-radius: 10px;
-        overflow: hidden;
-        flex-shrink: 0;
-        background: #FAFAFA;
-    }
-    
-    .flavoriz-vendor-new-product-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .flavoriz-vendor-new-product-info {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .flavoriz-vendor-new-product-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1F2937;
-        margin: 0 0 6px 0;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .flavoriz-vendor-new-product-price {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--color-orange);
-        margin: 0;
     }
     
     /* Loading States */
@@ -429,47 +410,27 @@
         display: none !important;
     }
     
-    /* Responsive */
+    #loading-indicator.htmx-request {
+        display: block !important;
+    }
+    
     @media (max-width: 1024px) {
-        .flavoriz-vendor-header-content {
-            grid-template-columns: 1fr;
-            text-align: center;
-            gap: 24px;
-        }
-        
-        .flavoriz-vendor-avatar {
-            margin: 0 auto;
-        }
-        
-        .flavoriz-vendor-details-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-        
-        .flavoriz-vendor-detail-item {
-            justify-content: flex-start;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-            padding: 16px;
-            gap: 8px;
-        }
-        
-        .flavoriz-vendor-detail-item i {
-            font-size: 20px;
-            width: auto;
-        }
-        
-        .flavoriz-vendor-social {
-            justify-content: center;
-        }
-        
-        .flavoriz-vendor-products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        }
-        
         .flavoriz-vendor-main-content {
             grid-template-columns: 1fr !important;
+        }
+        .flavoriz-vendor-sidebar {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .flavoriz-vendor-sidebar-card {
+            flex: 1 1 280px;
+            max-width: 100%;
+        }
+        .flavoriz-vendor-products-grid.flavoriz-product-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
     }
     
@@ -477,125 +438,87 @@
         .flavoriz-vendor-container {
             padding: 0 16px;
         }
-        
         .flavoriz-vendor-header {
-            padding: 20px 16px;
-            border-radius: 16px;
+            border-radius: 20px;
         }
-        
         .flavoriz-vendor-header-content {
+            padding: 28px 20px 28px;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             gap: 20px;
         }
-        
         .flavoriz-vendor-avatar {
             width: 100px;
             height: 100px;
+            border-radius: 20px;
             border-width: 3px;
         }
-        
+        .flavoriz-vendor-info {
+            width: 100%;
+        }
+        .flavoriz-vendor-info-top {
+            justify-content: center;
+        }
         .flavoriz-vendor-name {
             font-size: 22px;
-            margin-bottom: 8px;
-        }
-        
-        .flavoriz-vendor-meta {
-            font-size: 12px;
-            margin-bottom: 16px;
-            padding: 8px 12px;
             width: 100%;
+        }
+        .flavoriz-vendor-meta-line {
+            justify-content: center;
+            gap: 16px;
+        }
+        .flavoriz-vendor-description {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .flavoriz-vendor-details-grid {
             justify-content: center;
         }
-        
-        .flavoriz-vendor-meta i {
-            font-size: 14px;
-        }
-        
-        .flavoriz-vendor-description {
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-align: left;
-            padding: 12px 16px;
-            line-height: 1.6;
-        }
-        
-        .flavoriz-vendor-badge {
-            padding: 6px 10px;
-            font-size: 11px;
-        }
-        
-        .flavoriz-vendor-details-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .flavoriz-vendor-detail-item {
-            font-size: 12px;
-            justify-content: flex-start;
-            text-align: left;
-            padding: 12px;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-            min-height: 80px;
-        }
-        
-        .flavoriz-vendor-detail-item i {
-            font-size: 18px;
-            width: auto;
-            margin-bottom: 4px;
-        }
-        
-        .flavoriz-vendor-detail-item span {
-            font-size: 12px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-        
         .flavoriz-vendor-social {
             justify-content: center;
-            margin-top: 8px;
         }
-        
-        .flavoriz-vendor-social-title {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        
         .flavoriz-vendor-products-section {
-            padding: 16px;
+            padding: 20px 16px;
             border-radius: 16px;
         }
-        
         .flavoriz-vendor-section-header {
             flex-direction: column;
             align-items: flex-start;
             gap: 12px;
         }
-        
         .flavoriz-vendor-section-title {
             font-size: 20px;
         }
-        
-        .flavoriz-vendor-products-grid {
+        .flavoriz-vendor-products-grid.flavoriz-product-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
-        
+        .flavoriz-vendor-products-section .flavoriz-product-card {
+            min-width: 0;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-body {
+            padding: 12px;
+            min-width: 0;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-title {
+            font-size: 12px;
+            min-height: 32px;
+            -webkit-line-clamp: 2;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-price {
+            font-size: 14px;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-card-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
         .flavoriz-vendor-filter {
             width: 100%;
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
         }
-        
         .flavoriz-vendor-filter select {
             width: 100%;
-        }
-        
-        .flavoriz-vendor-main-content {
-            grid-template-columns: 1fr !important;
         }
     }
 </style>
@@ -612,358 +535,146 @@
                 <span>{{vendor_detail.display_name|default:vendor_detail.user.username}}</span>
             </div>
             
-            <!-- Vendor Header -->
+            <!-- Bannière vendeur (épurée) -->
             <div class="flavoriz-vendor-header">
                 <div class="flavoriz-vendor-header-content">
                     <div class="flavoriz-vendor-avatar">
-                        {%if vendor_detail.image%}
-                        <img src="{{vendor_detail.image.url}}" alt="{{vendor_detail.display_name|default:vendor_detail.user.username}}" />
-                        {%else%}
-                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: 700;">
-                            {{vendor_detail.display_name|default:vendor_detail.user.username|first|upper}}
+                        {% if vendor_detail.image %}
+                        <img src="{{ vendor_detail.image.url }}" alt="{{ vendor_detail.display_name|default:vendor_detail.user.username }}" />
+                        {% else %}
+                        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 42px; font-weight: 700;">
+                            {{ vendor_detail.display_name|default:vendor_detail.user.username|first|upper }}
                         </div>
-                        {%endif%}
+                        {% endif %}
                     </div>
-                    
-                    <div class="flavoriz-vendor-info" style="color: white !important;">
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
-                            <span class="flavoriz-vendor-badge" style="display: inline-flex; align-items: center; gap: 6px;">
-                                <i class="fi-rs-check-circle" style="font-size: 14px;"></i>
+                    <div class="flavoriz-vendor-info">
+                        <div class="flavoriz-vendor-info-top">
+                            <h1 class="flavoriz-vendor-name">{{ vendor_detail.display_name|default:vendor_detail.user.username }}</h1>
+                            <span class="flavoriz-vendor-badge">
+                                <i class="fi-rs-check-circle"></i>
                                 Vendeur vérifié
                             </span>
                             {% if is_premium %}
-                            <span class="flavoriz-vendor-badge" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                                <i class="fi-rs-crown" style="font-size: 14px;"></i>
+                            <span class="flavoriz-vendor-badge premium">
+                                <i class="fi-rs-crown"></i>
                                 Premium
                             </span>
                             {% endif %}
                         </div>
-                        <h1 class="flavoriz-vendor-name" style="color: white !important; margin-bottom: 12px;">{{vendor_detail.display_name|default:vendor_detail.user.username}}</h1>
-                        <div class="flavoriz-vendor-meta">
-                            <i class="fi-rs-calendar"></i>
-                            <span>Membre depuis {{vendor_detail.date|date:"F Y"}}</span>
+                        <div class="flavoriz-vendor-meta-line">
+                            <span><i class="fi-rs-calendar"></i> Membre depuis {{ vendor_detail.date|date:"F Y" }}</span>
+                            <span><i class="fi-rs-star" style="color: #F59E0B;"></i> <strong style="color: #1F2937;">{{ average_rating|default:"0.0" }}</strong> {% if total_ratings > 0 %}({{ total_ratings }} avis){% else %}(Aucun avis){% endif %}</span>
                         </div>
-                        
                         {% if vendor_detail.bio %}
-                        <div class="flavoriz-vendor-description">
-                            {{vendor_detail.bio}}
-                        </div>
+                        <p class="flavoriz-vendor-description">{{ vendor_detail.bio }}</p>
                         {% endif %}
-                        
                         <div class="flavoriz-vendor-details-grid">
-                            {% if vendor_detail.address or vendor_detail.city %}
-                            <div class="flavoriz-vendor-detail-item" style="color: rgba(255, 255, 255, 0.95) !important;">
+                            {% if vendor_detail.address or vendor_detail.city or vendor_detail.country %}
+                            <div class="flavoriz-vendor-detail-item">
                                 <i class="fi-rs-marker"></i>
-                                <span style="color: rgba(255, 255, 255, 0.95) !important;">
-                                    {% if vendor_detail.address %}{{vendor_detail.address}}{% endif %}
-                                    {% if vendor_detail.city %}{% if vendor_detail.address %}, {% endif %}{{vendor_detail.city}}{% endif %}
-                                    {% if vendor_detail.post_code %} {{vendor_detail.post_code}}{% endif %}
-                                    {% if vendor_detail.country %}{% if vendor_detail.city or vendor_detail.address %}, {% endif %}{{vendor_detail.country}}{% endif %}
+                                <span>
+                                    {% if vendor_detail.address %}{{ vendor_detail.address }}{% endif %}
+                                    {% if vendor_detail.city %}{% if vendor_detail.address %}, {% endif %}{{ vendor_detail.city }}{% endif %}
+                                    {% if vendor_detail.post_code %} {{ vendor_detail.post_code }}{% endif %}
+                                    {% if vendor_detail.country %}{% if vendor_detail.city or vendor_detail.address %}, {% endif %}{{ vendor_detail.country }}{% endif %}
                                 </span>
                             </div>
                             {% endif %}
-                            
-                            <div class="flavoriz-vendor-detail-item" style="color: rgba(255, 255, 255, 0.95) !important;">
-                                <i class="fi-rs-star" style="color: #FFD700;"></i>
-                                <span style="color: rgba(255, 255, 255, 0.95) !important; display: flex; flex-direction: column; gap: 6px; width: 100%;">
-                                    <span style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-weight: 700; font-size: 18px; color: #FFD700;">{{average_rating|default:"0.0"}}</span>
-                                        <span style="display: flex; gap: 2px; align-items: center;">
-                                            {% if average_rating >= 1 %}
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
-                                            {% else %}
-                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
-                                            {% endif %}
-                                            {% if average_rating >= 2 %}
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
-                                            {% else %}
-                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
-                                            {% endif %}
-                                            {% if average_rating >= 3 %}
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
-                                            {% else %}
-                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
-                                            {% endif %}
-                                            {% if average_rating >= 4 %}
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
-                                            {% else %}
-                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
-                                            {% endif %}
-                                            {% if average_rating >= 5 %}
-                                            <i class="fi-rs-star" style="color: #FFD700; font-size: 16px;"></i>
-                                            {% else %}
-                                            <i class="fi-rs-star" style="color: rgba(255, 255, 255, 0.3); font-size: 16px;"></i>
-                                            {% endif %}
-                                        </span>
-                                    </span>
-                                    {% if total_ratings > 0 %}
-                                    <span style="font-size: 12px; opacity: 0.9;">{{total_ratings}} avis client{{total_ratings|pluralize}}</span>
-                                    {% else %}
-                                    <span style="font-size: 12px; opacity: 0.9;">Aucun avis pour le moment</span>
-                                    {% endif %}
-                                </span>
-                            </div>
                         </div>
-                        
                         {% if vendor_social_links %}
                         <div class="flavoriz-vendor-social">
-                            <span class="flavoriz-vendor-social-title">Suivez-nous:</span>
-                            {%if vendor_social_links.twitter%}
-                            <a href="https://twitter.com/{{vendor_social_links.twitter}}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener">
-                                <i class="fi-rs-social-twitter"></i>
-                            </a>
-                            {%endif%}
-                            {%if vendor_social_links.facebook%}
-                            <a href="https://www.facebook.com/{{vendor_social_links.facebook}}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener">
-                                <i class="fi-rs-social-facebook"></i>
-                            </a>
-                            {%endif%}
-                            {%if vendor_social_links.instagram%}
-                            <a href="https://www.instagram.com/{{vendor_social_links.instagram}}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener">
-                                <i class="fi-rs-social-instagram"></i>
-                            </a>
-                            {%endif%}
-                            {%if vendor_social_links.pinterest%}
-                            <a href="https://www.pinterest.com/{{vendor_social_links.pinterest}}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener">
-                                <i class="fi-rs-social-pinterest"></i>
-                            </a>
-                            {%endif%}
+                            <span class="flavoriz-vendor-social-title">Suivez-nous</span>
+                            {% if vendor_social_links.twitter %}
+                            <a href="https://twitter.com/{{ vendor_social_links.twitter }}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener"><i class="fi-rs-social-twitter"></i></a>
+                            {% endif %}
+                            {% if vendor_social_links.facebook %}
+                            <a href="https://www.facebook.com/{{ vendor_social_links.facebook }}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener"><i class="fi-rs-social-facebook"></i></a>
+                            {% endif %}
+                            {% if vendor_social_links.instagram %}
+                            <a href="https://www.instagram.com/{{ vendor_social_links.instagram }}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener"><i class="fi-rs-social-instagram"></i></a>
+                            {% endif %}
+                            {% if vendor_social_links.pinterest %}
+                            <a href="https://www.pinterest.com/{{ vendor_social_links.pinterest }}" class="flavoriz-vendor-social-link" target="_blank" rel="noopener"><i class="fi-rs-social-pinterest"></i></a>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
             
-            <!-- Main Content -->
-            <div class="flavoriz-vendor-main-content" style="display: grid; grid-template-columns: 1fr 300px; gap: 24px;">
-                <!-- Products Section -->
+            <!-- Contenu principal -->
+            <div class="flavoriz-vendor-main-content{% if not has_sidebar_ads %} flavoriz-vendor-main-content--no-sidebar{% endif %}" style="display: grid; grid-template-columns: {% if has_sidebar_ads %}1fr 280px{% else %}1fr{% endif %}; gap: 28px; align-items: start;">
                 <div class="flavoriz-vendor-products-section">
-                    <div class="flavoriz-vendor-section-header">
-                        <h2 class="flavoriz-vendor-section-title">Produits du vendeur</h2>
-                        <div class="flavoriz-vendor-filter">
-                            <span class="flavoriz-vendor-products-count" id="items-number">Chargement...</span>
-                            <select class="flavoriz-vendor-filter-select" id="mySelect">
-                                <option value="-date" selected>Date, récent à ancien</option>
-                                <option value="date">Date, ancien à récent</option>
-                                <option value="PRDPrice">Prix, croissant</option>
-                                <option value="-PRDPrice">Prix, décroissant</option>
-                            </select>
+                    <form id="vendor-sort-form"
+                          hx-get="{% url 'suppliers:vendor-products-htmx' %}"
+                          hx-target="#products-list"
+                          hx-swap="innerHTML"
+                          hx-trigger="change from:#mySelect"
+                          hx-include="this"
+                          hx-indicator="#loading-indicator"
+                          style="margin: 0;">
+                        <input type="hidden" name="vendor_id" value="{{ vendor_detail.id }}" />
+                        <input type="hidden" name="page" value="1" />
+                        <div class="flavoriz-vendor-section-header">
+                            <h2 class="flavoriz-vendor-section-title">Produits du vendeur</h2>
+                            <div class="flavoriz-vendor-filter">
+                                <span class="flavoriz-vendor-products-count" id="items-number">Chargement...</span>
+                                <select class="flavoriz-vendor-filter-select" id="mySelect" name="order_by">
+                                    <option value="-date" selected>Date, récent à ancien</option>
+                                    <option value="date">Date, ancien à récent</option>
+                                    <option value="PRDPrice">Prix, croissant</option>
+                                    <option value="-PRDPrice">Prix, décroissant</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                     
-                    <div id="products-list" class="flavoriz-vendor-products-grid">
-                        <!-- Products will be loaded here via AJAX -->
-                    </div>
-                    
-                    <!-- Loading States -->
-                    <div id="spinner-box" class="not-visible flavoriz-vendor-loading">
+                    <div id="loading-indicator" class="htmx-indicator flavoriz-vendor-loading" style="display: none;">
                         <div class="flavoriz-vendor-spinner"></div>
                         <p style="color: #6B7280; margin: 0;">Chargement des produits...</p>
                     </div>
                     
-                    <div id="empty-box" class="not-visible flavoriz-vendor-loading">
-                        <p style="color: #6B7280; margin: 0;">Aucun produit trouvé</p>
-                    </div>
-                    
-                    <div id="loading-box" class="not-visible flavoriz-vendor-loading">
-                        <button id="load-btn" type="button" style="padding: 12px 32px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
-                            Charger plus
-                        </button>
+                    <div id="products-list"
+                         class="flavoriz-vendor-products-grid flavoriz-product-grid"
+                         hx-get="{% url 'suppliers:vendor-products-htmx' %}?vendor_id={{ vendor_detail.id }}&page=1&order_by=-date"
+                         hx-trigger="load"
+                         hx-swap="innerHTML"
+                         hx-target="this"
+                         hx-indicator="#loading-indicator">
+                        <!-- Produits chargés via HTMX (même liste que page Produits) -->
                     </div>
                 </div>
                 
-                <!-- Sidebar -->
-                <div class="flavoriz-vendor-sidebar">
-                    <!-- Ad Banner -->
+                <!-- Sidebar (uniquement bannières pub) -->
+                {% if has_sidebar_ads %}
+                <aside class="flavoriz-vendor-sidebar">
                     {% for image_ad in vendor_page_ad_image|slice:":1" %}
                     <div class="flavoriz-vendor-sidebar-card" style="padding: 0; overflow: hidden;">
-                        <a href="{% if image_ad.ad_URL %}{{image_ad.ad_URL}}{% else %}#{% endif %}" class="flavoriz-vendor-ad-banner">
-                            <img src="{{image_ad.ad_mage.url}}" alt="Publicité" />
+                        <a href="{% if image_ad.ad_URL %}{{ image_ad.ad_URL }}{% else %}#{% endif %}" class="flavoriz-vendor-ad-banner">
+                            <img src="{{ image_ad.ad_mage.url }}" alt="Publicité" loading="lazy" />
                         </a>
                     </div>
                     {% endfor %}
-                    
-                    <!-- New Products -->
-                    {% if new_products %}
-                    <div class="flavoriz-vendor-sidebar-card">
-                        <h3 class="flavoriz-vendor-sidebar-title">Nouveaux produits</h3>
-                        <div class="flavoriz-vendor-new-products">
-                            {% for new_product in new_products|slice:":5" %}
-                            <a href="{% url 'products:product-details' new_product.PRDSlug %}" class="flavoriz-vendor-new-product-item">
-                                <div class="flavoriz-vendor-new-product-image">
-                                    <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" />
-                                </div>
-                                <div class="flavoriz-vendor-new-product-info">
-                                    <h4 class="flavoriz-vendor-new-product-name">{{new_product.product_name}}</h4>
-                                    <p class="flavoriz-vendor-new-product-price">{{new_product.PRDPrice|format_price}} FCFA</p>
-                                </div>
-                            </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Shop Ad -->
                     {% for shop_ad in shop_page_ad|slice:":1" %}
                     <div class="flavoriz-vendor-sidebar-card" style="padding: 0; overflow: hidden;">
-                        <a href="{% if shop_ad.ad_URL %}{{shop_ad.ad_URL}}{% else %}#{% endif %}" class="flavoriz-vendor-ad-banner">
-                            <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title|default:'Publicité'}}" />
+                        <a href="{% if shop_ad.ad_URL %}{{ shop_ad.ad_URL }}{% else %}#{% endif %}" class="flavoriz-vendor-ad-banner">
+                            <img src="{{ shop_ad.ad_mage.url }}" alt="{{ shop_ad.ad_title|default:'Publicité' }}" loading="lazy" />
                         </a>
                     </div>
                     {% endfor %}
-                </div>
+                </aside>
+                {% endif %}
             </div>
         </div>
     </div>
 </main>
 
 <script>
-(function() {
-    'use strict';
-    
-    var vendorSlug = "{{vendor_detail.id}}";
-    const productsList = document.getElementById("products-list");
-    const loadBtn = document.getElementById("load-btn");
-    const spinnerBox = document.getElementById("spinner-box");
-    const emptyBox = document.getElementById("empty-box");
-    const loadsBox = document.getElementById("loading-box");
-    const itemsNum = document.getElementById("items-number");
-    const mySelect = document.getElementById("mySelect");
-    
-    let visible = 10;
-    
-    function formatPrice(priceValue) {
-        const price = parseFloat(priceValue || 0);
-        const intPrice = Math.floor(price);
-        return intPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+document.addEventListener('htmx:afterSwap', function(event) {
+    if (event.detail.target.id === 'products-list' && typeof window.attachProductEventListeners === 'function') {
+        window.attachProductEventListeners();
     }
-    
-    function createProductCard(product) {
-        const price = formatPrice(product.PRDPrice);
-        const discountPrice = product.PRDDiscountPrice > 0 ? formatPrice(product.PRDDiscountPrice) : null;
-        const productUrl = `/products/product-details/${product.PRDSlug}/`;
-        const viewCount = product.view_count || 0;
-        const isBoosted = product.is_boosted || false;
-        
-        return `
-            <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;" onclick="window.location.href='${productUrl}'">
-                <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
-                    <img src="/media/${product.product_image}" alt="${product.product_name}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer;" />
-                    ${isBoosted ? `
-                    <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
-                        <i class="fi-rs-rocket" style="font-size: 12px;"></i>
-                        <span>Boosté</span>
-                    </div>
-                    ` : ''}
-                    ${viewCount > 0 ? `
-                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
-                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
-                        <span>${viewCount}</span>
-                    </div>
-                    ` : ''}
-                </div>
-                <div style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
-                    <h3 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">${product.product_name}</h3>
-                    <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
-                        <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">${price} FCFA</span>
-                        ${discountPrice ? `<span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">${discountPrice} FCFA</span>` : ''}
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-top: auto;">
-                        <button onclick="event.stopPropagation(); window.location.href='${productUrl}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
-                            <i class="fi-rs-eye" style="font-size: 13px;"></i>
-                            <span>Voir</span>
-                        </button>
-                        <button class="flavoriz-add-cart-btn" data-product-id="${product.id}" data-product-price="${product.PRDPrice}" type="button" onclick="event.stopPropagation();" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                            <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    function handleGetVendorDetails(sorted) {
-        if (!vendorSlug) {
-            console.error('Vendor ID is missing');
-            return;
-        }
-        
-        // S'assurer que vendorSlug est bien un nombre
-        const vendorId = parseInt(vendorSlug);
-        if (isNaN(vendorId)) {
-            console.error('Vendor ID is not a valid number:', vendorSlug);
-            return;
-        }
-        
-        fetch(`/vendor-details-ajax/?num_products=${visible}&order_by=${mySelect.value}&vendor_slug=${vendorId}`)
-            .then(response => response.json())
-            .then(data => {
-                emptyBox.classList.add("not-visible");
-                spinnerBox.classList.remove("not-visible");
-                loadsBox.classList.add("not-visible");
-                
-                setTimeout(() => {
-                    spinnerBox.classList.add("not-visible");
-                    
-                    if (data.products_size > 0) {
-                        itemsNum.textContent = `${data.products_size} produit${data.products_size > 1 ? 's' : ''}`;
-                        
-                        if (sorted) {
-                            productsList.innerHTML = "";
-                        }
-                        
-                        data.data.forEach(product => {
-                            productsList.innerHTML += createProductCard(product);
-                        });
-                        
-                        // Attacher les event listeners pour les nouveaux produits
-                        if (typeof window.attachProductEventListeners === 'function') {
-                            window.attachProductEventListeners();
-                        }
-                        
-                        if (data.max) {
-                            loadsBox.classList.add("not-visible");
-                        } else {
-                            loadsBox.classList.remove("not-visible");
-                        }
-                    } else {
-                        itemsNum.textContent = "0 produit";
-                        emptyBox.classList.remove("not-visible");
-                        productsList.innerHTML = "";
-                    }
-                }, 300);
-            })
-            .catch(error => {
-                console.error('Erreur lors du chargement des produits:', error);
-                spinnerBox.classList.add("not-visible");
-                emptyBox.classList.remove("not-visible");
-                itemsNum.textContent = "Erreur";
-            });
-    }
-    
-    if (loadBtn) {
-        loadBtn.addEventListener('click', function() {
-            visible += 10;
-            handleGetVendorDetails(false);
-        });
-    }
-    
-    if (mySelect) {
-        mySelect.addEventListener('change', function() {
-            visible = 10;
-            handleGetVendorDetails(true);
-        });
-    }
-    
-    // Charger les produits au chargement de la page
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            handleGetVendorDetails(true);
-        });
-    } else {
-        handleGetVendorDetails(true);
-    }
-})();
+});
 </script>
 
 {%endblock body%}

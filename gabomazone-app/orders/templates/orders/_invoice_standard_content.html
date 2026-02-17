@@ -1,0 +1,169 @@
+{% load cart_template_tags %}
+{# Contenu standard de la facture (réutilisé dans invoice-print et success) #}
+<div class="invoice-container">
+    <div class="invoice-header">
+        <div class="invoice-header-left">
+            <h1>FACTURE</h1>
+            <div class="invoice-meta">
+                <span><strong>DATE:</strong> {{order_success.date_update|date:"d / m / Y"}}</span>
+                <span><strong>FACTURE N°:</strong> {{order_success.id|stringformat:"05d"}}</span>
+                {% if order_success.tracking_no %}
+                <span><strong>SUIVI:</strong> {{order_success.tracking_no}}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="invoice-header-right">
+            <div class="invoice-logo">
+                <div class="invoice-logo-icon">
+                    {% if site_info.site_logo %}
+                        <img src="{{site_info.site_logo.url}}" alt="{{site_info.site_name}}" style="width: 100%; height: 100%; object-fit: contain; filter: brightness(0) invert(1);" />
+                    {% else %}
+                        G
+                    {% endif %}
+                </div>
+                <div class="invoice-logo-text">{{site_info.site_name|default:"GabomaZone"}}</div>
+            </div>
+            <div class="company-info">
+                {% for info in contact_info|slice:":1" %}
+                <p>{{ info.full_address }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="invoice-info">
+        <div class="info-section">
+            <h3>ÉMETTEUR:</h3>
+            <p><strong>{{ site_info.site_name|default:"GabomaZone" }}</strong></p>
+            {% for info in contact_info|slice:":1" %}
+            <p>{{ info.full_address }}</p>
+            {% endfor %}
+        </div>
+        <div class="info-section">
+            <h3>DESTINATAIRE:</h3>
+            <p><strong>{{ payment_info.first_name }} {{ payment_info.last_name }}</strong></p>
+            <p>{{ payment_info.Email_Address }}</p>
+            <p>{{ payment_info.post_code }}, {{ payment_info.street_address }}</p>
+            <p>{{ payment_info.state }}, {{ payment_info.country }}</p>
+        </div>
+    </div>
+    <div class="invoice-products">
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Prix Unitaire :</th>
+                    <th>Quantité :</th>
+                    <th>Total :</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_details_success %}
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            {% if item.peer_product and item.peer_product.product_image %}
+                            <img src="{{ item.peer_product.product_image.url }}" alt="{{ item.peer_product.product_name }}" class="product-image" />
+                            {% elif item.product and item.product.product_image %}
+                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="product-image" />
+                            {% endif %}
+                            <div>
+                                <div class="product-name">
+                                    {% if item.peer_product %}
+                                        {{ item.peer_product.product_name }}
+                                    {% else %}
+                                        {{ item.product.product_name }}
+                                    {% endif %}
+                                </div>
+                                {% if item.product and item.product.PRDSKU %}
+                                <div class="product-sku">Réf: {{ item.product.PRDSKU }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ item.price|floatformat:0 }} FCFA</td>
+                    <td>{{ item.quantity }}</td>
+                    <td><strong>{{ item.price|multiply_and_format:item.quantity }} FCFA</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="products-table-mobile">
+            {% for item in order_details_success %}
+            <div class="product-card-mobile">
+                <div class="product-card-mobile-header">
+                    {% if item.peer_product and item.peer_product.product_image %}
+                    <img src="{{ item.peer_product.product_image.url }}" alt="{{ item.peer_product.product_name }}" class="product-card-mobile-image" />
+                    {% elif item.product and item.product.product_image %}
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="product-card-mobile-image" />
+                    {% endif %}
+                    <div class="product-card-mobile-info">
+                        <div class="product-card-mobile-name">
+                            {% if item.peer_product %}{{ item.peer_product.product_name }}{% else %}{{ item.product.product_name }}{% endif %}
+                        </div>
+                        {% if item.product and item.product.PRDSKU %}
+                        <div class="product-card-mobile-sku">Réf: {{ item.product.PRDSKU }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="product-card-mobile-details">
+                    <div class="product-card-mobile-detail-item">
+                        <span class="product-card-mobile-detail-label">Prix unitaire</span>
+                        <span class="product-card-mobile-detail-value">{{ item.price|floatformat:0 }} FCFA</span>
+                    </div>
+                    <div class="product-card-mobile-detail-item">
+                        <span class="product-card-mobile-detail-label">Quantité</span>
+                        <span class="product-card-mobile-detail-value">{{ item.quantity }}</span>
+                    </div>
+                    <div class="product-card-mobile-detail-item" style="grid-column: 1 / -1; border-top: 1px solid #E5E7EB; padding-top: 12px; margin-top: 8px;">
+                        <span class="product-card-mobile-detail-label">Total</span>
+                        <span class="product-card-mobile-detail-value" style="color: var(--color-orange, #FF7B2C); font-size: 16px;">{{ item.price|multiply_and_format:item.quantity }} FCFA</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="invoice-bottom">
+        <div class="invoice-payment">
+            <h3>RÈGLEMENT:</h3>
+            <p class="payment-method">Par {{ payment_info.payment_method|default:"paiement en ligne" }}:</p>
+            {% if payment_info.payment_method %}
+            <p>Méthode: {{ payment_info.payment_method }}</p>
+            {% endif %}
+            {% if order_success.status %}
+            <p style="margin-top: 12px;"><strong>Statut:</strong> {{ order_success.get_status_display }}</p>
+            {% endif %}
+            <div class="terms">
+                <p><strong>Conditions générales:</strong></p>
+                <p>En cas de retard de paiement, des frais de recouvrement pourront être exigibles.</p>
+                <p style="margin-top: 8px;">Conditions générales de vente consultables sur le site : {{ site_info.site_url|default:"www.gabomazone.com" }}</p>
+            </div>
+        </div>
+        <div class="invoice-totals">
+            <div class="total-row">
+                <span class="label">TOTAL HT</span>
+                <span class="value">{{ order_success.sub_total|floatformat:0 }} FCFA</span>
+            </div>
+            {% if order_success.coupon %}
+            <div class="total-row">
+                <span class="label">REMISE</span>
+                <span class="value discount-value">-{{ order_success.discount|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            {% if order_success.shipping %}
+            <div class="total-row">
+                <span class="label">LIVRAISON</span>
+                <span class="value">+{{ order_success.shipping|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
+            <div class="total-row final">
+                <span class="label">TOTAL TTC</span>
+                <span class="value">{{ order_success.amount|floatformat:0 }} FCFA</span>
+            </div>
+        </div>
+    </div>
+    <div class="invoice-footer">
+        <p>Merci pour votre achat !</p>
+        <p style="margin-top: 8px;">Cette facture a été générée automatiquement le {{ order_success.date_update|date:"d/m/Y à H:i" }}</p>
+    </div>
+</div>

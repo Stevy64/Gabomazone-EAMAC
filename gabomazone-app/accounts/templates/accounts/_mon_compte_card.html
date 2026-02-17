@@ -1,0 +1,169 @@
+{% comment %}
+  Carte "Mon compte" : 6 liens (sans Déconnexion). Rétractable sur mobile.
+  Variable : active_page = 'dashboard_customer' | 'sell-product' | 'my-published-products' | 'my-messages' | 'change_password' | 'account_details'
+{% endcomment %}
+<div class="flavoriz-dashboard-menu mon-compte-card-wrap" style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px; transition: all 0.3s ease;">
+    <button type="button" class="mon-compte-toggle" aria-expanded="false" aria-controls="mon-compte-collapse" style="width: 100%; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6; background: none; border: none; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+        <h3 class="mon-compte-title" style="font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; font-family: var(--font-primary); display: flex; align-items: center; gap: 8px;">
+            <i class="fi-rs-user" style="color: var(--color-orange); font-size: 20px;"></i>
+            Mon compte
+        </h3>
+        <span class="mon-compte-toggle-label" style="font-size: 13px; font-weight: 600; color: var(--color-orange);">Voir le menu</span>
+        <i class="fi-rs-angle-down mon-compte-chevron" style="font-size: 18px; color: var(--color-orange); transition: transform 0.3s ease;"></i>
+    </button>
+    <div id="mon-compte-collapse" class="mon-compte-collapse" role="region">
+        <ul class="mon-compte-grid" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;">
+            <li>
+                <a href="{% url 'accounts:dashboard_customer'%}" class="mon-compte-link {% if active_page == 'dashboard_customer' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'dashboard_customer' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'dashboard_customer' %}600{% else %}500{% endif %}; {% if active_page == 'dashboard_customer' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-shopping-bag" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'dashboard_customer' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Mes commandes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:sell-product' %}" class="mon-compte-link {% if active_page == 'sell-product' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'sell-product' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'sell-product' %}600{% else %}500{% endif %}; {% if active_page == 'sell-product' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-shopping-cart-add" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'sell-product' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Vendre un article</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:my-published-products' %}" class="mon-compte-link {% if active_page == 'my-published-products' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'my-published-products' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'my-published-products' %}600{% else %}500{% endif %}; {% if active_page == 'my-published-products' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-list" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'my-published-products' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Mes articles publiés</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:my-messages' %}" class="mon-compte-link {% if active_page == 'my-messages' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'my-messages' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'my-messages' %}600{% else %}500{% endif %}; position: relative; {% if active_page == 'my-messages' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-comment" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'my-messages' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Ma messagerie</span>
+                    {% if messages_count and messages_count > 0 %}
+                    <span style="margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;">{{ messages_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:change_password' %}" class="mon-compte-link {% if active_page == 'change_password' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'change_password' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'change_password' %}600{% else %}500{% endif %}; {% if active_page == 'change_password' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-key" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'change_password' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Mot de passe</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:account_details'%}" class="mon-compte-link {% if active_page == 'account_details' %}is-active{% endif %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: {% if active_page == 'account_details' %}var(--color-orange){% else %}#6B7280{% endif %}; text-decoration: none; border-radius: 10px; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: {% if active_page == 'account_details' %}600{% else %}500{% endif %}; {% if active_page == 'account_details' %}background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 1px solid rgba(255, 123, 44, 0.2);{% endif %}">
+                    <i class="fi-rs-settings" style="font-size: 16px; width: 20px; text-align: center; color: {% if active_page == 'account_details' %}var(--color-orange){% else %}#9CA3AF{% endif %};"></i>
+                    <span>Paramètres</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<style>
+.flavoriz-dashboard-menu .mon-compte-link:not(.is-active):hover {
+    background: rgba(255, 123, 44, 0.08) !important;
+    color: var(--color-orange) !important;
+}
+.flavoriz-dashboard-menu .mon-compte-link:not(.is-active):hover i {
+    color: var(--color-orange) !important;
+}
+/* Desktop : pas de toggle, bordure sous le titre uniquement */
+@media (min-width: 769px) {
+    .mon-compte-toggle {
+        pointer-events: none !important;
+        margin-bottom: 20px !important;
+        padding-bottom: 16px !important;
+    }
+    .mon-compte-toggle-label,
+    .mon-compte-chevron {
+        display: none !important;
+    }
+    .mon-compte-collapse {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
+/* Mobile : carte rétractable, coloration orangée permanente pour inciter au clic */
+@media (max-width: 768px) {
+    .flavoriz-dashboard-menu.mon-compte-card-wrap {
+        position: static !important;
+        margin-bottom: 16px !important;
+        padding: 16px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 16px rgba(255, 123, 44, 0.12) !important;
+        border: 2px solid rgba(255, 123, 44, 0.35) !important;
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.06) 0%, rgba(255, 255, 255, 1) 30%) !important;
+    }
+    .mon-compte-toggle {
+        margin-bottom: 0 !important;
+        padding: 12px 16px !important;
+        border-radius: 12px !important;
+        border: none !important;
+        border-bottom: none !important;
+        transition: background 0.2s ease, box-shadow 0.2s ease !important;
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.14) 0%, rgba(255, 123, 44, 0.07) 100%) !important;
+    }
+    .mon-compte-toggle:hover,
+    .mon-compte-toggle:focus {
+        background: linear-gradient(135deg, rgba(255, 123, 44, 0.2) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
+        outline: none !important;
+    }
+    .mon-compte-toggle:active {
+        background: rgba(255, 123, 44, 0.18) !important;
+    }
+    .mon-compte-card-wrap .mon-compte-title {
+        color: var(--color-orange) !important;
+    }
+    .mon-compte-card-wrap.expanded .mon-compte-toggle {
+        border-bottom: 2px solid #F3F4F6 !important;
+        margin-bottom: 16px !important;
+        padding-bottom: 16px !important;
+    }
+    .mon-compte-toggle-label {
+        display: inline !important;
+    }
+    .mon-compte-card-wrap.expanded .mon-compte-toggle-label {
+        display: none !important;
+    }
+    .mon-compte-chevron {
+        display: block !important;
+        flex-shrink: 0 !important;
+    }
+    .mon-compte-card-wrap.expanded .mon-compte-chevron {
+        transform: rotate(180deg) !important;
+    }
+    .mon-compte-collapse {
+        max-height: 0 !important;
+        overflow: hidden !important;
+        transition: max-height 0.35s ease-out !important;
+    }
+    .mon-compte-card-wrap.expanded .mon-compte-collapse {
+        max-height: 420px !important;
+        transition: max-height 0.4s ease-in !important;
+    }
+    .mon-compte-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    .mon-compte-grid li a {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    .mon-compte-grid li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+}
+</style>
+<script>
+(function() {
+    var wrap = document.querySelector('.mon-compte-card-wrap');
+    var btn = document.querySelector('.mon-compte-toggle');
+    if (wrap && btn) {
+        btn.addEventListener('click', function() {
+            var expanded = wrap.classList.toggle('expanded');
+            btn.setAttribute('aria-expanded', expanded);
+        });
+    }
+})();
+</script>

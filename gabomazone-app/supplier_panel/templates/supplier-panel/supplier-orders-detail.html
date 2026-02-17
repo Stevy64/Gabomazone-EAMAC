@@ -619,7 +619,7 @@
                                 <tr>
                                     <td>
                                 <div class="flavoriz-product-info">
-                                    <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-image" />
+                                    <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-image" loading="lazy" decoding="async" />
                                     <div class="flavoriz-product-details">
                                         <h6>{{order_detail.product.product_name}}</h6>
                                         <p>Réf: #{{order_detail.product.id}}</p>
@@ -649,7 +649,7 @@
                 {% for order_detail in order_details_supplier %}
                 <div class="flavoriz-product-card-mobile">
                     <div class="flavoriz-product-card-mobile-header">
-                        <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-card-mobile-image" />
+                        <img src="{{order_detail.product.product_image.url}}" alt="{{order_detail.product.product_name}}" class="flavoriz-product-card-mobile-image" loading="lazy" decoding="async" />
                         <div class="flavoriz-product-card-mobile-info">
                             <h6 class="flavoriz-product-card-mobile-title">{{order_detail.product.product_name}}</h6>
                             <p class="flavoriz-product-card-mobile-ref">Réf: #{{order_detail.product.id}}</p>

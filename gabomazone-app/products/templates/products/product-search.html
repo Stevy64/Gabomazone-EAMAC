@@ -110,7 +110,7 @@
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
             <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
                 <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 58%;">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
+                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
                     <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
                         <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
                         <span class="favorite-count">{{ like_count }}</span>
@@ -124,17 +124,20 @@
                             <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|format_price }} FCFA</span>
                         {% endif %}
                     </div>
-                    {% if product.product_vendor %}
-                    {% if product.product_vendor.city or product.product_vendor.country %}
-                    <div style="display: flex; align-items: center; gap: 4px; font-size: 12px; color: #6B7280; margin-bottom: 4px;">
-                        <i class="fi-rs-marker" style="font-size: 11px;"></i>
-                        <span>{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
+                    <div class="flavoriz-card-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: #9CA3AF; font-weight: normal; margin-bottom: 4px; line-height: 1.3;">
+                        <span style="min-width: 0; display: flex; align-items: center; gap: 3px;">
+                            {% if product.product_vendor %}
+                            {% if product.product_vendor.city or product.product_vendor.country %}
+                            <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
+                            {% else %}
+                            <span></span>
+                            {% endif %}
+                            {% else %}
+                            <span></span>
+                            {% endif %}
+                        </span>
+                        {% if product.date %}<span style="flex-shrink: 0; color: #9CA3AF;">{{ product.date|relative_date }}</span>{% endif %}
                     </div>
-                    {% endif %}
-                    {% endif %}
-                    {% if product.date %}
-                    <div style="font-size: 12px; color: #9CA3AF; margin-bottom: 4px;">{{ product.date|relative_date }}</div>
-                    {% endif %}
                     <div style="display: flex; gap: 6px; margin-top: auto;">
                         <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
                             <i class="fi-rs-eye" style="font-size: 13px;"></i>

@@ -170,7 +170,7 @@
             <h3><i class="fi-rs-box"></i> Article</h3>
             <div style="display: flex; gap: 16px; padding: 16px; background: #F9FAFB; border-radius: 10px;">
                 {% if order.product.product_image %}
-                <img src="{{ order.product.product_image.url }}" alt="{{ order.product.product_name }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                <img src="{{ order.product.product_image.url }}" alt="{{ order.product.product_name }}" loading="lazy" decoding="async" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
                 {% endif %}
                 <div>
                     <h4 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 8px 0;">{{ order.product.product_name }}</h4>

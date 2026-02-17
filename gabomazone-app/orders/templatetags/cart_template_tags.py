@@ -55,6 +55,44 @@ def relative_date(value):
         return ""
 
 
+@register.filter(name='member_since_natural')
+def member_since_natural(value):
+    """
+    Affiche l'ancienneté en langage naturel : "depuis 2 mois", "depuis 3 jours", "depuis 1 an", etc.
+    """
+    if value is None:
+        return ""
+    try:
+        now = timezone.now()
+        if hasattr(value, 'date') and not hasattr(value, 'hour'):
+            value = datetime.combine(value, datetime.min.time())
+            if timezone.is_aware(now):
+                value = timezone.make_aware(value)
+        elif timezone.is_naive(value) and timezone.is_aware(now):
+            value = timezone.make_aware(value)
+        delta = now - value
+        total_seconds = int(delta.total_seconds())
+        if total_seconds < 0:
+            return "aujourd'hui"
+        if total_seconds < 86400:
+            return "aujourd'hui"
+        if total_seconds < 172800:
+            return "depuis hier"
+        if total_seconds < 604800:
+            j = total_seconds // 86400
+            return f"depuis {j} jour{'s' if j > 1 else ''}"
+        if total_seconds < 2592000:
+            s = total_seconds // 604800
+            return f"depuis {s} semaine{'s' if s > 1 else ''}"
+        if total_seconds < 31536000:
+            mo = total_seconds // 2592000
+            return f"depuis {mo} mois"
+        y = total_seconds // 31536000
+        return f"depuis {y} an{'s' if y > 1 else ''}"
+    except (TypeError, AttributeError):
+        return ""
+
+
 @register.filter
 def cart_items_count(user):
     if user.is_authenticated and not user.is_anonymous:

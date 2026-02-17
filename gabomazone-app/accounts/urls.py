@@ -48,6 +48,7 @@ urlpatterns = [
 path('delete-product-message/<int:message_id>/', views.delete_product_message, name="delete-product-message"),
     path('archive-conversation/<int:conversation_id>/', views.archive_conversation, name="archive-conversation"),
     path('unarchive-conversation/<int:conversation_id>/', views.unarchive_conversation, name="unarchive-conversation"),
+    path('delete-conversation/<int:conversation_id>/', views.delete_conversation, name="delete-conversation"),
     path('download_file/<int:order_id>/<str:filename>/',
          views.download_file, name="download-file"),
     

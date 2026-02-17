@@ -6,7 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from decimal import Context, Decimal, InvalidOperation
 from accounts.models import Profile
-from settings.models import SiteSetting
+from settings.models import SiteSetting, ContactInfo
+from urllib.parse import quote
+import re
 # from django.contrib.messages.storage import session
 from django.core.mail import send_mail
 from django.conf import settings
@@ -1286,26 +1288,33 @@ def success(request):
             order=order_success)
         payment_info = Payment.objects.get(order=order_success)
 
+        # Lien WhatsApp pour paiement à la livraison (confirmation auprès de Gabomazone)
+        whatsapp_url = ""
+        if payment_info.payment_method == "Cash":
+            contact = ContactInfo.objects.filter(active=True).first()
+            if contact and getattr(contact, "phone", None):
+                phone_digits = re.sub(r"\D", "", str(contact.phone))
+                if phone_digits:
+                    message = (
+                        f"Bonjour Gabomazone, je souhaite confirmer ma commande #{order_success.id} "
+                        f"et finaliser mon paiement à la livraison. Merci de prendre en compte mon ticket de commande."
+                    )
+                    whatsapp_url = f"https://wa.me/{phone_digits}?text={quote(message)}"
+
         context = {
             "order_success": order_success,
             "order_details_success": order_details_success,
             "payment_info": payment_info,
+            "whatsapp_url": whatsapp_url,
         }
-        # send_mail(
-        #     'Order No {}. has been successfully purchased'.format(
-        #         order_id),
-        #     ' we will work to complete your order from our side.',
-        #     f'{settings.EMAIL_SENDGRID}',
-        #     [f'{payment_info.Email_Address}', ],
-        #     fail_silently=False,
-        # )
-        messages.success(
-            request, ' Congratulations, you have made your order, This order will be delivered to you soon')
+        # Notification courte (affichage temporaire)
+        if whatsapp_url:
+            messages.success(request, 'Commande enregistrée. Validez-la via WhatsApp en bas de page.')
+        else:
+            messages.success(request, 'Commande enregistrée. Consultez votre facture ci-dessous.')
         return render(request, "orders/success.html", context)
     else:
-
-        messages.success(
-            request, 'Congratulations, you have made your order, This order will be delivered to you soon')
+        messages.success(request, 'Commande enregistrée.')
         return render(request, "orders/success-x.html")
 
 

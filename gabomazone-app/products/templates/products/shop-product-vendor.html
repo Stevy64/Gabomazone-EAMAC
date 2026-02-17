@@ -125,6 +125,80 @@
         font-size: 16px;
     }
     
+    /* Système d'étoiles unique : 5 étoiles ★ (plus de double icônes) */
+    .flavoriz-stars-five {
+        display: inline-flex;
+        gap: 2px;
+        font-size: 18px;
+        line-height: 1;
+    }
+    .flavoriz-stars-five .flavoriz-star {
+        color: #E5E7EB;
+    }
+    .flavoriz-stars-five .flavoriz-star.filled {
+        color: #F59E0B;
+    }
+    .flavoriz-stars-center {
+        justify-content: center;
+    }
+    .flavoriz-stars-empty .flavoriz-star {
+        color: #D1D5DB !important;
+        font-size: 32px;
+    }
+    /* Formulaire avis : étoiles 5 cliquables (inputs cachés, labels = étoiles) */
+    .flavoriz-rate-input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        border: 0;
+    }
+    .flavoriz-rate-stars {
+        display: inline-flex;
+        align-items: center;
+    }
+    .flavoriz-rate-display {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+    }
+    .flavoriz-rate-star {
+        cursor: pointer;
+        font-size: 28px;
+        color: #E5E7EB;
+        transition: color 0.15s ease;
+        user-select: none;
+    }
+    .flavoriz-rate-star:hover {
+        color: #FCD34D;
+    }
+    .flavoriz-rate-stars[data-rating="1"] .flavoriz-rate-star:nth-child(1),
+    .flavoriz-rate-stars[data-rating="2"] .flavoriz-rate-star:nth-child(1),
+    .flavoriz-rate-stars[data-rating="2"] .flavoriz-rate-star:nth-child(2),
+    .flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(1),
+    .flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(2),
+    .flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(3),
+    .flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(1),
+    .flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(2),
+    .flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(3),
+    .flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(4),
+    .flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(1),
+    .flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(2),
+    .flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(3),
+    .flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(4),
+    .flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(5) {
+        color: #F59E0B;
+    }
+    .flavoriz-review-form .flavoriz-form-label { margin-bottom: 10px; }
+    .flavoriz-comment-textarea:focus {
+        outline: none;
+        border-color: var(--color-orange);
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.15);
+    }
+    
     .flavoriz-product-price-section {
         margin-bottom: 24px;
         padding: 20px;
@@ -282,6 +356,8 @@
     }
     
     .flavoriz-meta-label {
+        display: inline-flex;
+        align-items: center;
         font-size: 12px;
         color: #6B7280;
         text-transform: uppercase;
@@ -329,48 +405,169 @@
         line-height: 1.8;
     }
     
-    /* Tableau d'informations supplémentaires - Design moderne */
+    /* Mobile : onglets accessibles (scroll horizontal + grandes zones de clic) */
+    @media (max-width: 768px) {
+        .flavoriz-tabs {
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .flavoriz-tabs::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 32px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(255,255,255,0.95), transparent);
+            pointer-events: none;
+        }
+        .flavoriz-tab-list {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 4px;
+            padding-bottom: 2px;
+        }
+        .flavoriz-tab-list::-webkit-scrollbar {
+            display: none;
+        }
+        .flavoriz-tab-item {
+            flex-shrink: 0;
+            min-height: 48px;
+            min-width: 44px;
+            padding: 14px 18px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: -2px;
+        }
+        .flavoriz-tab-item.active {
+            background: rgba(255, 123, 44, 0.08);
+        }
+        .flavoriz-tab-content {
+            padding: 20px 0;
+            min-height: 120px;
+        }
+        .flavoriz-tab-content p,
+        .flavoriz-tab-content li {
+            font-size: 15px;
+        }
+        /* Section avis : une colonne sur mobile, résumé en haut */
+        .flavoriz-reviews-grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+        }
+        .flavoriz-reviews-summary {
+            order: -1;
+        }
+        .flavoriz-reviews-summary .flavoriz-stars-five {
+            justify-content: center;
+        }
+        .flavoriz-review-card {
+            padding: 16px !important;
+        }
+        .flavoriz-product-detail-main .flavoriz-tab-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        .flavoriz-detail-card-inner {
+            padding: 20px 16px !important;
+        }
+        /* Section commentaire / formulaire avis en mobile */
+        .flavoriz-review-form {
+            padding: 20px 16px !important;
+            margin-top: 24px !important;
+        }
+        .flavoriz-review-form .flavoriz-form-label {
+            font-size: 15px;
+        }
+        .flavoriz-rate-star {
+            font-size: 32px !important;
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .flavoriz-comment-textarea {
+            width: 100% !important;
+            min-height: 140px !important;
+            padding: 16px !important;
+            font-size: 16px !important;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .flavoriz-submit-review-btn {
+            width: 100%;
+            padding: 16px !important;
+            font-size: 16px !important;
+        }
+        .flavoriz-stars-five {
+            font-size: 20px;
+        }
+    }
+    
+    /* Tableau d'informations supplémentaires - Grille 2 colonnes (mobile + desktop) */
     .flavoriz-info-table {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
         background: white;
         border-radius: 12px;
         overflow: hidden;
         border: 1px solid #E5E7EB;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        padding: 20px;
     }
     
     .flavoriz-info-row {
-        display: grid;
-        grid-template-columns: 200px 1fr;
-        gap: 20px;
-        padding: 16px 20px;
-        border-bottom: 1px solid #F3F4F6;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 16px;
+        background: #F9FAFB;
+        border-radius: 8px;
         transition: background-color 0.2s ease;
     }
     
-    .flavoriz-info-row:last-child {
-        border-bottom: none;
-    }
-    
     .flavoriz-info-row:hover {
-        background-color: #F9FAFB;
+        background-color: #F3F4F6;
     }
     
     .flavoriz-info-label {
         font-weight: 600;
+        color: #6B7280;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .flavoriz-info-value {
         color: #1F2937;
         font-size: 14px;
         display: flex;
         align-items: center;
     }
     
-    .flavoriz-info-value {
-        color: #4B5563;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
+    .flavoriz-info-value a {
+        color: var(--color-orange);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .flavoriz-info-value a:hover {
+        color: var(--color-orange-dark, #d97706);
+        text-decoration: underline;
     }
     
     .flavoriz-info-price {
@@ -380,20 +577,22 @@
     }
     
     @media (max-width: 768px) {
+        .flavoriz-info-table {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px;
+        }
+        
         .flavoriz-info-row {
-            grid-template-columns: 1fr;
-            gap: 8px;
-            padding: 14px 16px;
+            padding: 10px 12px;
         }
         
         .flavoriz-info-label {
-            font-size: 12px;
-            color: #6B7280;
-            margin-bottom: 4px;
+            font-size: 11px;
         }
         
         .flavoriz-info-value {
-            font-size: 14px;
+            font-size: 13px;
         }
     }
     
@@ -441,10 +640,6 @@
         
         .flavoriz-add-cart-btn-large {
             width: 100%;
-        }
-        
-        .flavoriz-product-meta {
-            grid-template-columns: 1fr;
         }
     }
     /* Grille des produits similaires - Responsive comme dans shop */
@@ -550,17 +745,13 @@
                         <h1>{{product_detail.product_name}}</h1>
                         
                         <div class="flavoriz-product-rating">
-                            <div class="flavoriz-rating-stars">
+                            <div class="flavoriz-stars-five" aria-label="Note {{ average_rating|floatformat:1 }} sur 5">
                                 {% for i in "12345" %}
-                                {% if forloop.counter <= average_rating|floatformat:0|add:"0" %}
-                                <i class="fi-rs-star-fill"></i>
-                                {% else %}
-                                <i class="fi-rs-star"></i>
-                                {% endif %}
+                                <span class="flavoriz-star {% if forloop.counter <= average_rating|floatformat:0|add:"0" %}filled{% endif %}">★</span>
                                 {% endfor %}
-                                            </div>
+                            </div>
                             <span style="color: #6B7280; font-size: 14px;">({{feedbak_number}} avis)</span>
-                                        </div>
+                        </div>
                         
                         <div class="flavoriz-product-price-section">
                             <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
@@ -575,19 +766,6 @@
                             {{product_detail.product_description|safe}}
                                         </div>
                         
-                                        {% if product_variations %}
-                        <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px; font-size: 15px;">Taille:</label>
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                {% for product_variation in product_variations %}
-                                <button class="flavoriz-size-btn {% if forloop.first %}active{% endif %}" data-size="{{product_variation.name_variation}}" style="padding: 10px 20px; border: 2px solid #E5E7EB; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
-                                    {{product_variation.name_variation}}
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                                                    {% endif %}
-                                               
                         <div class="flavoriz-product-actions">
                             <div class="flavoriz-qty-wrapper">
                                 <div class="flavoriz-qty-selector">
@@ -613,35 +791,33 @@
                         
                         <div class="flavoriz-product-meta">
                             <div class="flavoriz-meta-item">
-                                <span class="flavoriz-meta-label">Catégorie</span>
-                                <span class="flavoriz-meta-value">{{product_detail.product_supercategory|default:"N/A"}}</span>
-                                            </div>
+                                <span class="flavoriz-meta-label"><i class="fi-rs-folder" style="font-size: 14px; margin-right: 6px; color: var(--color-orange);"></i>Catégorie</span>
+                                <span class="flavoriz-meta-value">{{ product_detail.product_supercategory|default:"N/A" }}</span>
+                            </div>
                             <div class="flavoriz-meta-item">
-                                <span class="flavoriz-meta-label">SKU</span>
-                                <span class="flavoriz-meta-value">{{product_detail.PRDSKU|default:"N/A"}}</span>
-                                        </div>
+                                <span class="flavoriz-meta-label"><i class="fi-rs-star" style="font-size: 14px; margin-right: 6px; color: var(--color-orange);"></i>Note/5</span>
+                                <span class="flavoriz-meta-value">{{ average_rating|floatformat:1 }}</span>
+                            </div>
                             <div class="flavoriz-meta-item">
-                                <span class="flavoriz-meta-label">Stock disponible</span>
-                                <span class="flavoriz-meta-value" style="color: {% if product_detail.available > 0 %}#10B981{% else %}#EF4444{% endif %};">
-                                    {{product_detail.available}} articles
-                                </span>
-                                        </div>
+                                <span class="flavoriz-meta-label"><i class="fi-rs-box" style="font-size: 14px; margin-right: 6px; color: var(--color-orange);"></i>Stock disponible</span>
+                                <span class="flavoriz-meta-value" style="color: {% if product_detail.available > 0 %}#10B981{% else %}#EF4444{% endif %};">{{ product_detail.available }} article{{ product_detail.available|pluralize }}</span>
+                            </div>
                             <div class="flavoriz-meta-item">
-                                <span class="flavoriz-meta-label">Likes</span>
-                                <span class="flavoriz-meta-value" id="detail-like-count">{{like_count}}</span>
-                                    </div>
-                                </div>
+                                <span class="flavoriz-meta-label"><i class="fi-rs-heart" style="font-size: 14px; margin-right: 6px; color: var(--color-orange);"></i>Likes</span>
+                                <span class="flavoriz-meta-value" id="detail-like-count">{{ like_count }}</span>
+                            </div>
+                        </div>
                             </div>
                 </div>
             </div>
             
-            <!-- Tabs -->
+            <!-- Tabs : Description, Infos, Avis (mobile : onglets scrollables) -->
             <div class="flavoriz-product-detail-main">
-                <div style="padding: 32px;">
+                <div class="flavoriz-detail-card-inner" style="padding: 32px;">
                     <div class="flavoriz-tabs">
                         <ul class="flavoriz-tab-list">
                             <li class="flavoriz-tab-item active" onclick="switchTab('description', this)">Description</li>
-                            <li class="flavoriz-tab-item" onclick="switchTab('additional', this)">Informations supplémentaires</li>
+                            <li class="flavoriz-tab-item" onclick="switchTab('additional', this)">Autres infos</li>
                             <li class="flavoriz-tab-item" onclick="switchTab('reviews', this)">Avis ({{feedbak_number}})</li>
                                     </ul>
                                             </div>   
@@ -652,62 +828,84 @@
                     
                     <div class="flavoriz-tab-content" id="tab-additional" style="display: none;">
                         <div class="flavoriz-info-table">
+                            {% if product_detail.product_vendor %}
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Magasin</div>
+                                <div class="flavoriz-info-value">
+                                    {% if product_detail.product_vendor.slug %}
+                                    <a href="{% url 'suppliers:vendor-details' product_detail.product_vendor.slug %}">{{ product_detail.product_vendor.display_name|default:product_detail.product_vendor.user.username }}</a>
+                                    {% else %}
+                                    {{ product_detail.product_vendor.display_name|default:product_detail.product_vendor.user.username }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flavoriz-info-row">
+                                <div class="flavoriz-info-label">Adresse</div>
+                                <div class="flavoriz-info-value">
+                                    {% if product_detail.product_vendor.slug %}
+                                    <a href="{% url 'suppliers:vendor-details' product_detail.product_vendor.slug %}">{{ product_detail.product_vendor.address|default:"Voir le magasin" }}</a>
+                                    {% else %}
+                                    {{ product_detail.product_vendor.address|default:"—" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Prix</div>
-                                <div class="flavoriz-info-value flavoriz-info-price">{{product_detail.PRDPrice|format_price}} FCFA</div>
+                                <div class="flavoriz-info-value flavoriz-info-price">{{ product_detail.PRDPrice|format_price }} FCFA</div>
                             </div>
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Disponibilité</div>
                                 <div class="flavoriz-info-value" style="color: {% if product_detail.available > 0 %}#10B981{% else %}#EF4444{% endif %};">
                                     <span style="display: inline-flex; align-items: center; gap: 6px;">
                                         <i class="fi-rs-check" style="font-size: 14px;"></i>
-                                        {{product_detail.available}} en stock
+                                        {{ product_detail.available }} en stock
                                     </span>
                                 </div>
                             </div>
                             {% if product_detail.pieces %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Pièces par set</div>
-                                <div class="flavoriz-info-value">{{product_detail.pieces}} pièces</div>
+                                <div class="flavoriz-info-value">{{ product_detail.pieces }} pièces</div>
                             </div>
                             {% endif %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Super Catégorie</div>
-                                <div class="flavoriz-info-value">{{product_detail.product_supercategory|default:"N/A"}}</div>
+                                <div class="flavoriz-info-value">{{ product_detail.product_supercategory|default:"N/A" }}</div>
                             </div>
                             {% if product_detail.product_maincategory %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Catégorie principale</div>
-                                <div class="flavoriz-info-value">{{product_detail.product_maincategory}}</div>
+                                <div class="flavoriz-info-value">{{ product_detail.product_maincategory }}</div>
                             </div>
                             {% endif %}
                             {% if product_detail.product_subcategory %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Sous-catégorie</div>
-                                <div class="flavoriz-info-value">{{product_detail.product_subcategory}}</div>
+                                <div class="flavoriz-info-value">{{ product_detail.product_subcategory }}</div>
                             </div>
                             {% endif %}
                             {% if product_detail.product_minicategor %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">Mini catégorie</div>
-                                <div class="flavoriz-info-value">{{product_detail.product_minicategor}}</div>
+                                <div class="flavoriz-info-value">{{ product_detail.product_minicategor }}</div>
                             </div>
                             {% endif %}
                             <div class="flavoriz-info-row">
                                 <div class="flavoriz-info-label">SKU</div>
-                                <div class="flavoriz-info-value">{{product_detail.PRDSKU|default:"N/A"}}</div>
+                                <div class="flavoriz-info-value">{{ product_detail.PRDSKU|default:"N/A" }}</div>
                             </div>
                         </div>
-                                        </div>
+                    </div>
                     
                     <div class="flavoriz-tab-content" id="tab-reviews" style="display: none;">
                         {% if product_feedback %}
-                        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px; margin-bottom: 40px;">
+                        <div class="flavoriz-reviews-grid" style="display: grid; grid-template-columns: 1fr 300px; gap: 40px; margin-bottom: 40px;">
                                                 <div>
                                 <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 24px;">Avis clients</h4>
                                 <div style="display: flex; flex-direction: column; gap: 24px;">
                                                             {% for rating in product_feedback %}
-                                    <div style="padding: 20px; background: #F9FAFB; border-radius: 12px;">
+                                    <div class="flavoriz-review-card" style="padding: 20px; background: #F9FAFB; border-radius: 12px;">
                                         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                                                                         {% if rating.client_name.image %}
                                             <img src="{{rating.client_name.image.url}}" alt="{{rating.client_name.username}}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" />
@@ -720,13 +918,9 @@
                                                 <div style="font-weight: 600; color: #1F2937; margin-bottom: 4px;">{{rating.client_name.username}}</div>
                                                 <div style="font-size: 12px; color: #6B7280;">{{ rating.rating_date|date:"d M Y" }}</div>
                                                                             </div>
-                                            <div class="flavoriz-rating-stars">
+                                            <div class="flavoriz-stars-five" aria-label="{{ rating.rate }} sur 5">
                                                 {% for i in "12345" %}
-                                                {% if forloop.counter <= rating.rate %}
-                                                <i class="fi-rs-star-fill"></i>
-                                                {% else %}
-                                                <i class="fi-rs-star"></i>
-                                                {% endif %}
+                                                <span class="flavoriz-star {% if forloop.counter <= rating.rate %}filled{% endif %}">★</span>
                                                 {% endfor %}
                                                                             </div>
                                                                         </div>
@@ -735,18 +929,14 @@
                                     {% endfor %}
                                                                 </div>
                                                             </div>
-                            <div>
+                            <div class="flavoriz-reviews-summary">
                                 <h4 style="font-size: 20px; font-weight: 700; color: #1F2937; margin-bottom: 24px;">Résumé des avis</h4>
                                 <div style="text-align: center; padding: 24px; background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%); border-radius: 12px; margin-bottom: 24px;">
                                     <div style="font-size: 48px; font-weight: 700; color: var(--color-orange); margin-bottom: 8px;">{{average_rating|floatformat:1}}</div>
-                                    <div class="flavoriz-rating-stars" style="justify-content: center; margin-bottom: 8px;">
+                                    <div class="flavoriz-stars-five flavoriz-stars-center" aria-label="Note {{ average_rating|floatformat:1 }} sur 5">
                                         {% for i in "12345" %}
-                                        {% if forloop.counter <= average_rating|floatformat:0|add:"0" %}
-                                        <i class="fi-rs-star-fill"></i>
-                                        {% else %}
-                                        <i class="fi-rs-star"></i>
-                                        {% endif %}
-                                                            {% endfor %}
+                                        <span class="flavoriz-star {% if forloop.counter <= average_rating|floatformat:0|add:"0" %}filled{% endif %}">★</span>
+                                        {% endfor %}
                                                                     </div>
                                     <div style="color: #6B7280; font-size: 14px;">Basé sur {{feedbak_number}} avis</div>
                                                                             </div>
@@ -767,37 +957,44 @@
                                                             </div>
                         {% else %}
                         <div style="text-align: center; padding: 60px 20px; color: #6B7280;">
-                            <i class="fi-rs-star" style="font-size: 48px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
-                            <p style="font-size: 16px;">Aucun avis pour le moment. Soyez le premier à laisser un avis !</p>
+                            <span class="flavoriz-stars-five flavoriz-stars-empty" aria-hidden="true"><span class="flavoriz-star">★</span><span class="flavoriz-star">★</span><span class="flavoriz-star">★</span><span class="flavoriz-star">★</span><span class="flavoriz-star">★</span></span>
+                            <p style="font-size: 16px; margin-top: 16px;">Aucun avis pour le moment. Soyez le premier à laisser un avis !</p>
                                                     </div>
                                                     {% endif %}
                         
                         <!-- Review Form -->
                         {% if user.is_authenticated %}
-                        <div style="margin-top: 40px; padding: 24px; background: #F9FAFB; border-radius: 12px;">
+                        <div class="flavoriz-review-form" style="margin-top: 40px; padding: 24px; background: #F9FAFB; border-radius: 12px;">
                             <h4 style="font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 20px;">Ajouter un avis</h4>
                             <form class="form-rating" id="{{product_detail.id}}">
                                 {% csrf_token %}
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Note</label>
-                                    <div class="rate" style="display: flex; gap: 8px;">
-                                        <input type="radio" id="detail-first" name="star" value="1"><label for="detail-first" title="1 étoile" style="cursor: pointer; font-size: 24px; color: #D1D5DB;">★</label>
-                                        <input type="radio" id="detail-second" name="star" value="2"><label for="detail-second" title="2 étoiles" style="cursor: pointer; font-size: 24px; color: #D1D5DB;">★</label>
-                                        <input type="radio" id="detail-third" name="star" value="3"><label for="detail-third" title="3 étoiles" style="cursor: pointer; font-size: 24px; color: #D1D5DB;">★</label>
-                                        <input type="radio" id="detail-fourth" name="star" value="4"><label for="detail-fourth" title="4 étoiles" style="cursor: pointer; font-size: 24px; color: #D1D5DB;">★</label>
-                                        <input type="radio" id="detail-fifth" name="star" value="5" checked="checked"><label for="detail-fifth" title="5 étoiles" style="cursor: pointer; font-size: 24px; color: #D1D5DB;">★</label>
-                                                </div>
-                                                    </div>
-                                <div style="margin-bottom: 20px;">
-                                    <label style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Commentaire</label>
-                                    <textarea class="form-control w-100" name="client_message" id="detail-client-message" cols="30" rows="6" placeholder="Partagez votre expérience avec ce produit..." required style="width: 100%; padding: 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical;"></textarea>
-                                                 </div>
+                                <div class="flavoriz-form-note" style="margin-bottom: 20px;">
+                                    <label class="flavoriz-form-label" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Note</label>
+                                    <div class="rate flavoriz-rate-stars" data-rating="5" role="group" aria-label="Choisir une note de 1 à 5 étoiles">
+                                        <input type="radio" id="detail-star-1" name="star" value="1" class="flavoriz-rate-input">
+                                        <input type="radio" id="detail-star-2" name="star" value="2" class="flavoriz-rate-input">
+                                        <input type="radio" id="detail-star-3" name="star" value="3" class="flavoriz-rate-input">
+                                        <input type="radio" id="detail-star-4" name="star" value="4" class="flavoriz-rate-input">
+                                        <input type="radio" id="detail-star-5" name="star" value="5" checked="checked" class="flavoriz-rate-input">
+                                        <div class="flavoriz-rate-display">
+                                            <span class="flavoriz-rate-star" data-value="1" title="1 étoile">★</span>
+                                            <span class="flavoriz-rate-star" data-value="2" title="2 étoiles">★</span>
+                                            <span class="flavoriz-rate-star" data-value="3" title="3 étoiles">★</span>
+                                            <span class="flavoriz-rate-star" data-value="4" title="4 étoiles">★</span>
+                                            <span class="flavoriz-rate-star" data-value="5" title="5 étoiles">★</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flavoriz-form-comment" style="margin-bottom: 20px;">
+                                    <label class="flavoriz-form-label" for="detail-client-message" style="display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Commentaire</label>
+                                    <textarea class="flavoriz-comment-textarea" name="client_message" id="detail-client-message" cols="30" rows="5" placeholder="Partagez votre expérience avec ce produit..." required style="width: 100%; padding: 14px; border: 2px solid #E5E7EB; border-radius: 10px; font-family: inherit; font-size: 15px; resize: vertical; min-height: 120px; box-sizing: border-box;"></textarea>
+                                </div>
                                 <div id="detail-message-rate"></div>
-                                <button type="submit" style="padding: 12px 28px; background: var(--color-orange); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                <button type="submit" class="flavoriz-submit-review-btn" style="padding: 14px 28px; background: var(--color-orange); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s ease;">
                                     Publier l'avis
                                 </button>
-                                                        </form>
-                                                    </div>
+                            </form>
+                        </div>
                         {% else %}
                         <div style="text-align: center; padding: 24px; background: #FEF3C7; border-radius: 12px; margin-top: 40px;">
                             <p style="color: #92400E; margin: 0;">Vous devez être connecté pour laisser un avis. <a href="{% url 'accounts:login' %}" style="color: var(--color-orange); font-weight: 600; text-decoration: none;">Connectez-vous</a></p>
@@ -807,42 +1004,53 @@
                                         </div>
                                     </div>
             
-            <!-- Related Products -->
+            <!-- Produits similaires : même design que la page Shop -->
             {% if related_products %}
             <div class="flavoriz-related-products" style="margin-top: 60px;">
                 <h2 class="flavoriz-section-title">Produits similaires</h2>
                 <div class="flavoriz-product-grid-related">
                     {% for related_product in related_products|slice:"0:4" %}
-                    <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" onclick="window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'">
-                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 65%;">
-                            {%if related_product.product_image%}
-                            <img src="{{related_product.product_image.url}}" alt="{{related_product.product_name}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
-                                                    {%else%}
-                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{related_product.product_name}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
-                                                    {%endif%}
-                                                </div>
-                        <div style="padding: 14px; flex: 1; display: flex; flex-direction: column;">
-                            <h3 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{related_product.product_name}}</h3>
-                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;">
-                                <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{related_product.PRDPrice|format_price}} FCFA</span>
+                    <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;" onclick="window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'">
+                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;">
+                            {% if related_product.product_image %}
+                            <img src="{{ related_product.product_image.url }}" alt="{{ related_product.product_name }}" class="flavoriz-product-image" loading="lazy" decoding="async" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer;" />
+                            {% else %}
+                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="{{ related_product.product_name }}" class="flavoriz-product-image" loading="lazy" decoding="async" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+                            {% endif %}
+                            <button type="button" class="flavoriz-favorite-btn" data-product-id="{{ related_product.id }}" onclick="event.stopPropagation();" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; z-index: 10;">
+                                <i class="fi-rs-heart" style="font-size: 12px;"></i>
+                            </button>
+                        </div>
+                        <div class="flavoriz-product-body" style="padding: 10px 12px; flex: 1; display: flex; flex-direction: column;">
+                            <h3 class="flavoriz-product-title" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ related_product.product_name }}</h3>
+                            <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex-shrink: 0;">
+                                <span class="flavoriz-product-price" style="font-size: 16px; font-weight: 700; color: var(--color-orange);">{{ related_product.PRDPrice|format_price }} FCFA</span>
                                 {% if related_product.PRDDiscountPrice and related_product.PRDDiscountPrice > 0 %}
-                                <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{related_product.PRDDiscountPrice|format_price}} FCFA</span>
+                                <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ related_product.PRDDiscountPrice|format_price }} FCFA</span>
                                 {% endif %}
-                                                    </div>
-                            <div style="display: flex; gap: 8px; margin-top: auto;">
-                                <button onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" style="flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            </div>
+                            <div class="flavoriz-card-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: #9CA3AF; margin-bottom: 4px; line-height: 1.3;">
+                                {% if related_product.product_vendor %}
+                                {% if related_product.product_vendor.city or related_product.product_vendor.country %}
+                                <span style="min-width: 0; display: flex; align-items: center; gap: 3px;"><i class="fi-rs-marker" style="font-size: 10px;"></i>{% if related_product.product_vendor.city %}{{ related_product.product_vendor.city }}{% if related_product.product_vendor.country %}, {% endif %}{% endif %}{% if related_product.product_vendor.country %}{{ related_product.product_vendor.country }}{% endif %}</span>
+                                {% else %}<span></span>{% endif %}
+                                {% else %}<span></span>
+                                {% endif %}
+                            </div>
+                            <div style="display: flex; gap: 6px; margin-top: auto;">
+                                <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
                                     <i class="fi-rs-eye" style="font-size: 13px;"></i>
                                     <span>Voir</span>
                                 </button>
-                                <button onclick="event.stopPropagation(); addToCartQuick({{related_product.id}}, '{{related_product.PRDPrice|floatformat:0}}');" style="padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; min-width: 48px;">
+                                <button onclick="event.stopPropagation(); addToCartQuick({{ related_product.id }}, '{{ related_product.PRDPrice|floatformat:0 }}');" type="button" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
                                     <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
                                 </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
-                                        </div>
-                                    </div>
+                </div>
+            </div>
             {% endif %}
                                 </div>
                             </div>
@@ -1196,61 +1404,24 @@
     if (ratingForm) {
         let productRate = 5; // Par défaut
         
-        // S'assurer qu'il n'y a que 5 étoiles dans le formulaire
-        const rateContainer = document.querySelector('.rate');
+        const rateContainer = document.querySelector('.rate.flavoriz-rate-stars');
         if (rateContainer) {
-            const allInputs = rateContainer.querySelectorAll('input[name="star"]');
-            const allLabels = rateContainer.querySelectorAll('label');
-            
-            // Supprimer les étoiles en trop (garder seulement les 5 premières)
-            if (allInputs.length > 5) {
-                for (let i = 5; i < allInputs.length; i++) {
-                    const input = allInputs[i];
-                    const label = allLabels[i];
-                    if (input && input.parentElement) {
-                        input.parentElement.remove();
-                    } else if (label && label.parentElement) {
-                        label.parentElement.remove();
-                    }
-                }
-            }
-        }
-        
-        // Gestion des étoiles (limiter à 5)
-        document.querySelectorAll('input[name="star"]').forEach((radio, index) => {
-            // Limiter à 5 étoiles
-            if (index >= 5) return;
-            
-            radio.addEventListener('change', function() {
-                productRate = parseInt(this.value);
-                // Mettre à jour l'affichage visuel des étoiles (seulement les 5 premières)
-                const labels = document.querySelectorAll('.rate label');
-                labels.forEach((label, idx) => {
-                    if (idx >= 5) return; // Ignorer les étoiles en trop
-                    if (idx < productRate) {
-                        label.style.color = '#FCD34D';
-                    } else {
-                        label.style.color = '#D1D5DB';
-                    }
+            document.querySelectorAll('.flavoriz-rate-stars input[name="star"]').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    productRate = parseInt(this.value, 10);
+                    rateContainer.setAttribute('data-rating', String(productRate));
                 });
             });
-        });
-        
-        // Initialiser l'affichage des étoiles (seulement 5 étoiles)
-        document.querySelectorAll('.rate label').forEach((label, index) => {
-            if (index >= 5) {
-                // Supprimer les étoiles en trop
-                if (label.parentElement) {
-                    label.parentElement.remove();
-                }
-                return;
-            }
-            if (index < 5) {
-                label.style.color = '#FCD34D';
-            } else {
-                label.style.color = '#D1D5DB';
-            }
-        });
+            document.querySelectorAll('.flavoriz-rate-star').forEach(function(star) {
+                star.addEventListener('click', function() {
+                    var val = parseInt(this.getAttribute('data-value'), 10);
+                    productRate = val;
+                    rateContainer.setAttribute('data-rating', String(val));
+                    var radio = document.getElementById('detail-star-' + val);
+                    if (radio) radio.checked = true;
+                });
+            });
+        }
         
         ratingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
