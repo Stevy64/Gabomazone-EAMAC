@@ -14,26 +14,35 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url
 from django.views.static import serve
 from django.views.generic import RedirectView
+from django.http import HttpResponse
 from pages.views import faq as faq_view
 
-urlpatterns = [
-    url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+# Vue de diagnostic : si /_urls_ok/ répond "OK", Django reçoit bien les requêtes (vérifier Nginx si /contact/ 404)
+def _urls_ok(request):
+    return HttpResponse("OK", content_type="text/plain")
 
+# Routes footer / pages légales en tout premier (avant media/static) pour éviter 404 en prod
+footer_urls = [
+    path('_urls_ok/', _urls_ok),  # test : si ceci répond, le problème vient du proxy/serveur
+    path('faq/', faq_view, name='faq'),
+    re_path(r'^faq$', RedirectView.as_view(url='/faq/', permanent=True)),
+    path('contact/', include(('contact.urls', 'contact'), namespace='contact')),
+    re_path(r'^contact$', RedirectView.as_view(url='/contact/', permanent=True)),
+    path('pages/', include(('pages.urls', 'pages'), namespace='pages')),
+    re_path(r'^pages$', RedirectView.as_view(url='/pages/', permanent=False)),
+]
+
+urlpatterns = footer_urls + [
+    url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
     url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     path('admin/', admin.site.urls),
     path('captcha/', include('captcha.urls')),
-    # Routes footer en premier pour éviter 404 (FAQ, Contact, À propos, etc.)
-    path('faq/', faq_view, name='faq'),
-    path('contact', RedirectView.as_view(url='/contact/', permanent=True)),
-    path('contact/', include('contact.urls', namespace='contact')),
-    path('pages', RedirectView.as_view(url='/pages/', permanent=False)),
-    path('pages/', include('pages.urls', namespace='pages')),
     path('', include('home.urls', namespace='home')),
     path('products/', include('products.urls', namespace='products')),
     path('', include('accounts.urls', namespace='accounts')),
