@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from django import template
 from django.utils import timezone
@@ -172,6 +173,17 @@ def format_price(value):
         return formatted
     except (ValueError, TypeError):
         return str(value)
+
+
+@register.filter(name='phone_to_whatsapp')
+def phone_to_whatsapp(value):
+    """Convertit un numéro de téléphone en URL WhatsApp (wa.me). Garde uniquement les chiffres."""
+    if not value:
+        return ''
+    digits = re.sub(r'\D', '', str(value))
+    if not digits:
+        return ''
+    return f'https://wa.me/{digits}'
 
 
 @register.filter(name='multiply_and_format')

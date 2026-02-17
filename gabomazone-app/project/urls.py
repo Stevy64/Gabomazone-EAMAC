@@ -29,7 +29,8 @@ def _urls_ok(request):
 
 # Routes footer / pages légales en tout premier (avant media/static) pour éviter 404 en prod
 footer_urls = [
-    path('_urls_ok/', _urls_ok),  # test : si ceci répond, le problème vient du proxy/serveur
+    path('_urls_ok/', _urls_ok),
+    re_path(r'^_urls_ok$', _urls_ok),  # sans slash (prod envoie parfois sans slash)
     path('faq/', faq_view, name='faq'),
     re_path(r'^faq$', RedirectView.as_view(url='/faq/', permanent=True)),
     path('contact/', include(('contact.urls', 'contact'), namespace='contact')),
