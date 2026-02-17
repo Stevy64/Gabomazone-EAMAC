@@ -1,22 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cart_template_tags %}
+{% load pages_extras %}
 
 {%block body%}
-<!-- ===== Page Contact - Design Moderne FLAVORIZ ===== -->
-<section class="flavoriz-section" style="padding: 0; margin-top: 0;">
+<!-- ===== Page Contact - Même design que À propos / CGU (FLAVORIZ) ===== -->
+<section class="flavoriz-section contact-page-section" style="padding: 0;">
     
     <!-- ===== SECTION HERO ===== -->
     <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.04) 100%); padding: 80px var(--spacing-lg) 60px; margin-bottom: 0; border-radius: 0 0 32px 32px;">
         <div style="max-width: 1400px; margin: 0 auto;">
-            <!-- Breadcrumb -->
             <div style="display: flex; align-items: center; gap: 8px; color: var(--text-gray); font-size: 14px; margin-bottom: var(--spacing-xl);">
-                <a href="{%url 'home:index'%}" style="color: var(--text-gray); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
+                <a href="{% url 'home:index' %}" style="color: var(--text-gray); text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
                 <span>/</span>
                 <span style="color: var(--color-orange); font-weight: 600;">Nous contacter</span>
             </div>
-            
-            <!-- Hero Content -->
             <div style="text-align: center; max-width: 900px; margin: 0 auto;">
                 <h1 style="font-size: 64px; font-weight: 800; color: var(--color-black); margin-bottom: var(--spacing-md); line-height: 1.1; letter-spacing: -0.02em;">
                     Nous Contacter
@@ -28,67 +26,58 @@
         </div>
     </div>
     
-    <!-- ===== CONTENU PRINCIPAL ===== -->
-    <div style="max-width: 1400px; margin: 0 auto; padding: var(--spacing-2xl) var(--spacing-lg);" class="contact-main-content">
-        <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-2xl);" class="contact-content-grid">
+    <!-- ===== CONTENU PRINCIPAL (même grille que pages CGU) ===== -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: var(--spacing-2xl) var(--spacing-lg);" class="page-main-content">
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-2xl);" class="page-content-grid">
             
             <!-- Colonne Principale -->
-            <div>
-                
-                <!-- Messages d'alerte -->
+            <div class="page-main-col">
                 {% if messages %}
                 <div style="margin-bottom: var(--spacing-xl);">
                     {% for message in messages %}
                     <div style="background: {% if message.tags == 'success' %}linear-gradient(135deg, #10B981 0%, #059669 100%){% elif message.tags == 'error' or message.tags == 'danger' %}linear-gradient(135deg, #EF4444 0%, #DC2626 100%){% else %}linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%){% endif %}; color: white; padding: var(--spacing-lg); border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 12px;">
                         <i class="fi-rs-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}cross-circle{% else %}info{% endif %}" style="font-size: 24px;"></i>
-                        <span style="font-size: 16px; font-weight: 600;">{{message}}</span>
+                        <span style="font-size: 16px; font-weight: 600;">{{ message }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
                 
-                <!-- Section: Informations de Contact -->
+                <!-- Section: Coordonnées (style page-card comme CGU) -->
                 {% if contact_info %}
-                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl);">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <div class="page-card page-card-main" style="background: var(--color-white); border-radius: 24px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl); border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="page-card-head" style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
+                        <div class="page-card-icon" style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <i class="fi-rs-marker" style="font-size: 24px; color: white;"></i>
                         </div>
-                        <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0;">Nos Coordonnées</h2>
+                        <h2 style="font-size: 28px; font-weight: 700; color: var(--color-black); margin: 0;">Nos Coordonnées</h2>
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-lg);" class="contact-info-grid">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--spacing-lg);" class="contact-info-grid">
                         {% for info in contact_info|slice:":3" %}
                         <div style="background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.03) 100%); border-radius: 20px; padding: var(--spacing-lg); border: 2px solid transparent; transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgba(255, 123, 44, 0.2)'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)'" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: var(--spacing-md); box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
-                                <i class="fi-rs-phone-call" style="font-size: 28px; color: white;"></i>
-                            </div>
-                            <h3 style="font-size: 18px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-sm);">{{info.description|default:"Contact"}}</h3>
+                            <h3 style="font-size: 18px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-sm);">{{ info.description|default:"Contact" }}</h3>
                             <div style="font-size: 15px; line-height: 1.7; color: var(--text-dark);">
                                 {% if info.full_address %}
                                 <p style="margin: 0 0 var(--spacing-xs) 0; display: flex; align-items: flex-start; gap: 8px;">
                                     <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 16px; margin-top: 4px; flex-shrink: 0;"></i>
-                                    <span>{{info.full_address}}</span>
+                                    <span>{{ info.full_address }}</span>
                                 </p>
                                 {% endif %}
                                 {% if info.phone %}
                                 <p style="margin: 0 0 var(--spacing-xs) 0; display: flex; align-items: center; gap: 8px;">
                                     <i class="fi-rs-phone" style="color: var(--color-orange); font-size: 16px; flex-shrink: 0;"></i>
-                                    <a href="tel:{{info.phone}}" style="color: var(--text-dark); text-decoration: none;">{{info.phone}}</a>
+                                    <a href="tel:{{ info.phone }}" style="color: var(--text-dark); text-decoration: none;">{{ info.phone }}</a>
                                 </p>
                                 {% endif %}
                                 {% if info.email %}
                                 <p style="margin: 0; display: flex; align-items: center; gap: 8px;">
                                     <i class="fi-rs-envelope" style="color: var(--color-orange); font-size: 16px; flex-shrink: 0;"></i>
-                                    <a href="mailto:{{info.email}}" style="color: var(--text-dark); text-decoration: none;">{{info.email}}</a>
+                                    <a href="mailto:{{ info.email }}" style="color: var(--text-dark); text-decoration: none;">{{ info.email }}</a>
                                 </p>
                                 {% endif %}
                             </div>
                             {% if info.map_link %}
-                            <a href="{{info.map_link}}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; margin-top: var(--spacing-md); color: var(--color-orange); text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s ease;" onmouseover="this.style.gap='12px'" onmouseout="this.style.gap='8px'">
-                                <i class="fi-rs-map-pin" style="font-size: 16px;"></i>
-                                Voir sur la carte
-                            </a>
+                            <a href="{{ info.map_link }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; margin-top: var(--spacing-md); color: var(--color-orange); text-decoration: none; font-weight: 600; font-size: 14px;"> <i class="fi-rs-map-pin"></i> Voir sur la carte </a>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -96,48 +85,47 @@
                 </div>
                 {% endif %}
                 
-                <!-- Section: Carte Google Maps -->
-                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl); overflow: hidden;">
+                <!-- Carte Google Maps -->
+                <div class="page-card" style="background: var(--color-white); border-radius: 24px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl); overflow: hidden;">
                     <div style="border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);">
-                        <iframe width="100%" height="450" src="https://maps.google.com/maps?q=libreville,gabon&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" style="display: block;"></iframe>
+                        <iframe width="100%" height="400" src="https://maps.google.com/maps?q=libreville,gabon&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" style="display: block;"></iframe>
                     </div>
                 </div>
                 
-                <!-- Section: Formulaire de Contact -->
-                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <!-- Formulaire (style page-card) -->
+                <div class="page-card page-card-main" style="background: var(--color-white); border-radius: 24px; padding: var(--spacing-2xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-xl); border: 1px solid rgba(0,0,0,0.04);">
+                    <div class="page-card-head" style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-lg);">
+                        <div class="page-card-icon" style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
                             <i class="fi-rs-mail" style="font-size: 24px; color: white;"></i>
                         </div>
-                        <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0;">Envoyez-nous un Message</h2>
+                        <h2 style="font-size: 28px; font-weight: 700; color: var(--color-black); margin: 0;">Envoyez-nous un message</h2>
                     </div>
-                    <p style="font-size: 17px; color: var(--text-gray); line-height: 1.7; margin-bottom: var(--spacing-xl); text-align: center;">
+                    <p style="font-size: 17px; color: var(--text-gray); line-height: 1.7; margin-bottom: var(--spacing-xl);">
                         Notre équipe vous répondra dans les plus brefs délais
                     </p>
-                    
-                    <form class="contact-form-style" id="contact-form" method="POST" action="{%url 'contact:contact' %}" style="max-width: 800px; margin: 0 auto;">
+                    <form class="contact-form-style" id="contact-form" method="POST" action="/contact/" style="max-width: 100%;">
                         {% csrf_token %}
                         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);" class="contact-form-grid">
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: var(--color-black); margin-bottom: 8px;">Prénom et Nom *</label>
-                                <input name="name" placeholder="Votre nom complet" type="text" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
+                                <input name="name" placeholder="Votre nom complet" type="text" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: var(--color-black); margin-bottom: 8px;">Email *</label>
-                                <input name="email" placeholder="votre@email.com" type="email" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
+                                <input name="email" placeholder="votre@email.com" type="email" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: var(--color-black); margin-bottom: 8px;">Téléphone *</label>
-                                <input name="phone" placeholder="+241 XX XX XX XX" type="tel" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
+                                <input name="phone" placeholder="+241 XX XX XX XX" type="tel" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
                             </div>
                             <div>
                                 <label style="display: block; font-size: 14px; font-weight: 600; color: var(--color-black); margin-bottom: 8px;">Sujet *</label>
-                                <input name="subject" placeholder="Objet de votre message" type="text" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; font-family: inherit;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
+                                <input name="subject" placeholder="Objet de votre message" type="text" required class="flavoriz-input" style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"/>
                             </div>
                         </div>
                         <div style="margin-bottom: var(--spacing-lg);">
                             <label style="display: block; font-size: 14px; font-weight: 600; color: var(--color-black); margin-bottom: 8px;">Message *</label>
-                            <textarea name="message" placeholder="Décrivez votre demande en détail..." required style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; font-family: inherit; min-height: 160px; resize: vertical;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"></textarea>
+                            <textarea name="message" placeholder="Décrivez votre demande en détail..." required style="width: 100%; padding: 14px 18px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; color: var(--color-black); background: #FAFAFA; transition: all 0.3s ease; min-height: 160px; resize: vertical;" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'; this.style.background='white'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'; this.style.background='#FAFAFA'"></textarea>
                         </div>
                         <div style="text-align: center;">
                             <button type="submit" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); color: white; padding: 16px 40px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 16px rgba(255, 123, 44, 0.3)'">
@@ -147,56 +135,53 @@
                         </div>
                     </form>
                 </div>
-                
             </div>
             
-            <!-- Sidebar -->
-            <div style="position: sticky; top: 120px; height: fit-content;">
-                
-                <!-- Carte Contact Rapide -->
-                <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 32px; padding: var(--spacing-xl); color: white; margin-bottom: var(--spacing-lg); box-shadow: 0 8px 32px rgba(255, 123, 44, 0.3);">
+            <!-- Sidebar (même structure que pages CGU) -->
+            <div class="page-sidebar" style="position: sticky; top: 120px; height: fit-content;">
+                <div class="page-card page-card-contact" style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%); border-radius: 24px; padding: var(--spacing-xl); color: white; margin-bottom: var(--spacing-lg); box-shadow: 0 8px 32px rgba(255, 123, 44, 0.25);">
                     <h3 style="font-size: 26px; font-weight: 700; color: white; margin-bottom: var(--spacing-md); display: flex; align-items: center; gap: 10px;">
                         <i class="fi-rs-phone-call" style="font-size: 24px;"></i>
-                        Contact Rapide
+                        Contact rapide
                     </h3>
                     <p style="font-size: 16px; color: rgba(255, 255, 255, 0.95); line-height: 1.6; margin-bottom: var(--spacing-lg);">
-                        Appelez-nous directement ou envoyez-nous un email
+                        Appelez-nous ou envoyez-nous un message
                     </p>
-                    
-                    <!-- Informations de contact -->
                     {% for number_obj in support_number|slice:"0:1" %}
                     <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-sm);">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-phone" style="font-size: 18px; color: white;"></i>
-                            <a href="tel:{{number_obj.number}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{number_obj.number}}</a>
+                            <a href="tel:{{ number_obj.number }}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{ number_obj.number }}</a>
                         </div>
                     </div>
+                    <a href="{{ number_obj.number|phone_to_whatsapp }}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; color: white; padding: 14px 20px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 15px; margin-bottom: var(--spacing-md); transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(37, 211, 102, 0.4)'">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        <span>WhatsApp</span>
+                    </a>
                     {% endfor %}
-                    
-                    {% if site_info.email %}
+                    {% if site_info and site_info.email %}
                     <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <i class="fi-rs-envelope" style="font-size: 18px; color: white;"></i>
-                            <a href="mailto:{{site_info.email}}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{site_info.email}}</a>
+                            <a href="mailto:{{ site_info.email }}" style="color: white; text-decoration: none; font-size: 16px; font-weight: 600;">{{ site_info.email }}</a>
                         </div>
                     </div>
                     {% endif %}
                 </div>
                 
-                <!-- Widget Nouveaux Produits -->
                 {% if new_products %}
-                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-lg);">
+                <div class="page-card" style="background: var(--color-white); border-radius: 24px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); margin-bottom: var(--spacing-lg);">
                     <h3 style="font-size: 24px; font-weight: 700; color: var(--color-black); margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: 10px;">
                         <i class="fi-rs-star" style="color: var(--color-orange); font-size: 22px;"></i>
                         Nouveautés
                     </h3>
                     <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
                         {% for new_product in new_products|slice:":4" %}
-                        <a href="{% url 'products:product-details' new_product.PRDSlug%}" style="display: flex; gap: var(--spacing-md); text-decoration: none; transition: all 0.3s ease; padding: var(--spacing-md); border-radius: 16px; border: 2px solid transparent;" onmouseover="this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'; this.style.transform='translateX(4px)'" onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.transform='translateX(0)'">
-                            <img src="{{new_product.product_image.url}}" alt="{{new_product.product_name}}" loading="lazy" decoding="async" style="width: 100px; height: 100px; object-fit: cover; border-radius: 14px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);" />
+                        <a href="{% url 'products:product-details' new_product.PRDSlug %}" style="display: flex; gap: var(--spacing-md); text-decoration: none; transition: all 0.3s ease; padding: var(--spacing-md); border-radius: 16px; border: 2px solid transparent;" onmouseover="this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'; this.style.transform='translateX(4px)'" onmouseout="this.style.background='transparent'; this.style.borderColor='transparent'; this.style.transform='translateX(0)'">
+                            <img src="{{ new_product.product_image.url }}" alt="{{ new_product.product_name }}" loading="lazy" decoding="async" style="width: 100px; height: 100px; object-fit: cover; border-radius: 14px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);" />
                             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
-                                <h6 style="font-size: 15px; font-weight: 600; color: var(--color-black); margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{new_product.product_name}}</h6>
-                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{new_product.PRDPrice|format_price}} FCFA</p>
+                                <h6 style="font-size: 15px; font-weight: 600; color: var(--color-black); margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ new_product.product_name }}</h6>
+                                <p style="font-size: 19px; font-weight: 700; color: var(--color-orange); margin: 0;">{{ new_product.PRDPrice|format_price }} FCFA</p>
                             </div>
                         </a>
                         {% endfor %}
@@ -204,177 +189,47 @@
                 </div>
                 {% endif %}
                 
-                <!-- Bannière Publicitaire -->
                 {% for shop_ad in shop_page_ad|slice:"0:1" %}
-                <div style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
-                    <a href="{{shop_ad.ad_URL}}" style="text-decoration: none; display: block;">
-                        <img src="{{shop_ad.ad_mage.url}}" alt="{{shop_ad.ad_title}}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{shop_ad.supplier}}</span>
-                            <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">
-                                {{shop_ad.ad_title}}
-                            </h4>
-                        </div>
+                <div class="page-card" style="background: var(--color-white); border-radius: 24px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
+                    <a href="{{ shop_ad.ad_URL|default:'#' }}" style="text-decoration: none; display: block;">
+                        <img src="{{ shop_ad.ad_mage.url }}" alt="{{ shop_ad.ad_title|default:'Publicité' }}" style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); transition: transform 0.4s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                        <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{{ shop_ad.supplier }}</span>
+                        <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">{{ shop_ad.ad_title }}</h4>
                     </a>
                 </div>
                 {% endfor %}
-                
             </div>
-            
         </div>
     </div>
     
-    <!-- Styles Responsive -->
+    <!-- Styles Responsive (alignés sur pages CGU) -->
     <style>
-        /* Desktop */
         @media (max-width: 1200px) {
-            .contact-main-content {
-                padding: var(--spacing-xl) var(--spacing-lg) !important;
-            }
+            .contact-page-section .page-main-content { padding: var(--spacing-xl) var(--spacing-lg) !important; }
         }
-        
-        /* Tablette */
         @media (max-width: 1024px) {
-            .contact-content-grid {
-                grid-template-columns: 1fr !important;
-                gap: var(--spacing-xl) !important;
-            }
-            
-            .contact-content-grid > div:last-child {
-                position: static !important;
-                margin-top: 0 !important;
-            }
-            
-            .contact-form-grid {
-                grid-template-columns: 1fr !important;
-            }
+            .contact-page-section .page-content-grid { grid-template-columns: 1fr !important; gap: var(--spacing-xl) !important; }
+            .contact-page-section .page-sidebar { position: static !important; }
         }
-        
-        /* Mobile */
         @media (max-width: 768px) {
-            /* Hero Section Mobile */
-            .flavoriz-section > div:first-child {
-                padding: 50px 16px 40px !important;
-                border-radius: 0 0 28px 28px !important;
-            }
-            
-            .flavoriz-section > div:first-child > div {
-                padding: 0 !important;
-            }
-            
-            .flavoriz-section > div:first-child h1 {
-                font-size: 36px !important;
-                line-height: 1.2 !important;
-                margin-bottom: 12px !important;
-            }
-            
-            .flavoriz-section > div:first-child p {
-                font-size: 16px !important;
-                line-height: 1.6 !important;
-            }
-            
-            /* Breadcrumb Mobile */
-            .flavoriz-section > div:first-child > div > div:first-child {
-                margin-bottom: 24px !important;
-                font-size: 13px !important;
-            }
-            
-            /* Contenu Principal Mobile */
-            .contact-main-content {
-                padding: var(--spacing-xl) 16px !important;
-            }
-            
-            .contact-content-grid {
-                grid-template-columns: 1fr !important;
-                gap: var(--spacing-lg) !important;
-            }
-            
-            /* Sections Mobile */
-            .contact-content-grid > div:first-child > div {
-                padding: var(--spacing-lg) !important;
-                border-radius: 28px !important;
-                margin-bottom: var(--spacing-lg) !important;
-            }
-            
-            /* Titres de sections Mobile */
-            .contact-content-grid > div:first-child > div > div:first-child {
-                flex-direction: row !important;
-                gap: 10px !important;
-                margin-bottom: var(--spacing-md) !important;
-            }
-            
-            .contact-content-grid > div:first-child > div > div:first-child > div:first-child {
-                width: 40px !important;
-                height: 40px !important;
-                border-radius: 12px !important;
-            }
-            
-            .contact-content-grid > div:first-child > div > div:first-child > div:first-child i {
-                font-size: 20px !important;
-            }
-            
-            .contact-content-grid > div:first-child > div h2 {
-                font-size: 24px !important;
-            }
-            
-            /* Grille Informations Contact Mobile */
-            .contact-info-grid {
-                grid-template-columns: 1fr !important;
-                gap: var(--spacing-md) !important;
-            }
-            
-            /* Carte Google Maps Mobile */
-            .contact-content-grid > div:first-child > div:nth-child(3) {
-                padding: var(--spacing-md) !important;
-            }
-            
-            .contact-content-grid > div:first-child > div:nth-child(3) iframe {
-                height: 300px !important;
-            }
-            
-            /* Formulaire Mobile */
-            .contact-form-grid {
-                grid-template-columns: 1fr !important;
-                gap: var(--spacing-md) !important;
-            }
-            
-            /* Sidebar Mobile */
-            .contact-content-grid > div:last-child {
-                position: static !important;
-                margin-top: 0 !important;
-            }
-            
-            .contact-content-grid > div:last-child > div {
-                border-radius: 28px !important;
-                padding: var(--spacing-lg) !important;
-                margin-bottom: var(--spacing-lg) !important;
-            }
-            
-            /* Carte Contact Rapide Mobile */
-            .contact-content-grid > div:last-child > div:first-child h3 {
-                font-size: 22px !important;
-            }
-            
-            .contact-content-grid > div:last-child > div:first-child p {
-                font-size: 15px !important;
-            }
-            
-            /* Widget Produits Mobile */
-            .contact-content-grid > div:last-child > div:nth-child(2) h3 {
-                font-size: 20px !important;
-            }
-            
-            .contact-content-grid > div:last-child > div:nth-child(2) a {
-                padding: 12px !important;
-                gap: 12px !important;
-            }
-            
-            .contact-content-grid > div:last-child > div:nth-child(2) a img {
-                width: 80px !important;
-                height: 80px !important;
-                border-radius: 12px !important;
-            }
+            .contact-page-section.flavoriz-section { margin-top: 100px !important; }
+            .contact-page-section .flavoriz-section > div:first-child,
+            .contact-page-section > div:first-child { padding: 32px 20px 28px !important; border-radius: 0 0 24px 24px !important; }
+            .contact-page-section > div:first-child h1 { font-size: 26px !important; font-weight: 700 !important; line-height: 1.25 !important; margin-bottom: 8px !important; }
+            .contact-page-section > div:first-child p { font-size: 15px !important; line-height: 1.55 !important; color: #6B7280 !important; }
+            .contact-page-section .page-main-content { padding: 20px 16px 32px !important; }
+            .contact-page-section .page-content-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+            .contact-page-section .page-card { border-radius: 20px !important; padding: 24px 20px !important; margin-bottom: 20px !important; }
+            .contact-page-section .page-card-head h2 { font-size: 22px !important; }
+            .contact-page-section .contact-form-grid { grid-template-columns: 1fr !important; }
+            .contact-page-section .contact-info-grid { grid-template-columns: 1fr !important; }
+            .contact-page-section .page-card-contact { border-radius: 20px !important; padding: 24px 20px !important; }
+            .contact-page-section .page-card-contact h3 { font-size: 20px !important; }
+        }
+        @media (max-width: 480px) {
+            .contact-page-section .page-main-content { padding: 16px 12px 28px !important; }
+            .contact-page-section .page-card { padding: 20px 16px !important; }
         }
     </style>
 </section>
-{%endblock body%}
+{% endblock body %}

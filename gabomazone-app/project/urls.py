@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url
 from django.views.static import serve
+from django.views.generic import RedirectView
 from pages.views import faq as faq_view
 
 urlpatterns = [
@@ -29,7 +30,9 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     # Routes footer en premier pour éviter 404 (FAQ, Contact, À propos, etc.)
     path('faq/', faq_view, name='faq'),
+    path('contact', RedirectView.as_view(url='/contact/', permanent=True)),
     path('contact/', include('contact.urls', namespace='contact')),
+    path('pages', RedirectView.as_view(url='/pages/', permanent=False)),
     path('pages/', include('pages.urls', namespace='pages')),
     path('', include('home.urls', namespace='home')),
     path('products/', include('products.urls', namespace='products')),
