@@ -27,7 +27,10 @@ urlpatterns = [
     url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     path('admin/', admin.site.urls),
     path('captcha/', include('captcha.urls')),
+    # Routes footer en premier pour éviter 404 (FAQ, Contact, À propos, etc.)
     path('faq/', faq_view, name='faq'),
+    path('contact/', include('contact.urls', namespace='contact')),
+    path('pages/', include('pages.urls', namespace='pages')),
     path('', include('home.urls', namespace='home')),
     path('products/', include('products.urls', namespace='products')),
     path('', include('accounts.urls', namespace='accounts')),
@@ -38,8 +41,6 @@ urlpatterns = [
     path('', include('supplier_panel.urls', namespace='supplier_dashboard')),
     #path('', include('newsletters.urls', namespace='newsletters')),
     #path('', include('blog.urls', namespace='blog')),
-    path('', include('contact.urls', namespace='contact')),
-    path('', include('pages.urls', namespace='pages')),
     path('currencies/', include('currencies.urls')),
     path('c2c/', include('c2c.urls', namespace='c2c')),
 

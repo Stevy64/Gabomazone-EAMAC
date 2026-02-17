@@ -222,7 +222,7 @@
 					<div class="header-info">
 						<ul>
 							{% for page_obj in pages_list|slice:"0:1"%}
-							<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{page_obj.name}}</a></li>
+							<li><a href="{%url 'pages:pages-name' page_obj.slug %}">{{ page_obj.name }}</a></li>
 							{%endfor%}
 							<li><a href="{% url 'accounts:dashboard_customer' %}">My Account</a></li>
 							
@@ -829,7 +829,7 @@
                     <ul style="list-style: none; padding: 0; margin: 0;">
                         {% for page_obj in pages_list|slice:"0:5"%}
                         <li style="margin-bottom: 10px;">
-                            <a href="{% url 'pages:pages-name' page_obj.slug %}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{% if page_obj.slug == 'about-us' or page_obj.slug == 'a-propos' or 'about' in page_obj.slug %}À propos{% elif 'terms' in page_obj.slug or 'conditions' in page_obj.slug %}Conditions d'utilisation{% elif 'refund' in page_obj.slug or 'remboursement' in page_obj.slug %}Politique de remboursement{% else %}{{ page_obj.name }}{% endif %}</a>
+                            <a href="/pages/{{ page_obj.slug }}/" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">{% if page_obj.slug == 'about-us' or page_obj.slug == 'a-propos' or 'about' in page_obj.slug %}À propos{% elif 'terms' in page_obj.slug or 'conditions' in page_obj.slug %}Conditions d'utilisation{% elif 'refund' in page_obj.slug or 'remboursement' in page_obj.slug %}Politique de remboursement{% else %}{{ page_obj.name }}{% endif %}</a>
                         </li>
                         {% endfor %}
                             </ul>
@@ -844,7 +844,7 @@
                             <a href="{% url 'supplier_dashboard:supplier-login'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Devenir vendeur</a>
                         </li>
                         <li style="margin-bottom: 10px;">
-                            <a href="{%url 'contact:contact'%}" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Nous contacter</a>
+                            <a href="/contact/" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">Nous contacter</a>
                         </li>
                         <li style="margin-bottom: 10px;">
                             <a href="/faq/" style="font-size: 14px; color: #D1D5DB !important; text-decoration: none; transition: color 0.2s ease; display: inline-block;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#D1D5DB'">FAQ</a>
