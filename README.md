@@ -79,27 +79,6 @@ docker run -it --rm --name gabomazone-app gabomazone-app
 - PythonAnywhere (Django): https://help.pythonanywhere.com/pages/DeployExistingDjangoProject/
 - Static files: https://help.pythonanywhere.com/pages/DjangoStaticFiles
 
-### Si /contact/, /faq/, /pages/… renvoient 404 en production
-1. **Test** : ouvrir `https://<ton-domaine>/_urls_ok/`  
-   - Si tu vois « OK », Django reçoit les requêtes ; les routes sont en tête dans `project/urls.py`.  
-   - Si 404 aussi : le proxy (Nginx, Apache, PythonAnywhere) ne transmet pas ces URLs à Django.
-
-2. **Nginx** : ne pas utiliser `try_files $uri $uri/ =404` pour tout le site.  
-   Transmettre à Django tout ce qui n’est pas `/static/` ni `/media/` :
-   ```nginx
-   location / {
-       proxy_pass http://127.0.0.1:8000;  # ou ton socket gunicorn/uwsgi
-       proxy_set_header Host $host;
-       proxy_set_header X-Real-IP $remote_addr;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-   }
-   location /static/ { alias /chemin/vers/static/; }
-   location /media/  { alias /chemin/vers/media/; }
-   ```
-
-3. **PythonAnywhere** : dans la configuration WSGI, s’assurer que l’application Django est bien chargée pour le domaine et que les chemins comme `/contact/` ne sont pas interceptés par une règle statique.
-
 ## Retirer un module
 1) Revenir à zéro sur les migrations: `python manage.py migrate <app_name> zero`
 2) Retirer l’app de `INSTALLED_APPS` et des URLs

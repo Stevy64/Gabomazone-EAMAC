@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cart_template_tags %}
+{% load pages_extras %}
 
 {%block body%}
 {% if page.slug == 'about-us' or 'about' in page.slug|default:''|lower or 'a-propos' in page.slug|default:''|lower %}
