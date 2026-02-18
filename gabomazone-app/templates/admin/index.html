@@ -1,126 +1,118 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
-{% load admin_menu %}
-{% load i18n static %}
-{% load cart_template_tags%}
-{% block extrastyle %}
-{{ block.super }}
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}" /> -->
-{% endblock %}
+{% load cart_template_tags %}
+{% block extrastyle %}{{ block.super }}{% endblock %}
 
 {% block coltype %}colMS{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard admin-dashboard-modern{% endblock %}
 
-{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 {% if not is_popup %}
 {% block breadcrumbs %}
-<div class="row mb-2">
-    <div class="col-sm-4">
-        <h2>{{site_info.site_name}} administration</h2>
-    </div>
-    <div class="col-sm-8">
-        <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item"><a href="{% url 'admin:index' %}"><i class="fas fa-tachometer-alt"></i> {% trans 'Home' %}</a></li>
-            <!-- {% for app in app_list %}
-            <li class="breadcrumb-item active">{{ app.name }}</li>
-            {% endfor %} -->
-        </ol>
+<div class="content-header mb-3">
+    <div class="container-fluid">
+        <h1 class="m-0 text-dark" style="font-size: 1.5rem; font-weight: 600;">{{ site_info.site_name|default:"Admin" }} — Tableau de bord</h1>
+        <p class="text-muted mb-0" style="font-size: 0.9rem;">Gestion et suivi de la plateforme</p>
     </div>
 </div>
 {% endblock %}
 {% endif %}
 
-
 {% block content %}
 <div id="content-main" class="container-fluid">
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>{{request.user|underway_orders_count}}</h3>
-                    <p>Commandes en cours</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>{{request.user|all_orders_count}}</h3>
-                    <p>Toutes les commandes</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>{{request.user|all_users_count}}</h3>
-                    <p>Inscriptions utilisateurs</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>{{request.user|all_products_count}}</h3>
-                    <p>Tous les produits</p>
-                </div>
-                <div class="icon">
-                    <i class="fas fa-box"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Chart -->
-    <div class="row mt-4">
-        <div class="col-xl-12 col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-chart-bar mr-2"></i>
-                        Statistiques de vente
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <canvas id="myChart" height="355" width="890" style="display: block; box-sizing: border-box; height: 284px; width: 712.4px;"></canvas>
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body py-3 admin-quick-actions">
+                    <span class="text-muted small text-uppercase admin-quick-actions-label">Actions rapides</span>
+                    <div class="admin-quick-actions-grid">
+                        <a href="{% url 'admin:accounts_adminmessage_add' %}" class="btn btn-sm btn-outline-primary"><i class="far fa-envelope mr-1"></i>Envoyer un message</a>
+                        <a href="{% url 'admin:accounts_adminnotification_changelist' %}" class="btn btn-sm btn-outline-secondary"><i class="far fa-bell mr-1"></i>Notifications</a>
+                        <a href="{% url 'admin:orders_order_changelist' %}" class="btn btn-sm btn-outline-success"><i class="fas fa-shopping-cart mr-1"></i>Commandes</a>
+                        <a href="{% url 'admin:payments_singpaytransaction_changelist' %}" class="btn btn-sm btn-outline-info"><i class="fas fa-credit-card mr-1"></i>Paiements</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {% block sidebar %}
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-history mr-2"></i>
-                        {% trans 'Actions récentes' %} / {% trans 'Mes actions' %}
-                    </h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
+    <!-- KPI -->
+    <div class="row">
+        <div class="col-lg-3 col-6 mb-3">
+            <a href="{% url 'admin:orders_order_changelist' %}" class="text-decoration-none">
+                <div class="small-box bg-info" style="border-radius: 12px; overflow: hidden;">
+                    <div class="inner">
+                        <h3>{{ request.user|underway_orders_count }}</h3>
+                        <p>Commandes en cours</p>
                     </div>
+                    <div class="icon"><i class="fas fa-shopping-bag"></i></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6 mb-3">
+            <a href="{% url 'admin:orders_order_changelist' %}" class="text-decoration-none">
+                <div class="small-box bg-success" style="border-radius: 12px; overflow: hidden;">
+                    <div class="inner">
+                        <h3>{{ request.user|all_orders_count }}</h3>
+                        <p>Toutes les commandes</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-chart-line"></i></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6 mb-3">
+            <a href="{% url 'admin:auth_user_changelist' %}" class="text-decoration-none">
+                <div class="small-box bg-warning" style="border-radius: 12px; overflow: hidden;">
+                    <div class="inner">
+                        <h3>{{ request.user|all_users_count }}</h3>
+                        <p>Utilisateurs</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-6 mb-3">
+            <a href="{% url 'admin:products_product_changelist' %}" class="text-decoration-none">
+                <div class="small-box bg-danger" style="border-radius: 12px; overflow: hidden;">
+                    <div class="inner">
+                        <h3>{{ request.user|all_products_count }}</h3>
+                        <p>Produits</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-box"></i></div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Graphique -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white border-bottom" style="border-radius: 12px 12px 0 0;">
+                    <h3 class="card-title mb-0" style="font-weight: 600;"><i class="fas fa-chart-bar mr-2 text-muted"></i>Statistiques de vente</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="myChart" height="280" style="max-height: 320px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions récentes -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0;">
+                    <h3 class="card-title mb-0" style="font-weight: 600;"><i class="fas fa-history mr-2 text-muted"></i>Actions récentes</h3>
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                 </div>
                 <div class="card-body">
                     {% load log %}
                     {% get_admin_log 10 as admin_log for_user user %}
                     {% if not admin_log %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">{% trans 'Aucune action disponible' %}</p>
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p class="mb-0">Aucune action récente</p>
                     </div>
                     {% else %}
                     <div class="timeline">
@@ -128,26 +120,17 @@
                         <div>
                             <i class="fas fa-{% if entry.is_addition %}plus-circle bg-info{% elif entry.is_change %}edit bg-success{% elif entry.is_deletion %}trash bg-danger{% endif %}"></i>
                             <div class="timeline-item">
-                                <span class="time">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    {{entry.action_time|date:"d M Y à H:i"}}
-                                </span>
+                                <span class="time"><i class="fas fa-clock mr-1"></i>{{ entry.action_time|date:"d/m/Y H:i" }}</span>
                                 <div class="timeline-body">
-                                    <strong><a href="#">{{entry.user}}</a></strong>
-                                    {% if entry.is_addition %}a ajouté{% elif entry.is_change %}a modifié{% elif entry.is_deletion %}a supprimé{% endif %}
+                                    <strong>{{ entry.user }}</strong>
+                                    {% if entry.is_addition %} a ajouté {% elif entry.is_change %} a modifié {% elif entry.is_deletion %} a supprimé {% endif %}
                                     {% if entry.is_deletion or not entry.get_admin_url %}
                                     <strong>{{ entry.object_repr }}</strong>
                                     {% else %}
                                     <strong><a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a></strong>
                                     {% endif %}
-                                    <br />
                                     {% if entry.content_type %}
-                                    <span class="text-muted small">
-                                        <i class="fas fa-tag mr-1"></i>
-                                        {% filter capfirst %}{{ entry.content_type }}{% endfilter %}
-                                    </span>
-                                    {% else %}
-                                    <span class="text-muted small">{% trans 'Contenu inconnu' %}</span>
+                                    <br><span class="text-muted small">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -159,6 +142,5 @@
             </div>
         </div>
     </div>
-    {% endblock %}
 </div>
 {% endblock %}

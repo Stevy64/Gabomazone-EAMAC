@@ -427,6 +427,97 @@ def init_singpay_payment(request):
         }, status=500)
 
 
+@require_http_methods(["POST"])
+def init_cash_fee_payment(request):
+    """
+    Initialise le paiement des frais de service pour le paiement à la livraison (Cash).
+    Retourne l'URL SingPay pour régler les frais.
+    """
+    try:
+        order_id = request.session.get('cart_id') or request.session.get('order_id')
+        if not order_id:
+            return JsonResponse({'success': False, 'error': 'Aucune commande en cours.'}, status=400)
+        order = get_object_or_404(Order, id=order_id, is_finished=False)
+        if order.user and order.user != request.user:
+            return JsonResponse({'success': False, 'error': 'Accès refusé.'}, status=403)
+        try:
+            payment_info = OrderPayment.objects.get(order=order)
+        except OrderPayment.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Informations de paiement manquantes.'}, status=400)
+        from settings.models import SiteSetting
+        site = SiteSetting.objects.first()
+        fee = float(site.cash_delivery_service_fee) if site and getattr(site, 'cash_delivery_service_fee', None) is not None else 500
+        if fee <= 0:
+            return JsonResponse({'success': False, 'error': 'Frais de service non configurés.'}, status=400)
+        if settings.DEBUG:
+            base_url = f"{request.scheme}://{request.get_host()}"
+        else:
+            production_domain = (getattr(settings, 'SINGPAY_PRODUCTION_DOMAIN', '') or '').strip()
+            base_url = f"https://{production_domain}" if production_domain and not production_domain.startswith('http') else (production_domain or f"{request.scheme}://{request.get_host()}")
+        callback_url = f"{base_url.rstrip('/')}/payments/singpay/callback/"
+        return_url = f"{base_url.rstrip('/')}/payments/singpay/return/"
+        def _fmt_phone(phone):
+            if not phone:
+                return ''
+            phone = ''.join(filter(str.isdigit, str(phone)))
+            if phone.startswith('0'):
+                phone = '+241' + phone[1:]
+            elif not phone.startswith('+'):
+                phone = '+241' + phone if not phone.startswith('241') else '+' + phone
+            return phone
+        customer_phone = _fmt_phone(payment_info.phone)
+        metadata = {'order_id': str(order.id), 'payment_type': 'cash_service_fee'}
+        success, response = singpay_service.init_payment(
+            amount=fee,
+            currency='XOF',
+            order_id=f"CASH-FEE-{order.id}",
+            customer_email=payment_info.Email_Address,
+            customer_phone=customer_phone,
+            customer_name=f"{payment_info.first_name} {payment_info.last_name}",
+            description=f"Frais de service paiement à la livraison - Commande #{order.id}",
+            callback_url=callback_url,
+            return_url=return_url,
+            metadata=metadata,
+        )
+        if not success:
+            return JsonResponse({'success': False, 'error': response.get('error', 'Erreur SingPay')}, status=500)
+        payment_url = response.get('payment_url', '')
+        transaction_id = response.get('transaction_id') or (f"CASH-FEE-{order.id}-{timezone.now().timestamp()}"[:100])
+        if not payment_url or not (payment_url.startswith('http://') or payment_url.startswith('https://')):
+            if payment_url and not payment_url.startswith('http'):
+                payment_url = f"{base_url.rstrip('/')}{payment_url}" if payment_url.startswith('/') else f"{base_url.rstrip('/')}/{payment_url}"
+        from datetime import timedelta
+        expires_at = timezone.now() + timedelta(hours=24)
+        SingPayTransaction.objects.create(
+            transaction_id=transaction_id,
+            reference=response.get('reference'),
+            internal_order_id=f"CASH-FEE-{order.id}",
+            amount=fee,
+            currency='XOF',
+            status=SingPayTransaction.PENDING,
+            transaction_type=SingPayTransaction.CASH_SERVICE_FEE,
+            customer_email=payment_info.Email_Address,
+            customer_phone=customer_phone,
+            customer_name=f"{payment_info.first_name} {payment_info.last_name}",
+            payment_url=payment_url,
+            callback_url=callback_url,
+            return_url=return_url,
+            user=order.user or (request.user if request.user.is_authenticated else None),
+            order=order,
+            description=f"Frais de service - Commande #{order.id}",
+            metadata=metadata,
+            expires_at=expires_at,
+        )
+        return JsonResponse({
+            'success': True,
+            'payment_url': payment_url,
+            'transaction_id': transaction_id,
+        })
+    except Exception as e:
+        logger.exception(f"Erreur init_cash_fee_payment: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def singpay_callback(request):
@@ -514,6 +605,23 @@ def singpay_callback(request):
                     transaction.save()
                     logger.info(f"Transaction {transaction_id} mise en escrow pour la commande {transaction.order.id}")
                     # Ne pas payer les commissions immédiatement - elles seront libérées après livraison
+                    # Créer la vérification de livraison B2C (double code) pour finaliser la transaction
+                    from orders.models import B2CDeliveryVerification
+                    if not getattr(transaction.order, 'b2c_delivery_verification', None):
+                        B2CDeliveryVerification.objects.get_or_create(
+                            order=transaction.order,
+                            defaults={}
+                        )
+                        logger.info(f"B2CDeliveryVerification créée pour la commande {transaction.order.id}")
+                elif transaction.transaction_type == SingPayTransaction.CASH_SERVICE_FEE:
+                    # Frais de service paiement à la livraison : enregistrer le montant sur le Payment
+                    try:
+                        payment_info = OrderPayment.objects.get(order=transaction.order)
+                        payment_info.service_fee_amount = transaction.amount
+                        payment_info.save()
+                        logger.info(f"Frais de service {transaction.amount} enregistrés pour commande {transaction.order.id}")
+                    except OrderPayment.DoesNotExist:
+                        logger.warning(f"Payment introuvable pour commande {transaction.order.id} (CASH_SERVICE_FEE)")
             
             # Mettre à jour la commande C2C si applicable
             if hasattr(transaction, 'c2c_orders') and transaction.c2c_orders.exists():
@@ -660,6 +768,13 @@ def singpay_return(request):
                         _ensure_tracking(transaction.order)
                         transaction.order.save()
                         logger.info(f"Commande {transaction.order.id} mise à jour avec succès")
+                        if transaction.transaction_type == SingPayTransaction.CASH_SERVICE_FEE:
+                            try:
+                                payment_info = OrderPayment.objects.get(order=transaction.order)
+                                payment_info.service_fee_amount = transaction.amount
+                                payment_info.save()
+                            except OrderPayment.DoesNotExist:
+                                pass
                     
                     # Stocker l'ID de commande dans la session pour la page de succès
                     if transaction.order:
@@ -687,6 +802,13 @@ def singpay_return(request):
                         transaction.order.status = Order.Underway
                         _ensure_tracking(transaction.order)
                         transaction.order.save()
+                        if transaction.transaction_type == SingPayTransaction.CASH_SERVICE_FEE:
+                            try:
+                                payment_info = OrderPayment.objects.get(order=transaction.order)
+                                payment_info.service_fee_amount = transaction.amount
+                                payment_info.save()
+                            except OrderPayment.DoesNotExist:
+                                pass
                     
                     if transaction.status != SingPayTransaction.SUCCESS:
                         transaction.status = SingPayTransaction.SUCCESS
@@ -709,6 +831,13 @@ def singpay_return(request):
                 transaction.order.status = Order.Underway
                 _ensure_tracking(transaction.order)
                 transaction.order.save()
+                if transaction.transaction_type == SingPayTransaction.CASH_SERVICE_FEE:
+                    try:
+                        payment_info = OrderPayment.objects.get(order=transaction.order)
+                        payment_info.service_fee_amount = transaction.amount
+                        payment_info.save()
+                    except OrderPayment.DoesNotExist:
+                        pass
             
             # Mettre à jour la transaction si nécessaire
             if transaction.status != SingPayTransaction.SUCCESS:

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<main class="main pages" style="padding-top: 100px; padding-bottom: 80px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 520px; margin: 0 auto; padding: 0 24px;">
+        <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); border: 1px solid #F3F4F6;">
+            <h1 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">Confirmation {{ is_buyer|yesno:"réception,livraison" }}</h1>
+            <p style="font-size: 14px; color: #6B7280; margin-bottom: 24px;">Commande #{{ order.id }}</p>
+            <p style="font-size: 14px; color: #6B7280; margin-bottom: 20px;">{{ code_help }}</p>
+            <form method="post" action="">
+                {% csrf_token %}
+                <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px;">{{ code_label }}</label>
+                <input type="text" name="code" maxlength="6" placeholder="Ex: 123456" style="width: 100%; padding: 14px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 18px; letter-spacing: 4px; text-align: center; box-sizing: border-box;" autocomplete="off" required>
+                <button type="submit" style="width: 100%; margin-top: 20px; padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">Valider</button>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}

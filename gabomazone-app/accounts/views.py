@@ -544,8 +544,9 @@ def sell_product(request):
             messages.error(request, f'Erreur de base de données: {str(e)}. Veuillez exécuter les migrations.')
             return redirect('accounts:sell-product')
         
-        # Créer l'article
+        # Créer l'article (mis en ligne directement ; l'admin reçoit une notification)
         try:
+            from django.utils import timezone
             product = PeerToPeerProduct.objects.create(
                 seller=request.user,
                 product_name=product_name,
@@ -564,46 +565,11 @@ def sell_product(request):
                 additional_image_3=additional_image_3,
                 additional_image_4=additional_image_4,
                 PRDSlug=slug,
-                status=PeerToPeerProduct.PENDING
+                status=PeerToPeerProduct.APPROVED,
+                approved_date=timezone.now()
             )
             
-            # Calculer la commission (fait automatiquement dans save())
-            
-            # Créer manuellement une notification admin si le signal n'a pas fonctionné
-            try:
-                from .models import AdminNotification
-                from django.db import connection
-                with connection.cursor() as cursor:
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_adminnotification'")
-                    if cursor.fetchone():
-                        # Vérifier si une notification existe déjà
-                        existing = AdminNotification.objects.filter(
-                            notification_type=AdminNotification.PRODUCT_APPROVAL,
-                            related_object_id=product.id,
-                            related_object_type='PeerToPeerProduct',
-                            is_resolved=False
-                        ).first()
-                        
-                        if not existing:
-                            from django.urls import reverse
-                            try:
-                                related_url = reverse('admin:accounts_peertopeerproduct_change', args=[product.id])
-                            except:
-                                related_url = f'/admin/accounts/peertopeerproduct/{product.id}/change/'
-                            
-                            AdminNotification.objects.create(
-                                notification_type=AdminNotification.PRODUCT_APPROVAL,
-                                title=f"Produit C2C en attente d'approbation - {product.product_name}",
-                                message=f"Le produit '{product.product_name}' de {product.seller.username} est en attente d'approbation.",
-                                related_object_id=product.id,
-                                related_object_type='PeerToPeerProduct',
-                                related_url=related_url
-                            )
-            except Exception as e:
-                # Ignorer les erreurs de notification
-                pass
-            
-            messages.success(request, f'Votre article "{product_name}" a été soumis avec succès. Il sera examiné par notre équipe avant publication.')
+            messages.success(request, f'Votre article "{product_name}" est en ligne.')
             
             # Rediriger vers "Mes articles publiés" avec une proposition de boost
             # Une fois approuvé, l'utilisateur pourra booster son article
@@ -742,13 +708,9 @@ def edit_peer_product(request, product_id):
                 counter += 1
             product.PRDSlug = slug
         
-        # Réinitialiser le statut à PENDING si l'article était approuvé (pour réexamen)
-        if product.status == PeerToPeerProduct.APPROVED:
-            product.status = PeerToPeerProduct.PENDING
-        
         product.save()
         
-        messages.success(request, f'Votre article "{product_name}" a été modifié avec succès. Il sera réexaminé par notre équipe.')
+        messages.success(request, f'Votre article "{product_name}" a été modifié avec succès.')
         return redirect('accounts:sell-product')
     
     # Récupérer les articles de l'utilisateur pour l'affichage (exclure les vendus)

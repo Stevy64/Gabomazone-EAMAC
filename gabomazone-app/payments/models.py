@@ -36,6 +36,7 @@ class SingPayTransaction(models.Model):
     SUBSCRIPTION_PAYMENT = 'subscription_payment'
     C2C_PAYMENT = 'c2c_payment'
     COMMISSION_PAYMENT = 'commission_payment'
+    CASH_SERVICE_FEE = 'cash_service_fee'
     
     TRANSACTION_TYPE_CHOICES = [
         (ORDER_PAYMENT, _('Paiement de commande')),
@@ -43,6 +44,7 @@ class SingPayTransaction(models.Model):
         (SUBSCRIPTION_PAYMENT, _('Paiement abonnement')),
         (C2C_PAYMENT, _('Paiement C2C')),
         (COMMISSION_PAYMENT, _('Paiement commission')),
+        (CASH_SERVICE_FEE, _('Frais de service paiement à la livraison')),
     ]
     
     # Champs SingPay

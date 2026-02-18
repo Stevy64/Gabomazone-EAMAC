@@ -546,6 +546,17 @@ class SingPayService:
         singpay_transaction.paid_at = timezone.now()
         singpay_transaction.save()
         
+        # Traçabilité : paiement reçu, fonds en escrow
+        try:
+            from .models import C2CPaymentEvent
+            C2CPaymentEvent.log_event(
+                c2c_order=c2c_order,
+                event_type=C2CPaymentEvent.PAID_ESCROW,
+                transaction=singpay_transaction,
+            )
+        except Exception as e:
+            logger.warning(f"Log C2CPaymentEvent PAID_ESCROW non enregistré: {e}")
+        
         return c2c_order
     
     @staticmethod

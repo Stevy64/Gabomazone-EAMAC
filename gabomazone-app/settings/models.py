@@ -80,6 +80,9 @@ class SiteSetting(models.Model):
         upload_to='site_logo/imgs/', blank=True, null=True, max_length=1000, verbose_name=_("Footer Image"), help_text=_("Please use our recommended dimensions: width='978' height='533'"))
     shipping = models.FloatField(
         blank=True, null=True, verbose_name=_("Shipping fee"))
+    cash_delivery_service_fee = models.DecimalField(
+        max_digits=12, decimal_places=2, default=500, blank=True, null=True,
+        verbose_name=_("Frais de service paiement à la livraison (FCFA)"))
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     date_update = models.DateTimeField(auto_now=True, blank=True, null=True)
 

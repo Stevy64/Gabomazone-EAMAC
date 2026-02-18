@@ -101,84 +101,113 @@
    TABLES MODERNIZATION
    ============================================ */
 
-#result_list {
+/* ——— Corpus tableaux : design épuré et moderne ——— */
+#result_list,
+.results table,
+.change-list .results table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    background: white;
+    background: #fff;
     border-radius: var(--admin-border-radius);
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8e8e8;
 }
 
-#result_list thead {
-    background: linear-gradient(135deg, #3c8dbc 0%, #2e6da4 100%);
+#result_list thead,
+.results table thead {
+    background: linear-gradient(180deg, #f6f8fa 0%, #eef1f5 100%);
+    border-bottom: 2px solid #e0e4e8;
 }
 
-#result_list thead th {
-    color: #ffffff !important;
-    font-weight: 700;
+#result_list thead th,
+.results table thead th {
+    color: #374151 !important;
+    font-weight: 600;
     text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    padding: 16px 20px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 14px 18px;
     border: none;
+    border-right: 1px solid #e8eaed;
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-#result_list thead th a {
-    color: #ffffff !important;
+#result_list thead th:last-child,
+.results table thead th:last-child {
+    border-right: none;
+}
+
+#result_list thead th a,
+.results table thead th a {
+    color: #374151 !important;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-#result_list thead th a:hover {
-    color: #f0f0f0 !important;
-    text-decoration: underline;
+#result_list thead th a:hover,
+.results table thead th a:hover {
+    color: var(--admin-primary) !important;
 }
 
-#result_list thead th .text {
-    color: #ffffff !important;
+#result_list thead th .text,
+.results table thead th .text {
+    color: #374151 !important;
 }
 
-#result_list thead th .sortoptions {
-    color: #ffffff !important;
+#result_list thead th .sortoptions,
+.results table thead th .sortoptions {
+    color: #6b7280 !important;
 }
 
-#result_list thead th .sortoptions a {
-    color: #ffffff !important;
+#result_list thead th .sortoptions a,
+.results table thead th .sortoptions a {
+    color: #6b7280 !important;
 }
 
-#result_list thead th:first-child {
+#result_list thead th:first-child,
+.results table thead th:first-child {
     border-top-left-radius: var(--admin-border-radius);
 }
 
-#result_list thead th:last-child {
+#result_list thead th:last-child,
+.results table thead th:last-child {
     border-top-right-radius: var(--admin-border-radius);
 }
 
-#result_list tbody tr {
-    transition: all 0.2s ease;
+#result_list tbody tr,
+.results table tbody tr {
+    transition: background 0.15s ease;
     border-bottom: 1px solid #f0f0f0;
 }
 
-#result_list tbody tr:hover {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+#result_list tbody tr:nth-child(even),
+.results table tbody tr:nth-child(even) {
+    background: #fafbfc;
 }
 
-#result_list tbody td {
-    padding: 16px 20px;
+#result_list tbody tr:hover,
+.results table tbody tr:hover {
+    background: #f0f4ff !important;
+}
+
+#result_list tbody td,
+.results table tbody td {
+    padding: 14px 18px;
     vertical-align: middle;
     border: none;
+    font-size: 14px;
+    color: #374151;
 }
 
-#result_list tbody tr:last-child td:first-child {
+#result_list tbody tr:last-child td:first-child,
+.results table tbody tr:last-child td:first-child {
     border-bottom-left-radius: var(--admin-border-radius);
 }
 
-#result_list tbody tr:last-child td:last-child {
+#result_list tbody tr:last-child td:last-child,
+.results table tbody tr:last-child td:last-child {
     border-bottom-right-radius: var(--admin-border-radius);
 }
 
@@ -247,48 +276,53 @@ input[type="search"]::placeholder {
     opacity: 1;
 }
 
-/* Modern Dropdown Styles - Similar to vendor space */
+/* ——— Corpus listes déroulantes : design épuré et moderne ——— */
 select.form-control,
 select,
 select[name],
-select[id] {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%233c8dbc' d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+select[id],
+.filter select,
+.actions select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'%3E%3Cpath fill='%236b7280' d='M8 10.5L3 5.5h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
-    background-size: 16px;
-    padding: 12px 45px 12px 16px;
+    background-size: 14px;
+    padding: 12px 42px 12px 16px;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     cursor: pointer;
-    background-color: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
     font-size: 14px;
-    font-weight: 600;
-    color: #2c3e50;
-    transition: all 0.3s ease;
-    min-height: 44px;
-    line-height: 1.5;
+    font-weight: 500;
+    color: #374151;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 42px;
+    line-height: 1.4;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 select.form-control:hover,
 select:hover,
 select[name]:hover,
-select[id]:hover {
-    border-color: var(--admin-primary);
-    box-shadow: 0 4px 12px rgba(60, 141, 188, 0.15);
-    background-color: #f8f9ff;
-    transform: translateY(-1px);
+select[id]:hover,
+.filter select:hover,
+.actions select:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 select.form-control:focus,
 select:focus,
 select[name]:focus,
-select[id]:focus {
+select[id]:focus,
+.filter select:focus,
+.actions select:focus {
     border-color: var(--admin-primary);
-    box-shadow: 0 0 0 4px rgba(60, 141, 188, 0.15);
-    background-color: #f8f9ff;
+    box-shadow: 0 0 0 3px rgba(60, 141, 188, 0.12);
+    background-color: #fff;
     outline: none;
 }
 
@@ -296,27 +330,20 @@ select.form-control option,
 select option,
 select[name] option,
 select[id] option {
-    padding: 12px 16px;
+    padding: 10px 14px;
     font-size: 14px;
     font-weight: 500;
-    color: #2c3e50;
-    background: white;
-}
-
-select.form-control option:hover,
-select option:hover,
-select[name] option:hover,
-select[id] option:hover {
-    background: rgba(60, 141, 188, 0.1);
+    color: #374151;
+    background: #fff;
 }
 
 select.form-control option:checked,
 select option:checked,
 select[name] option:checked,
 select[id] option:checked {
-    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
-    color: white;
-    font-weight: 700;
+    background: #f0f4ff;
+    color: var(--admin-primary-dark);
+    font-weight: 600;
 }
 
 /* Custom Dropdown Wrapper for Better Styling */
@@ -1020,46 +1047,82 @@ iframe[id*="editor"]:focus-within {
 }
 
 /* ============================================
-   BUTTONS MODERNIZATION
+   BUTTONS — Corpus élégant et épuré
    ============================================ */
 
-.btn {
-    border-radius: 8px;
+.btn,
+input[type="submit"].default,
+.button,
+.object-tools a {
+    border-radius: 10px;
     padding: 10px 20px;
     font-weight: 600;
     font-size: 14px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    letter-spacing: 0.01em;
 }
 
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.btn:hover,
+input[type="submit"].default:hover,
+.button:hover,
+.object-tools a:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+.btn:active,
+input[type="submit"].default:active,
+.button:active {
+    transform: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary,
+input[type="submit"].default,
+.button.default {
+    background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
     color: white;
 }
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, var(--admin-primary-light) 0%, var(--admin-primary) 100%);
+.btn-primary:hover,
+input[type="submit"].default:hover,
+.button.default:hover {
+    background: linear-gradient(180deg, var(--admin-primary-light) 0%, var(--admin-primary) 100%);
+    color: white;
 }
 
 .btn-success {
-    background: linear-gradient(135deg, var(--admin-success) 0%, #218838 100%);
+    background: linear-gradient(180deg, var(--admin-success) 0%, #218838 100%);
     color: white;
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, var(--admin-danger) 0%, #c82333 100%);
+    background: linear-gradient(180deg, var(--admin-danger) 0%, #c82333 100%);
     color: white;
 }
 
 .btn-sm {
-    padding: 8px 16px;
+    padding: 8px 14px;
     font-size: 13px;
+    border-radius: 8px;
+}
+
+/* Liens bouton dans object-tools */
+.object-tools a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: white;
+}
+.object-tools a.btn-default {
+    background: linear-gradient(180deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+.object-tools a.btn-default:hover {
+    background: linear-gradient(180deg, #5a6268 0%, #495057 100%);
+    color: white;
 }
 
 /* ============================================
@@ -1225,8 +1288,7 @@ iframe[id*="editor"]:focus-within {
 }
 
 .object-tools a:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     background: linear-gradient(135deg, var(--admin-primary-light) 0%, var(--admin-primary) 100%);
 }
 
@@ -1672,6 +1734,246 @@ table thead th .text,
     
     .custom-dropdown-menu {
         max-height: 250px;
+    }
+}
+
+/* ============================================
+   SIDEBAR & NAV — Élégance, épuré
+   ============================================ */
+
+.main-sidebar {
+    padding-bottom: 1rem;
+}
+.sidebar .nav-header {
+    padding: 0.75rem 1rem 0.35rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin: 0.5rem 0.75rem 0;
+}
+.sidebar .nav-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+}
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.06);
+    border-left-color: rgba(255,255,255,0.3);
+}
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,0.1);
+    border-left-color: #fff;
+}
+.sidebar .nav-icon {
+    width: 1.75rem;
+    text-align: center;
+    margin-right: 0.5rem;
+}
+.brand-link {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.brand-text {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Header admin — épuré */
+.main-header .navbar {
+    padding: 0.35rem 0.75rem;
+}
+.main-header .nav-link {
+    padding: 0.5rem 0.75rem;
+}
+.main-header .navbar-nav .badge {
+    font-size: 0.7rem;
+    min-width: 1.1rem;
+}
+
+/* Dashboard cards */
+.admin-dashboard-modern .small-box {
+    border-radius: 12px;
+}
+.admin-dashboard-modern .card {
+    border-radius: 12px;
+}
+.admin-dashboard-modern .content-header h1 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Actions rapides: desktop = ligne, mobile = grille 2x2 */
+.admin-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.admin-quick-actions-label {
+    margin-right: 0.5rem;
+    flex: 0 0 auto;
+}
+.admin-quick-actions-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Sidebar: nav-header same style */
+.sidebar .nav-header-sm {
+    padding: 0.75rem 1rem 0.35rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin: 0.5rem 0.75rem 0;
+}
+
+/* Sidebar: sections B2C / C2C — plus visibles */
+.sidebar .nav-header-section {
+    padding: 0.85rem 1rem 0.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    margin: 0.75rem 0.75rem 0.25rem;
+}
+.sidebar .nav-header-section:first-of-type {
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   MOBILE-FIRST — Admin responsive
+   ============================================ */
+
+/* Base: mobile first (default = small screen) */
+@media (max-width: 991.98px) {
+    .content-wrapper,
+    .main-footer {
+        margin-left: 0 !important;
+    }
+    .main-header .navbar {
+        padding: 0.25rem 0.5rem;
+    }
+    .main-header .nav-link {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    .main-header .nav-link .d-none.d-md-inline {
+        display: none !important;
+    }
+    .content-wrapper .content-header {
+        padding: 0.75rem 1rem;
+    }
+    .content-wrapper .content-header h1 {
+        font-size: 1.2rem;
+    }
+    .content-wrapper .content {
+        padding: 0.75rem;
+    }
+    .admin-dashboard-modern .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    .admin-dashboard-modern .row.mb-4 .card-body,
+    .admin-quick-actions {
+        padding: 0.6rem 0.75rem;
+    }
+    .admin-quick-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .admin-quick-actions-label {
+        margin-right: 0;
+        margin-bottom: 0;
+    }
+    .admin-quick-actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    .admin-quick-actions .btn-sm {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        margin: 0;
+        text-align: center;
+        justify-content: center;
+    }
+    .admin-dashboard-modern .small-box .inner {
+        padding: 12px 14px;
+    }
+    .admin-dashboard-modern .small-box .inner h3 {
+        font-size: 1.5rem;
+    }
+    .admin-dashboard-modern .small-box .inner p {
+        font-size: 0.8rem;
+    }
+    .admin-dashboard-modern .card-body {
+        padding: 1rem;
+    }
+    /* Tables: scroll horizontal */
+    #result_list {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #result_list thead th,
+    #result_list tbody td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    .actions select,
+    .actions button {
+        margin-bottom: 0.5rem;
+        min-height: 38px;
+    }
+    /* Change form: stack fields on mobile */
+    .admin .form-row {
+        flex-direction: column;
+        margin-bottom: 0.75rem;
+    }
+    .admin .form-row label {
+        margin-bottom: 0.25rem;
+    }
+    /* Breadcrumb compact */
+    .content-header .breadcrumb {
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+    }
+}
+
+/* Touch-friendly sidebar toggle (hamburger) */
+@media (max-width: 991.98px) {
+    .main-header .nav-link[data-widget="pushmenu"] {
+        padding: 0.6rem 0.75rem;
+        font-size: 1.2rem;
+    }
+}
+
+/* Tablet and up: restore sidebar */
+@media (min-width: 992px) {
+    .main-sidebar {
+        transform: none;
+    }
+    .content-wrapper,
+    .main-footer {
+        margin-left: 250px;
+    }
+}
+
+/* Large: more breathing room */
+@media (min-width: 1200px) {
+    .content-wrapper .content {
+        padding: 1.5rem;
+    }
+    .admin-dashboard-modern .small-box .inner h3 {
+        font-size: 2rem;
     }
 }
 

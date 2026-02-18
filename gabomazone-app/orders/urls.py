@@ -15,6 +15,7 @@ urlpatterns = [
      path('payment/', views.payment, name="payment"),
      path('payment_blance/', views.payment_blance, name="payment-blance"),
      path('payment_cash/', views.payment_cash, name="payment-cash"),
+     path('payment_cash_fee/', views.payment_cash_fee, name="payment-cash-fee"),
      path('order/cancel/', views.CancelView.as_view(), name='cancel'),
      path('order/success/', views.success, name='success'),
      # path('create_payment/', views.create_payment, name='create-payment'),
@@ -22,7 +23,8 @@ urlpatterns = [
      # path('tracking/', views.tracking, name='tracking'),
     path('api/cart-count/', views.get_cart_count, name="get-cart-count"),
     path('invoice-print/<int:order_id>/', views.invoice_print, name="invoice-print"),
-     
+    path('order/<int:order_id>/verify-b2c-buyer/', views.verify_b2c_buyer_code, name='verify-b2c-buyer'),
+    path('order/<int:order_id>/verify-b2c-seller/', views.verify_b2c_seller_code, name='verify-b2c-seller'),
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

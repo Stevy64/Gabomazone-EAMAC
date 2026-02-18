@@ -219,6 +219,18 @@ class EscrowService:
                 transaction.disbursement_id = disbursement_id
                 transaction.save()
                 
+                # Traçabilité : fonds libérés au vendeur
+                try:
+                    from c2c.models import C2CPaymentEvent
+                    C2CPaymentEvent.log_event(
+                        c2c_order=c2c_order,
+                        event_type=C2CPaymentEvent.RELEASED,
+                        transaction=transaction,
+                        metadata={'disbursement_id': disbursement_id, 'amount': amount},
+                    )
+                except Exception as e:
+                    logger.warning(f"Log C2CPaymentEvent RELEASED non enregistré: {e}")
+                
                 logger.info(f"Escrow libéré pour la commande C2C {c2c_order.id}, disbursement: {disbursement_id}")
                 return True, {
                     'disbursement_id': disbursement_id,
@@ -271,5 +283,83 @@ class EscrowService:
                 
         except Exception as e:
             logger.exception(f"Erreur lors du remboursement de l'escrow: {str(e)}")
+            return False, {'error': str(e)}
+
+    @staticmethod
+    def refund_escrow_c2c_cancel(
+        c2c_order: C2COrder,
+        reason: str = 'Annulation C2C avant double vérification',
+        initiated_by: str = 'admin'
+    ) -> Tuple[bool, dict]:
+        """
+        Annule une commande C2C avant la double vérification des codes.
+        Rembourse l'acheteur du montant (buyer_total - platform_commission) :
+        l'acheteur récupère son argent, Gabomazone garde les frais de service.
+        """
+        try:
+            transaction = getattr(c2c_order, 'payment_transaction', None)
+            if not transaction:
+                return False, {'error': 'Aucune transaction de paiement liée à cette commande C2C'}
+            if transaction.transaction_type != SingPayTransaction.C2C_PAYMENT:
+                return False, {'error': 'Transaction non C2C'}
+            if transaction.escrow_status != SingPayTransaction.ESCROW_PENDING:
+                return False, {'error': f'Fonds non en attente (statut: {transaction.get_escrow_status_display()})'}
+            if transaction.status != SingPayTransaction.SUCCESS:
+                return False, {'error': 'Transaction non payée'}
+
+            # Montant à rembourser = total payé par l'acheteur moins la commission plateforme (frais gardés)
+            refund_amount = float(c2c_order.buyer_total - c2c_order.platform_commission)
+            commission_retained = float(c2c_order.platform_commission)
+            if refund_amount <= 0:
+                return False, {'error': 'Montant à rembourser invalide'}
+
+            success, response = singpay_service.refund_payment(
+                transaction_id=transaction.transaction_id,
+                amount=refund_amount,
+                reason=reason
+            )
+            if not success:
+                return False, response
+
+            transaction.escrow_status = SingPayTransaction.ESCROW_REFUNDED
+            transaction.status = SingPayTransaction.REFUNDED
+            if not transaction.metadata:
+                transaction.metadata = {}
+            transaction.metadata['refund_amount'] = refund_amount
+            transaction.metadata['commission_retained'] = commission_retained
+            transaction.metadata['refund_reason'] = reason
+            transaction.metadata['refund_initiated_by'] = initiated_by
+            transaction.metadata['c2c_cancelled_at'] = timezone.now().isoformat()
+            transaction.save()
+
+            c2c_order.status = C2COrder.CANCELLED
+            c2c_order.save(update_fields=['status'])
+
+            # Log pour traçabilité
+            try:
+                from c2c.models import C2CPaymentEvent
+                C2CPaymentEvent.log_event(
+                    c2c_order=c2c_order,
+                    event_type=C2CPaymentEvent.CANCELLED_REFUND,
+                    transaction=transaction,
+                    amount_refunded=refund_amount,
+                    commission_retained=commission_retained,
+                    metadata={'reason': reason, 'initiated_by': initiated_by}
+                )
+            except Exception as e:
+                logger.warning(f"Log C2CPaymentEvent non enregistré: {e}")
+
+            logger.info(
+                f"Escrow C2C annulé: commande #{c2c_order.id}, remboursé {refund_amount} FCFA, "
+                f"frais gardés {commission_retained} FCFA"
+            )
+            return True, {
+                'refund_id': response.get('refund_id'),
+                'refund_amount': refund_amount,
+                'commission_retained': commission_retained,
+                'message': 'Remboursement effectué, frais de service conservés par la plateforme'
+            }
+        except Exception as e:
+            logger.exception(f"Erreur remboursement escrow C2C (annulation): {str(e)}")
             return False, {'error': str(e)}
 

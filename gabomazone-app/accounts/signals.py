@@ -104,40 +104,41 @@ def notify_admin_on_contact_message(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender='accounts.PeerToPeerProduct')
-def notify_admin_on_product_pending(sender, instance, created, **kwargs):
-    """Créer une notification admin lorsqu'un produit C2C est en attente d'approbation"""
+def notify_admin_on_new_product(sender, instance, created, **kwargs):
+    """Notifier l'admin lorsqu'un nouvel article C2C est mis en ligne (pas de validation requise)."""
     try:
         AdminNotification = get_admin_notification_model()
         if not AdminNotification:
-            # La table n'existe pas encore
             return
         
         from .models import PeerToPeerProduct
         
-        # Vérifier si c'est une création et que le statut est PENDING
-        if created and hasattr(instance, 'status') and instance.status == PeerToPeerProduct.PENDING:
-            try:
-                related_url = reverse('admin:accounts_peertopeerproduct_change', args=[instance.id])
-            except:
-                related_url = f'/admin/accounts/peertopeerproduct/{instance.id}/change/'
-            
-            # Vérifier si une notification existe déjà pour ce produit
-            existing_notification = AdminNotification.objects.filter(
+        if not created or not hasattr(instance, 'status'):
+            return
+        # Notifier pour tout nouvel article (mis en ligne directement)
+        if instance.status != PeerToPeerProduct.APPROVED:
+            return
+        try:
+            related_url = reverse('admin:accounts_peertopeerproduct_change', args=[instance.id])
+        except Exception:
+            related_url = f'/admin/accounts/peertopeerproduct/{instance.id}/change/'
+        
+        existing_notification = AdminNotification.objects.filter(
+            notification_type=AdminNotification.PRODUCT_APPROVAL,
+            related_object_id=instance.id,
+            related_object_type='PeerToPeerProduct',
+            is_resolved=False
+        ).first()
+        
+        if not existing_notification:
+            AdminNotification.objects.create(
                 notification_type=AdminNotification.PRODUCT_APPROVAL,
+                title=f"Nouvel article C2C en ligne - {instance.product_name}",
+                message=f"L'article '{instance.product_name}' de {instance.seller.username} a été mis en ligne.",
                 related_object_id=instance.id,
                 related_object_type='PeerToPeerProduct',
-                is_resolved=False
-            ).first()
-            
-            if not existing_notification:
-                AdminNotification.objects.create(
-                    notification_type=AdminNotification.PRODUCT_APPROVAL,
-                    title=f"Produit C2C en attente d'approbation - {instance.product_name}",
-                    message=f"Le produit '{instance.product_name}' de {instance.seller.username} est en attente d'approbation.",
-                    related_object_id=instance.id,
-                    related_object_type='PeerToPeerProduct',
-                    related_url=related_url
-                )
+                related_url=related_url
+            )
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)

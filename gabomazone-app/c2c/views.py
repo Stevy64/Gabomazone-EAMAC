@@ -630,12 +630,21 @@ def c2c_order_detail(request, order_id):
         verification = order.delivery_verification
     except DeliveryVerification.DoesNotExist:
         pass
+
+    # Annulation possible tant que la double vérification n'est pas faite (fonds en escrow)
+    can_cancel = False
+    if verification and order.status in (C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED):
+        if not verification.is_completed():
+            t = getattr(order, 'payment_transaction', None)
+            if t and getattr(t, 'escrow_status', None) == 'escrow_pending':
+                can_cancel = True
     
     context = {
         'order': order,
         'verification': verification,
         'is_buyer': request.user == order.buyer,
         'is_seller': request.user == order.seller,
+        'can_cancel': can_cancel,
     }
     return render(request, 'c2c/order_detail.html', context)
 
@@ -722,8 +731,8 @@ def payment_success(request, order_id):
     # Préparer le message avec les codes
     if request.user == order.buyer:
         messages.success(
-            request, 
-            f"🎉 Paiement réussi ! Votre code de vérification (A-CODE) est : {verification.buyer_code}. "
+            request,
+            f"Paiement réussi ! Votre code de vérification (A-CODE) est : {verification.buyer_code}. "
             f"Communiquez ce code au vendeur lors de la remise de l'article."
         )
     else:
@@ -736,6 +745,52 @@ def payment_success(request, order_id):
     # Rediriger vers la messagerie avec le produit concerné
     from django.urls import reverse
     return redirect(f"{reverse('accounts:my-messages')}?product_id={order.product.id}")
+
+
+@login_required
+@require_POST
+def cancel_c2c_order(request, order_id):
+    """
+    Annule une commande C2C avant la double vérification des codes.
+    L'acheteur est remboursé (montant - frais), la plateforme garde les frais de service.
+    Accessible à l'acheteur ou au vendeur.
+    """
+    from payments.escrow_service import EscrowService
+    from payments.models import SingPayTransaction
+
+    order = get_object_or_404(C2COrder, id=order_id)
+    if request.user not in [order.buyer, order.seller]:
+        messages.error(request, "Vous n'avez pas le droit d'annuler cette commande.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    if order.status not in (C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED):
+        messages.error(request, "Cette commande ne peut plus être annulée.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    try:
+        verification = order.delivery_verification
+        if verification.is_completed():
+            messages.error(request, "La double vérification des codes est déjà effectuée ; l'annulation n'est plus possible.")
+            return redirect('c2c:order-detail', order_id=order_id)
+    except Exception:
+        pass
+
+    if not order.payment_transaction or order.payment_transaction.escrow_status != SingPayTransaction.ESCROW_PENDING:
+        messages.error(request, "Aucun paiement en attente à annuler pour cette commande.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    initiated_by = 'buyer' if request.user == order.buyer else 'seller'
+    reason = request.POST.get('reason', f'Annulation par l\'{initiated_by} avant double vérification')
+    success, response = EscrowService.refund_escrow_c2c_cancel(order, reason=reason, initiated_by=initiated_by)
+
+    if success:
+        messages.success(
+            request,
+            "Transaction annulée. Vous serez remboursé sous peu (frais de service conservés par la plateforme)."
+        )
+    else:
+        messages.error(request, response.get('error', "Impossible d'annuler la transaction."))
+    return redirect('c2c:order-detail', order_id=order_id)
 
 
 @login_required

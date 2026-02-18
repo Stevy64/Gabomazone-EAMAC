@@ -214,6 +214,22 @@
         </div>
         {% endif %}
         
+        <!-- Annuler la transaction (avant double vérification) -->
+        {% if can_cancel %}
+        <div class="c2c-order-section" style="padding: 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px;">
+            <p style="margin: 0 0 12px 0; color: #991B1B; font-size: 14px;">
+                Vous pouvez annuler cette transaction avant que les deux codes soient vérifiés. L'acheteur sera remboursé (frais de service conservés par la plateforme).
+            </p>
+            <form method="post" action="{% url 'c2c:order-cancel' order.id %}" style="display: inline;" onsubmit="return confirm('Annuler la transaction ? L\'acheteur sera remboursé, les frais restent à la plateforme.');">
+                {% csrf_token %}
+                <button type="submit" class="c2c-btn" style="background: #DC2626; color: white;">
+                    <i class="fi-rs-cross-circle"></i>
+                    Annuler la transaction
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
         <!-- Vérification de livraison -->
         {% if verification and order.status in 'paid,pending_delivery,delivered' %}
         <div class="c2c-verification-box">

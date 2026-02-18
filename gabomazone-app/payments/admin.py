@@ -30,13 +30,13 @@ class VendorPaymentsAdmin(admin.ModelAdmin):
 class SingPayTransactionAdmin(admin.ModelAdmin):
     list_display = (
         'transaction_id', 'internal_order_id', 'amount', 'currency', 'status',
-        'transaction_type', 'customer_name', 'customer_email', 'created_at'
+        'transaction_type', 'escrow_status', 'customer_name', 'customer_email', 'created_at'
     )
-    list_filter = ('status', 'transaction_type', 'currency', 'created_at')
+    list_filter = ('status', 'transaction_type', 'escrow_status', 'currency', 'created_at')
     search_fields = ('transaction_id', 'internal_order_id', 'customer_email', 'customer_phone', 'customer_name')
     readonly_fields = (
         'transaction_id', 'reference', 'payment_url', 'created_at', 'updated_at',
-        'paid_at', 'expires_at'
+        'paid_at', 'expires_at', 'escrow_released_at', 'disbursement_id'
     )
     fieldsets = (
         ('Informations SingPay', {
@@ -44,6 +44,10 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
         }),
         ('Paiement', {
             'fields': ('amount', 'currency', 'transaction_type', 'payment_method', 'paid_at')
+        }),
+        ('Escrow (séquestre)', {
+            'fields': ('escrow_status', 'escrow_released_at', 'disbursement_id'),
+            'description': 'Pour C2C: fonds bloqués jusqu\'à double vérification des codes.'
         }),
         ('Client', {
             'fields': ('customer_name', 'customer_email', 'customer_phone')
@@ -63,7 +67,13 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
     )
     list_per_page = 25
     date_hierarchy = 'created_at'
-    actions = ['cancel_selected_transactions', 'refund_selected_transactions', 'verify_selected_transactions']
+    actions = [
+        'cancel_selected_transactions',
+        'refund_selected_transactions',
+        'verify_selected_transactions',
+        'release_escrow_c2c_selected',
+        'refund_c2c_cancel_keep_fees_selected',
+    ]
     
     def cancel_selected_transactions(self, request, queryset):
         """Action admin pour annuler des transactions sélectionnées"""
@@ -135,6 +145,62 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
         if updated > 0:
             self.message_user(request, f'{updated} transaction(s) mise(s) à jour', messages.SUCCESS)
     verify_selected_transactions.short_description = "Vérifier le statut des transactions sélectionnées"
+
+    def release_escrow_c2c_selected(self, request, queryset):
+        """Libère l'escrow pour les transactions C2C sélectionnées (versement au vendeur)."""
+        from payments.escrow_service import EscrowService
+        from .models import SingPayTransaction
+        released = 0
+        errors = 0
+        q = queryset.filter(
+            transaction_type=SingPayTransaction.C2C_PAYMENT,
+            status=SingPayTransaction.SUCCESS,
+            escrow_status=SingPayTransaction.ESCROW_PENDING,
+        )
+        for transaction in q:
+            c2c_order = transaction.c2c_orders.first()
+            if not c2c_order:
+                errors += 1
+                continue
+            success, response = EscrowService.release_escrow_for_c2c_order(c2c_order)
+            if success:
+                released += 1
+            else:
+                errors += 1
+        if released:
+            self.message_user(request, f'{released} escrow C2C libéré(s) avec succès', messages.SUCCESS)
+        if errors:
+            self.message_user(request, f'{errors} échec(s)', messages.WARNING)
+    release_escrow_c2c_selected.short_description = "Libérer l'escrow (C2C) - verser au vendeur"
+
+    def refund_c2c_cancel_keep_fees_selected(self, request, queryset):
+        """Rembourse l'acheteur (montant - frais) et garde les frais plateforme (annulation C2C)."""
+        from payments.escrow_service import EscrowService
+        from .models import SingPayTransaction
+        done = 0
+        errors = 0
+        q = queryset.filter(
+            transaction_type=SingPayTransaction.C2C_PAYMENT,
+            status=SingPayTransaction.SUCCESS,
+            escrow_status=SingPayTransaction.ESCROW_PENDING,
+        )
+        for transaction in q:
+            c2c_order = transaction.c2c_orders.first()
+            if not c2c_order:
+                errors += 1
+                continue
+            success, response = EscrowService.refund_escrow_c2c_cancel(
+                c2c_order, reason='Annulation par l\'administrateur', initiated_by='admin'
+            )
+            if success:
+                done += 1
+            else:
+                errors += 1
+        if done:
+            self.message_user(request, f'{done} remboursement(s) C2C (frais gardés) effectué(s)', messages.SUCCESS)
+        if errors:
+            self.message_user(request, f'{errors} échec(s)', messages.WARNING)
+    refund_c2c_cancel_keep_fees_selected.short_description = "Rembourser C2C (annulation, garder frais)"
 
 
 @admin.register(SingPayWebhookLog)

@@ -385,14 +385,16 @@ input[type="radio"]:checked ~ label {
                 }
 
                 if (selectedPayment.value === 'cash') {
-                    // Paiement à la livraison - modal homogène (GMModal) puis redirection
+                    // Paiement à la livraison : frais de service à régler via SingPay avant reçu et WhatsApp
+                    var feeText = "{{ cash_service_fee|default:500|floatformat:0 }}";
+                    var feeFormatted = (parseInt(feeText) || 500).toLocaleString('fr-FR').replace(/\s/g, ' ');
                     GMModal.show({
                         type: 'success',
-                        title: 'Un dernier pas pour finaliser ✨',
-                        message: "Excellente nouvelle : votre commande est prête ! Pour qu'elle soit envoyée à nos vendeurs et préparée pour vous, notre équipe Gabomazone vous contactera pour une rapide confirmation. Simple, rassurant et sans engagement — vous ne payez qu'à la réception de votre colis. On continue ?",
+                        title: 'Paiement à la livraison',
+                        message: "En choisissant le paiement à la livraison, des frais de service de " + feeFormatted + " FCFA vous seront facturés et devront être réglés via SingPay avant de poursuivre. Ces frais ne seront pas remboursés. Après paiement des frais, vous pourrez imprimer votre reçu et contacter Gabomazone sur WhatsApp. Continuer ?",
                         showCancel: true,
-                        cancelText: 'Plus tard',
-                        confirmText: 'Oui, je confirme ma commande',
+                        cancelText: 'Annuler',
+                        confirmText: 'Oui, continuer',
                         onConfirm: function() {
                             window.location.href = "{% url 'orders:payment-cash' %}";
                         }

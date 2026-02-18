@@ -558,6 +558,12 @@
                     <i class="fi-rs-print"></i>
                     Ouvrir la facture (nouvel onglet)
                 </a>
+                {% if show_b2c_confirm_reception %}
+                <a href="{% url 'orders:verify-b2c-buyer' order_success.id %}" class="flavoriz-btn flavoriz-btn-primary" style="background: #059669;">
+                    <i class="fi-rs-check-circle"></i>
+                    Confirmer la réception (code V-CODE)
+                </a>
+                {% endif %}
                 <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-btn flavoriz-btn-secondary">
                     <i class="fi-rs-shopping-bag"></i>
                     Mes commandes

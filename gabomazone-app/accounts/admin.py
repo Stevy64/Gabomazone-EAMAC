@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage, AdminNotification
+from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage, AdminNotification, AdminMessage
 from django.utils import timezone
 # Register your models here.
 
@@ -232,3 +232,52 @@ class AdminNotificationAdmin(admin.ModelAdmin):
     mark_as_resolved.short_description = "Marquer comme résolues"
 
 admin.site.register(AdminNotification, AdminNotificationAdmin)
+
+
+class AdminMessageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'subject', 'recipient', 'sender', 'email_sent', 'read_at', 'created_at')
+    list_filter = ('email_sent', 'created_at')
+    list_display_links = ('subject',)
+    search_fields = ('subject', 'body', 'recipient__username', 'recipient__email')
+    readonly_fields = ('sender', 'created_at', 'read_at', 'email_sent')
+    list_per_page = 25
+    date_hierarchy = 'created_at'
+    autocomplete_fields = ('recipient',)
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:
+            return (
+                (None, {'fields': ('recipient', 'subject', 'body')}),
+                ('Suivi', {'fields': ('sender', 'email_sent', 'read_at', 'created_at'), 'classes': ('collapse',)}),
+            )
+        return ((None, {'fields': ('recipient', 'subject', 'body')}),)
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return list(self.readonly_fields)
+        return ['created_at', 'read_at', 'email_sent']
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.sender = request.user
+        super().save_model(request, obj, form, change)
+        if not change:
+            self._send_email_copy(obj)
+
+    def _send_email_copy(self, admin_message):
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            send_mail(
+                subject=f"[Gabomazone] {admin_message.subject}",
+                message=admin_message.body,
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', getattr(settings, 'EMAIL_SENDGRID', 'noreply@gabomazone.com')),
+                recipient_list=[admin_message.recipient.email],
+                fail_silently=True,
+            )
+            admin_message.email_sent = True
+            admin_message.save(update_fields=['email_sent'])
+        except Exception:
+            pass
+
+admin.site.register(AdminMessage, AdminMessageAdmin)

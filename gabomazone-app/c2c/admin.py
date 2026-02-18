@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import (
     PlatformSettings, PurchaseIntent, Negotiation, C2COrder,
-    DeliveryVerification, ProductBoost, SellerBadge, SellerReview, BuyerReview
+    DeliveryVerification, ProductBoost, SellerBadge, SellerReview, BuyerReview,
+    C2CPaymentEvent,
 )
 
 
@@ -82,12 +83,23 @@ class NegotiationAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
+class C2CPaymentEventInline(admin.TabularInline):
+    model = C2CPaymentEvent
+    extra = 0
+    readonly_fields = ('event_type', 'transaction', 'amount_refunded', 'commission_retained', 'metadata', 'created_at')
+    can_delete = False
+    max_num = 0
+    ordering = ('-created_at',)
+
+
 @admin.register(C2COrder)
 class C2COrderAdmin(admin.ModelAdmin):
-    """Administration des commandes C2C avec traçabilité complète"""
+    """Administration des commandes C2C avec traçabilité complète et pilotage escrow"""
     list_display = ('id', 'product_link', 'buyer', 'seller', 'final_price',
-                   'buyer_total', 'platform_commission', 'status', 'created_at', 'view_details')
+                   'buyer_total', 'platform_commission', 'status', 'escrow_status_display', 'created_at', 'view_details')
     list_filter = ('status', 'created_at', 'paid_at', 'buyer', 'seller')
+    inlines = [C2CPaymentEventInline]
+    actions = ['action_cancel_and_refund_keep_fees', 'action_release_escrow_manual']
     search_fields = ('product__product_name', 'buyer__username', 'buyer__email', 
                     'seller__username', 'seller__email', 'id')
     date_hierarchy = 'created_at'
@@ -139,6 +151,71 @@ class C2COrderAdmin(admin.ModelAdmin):
             return format_html('<a href="{}">{}</a>', url, obj.product.product_name)
         return '-'
     product_link.short_description = 'Article'
+
+    def escrow_status_display(self, obj):
+        """Affiche le statut escrow de la transaction liée"""
+        t = getattr(obj, 'payment_transaction', None)
+        if not t:
+            return '-'
+        status = getattr(t, 'escrow_status', None)
+        if not status:
+            return '-'
+        labels = {'none': '-', 'escrow_pending': 'En attente', 'escrow_released': 'Libéré', 'escrow_refunded': 'Remboursé'}
+        return labels.get(status, status)
+    escrow_status_display.short_description = 'Escrow'
+
+    def action_cancel_and_refund_keep_fees(self, request, queryset):
+        """Annuler les commandes C2C sélectionnées : rembourser l'acheteur et garder les frais."""
+        from django.contrib import messages
+        from payments.escrow_service import EscrowService
+        from payments.models import SingPayTransaction
+        done = 0
+        errors = 0
+        for order in queryset:
+            if order.status not in (order.PAID, order.PENDING_DELIVERY, order.DELIVERED):
+                errors += 1
+                continue
+            if not getattr(order, 'payment_transaction', None):
+                errors += 1
+                continue
+            if order.payment_transaction.escrow_status != SingPayTransaction.ESCROW_PENDING:
+                errors += 1
+                continue
+            success, _ = EscrowService.refund_escrow_c2c_cancel(
+                order, reason='Annulation par l\'administrateur', initiated_by='admin'
+            )
+            if success:
+                done += 1
+            else:
+                errors += 1
+        if done:
+            self.message_user(request, f'{done} commande(s) annulée(s) et remboursée(s) (frais gardés)', messages.SUCCESS)
+        if errors:
+            self.message_user(request, f'{errors} commande(s) non éligibles ou en échec', messages.WARNING)
+    action_cancel_and_refund_keep_fees.short_description = "Annuler et rembourser (frais gardés)"
+
+    def action_release_escrow_manual(self, request, queryset):
+        """Libérer manuellement l'escrow pour les commandes C2C sélectionnées."""
+        from django.contrib import messages
+        from payments.escrow_service import EscrowService
+        from payments.models import SingPayTransaction
+        released = 0
+        errors = 0
+        for order in queryset:
+            t = getattr(order, 'payment_transaction', None)
+            if not t or t.escrow_status != SingPayTransaction.ESCROW_PENDING:
+                errors += 1
+                continue
+            success, _ = EscrowService.release_escrow_for_c2c_order(order)
+            if success:
+                released += 1
+            else:
+                errors += 1
+        if released:
+            self.message_user(request, f'{released} escrow libéré(s)', messages.SUCCESS)
+        if errors:
+            self.message_user(request, f'{errors} non éligibles ou échec', messages.WARNING)
+    action_release_escrow_manual.short_description = "Libérer l'escrow (manuel)"
     
     def negotiations_history(self, obj):
         """Affiche l'historique complet des négociations"""
@@ -282,6 +359,23 @@ class C2COrderAdmin(admin.ModelAdmin):
         html += '</div>'
         return format_html(html)
     verification_details.short_description = 'Détails de vérification'
+
+
+@admin.register(C2CPaymentEvent)
+class C2CPaymentEventAdmin(admin.ModelAdmin):
+    """Traçabilité des étapes de paiement C2C (escrow, libération, remboursement)."""
+    list_display = ('id', 'c2c_order_link', 'event_type', 'amount_refunded', 'commission_retained', 'created_at')
+    list_filter = ('event_type', 'created_at')
+    search_fields = ('c2c_order__id', 'metadata')
+    readonly_fields = ('c2c_order', 'transaction', 'event_type', 'amount_refunded', 'commission_retained', 'metadata', 'created_at')
+    date_hierarchy = 'created_at'
+
+    def c2c_order_link(self, obj):
+        if obj.c2c_order:
+            url = reverse('admin:c2c_c2corder_change', args=[obj.c2c_order.id])
+            return format_html('<a href="{}">Commande #{}</a>', url, obj.c2c_order.id)
+        return '-'
+    c2c_order_link.short_description = 'Commande C2C'
 
 
 @admin.register(DeliveryVerification)

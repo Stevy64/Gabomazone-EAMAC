@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<style>
+    #preloader-active { display: none !important; }
+</style>
+{% endblock %}
+
+{% block body %}
+<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+    <div class="container" style="max-width: 640px; margin: 0 auto; padding: 0 24px;">
+        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280;">
+            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none;">Accueil</a>
+            <span style="color: #9CA3AF;"> / </span>
+            <a href="{% url 'orders:cart' %}" style="color: #6B7280; text-decoration: none;">Panier</a>
+            <span style="color: #9CA3AF;"> / </span>
+            <span style="color: #1F2937; font-weight: 500;">Frais de service</span>
+        </nav>
+
+        <div style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); border: 1px solid #F3F4F6;">
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
+                    <i class="fi-rs-credit-card"></i>
+                </div>
+                <h1 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">Paiement des frais de service</h1>
+                <p style="font-size: 15px; color: #6B7280; margin: 0;">Paiement à la livraison : réglez les frais via SingPay pour finaliser votre commande.</p>
+            </div>
+
+            <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #E5E7EB;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 15px; color: #6B7280;">Frais de service (paiement à la livraison)</span>
+                    <span style="font-size: 22px; font-weight: 700; color: var(--color-orange);">{{ cash_fee_formatted }} FCFA</span>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #6B7280; margin-bottom: 12px; line-height: 1.5;">
+                Après le paiement, vous pourrez imprimer votre reçu et contacter Gabomazone sur WhatsApp pour confirmer votre commande.
+            </p>
+            <p style="font-size: 12px; color: #9CA3AF; margin-bottom: 24px; line-height: 1.5;">
+                Les frais de service ne seront pas remboursés.
+            </p>
+
+            <button type="button" id="pay-cash-fee-btn" style="width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: opacity 0.2s;">
+                <i class="fi-rs-lock" style="font-size: 18px;"></i>
+                <span>Payer {{ cash_fee_formatted }} FCFA via SingPay</span>
+            </button>
+        </div>
+    </div>
+</main>
+
+<script>
+(function() {
+    var btn = document.getElementById('pay-cash-fee-btn');
+    var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]') && document.querySelector('[name=csrfmiddlewaretoken]').value;
+    if (!csrftoken) {
+        var name = 'csrftoken';
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var c = cookies[i].trim();
+            if (c.indexOf(name + '=') === 0) { csrftoken = c.substring(name.length + 1); break; }
+        }
+    }
+    btn.addEventListener('click', function() {
+        btn.disabled = true;
+        btn.innerHTML = '<span>Initialisation...</span><i class="fi-rs-spinner" style="font-size: 18px; animation: spin 1s linear infinite;"></i>';
+        fetch("{% url 'payments:init-cash-fee' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success && data.payment_url) {
+                window.location.href = data.payment_url;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fi-rs-lock"></i><span>Payer {{ cash_fee_formatted }} FCFA via SingPay</span>';
+                if (typeof GMModal !== 'undefined') {
+                    GMModal.error('Erreur', data.error || 'Impossible d\'initialiser le paiement.');
+                } else {
+                    alert(data.error || 'Impossible d\'initialiser le paiement.');
+                }
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fi-rs-lock"></i><span>Payer {{ cash_fee_formatted }} FCFA via SingPay</span>';
+            if (typeof GMModal !== 'undefined') {
+                GMModal.error('Erreur', 'Une erreur est survenue. Veuillez réessayer.');
+            } else {
+                alert('Une erreur est survenue. Veuillez réessayer.');
+            }
+        });
+    });
+})();
+</script>
+<style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
+{% endblock %}

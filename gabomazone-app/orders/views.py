@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier, OrderDetailsSupplier, Province
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Order, OrderDetails, Payment, Coupon, Country, OrderSupplier, OrderDetailsSupplier, Province, B2CDeliveryVerification
 from products.models import Product
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -1104,10 +1104,13 @@ def payment(request):
             if Payment.objects.all().filter(order=old_orde):
                 payment_info = Payment.objects.get(order=old_orde)
 
+            site = SiteSetting.objects.first()
+            cash_fee = int(site.cash_delivery_service_fee) if site and getattr(site, 'cash_delivery_service_fee', None) is not None else 500
             context = {
                 "order": old_orde,
                 "payment_info": payment_info,
                 "order_details": order_details,
+                "cash_service_fee": cash_fee,
             }
             messages.success(
                 request, 'Vos informations de facturation ont été enregistrées')
@@ -1194,76 +1197,124 @@ def payment_blance(request):
 
 @login_required(login_url='accounts:login')
 def payment_cash(request):
-    # Utilisateur doit être authentifié (décorateur @login_required)
+    """
+    Paiement à la livraison : enregistre le choix Cash et redirige vers la page
+    de paiement des frais de service (SingPay) avant de finaliser la commande.
+    """
     order = Order.objects.filter(user=request.user, is_finished=False).first()
     if not order:
         messages.error(request, 'Aucune commande en cours.')
         return redirect('orders:cart')
-    cart_id = order.id
-    request.session['cart_id'] = cart_id
+    payment_obj = Payment.objects.filter(order=order).first()
+    if not payment_obj:
+        messages.error(request, 'Informations de paiement manquantes.')
+        return redirect('orders:payment')
+    payment_obj.payment_method = "Cash"
+    payment_obj.save()
+    request.session['cart_id'] = order.id
+    request.session['order_id'] = order.id
+    return redirect('orders:payment-cash-fee')
 
-    if order:
-        old_orde = order
-        try:
-            Consignee_id = old_orde.user.id
-            Consignee_email = old_orde.user.email
-        except:
-            pass
-        # profile = Profile.objects.get(user=request.user)
 
-        payment_method = Payment.objects.get(order=old_orde)
-        payment_method.payment_method = "Cash"
-        payment_method.save()
-        if not old_orde.tracking_no:
-            old_orde.tracking_no = code_generator()
-            old_orde.rpt_cache = None
+@login_required(login_url='accounts:login')
+def payment_cash_fee(request):
+    """
+    Page de paiement des frais de service pour le paiement à la livraison.
+    Affiche le montant des frais et un bouton pour payer via SingPay.
+    """
+    order_id = request.session.get('cart_id') or request.session.get('order_id')
+    if not order_id:
+        messages.error(request, 'Aucune commande en cours.')
+        return redirect('orders:cart')
+    order = Order.objects.filter(id=order_id, user=request.user, is_finished=False).first()
+    if not order:
+        if Order.objects.filter(id=order_id, is_finished=True).exists():
+            request.session['order_id'] = order_id
+            request.session['cart_id'] = order_id
+            return redirect('orders:success')
+        messages.error(request, 'Commande introuvable ou déjà finalisée.')
+        return redirect('orders:cart')
+    site = SiteSetting.objects.first()
+    fee = 0
+    if site and getattr(site, 'cash_delivery_service_fee', None) is not None:
+        fee = float(site.cash_delivery_service_fee)
+    context = {
+        'order': order,
+        'cash_fee': fee,
+        'cash_fee_formatted': f"{int(fee):,}".replace(',', ' '),
+    }
+    return render(request, 'orders/payment_cash_fee.html', context)
 
-        old_orde.is_finished = True
-        old_orde.status = "Underway"
-        old_orde.save()
-        # code for set supplier's balance
-        # order_details = OrderDetails.objects.all().filter(order=old_orde)
-        # for order_detail in order_details:
-        # item_supplier_details = OrderDetailsSupplier.objects.all().filter(
-        #     order=old_orde)
-        # for item_supplier in item_supplier_details:
-        obj_order_suppliers = OrderSupplier.objects.all().filter(order=old_orde)
-        for obj_order_supplier in obj_order_suppliers:
-            # order_details__supplier = OrderDetailsSupplier.objects.all().filter(
-            #     order_supplier=obj_order_supplier, order=old_orde)
-            # f_total = 0
-            # w_total = 0
-            # weight = 0
-            # for sub in order_details__supplier:
-            #     f_total += sub.price * sub.quantity
-            #     w_total += sub.weight * sub.quantity
-            #     total = f_total
-            #     weight = w_total
-            supplier = Profile.objects.get(id=obj_order_supplier.vendor.id)
-            supplier.blance = float(
-                supplier.blance) + float(obj_order_supplier.amount)
-            supplier.save()
 
-        if "coupon_id" in request.session.keys():
-            del request.session["coupon_id"]
+@login_required(login_url='accounts:login')
+@require_http_methods(["GET", "POST"])
+def verify_b2c_buyer_code(request, order_id):
+    """
+    Le client (acheteur) saisit le code vendeur (V-CODE) pour confirmer la réception.
+    """
+    order = get_object_or_404(Order, id=order_id, is_finished=True)
+    if order.user != request.user and not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "Accès refusé.")
+        return redirect('accounts:dashboard_customer')
+    try:
+        verification = order.b2c_delivery_verification
+    except B2CDeliveryVerification.DoesNotExist:
+        messages.error(request, "Aucune vérification de livraison pour cette commande.")
+        return redirect('accounts:dashboard_customer')
+    if verification.is_completed():
+        messages.success(request, "Cette commande est déjà finalisée.")
+        return redirect('orders:invoice-print', order_id=order_id)
+    if request.method == "POST":
+        code = (request.POST.get("code") or "").strip()
+        if verification.verify_buyer_code(code):
+            messages.success(request, "Réception confirmée. La transaction est finalisée.")
+            return redirect('orders:invoice-print', order_id=order_id)
+        messages.error(request, "Code incorrect ou déjà utilisé.")
+    context = {
+        "order": order,
+        "verification": verification,
+        "is_buyer": True,
+        "code_label": "Code vendeur (V-CODE)",
+        "code_help": "Saisissez le code fourni par le vendeur/livreur pour confirmer que vous avez bien reçu la commande.",
+    }
+    return render(request, "orders/verify_b2c_code.html", context)
 
-        try:
-            send_mail(
-                'Great! Order ID{}. has been successfully purchased'.format(
-                    old_orde.id),
-                ' Congratulations, you have made your order, This order will be delivered to you soon.',
-                f'{settings.EMAIL_SENDGRID}',
-                [f'{payment_method.Email_Address}'],
-                fail_silently=False,
-            )
-        except:
-            pass
-        return redirect("orders:success")
 
-    # return redirect("orders:payment")
-    messages.warning(request, 'Aucune commande à acheter')
-    # return redirect("products:homepage")
-    return redirect('home:index')
+@login_required(login_url='accounts:login')
+@require_http_methods(["GET", "POST"])
+def verify_b2c_seller_code(request, order_id):
+    """
+    Le vendeur/livreur saisit le code client (A-CODE) pour confirmer la livraison.
+    """
+    order = get_object_or_404(Order, id=order_id, is_finished=True)
+    order_suppliers = OrderSupplier.objects.filter(order=order)
+    vendor_users = [os.vendor.user for os in order_suppliers if os.vendor and os.vendor.user]
+    can_verify = request.user.is_staff or request.user.is_superuser or request.user in vendor_users
+    if not can_verify:
+        messages.error(request, "Accès refusé.")
+        return redirect('home:index')
+    try:
+        verification = order.b2c_delivery_verification
+    except B2CDeliveryVerification.DoesNotExist:
+        messages.error(request, "Aucune vérification de livraison pour cette commande.")
+        return redirect('home:index')
+    if verification.is_completed():
+        messages.success(request, "Cette commande est déjà finalisée.")
+        return redirect('home:index')
+    if request.method == "POST":
+        code = (request.POST.get("code") or "").strip()
+        if verification.verify_seller_code(code):
+            messages.success(request, "Livraison confirmée. En attente de la confirmation du client.")
+            return redirect('home:index')
+        messages.error(request, "Code incorrect ou déjà utilisé.")
+    context = {
+        "order": order,
+        "verification": verification,
+        "is_buyer": False,
+        "code_label": "Code client (A-CODE)",
+        "code_help": "Saisissez le code du client pour confirmer que la livraison a été effectuée.",
+    }
+    return render(request, "orders/verify_b2c_code.html", context)
 
 
 def success(request):
@@ -1301,11 +1352,21 @@ def success(request):
                     )
                     whatsapp_url = f"https://wa.me/{phone_digits}?text={quote(message)}"
 
+        # B2C : lien pour confirmer la réception (code V-CODE) si vérification existante et non terminée
+        b2c_verification = getattr(order_success, 'b2c_delivery_verification', None)
+        show_b2c_confirm_reception = (
+            b2c_verification
+            and not b2c_verification.is_completed()
+            and request.user.is_authenticated
+            and order_success.user == request.user
+        )
         context = {
             "order_success": order_success,
             "order_details_success": order_details_success,
             "payment_info": payment_info,
             "whatsapp_url": whatsapp_url,
+            "b2c_verification": b2c_verification,
+            "show_b2c_confirm_reception": show_b2c_confirm_reception,
         }
         # Notification courte (affichage temporaire)
         if whatsapp_url:

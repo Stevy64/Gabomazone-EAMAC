@@ -2,48 +2,57 @@
 {% load adminlte_helpers i18n %}
 
 {% block header_dropdowns %}
+<!-- Messages admin → utilisateurs -->
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'admin:accounts_adminmessage_add' %}" title="Envoyer un message à un utilisateur">
+        <i class="far fa-envelope"></i>
+        <span class="d-none d-md-inline ml-1">Message</span>
+    </a>
+</li>
+<!-- Notifications -->
+<li class="nav-item dropdown" id="admin-notifications-dropdown">
+    <a class="nav-link" data-toggle="dropdown" href="#" id="admin-notifications-btn">
+        <i class="far fa-bell"></i>
+        <span class="badge badge-warning navbar-badge" id="admin-notifications-badge" style="display: none;">0</span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="admin-notifications-menu">
+        <span class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">
+            <span id="admin-notifications-header">Notifications</span>
+            <button type="button" class="btn btn-sm btn-link p-0" id="mark-all-read-btn" style="display: none;">Tout marquer lu</button>
+        </span>
+        <div class="dropdown-divider"></div>
+        <div id="admin-notifications-list" style="max-height: 380px; overflow-y: auto;">
+            <div class="dropdown-item text-center text-muted" id="admin-notifications-empty">
+                <i class="far fa-bell-slash mr-2"></i> Aucune notification
+            </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="{% url 'admin:accounts_adminnotification_changelist' %}" class="dropdown-item dropdown-footer">Voir toutes les notifications</a>
+    </div>
+</li>
 {% block user_info %}
-            {% if request.user.is_authenticated %}
-            <li class="nav-item dropdown user-menu">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-                  <img src="{%avatar_url 128 %}" class="user-image img-circle elevation-2" alt="User Image">
-                  <span class="d-none d-md-inline">{% firstof request.user.get_short_name request.user.get_username %}</span>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                  <!-- User image -->
-                  <li class="user-header bg-primary">
-                    <img src="{%avatar_url size=160 %}" class="img-circle elevation-2" alt="User Image">
-        
-                    <p>
-                        {% firstof request.user.get_short_name request.user.get_username %} - {% firstof request.user.get_role %}
-                      <small>Member since : {{ request.user.date_joined }}</small>
-                    </p>
-                  </li>
-                  <!-- Menu Body -->
-                  <!--<li class="user-body">-->
-                  <!--  <div class="row">-->
-                    <!--  <div class="col-4 text-center">-->
-                    <!--    <a href="#">Profile</a>-->
-                    <!--  </div>-->
-                    <!--  <div class="col-4 text-center">-->
-                    <!--    <a href="#">Team</a>-->
-                    <!--  </div>-->
-                    <!--  <div class="col-4 text-center">-->
-                    <!--    <a href="#">Friends</a>-->
-                    <!--  </div>-->
-                    <!--</div>-->
-                    <!-- /.row -->
-                  <!--</li>-->
-                  <!-- Menu Footer-->
-                  <li class="user-footer">
-                    <a href="{% block change_password_url %}{% url 'admin:password_change' %}{% endblock %}" class="btn btn-default btn-flat">{% trans 'Change Password'%}</a>
-                    <a href="{% block logout_url %}{% logout_url %}{% endblock %}" class="btn btn-default btn-flat float-right">{% trans 'Sign Out'%}<a>
-                  </li>
-                </ul>
-              </li>
-            {% endif %}
-            {% endblock user_info %}
-
+{% if request.user.is_authenticated %}
+<li class="nav-item dropdown user-menu">
+    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+        <img src="{% avatar_url 128 %}" class="user-image img-circle elevation-2" alt="User Image">
+        <span class="d-none d-md-inline">{% firstof request.user.get_short_name request.user.get_username %}</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+        <li class="user-header bg-primary">
+            <img src="{% avatar_url size=160 %}" class="img-circle elevation-2" alt="User Image">
+            <p>
+                {% firstof request.user.get_short_name request.user.get_username %}
+                <small>Depuis {{ request.user.date_joined|date:"d/m/Y" }}</small>
+            </p>
+        </li>
+        <li class="user-footer">
+            <a href="{% block change_password_url %}{% url 'admin:password_change' %}{% endblock %}" class="btn btn-default btn-flat">{% trans 'Changer le mot de passe' %}</a>
+            <a href="{% block logout_url %}{% logout_url %}{% endblock %}" class="btn btn-default btn-flat float-right">{% trans 'Déconnexion' %}</a>
+        </li>
+    </ul>
+</li>
+{% endif %}
+{% endblock user_info %}
 {% endblock header_dropdowns %}
 
 

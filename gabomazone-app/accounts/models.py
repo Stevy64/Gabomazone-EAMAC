@@ -634,7 +634,27 @@ class AdminNotification(models.Model):
             self.resolved_at = timezone.now()
             self.save(update_fields=['is_resolved', 'resolved_at'])
 
+
+class AdminMessage(models.Model):
+    """Message envoyé par l'administration à un utilisateur."""
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='admin_messages_sent',
+        verbose_name=_("Expéditeur (admin)"))
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='admin_messages_received',
+        verbose_name=_("Destinataire"))
+    subject = models.CharField(max_length=200, verbose_name=_("Objet"))
+    body = models.TextField(verbose_name=_("Message"))
+    read_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Lu le"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Envoyé le"))
+    email_sent = models.BooleanField(
+        default=False, verbose_name=_("Email envoyé"),
+        help_text=_("Copie envoyée par email au destinataire"))
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Message admin → utilisateur")
+        verbose_name_plural = _("Messages admin → utilisateurs")
+
     def __str__(self):
-        if self.user:
-            return f"{self.user.username} - {self.product.product_name}"
-        return f"Session {self.session_key} - {self.product.product_name}"
+        return f"{self.subject} → {self.recipient.get_full_name() or self.recipient.username}"

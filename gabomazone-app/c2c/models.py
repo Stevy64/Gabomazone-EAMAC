@@ -502,6 +502,70 @@ class ProductBoost(models.Model):
         )
 
 
+class C2CPaymentEvent(models.Model):
+    """
+    Traçabilité des étapes de paiement C2C (escrow, libération, remboursement).
+    Permet de piloter et auditer tout le flux depuis l'admin.
+    """
+    CREATED = 'created'
+    PAID_ESCROW = 'paid_escrow'
+    SELLER_CODE_VERIFIED = 'seller_code_verified'
+    BUYER_CODE_VERIFIED = 'buyer_code_verified'
+    RELEASED = 'released'
+    CANCELLED_REFUND = 'cancelled_refund'
+
+    EVENT_TYPE_CHOICES = [
+        (CREATED, _('Commande créée')),
+        (PAID_ESCROW, _('Paiement reçu (fonds en escrow)')),
+        (SELLER_CODE_VERIFIED, _('Code vendeur vérifié')),
+        (BUYER_CODE_VERIFIED, _('Code acheteur vérifié')),
+        (RELEASED, _('Fonds libérés au vendeur')),
+        (CANCELLED_REFUND, _('Annulation / Remboursement (frais gardés)')),
+    ]
+
+    c2c_order = models.ForeignKey(
+        C2COrder, on_delete=models.CASCADE, related_name='payment_events',
+        verbose_name=_("Commande C2C"))
+    transaction = models.ForeignKey(
+        'payments.SingPayTransaction', on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='c2c_payment_events',
+        verbose_name=_("Transaction SingPay"))
+    event_type = models.CharField(
+        max_length=30, choices=EVENT_TYPE_CHOICES, verbose_name=_("Étape"))
+    amount_refunded = models.DecimalField(
+        max_digits=12, decimal_places=2, blank=True, null=True,
+        verbose_name=_("Montant remboursé"))
+    commission_retained = models.DecimalField(
+        max_digits=12, decimal_places=2, blank=True, null=True,
+        verbose_name=_("Frais de service gardés"))
+    metadata = models.JSONField(default=dict, blank=True, verbose_name=_("Métadonnées"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date"))
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Événement paiement C2C")
+        verbose_name_plural = _("Événements paiement C2C")
+        indexes = [
+            models.Index(fields=['c2c_order', 'event_type']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"C2C #{self.c2c_order_id} - {self.get_event_type_display()} - {self.created_at}"
+
+    @classmethod
+    def log_event(cls, c2c_order, event_type, transaction=None, amount_refunded=None,
+                  commission_retained=None, metadata=None):
+        return cls.objects.create(
+            c2c_order=c2c_order,
+            transaction=transaction,
+            event_type=event_type,
+            amount_refunded=amount_refunded,
+            commission_retained=commission_retained,
+            metadata=metadata or {}
+        )
+
+
 class SellerBadge(models.Model):
     """
     Badge attribué à un vendeur C2C selon ses performances

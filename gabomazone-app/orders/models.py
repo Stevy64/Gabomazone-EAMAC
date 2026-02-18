@@ -1,5 +1,10 @@
+import secrets
+import string
+from decimal import Decimal
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 from products.models import Product
 from django.core.validators import MinValueValidator, MaxValueValidator
 from accounts.models import Profile, PeerToPeerProduct
@@ -186,6 +191,10 @@ class Payment(models.Model):
     Email_Address = models.EmailField()
     phone = models.CharField(max_length=20, )
     payment_method = models.CharField(max_length=100, )
+    # Frais de service pour paiement à la livraison (payés via SingPay)
+    service_fee_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, blank=True, null=True,
+        verbose_name=_("Frais de service (paiement à la livraison)"))
 
     def __str__(self):
         return f"Payment ID:{self.id}- order:{self.order}"
@@ -321,3 +330,90 @@ class OrderDetailsSupplier(models.Model):
     #     obj_order_supplier.amount = total
     #     obj_order_supplier.save()
     #     super().save(*args, **kwargs)
+
+
+def _b2c_verification_code(length=6):
+    """Génère un code de vérification aléatoire pour B2C."""
+    return ''.join(secrets.choice(string.digits) for _ in range(length))
+
+
+class B2CDeliveryVerification(models.Model):
+    """
+    Vérification de livraison/réception pour les commandes B2C (double code).
+    - Code vendeur (V-CODE) : confirme que la livraison a été effectuée.
+    - Code acheteur (A-CODE) : confirme que le client a reçu et valide la transaction.
+    """
+    PENDING = 'pending'
+    SELLER_CODE_VERIFIED = 'seller_code_verified'
+    BUYER_CODE_VERIFIED = 'buyer_code_verified'
+    COMPLETED = 'completed'
+    DISPUTED = 'disputed'
+
+    STATUS_CHOICES = [
+        (PENDING, _('En attente')),
+        (SELLER_CODE_VERIFIED, _('Code vendeur/livreur vérifié')),
+        (BUYER_CODE_VERIFIED, _('Code client vérifié')),
+        (COMPLETED, _('Terminé')),
+        (DISPUTED, _('Litige')),
+    ]
+
+    order = models.OneToOneField(
+        Order, on_delete=models.CASCADE, related_name='b2c_delivery_verification',
+        verbose_name=_("Commande B2C"))
+    seller_code = models.CharField(
+        max_length=6, unique=True, verbose_name=_("Code vendeur (V-CODE)"))
+    buyer_code = models.CharField(
+        max_length=6, unique=True, verbose_name=_("Code client (A-CODE)"))
+    seller_code_verified = models.BooleanField(default=False, verbose_name=_("Code vendeur vérifié"))
+    buyer_code_verified = models.BooleanField(default=False, verbose_name=_("Code client vérifié"))
+    seller_code_verified_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Date vérification code vendeur"))
+    buyer_code_verified_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Date vérification code client"))
+    status = models.CharField(
+        max_length=30, choices=STATUS_CHOICES, default=PENDING, verbose_name=_("Statut"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    completed_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de finalisation"))
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Vérification livraison B2C")
+        verbose_name_plural = _("Vérifications livraison B2C")
+
+    def __str__(self):
+        return f"Vérif. B2C #{self.id} - Commande #{self.order_id}"
+
+    def save(self, *args, **kwargs):
+        if not self.seller_code:
+            self.seller_code = _b2c_verification_code()
+        if not self.buyer_code:
+            self.buyer_code = _b2c_verification_code()
+        super().save(*args, **kwargs)
+
+    def is_completed(self):
+        return self.seller_code_verified and self.buyer_code_verified
+
+    def verify_seller_code(self, code):
+        """Le vendeur/livreur entre le code client (A-CODE) pour confirmer la livraison."""
+        if code and str(code).strip() == self.buyer_code and not self.seller_code_verified:
+            self.seller_code_verified = True
+            self.seller_code_verified_at = timezone.now()
+            if self.status == self.PENDING:
+                self.status = self.SELLER_CODE_VERIFIED
+            self.save()
+            return True
+        return False
+
+    def verify_buyer_code(self, code):
+        """Le client entre le code vendeur (V-CODE) pour confirmer la réception."""
+        if code and str(code).strip() == self.seller_code and not self.buyer_code_verified:
+            self.buyer_code_verified = True
+            self.buyer_code_verified_at = timezone.now()
+            if self.status == self.SELLER_CODE_VERIFIED:
+                self.status = self.COMPLETED
+                self.completed_at = timezone.now()
+            elif self.status == self.PENDING:
+                self.status = self.BUYER_CODE_VERIFIED
+            self.save()
+            return True
+        return False

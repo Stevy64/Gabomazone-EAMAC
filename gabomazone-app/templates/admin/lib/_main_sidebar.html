@@ -1,6 +1,250 @@
 {% extends 'adminlte/lib/_main_sidebar.html' %}
-{% load admin_menu %}
+{% load i18n %}
+
+{% block nav_heading %}NAVIGATION{% endblock %}
 
 {% block nav_links %}
-    {% autoescape off %}{% menu %}{% endautoescape %}
+<li class="nav-item">
+    <a href="{% url 'admin:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Tableau de bord</p>
+    </a>
+</li>
+<li class="nav-header nav-header-section">B2C — Boutique</li>
+<li class="nav-item">
+    <a href="{% url 'admin:orders_order_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-shopping-cart"></i>
+        <p>Commandes</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:orders_payment_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-receipt"></i>
+        <p>Paiements / Factures</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:orders_coupon_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-tag"></i>
+        <p>Coupons</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:payments_singpaytransaction_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-credit-card"></i>
+        <p>Paiements SingPay</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:orders_b2cdeliveryverification_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-check-double"></i>
+        <p>Vérif. livraison B2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:products_product_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-box"></i>
+        <p>Produits B2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:categories_supercategory_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-sitemap"></i>
+        <p>Catégories</p>
+    </a>
+</li>
+<li class="nav-header nav-header-section">C2C — Entre particuliers</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_platformsettings_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-sliders-h"></i>
+        <p>Paramètres C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:accounts_peertopeerproduct_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-store"></i>
+        <p>Articles C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_purchaseintent_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-hand-holding-usd"></i>
+        <p>Intentions d'achat</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_negotiation_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-comments"></i>
+        <p>Négociations</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_c2corder_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-handshake"></i>
+        <p>Commandes C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_deliveryverification_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-clipboard-check"></i>
+        <p>Vérif. livraison C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_c2cpaymentevent_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-history"></i>
+        <p>Événements paiement C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_productboost_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-rocket"></i>
+        <p>Boost produits C2C</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_sellerreview_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-star"></i>
+        <p>Avis vendeurs</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_buyerreview_changelist' %}" class="nav-link">
+        <i class="nav-icon far fa-star"></i>
+        <p>Avis acheteurs</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:c2c_sellerbadge_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-award"></i>
+        <p>Badges vendeurs</p>
+    </a>
+</li>
+<li class="nav-header nav-header-sm">Utilisateurs</li>
+<li class="nav-item">
+    <a href="{% url 'admin:auth_user_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-users"></i>
+        <p>Utilisateurs</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:accounts_profile_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-id-card"></i>
+        <p>Profils</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:accounts_adminmessage_changelist' %}" class="nav-link">
+        <i class="nav-icon far fa-envelope"></i>
+        <p>Messages envoyés</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:accounts_deliverycode_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-truck"></i>
+        <p>Codes livraison</p>
+    </a>
+</li>
+<li class="nav-header nav-header-sm">Paramètres du site</li>
+<li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-cog"></i>
+        <p>Configuration <i class="right fas fa-angle-left"></i></p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{% url 'admin:settings_sitesetting_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Paramètres site</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:settings_contactinfo_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Contact &amp; adresses</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:settings_supportnumber_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Numéros support</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:settings_socaillinks_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Réseaux sociaux</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:settings_homepagetheme_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Thème pages</p>
+            </a>
+        </li>
+    </ul>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:pages_pageslist_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-file-alt"></i>
+        <p>Pages</p>
+    </a>
+</li>
+<li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Contenu accueil <i class="right fas fa-angle-left"></i></p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{% url 'admin:home_carousel_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Carousel</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:home_homeadsidebar_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Pub sidebar</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:home_homeadmiddlebar_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Pub middlebar</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:home_hotdealad_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Hot deals</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:home_headtextad_changelist' %}" class="nav-link">
+                <i class="nav-icon fas fa-circle fa-xs"></i>
+                <p>Texte en-tête</p>
+            </a>
+        </li>
+    </ul>
+</li>
+<li class="nav-header nav-header-sm">Administration</li>
+<li class="nav-item">
+    <a href="{% url 'admin:accounts_adminnotification_changelist' %}" class="nav-link">
+        <i class="nav-icon far fa-bell"></i>
+        <p>Notifications</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{% url 'admin:contact_messageslist_changelist' %}" class="nav-link">
+        <i class="nav-icon fas fa-inbox"></i>
+        <p>Messages contact</p>
+    </a>
+</li>
+<li class="nav-item mt-2">
+    <a href="/" class="nav-link" target="_blank">
+        <i class="nav-icon fas fa-external-link-alt"></i>
+        <p>Voir le site</p>
+    </a>
+</li>
 {% endblock nav_links %}

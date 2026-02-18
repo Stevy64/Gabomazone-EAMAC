@@ -156,6 +156,12 @@
                 <span class="value">+{{ order_success.shipping|floatformat:0 }} FCFA</span>
             </div>
             {% endif %}
+            {% if payment_info.service_fee_amount %}
+            <div class="total-row">
+                <span class="label">Frais de service (paiement à la livraison, non remboursables)</span>
+                <span class="value">+{{ payment_info.service_fee_amount|floatformat:0 }} FCFA</span>
+            </div>
+            {% endif %}
             <div class="total-row final">
                 <span class="label">TOTAL TTC</span>
                 <span class="value">{{ order_success.amount|floatformat:0 }} FCFA</span>
