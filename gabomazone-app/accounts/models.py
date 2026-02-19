@@ -46,6 +46,11 @@ class Profile(models.Model):
     date_update = models.DateTimeField(auto_now=True, blank=True, null=True)
     slug = models.SlugField(
         blank=True, null=True, allow_unicode=True, unique=True, verbose_name=_("Slugfiy"))
+    # Validation du compte vendeur B2C par email (admission=True après clic sur le lien)
+    vendor_verification_token = models.CharField(
+        max_length=64, blank=True, null=True, unique=True, verbose_name=_("Token de vérification vendeur"))
+    vendor_verification_sent_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Date d'envoi du lien de vérification"))
 
     def __str__(self):
         return self.user.username
@@ -578,12 +583,16 @@ class AdminNotification(models.Model):
     PREMIUM_SUBSCRIPTION = 'PREMIUM_SUBSCRIPTION'
     CONTACT_MESSAGE = 'CONTACT_MESSAGE'
     PRODUCT_APPROVAL = 'PRODUCT_APPROVAL'
+    B2C_PRODUCT_PUBLISHED = 'B2C_PRODUCT_PUBLISHED'
+    VENDOR_REGISTRATION = 'VENDOR_REGISTRATION'
     
     TYPE_CHOICES = [
         (BOOST_REQUEST, _('Demande de boost')),
         (PREMIUM_SUBSCRIPTION, _('Abonnement premium')),
         (CONTACT_MESSAGE, _('Message de contact')),
         (PRODUCT_APPROVAL, _('Approbation de produit')),
+        (B2C_PRODUCT_PUBLISHED, _('Nouveau produit B2C en ligne')),
+        (VENDOR_REGISTRATION, _('Nouveau vendeur B2C inscrit')),
     ]
     
     notification_type = models.CharField(

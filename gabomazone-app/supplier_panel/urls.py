@@ -13,6 +13,7 @@ urlpatterns = [
     path('chart-ajax-admin/', views.chartJsonListViewAdmin.as_view(), name="chart-ajax-admin"),
     path('supplier-login/', views.supplier_login, name="supplier-login"),
     path('supplier-register/', views.supplier_register, name="supplier-register"),
+    path('verify-vendor-email/<str:token>/', views.verify_vendor_email, name="verify-vendor-email"),
     path('supplier-add-product/', views.supplier_add_product,
          name="supplier-add-product"),
     path('supplier-categories-ajax/', views.CategoriesJsonListView.as_view(),

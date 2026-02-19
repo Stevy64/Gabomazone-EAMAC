@@ -144,3 +144,33 @@ def notify_admin_on_new_product(sender, instance, created, **kwargs):
         logger = logging.getLogger(__name__)
         logger.error(f"Erreur lors de la création de la notification admin pour produit: {e}", exc_info=True)
 
+
+@receiver(post_save, sender='products.Product')
+def notify_admin_on_b2c_product_published(sender, instance, created, **kwargs):
+    """Notifier l'admin lorsqu'un vendeur B2C publie un nouvel article (pas de validation requise, info uniquement)."""
+    try:
+        AdminNotification = get_admin_notification_model()
+        if not AdminNotification:
+            return
+        # Uniquement à la création et si le produit a un vendeur B2C et est actif
+        if not created or not getattr(instance, 'product_vendor', None) or not instance.PRDISactive:
+            return
+        try:
+            from django.urls import reverse
+            related_url = reverse('admin:products_product_change', args=[instance.id])
+        except Exception:
+            related_url = f'/admin/products/product/{instance.id}/change/'
+        vendor_name = instance.product_vendor.user.username if instance.product_vendor.user else 'N/A'
+        AdminNotification.objects.create(
+            notification_type=AdminNotification.B2C_PRODUCT_PUBLISHED,
+            title=f"Nouveau produit B2C - {instance.product_name}",
+            message=f"Le vendeur {vendor_name} a mis en ligne le produit « {instance.product_name} » (aucune validation requise).",
+            related_object_id=instance.id,
+            related_object_type='Product',
+            related_url=related_url
+        )
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Erreur notification admin produit B2C: {e}", exc_info=True)
+

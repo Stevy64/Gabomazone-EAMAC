@@ -90,3 +90,8 @@ Ne pas oublier d'installer Gunicron en Prod
 source .venv/bin/activate
 pip install gunicorn
 
+### Après chaque modif
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+sudo systemctl status gunicorn
+

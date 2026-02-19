@@ -1,5 +1,6 @@
 from urllib import request
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -18,6 +19,10 @@ from datetime import datetime, date, timedelta
 from django.utils import timezone as tz
 from payments.models import VendorPayments
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+import secrets
 
 
 @vendor_only
@@ -211,15 +216,15 @@ def supplier_register(request):
     #     return redirect('supplier_dashboard:supplier-panel')
 
     if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        phone = request.POST['phone']
-        password = request.POST['password']
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '')
         UserModel = get_user_model()
         if not username:
             username = None
 
-        if username != None and not UserModel.objects.filter(username=username).exists() and not UserModel.objects.filter(email=email).exists():
+        if username and not UserModel.objects.filter(username=username).exists() and not UserModel.objects.filter(email=email).exists():
             user = UserModel.objects.create_user(
                 username=username, email=email, password=password)
             user.is_superuser = False
@@ -228,16 +233,91 @@ def supplier_register(request):
             profile_obj = Profile.objects.get(user__username=username)
             profile_obj.status = 'vendor'
             profile_obj.mobile_number = phone
+            # admission=False jusqu'à validation par email (pas d'accès au tableau de bord avant)
+            profile_obj.admission = False
+            token = secrets.token_urlsafe(32)
+            profile_obj.vendor_verification_token = token
+            profile_obj.vendor_verification_sent_at = timezone.now()
             profile_obj.save()
+
+            # Envoyer l'email de vérification
+            verify_url = request.build_absolute_uri(
+                reverse('supplier_dashboard:verify-vendor-email', kwargs={'token': token})
+            )
+            site_name = getattr(settings, 'SITE_NAME', 'Gabomazone')
+            try:
+                send_mail(
+                    subject=f"Validez votre compte vendeur - {site_name}",
+                    message=f"Bonjour {username},\n\nPour activer votre compte vendeur et accéder à votre tableau de bord, cliquez sur le lien ci-dessous :\n\n{verify_url}\n\nCe lien est valide 24 heures.\n\nL'équipe {site_name}",
+                    from_email=getattr(settings, 'EMAIL_SENDGRID', None) or getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@gabomazone.com'),
+                    recipient_list=[email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+
+            # Notifier l'admin (nouveau vendeur inscrit)
+            try:
+                from accounts.models import AdminNotification
+                try:
+                    related_url = reverse('admin:accounts_profile_change', args=[profile_obj.id])
+                except Exception:
+                    related_url = f'/admin/accounts/profile/{profile_obj.id}/change/'
+                AdminNotification.objects.create(
+                    notification_type=AdminNotification.VENDOR_REGISTRATION,
+                    title=f"Nouveau vendeur B2C - {username}",
+                    message=f"Le vendeur {username} ({email}) s'est inscrit. Il doit valider son email pour activer son compte.",
+                    related_object_id=profile_obj.id,
+                    related_object_type='Profile',
+                    related_url=related_url
+                )
+            except Exception:
+                pass
+
             messages.success(
-                request, f"Congratulations {username}, your account has been created .")
+                request,
+                "Compte créé. Un email de vérification vous a été envoyé : cliquez sur le lien pour activer votre compte vendeur et accéder au tableau de bord."
+            )
             return redirect('supplier_dashboard:supplier-login')
 
         else:
             messages.warning(
-                request, 'Username or Email Already Exists Try Other Info')
+                request, "Ce nom d'utilisateur ou cette adresse email est déjà utilisé.")
 
     return render(request, "supplier-panel/supplier-account-register.html")
+
+
+def verify_vendor_email(request, token):
+    """
+    Valide le compte vendeur B2C après clic sur le lien reçu par email.
+    Active l'accès au tableau de bord (admission=True) sans intervention admin.
+    """
+    if not token:
+        messages.error(request, "Lien de vérification invalide.")
+        return redirect('supplier_dashboard:supplier-login')
+    profile = Profile.objects.filter(
+        vendor_verification_token=token,
+        status='vendor'
+    ).first()
+    if not profile:
+        messages.warning(request, "Lien invalide ou déjà utilisé.")
+        return redirect('supplier_dashboard:supplier-login')
+    # Optionnel : expiration 24h
+    sent_at = profile.vendor_verification_sent_at
+    if sent_at:
+        from datetime import timedelta
+        if timezone.now() - sent_at > timedelta(hours=24):
+            profile.vendor_verification_token = None
+            profile.vendor_verification_sent_at = None
+            profile.save(update_fields=['vendor_verification_token', 'vendor_verification_sent_at'])
+            messages.warning(request, "Le lien a expiré. Inscrivez-vous à nouveau ou contactez le support.")
+            return redirect('supplier_dashboard:supplier-register')
+    profile.admission = True
+    profile.vendor_verification_token = None
+    profile.vendor_verification_sent_at = None
+    profile.save(update_fields=['admission', 'vendor_verification_token', 'vendor_verification_sent_at'])
+    messages.success(request, "Votre compte vendeur est activé. Vous pouvez vous connecter.")
+    return redirect('supplier_dashboard:supplier-login')
 
 
 @vendor_only
