@@ -54,7 +54,7 @@ window.onload = function () {
                         loadsBox.classList.add("not-visible")
                         emptyBox.classList.remove("not-visible")
                         emptyBox.innerHTML = `
-                            <i class="material-icons">shopping_cart</i>
+                            <i class="fas fa-shopping-cart"></i>
                             <h3>Aucune commande trouvée</h3>
                             <p>Vous n'avez aucune commande correspondant à vos filtres.</p>
                         `
@@ -105,7 +105,7 @@ window.onload = function () {
                         loadsBox.classList.add("not-visible")
                         emptyBox.classList.remove("not-visible")
                         emptyBox.innerHTML = `
-                            <i class="material-icons">shopping_cart</i>
+                            <i class="fas fa-shopping-cart"></i>
                             <h3>Plus de commandes</h3>
                             <p>Vous avez atteint la fin de la liste.</p>
                         `

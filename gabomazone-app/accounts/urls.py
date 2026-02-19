@@ -52,11 +52,11 @@ path('delete-product-message/<int:message_id>/', views.delete_product_message, n
     path('download_file/<int:order_id>/<str:filename>/',
          views.download_file, name="download-file"),
     
-    # URLs pour les notifications admin
-    path('admin/notifications/', admin_notifications.get_admin_notifications, name="admin-notifications"),
-    path('admin/notifications/<int:notification_id>/read/', admin_notifications.mark_notification_read, name="admin-notification-read"),
-    path('admin/notifications/<int:notification_id>/resolve/', admin_notifications.mark_notification_resolved, name="admin-notification-resolve"),
-    path('admin/notifications/read-all/', admin_notifications.mark_all_notifications_read, name="admin-notifications-read-all"),
+    # URLs pour les notifications admin (préfixe staff/ pour ne pas conflit avec Django admin)
+    path('staff/notifications/', admin_notifications.get_admin_notifications, name="admin-notifications"),
+    path('staff/notifications/<int:notification_id>/read/', admin_notifications.mark_notification_read, name="admin-notification-read"),
+    path('staff/notifications/<int:notification_id>/resolve/', admin_notifications.mark_notification_resolved, name="admin-notification-resolve"),
+    path('staff/notifications/read-all/', admin_notifications.mark_all_notifications_read, name="admin-notifications-read-all"),
 
 
 ]

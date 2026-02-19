@@ -1786,11 +1786,13 @@ def request_payment(request):
 
 @vendor_only
 def get_notifications(request):
-    """Retourne les notifications (nouvelles commandes) en JSON"""
+    """Retourne les notifications (nouvelles commandes finalisées/payées) en JSON.
+    Le vendeur B2C ne reçoit une notification qu'après que la commande ait été payée par le client."""
     vendor = Profile.objects.get(user=request.user)
-    pending_orders = OrderSupplier.objects.filter(
-        vendor=vendor, 
-        status='PENDING'
+    # Uniquement les commandes finalisées (payées) : is_finished=True
+    finished_orders = OrderSupplier.objects.filter(
+        vendor=vendor,
+        is_finished=True
     ).order_by('-order_date')[:10]
     
     # Récupérer les notifications lues depuis la session
@@ -1799,7 +1801,7 @@ def get_notifications(request):
         read_notifications = []
     
     # Filtrer les commandes pour exclure celles déjà lues
-    unread_orders = [order for order in pending_orders if order.id not in read_notifications]
+    unread_orders = [order for order in finished_orders if order.id not in read_notifications]
     
     notifications = []
     for order in unread_orders:
@@ -1844,13 +1846,14 @@ def mark_all_notifications_read(request):
     """Marque toutes les notifications comme lues"""
     if request.method == 'POST':
         vendor = Profile.objects.get(user=request.user)
-        pending_orders = OrderSupplier.objects.filter(
-            vendor=vendor, 
-            status='PENDING'
+        # Même critère que get_notifications : commandes finalisées (payées)
+        finished_orders = OrderSupplier.objects.filter(
+            vendor=vendor,
+            is_finished=True
         )
         
-        # Récupérer tous les IDs des commandes en attente
-        all_order_ids = list(pending_orders.values_list('id', flat=True))
+        # Récupérer tous les IDs des commandes concernées
+        all_order_ids = list(finished_orders.values_list('id', flat=True))
         
         # Mettre à jour la session avec tous les IDs
         request.session['read_notifications'] = all_order_ids

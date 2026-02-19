@@ -9,16 +9,16 @@
     {% for message in messages %}
     <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         {% if message.tags == 'success' %}
-            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <i class="fas fa-check-circle" style="color: #059669;"></i>
             <span style="color: #059669;">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons" style="color: #DC2626;">error</i>
+            <i class="fas fa-exclamation-circle" style="color: #DC2626;"></i>
             <span style="color: #DC2626;">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons" style="color: #D97706;">warning</i>
+            <i class="fas fa-exclamation-triangle" style="color: #D97706;"></i>
             <span style="color: #D97706;">{{ message }}</span>
         {% else %}
-            <i class="material-icons" style="color: #2563EB;">info</i>
+            <i class="fas fa-info-circle" style="color: #2563EB;"></i>
             <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
     </div>
@@ -30,11 +30,11 @@
 <div class="reviews-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">rate_review</i>
+            <i class="fas fa-comment-dots"></i>
         </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">star</i>
+                <i class="fas fa-star"></i>
                 Avis clients
             </h2>
             <p>Gérez et consultez tous les avis de vos produits</p>
@@ -59,7 +59,7 @@
                  data-review-product-slug="{{ review.PRDIProduct.PRDSlug }}"
                  data-review-product-image="{% if review.PRDIProduct.product_image %}/media/{{ review.PRDIProduct.product_image }}{% else %}{% static 'assets-supplier/imgs/placeholder.png' %}{% endif %}">
                 <div class="review-item-avatar">
-                    <i class="material-icons">person</i>
+                    <i class="fas fa-user"></i>
                 </div>
                 <div class="review-item-content">
                     <div class="review-item-header">
@@ -69,18 +69,18 @@
                                 {% widthratio review.rate 1 20 as rating_percent %}
                                 <div class="stars-container-small">
                                     <div class="stars-background-small">
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
                                     </div>
                                     <div class="stars-fill-small" style="width: {{ rating_percent }}%;">
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
-                                        <i class="material-icons">star</i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
                                     </div>
         </div>
                                 <span class="rating-value-small">{{ review.rate }}/5</span>
@@ -91,7 +91,7 @@
     </div>
                     <div class="review-item-body">
                         <p class="review-item-product">
-                            <i class="material-icons">inventory_2</i>
+                            <i class="fas fa-boxes-stacked"></i>
                             {{ review.PRDIProduct.product_name|truncatewords:8 }}
                         </p>
                         {% if review.client_comment %}
@@ -102,14 +102,14 @@
                     </div>
                     <div class="review-item-footer">
                         <span class="review-item-date">
-                            <i class="material-icons">schedule</i>
+                            <i class="far fa-clock"></i>
                             {{ review.rating_date|date:"d M Y à H:i" }}
                         </span>
                         <span class="review-item-id">ID: #{{ review.id }}</span>
                 </div>
                 </div>
                 <div class="review-item-arrow">
-                    <i class="material-icons">chevron_right</i>
+                    <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
             {% endfor %}
@@ -117,7 +117,7 @@
     {% else %}
         <div class="empty-reviews">
             <div class="empty-icon">
-                <i class="material-icons">rate_review</i>
+                <i class="fas fa-comment-dots"></i>
             </div>
             <h3>Aucun avis pour le moment</h3>
             <p>Les avis de vos clients apparaîtront ici</p>
@@ -133,7 +133,7 @@
             {% if reviews.has_previous %}
             <li class="pagination-item">
                 <a href="?page={{ reviews.previous_page_number }}" class="pagination-link pagination-prev">
-                    <i class="material-icons">chevron_left</i>
+                    <i class="fas fa-chevron-left"></i>
                     Précédent
                 </a>
             </li>
@@ -181,7 +181,7 @@
             <li class="pagination-item">
                 <a href="?page={{ reviews.next_page_number }}" class="pagination-link pagination-next">
                     Suivant
-                    <i class="material-icons">chevron_right</i>
+                    <i class="fas fa-chevron-right"></i>
                 </a>
                 </li>
             {% endif %}
@@ -195,11 +195,11 @@
     <div class="modal-container review-details-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">rate_review</i>
+                <i class="fas fa-comment-dots"></i>
                 Détails de l'avis
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeReviewDetailsModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body" id="reviewDetailsContent">
@@ -1231,24 +1231,24 @@
             ratingSectionHTML = `
                 <div class="review-details-rating-section">
                     <p class="review-details-rating-label">
-                        <i class="material-icons">star</i>
+                        <i class="fas fa-star"></i>
                         Note attribuée
                     </p>
                     <div class="review-details-rating">
                         <div class="stars-container-large">
                             <div class="stars-background-large">
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
                             </div>
                             <div class="stars-fill-large" style="width: ${ratingPercent}%;">
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
-                                <i class="material-icons">star</i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
                             </div>
                         </div>
                         <span class="rating-value-large">${rate}/5</span>
@@ -1259,7 +1259,7 @@
             ratingSectionHTML = `
                 <div class="review-details-rating-section" style="background: #F3F4F6; border-color: #D1D5DB;">
                     <p class="review-details-rating-label" style="color: #6B7280;">
-                        <i class="material-icons">star_border</i>
+                        <i class="far fa-star"></i>
                         Aucune note
                     </p>
                 </div>
@@ -1283,12 +1283,12 @@
             <div class="review-details-card">
                 <div class="review-details-header">
                     <div class="review-details-avatar">
-                        <i class="material-icons">person</i>
+                        <i class="fas fa-user"></i>
                     </div>
                     <div class="review-details-user">
                         <h3 class="review-details-user-name">${clientName}</h3>
                         <p class="review-details-date">
-                            <i class="material-icons">schedule</i>
+                            <i class="far fa-clock"></i>
                             ${date}
                         </p>
                     </div>
@@ -1298,13 +1298,13 @@
                 
                 <div class="review-details-product">
                     <div class="review-details-product-header">
-                        <i class="material-icons">inventory_2</i>
+                        <i class="fas fa-boxes-stacked"></i>
                         <div class="review-details-product-content">
                             <p class="review-details-product-label">Produit évalué</p>
                             <h4 class="review-details-product-name">${productName}</h4>
                             ${productImageHTML}
                             <a href="${productLink}" target="_blank" class="review-details-product-link">
-                                <i class="material-icons">visibility</i>
+                                <i class="fas fa-eye"></i>
                                 Voir le produit
                             </a>
                         </div>
@@ -1313,7 +1313,7 @@
                 
                 <div class="review-details-comment">
                     <h4 class="review-details-comment-label">
-                        <i class="material-icons">comment</i>
+                        <i class="fas fa-comment"></i>
                         Commentaire du client
                     </h4>
                     ${commentHTML}

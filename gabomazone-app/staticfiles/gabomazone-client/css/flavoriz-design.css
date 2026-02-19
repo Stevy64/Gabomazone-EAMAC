@@ -1010,6 +1010,27 @@ footer.main:not(.flavoriz-footer),
     padding: 10px 12px !important;
 }
 
+/* Meta ligne (date + localisation) : mobile-first, extrémités opposées, gris doux, pas de gras */
+.flavoriz-card-meta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    font-size: 11px !important;
+    color: #9CA3AF !important;
+    font-weight: normal !important;
+    line-height: 1.3 !important;
+}
+.flavoriz-card-meta span,
+.flavoriz-card-meta i {
+    font-weight: normal !important;
+    color: inherit !important;
+}
+.flavoriz-card-meta .fi-rs-marker {
+    font-size: 10px !important;
+    opacity: 0.85;
+}
+
 .flavoriz-product-title {
     font-size: 13px !important;
     min-height: 38px !important;
@@ -1054,7 +1075,7 @@ footer.main:not(.flavoriz-footer),
     overflow: hidden !important;
     background: #FAFAFA !important;
     width: 100% !important;
-    padding-top: 58% !important;
+    padding-top: 72% !important; /* Zone image plus grande que la zone texte */
 }
 
 .flavoriz-product-card > div:first-child > img {
@@ -1144,7 +1165,20 @@ footer.main:not(.flavoriz-footer),
     box-shadow: 0 3px 10px rgba(255, 87, 34, 0.25) !important;
 }
 
-/* Badges État des articles occasion — même style que "Occasion", couleurs par condition */
+/* Badges État des articles C2C — taille réduite sur les cartes */
+.flavoriz-product-card .peer-condition-badge.peer-condition-badge-card,
+.peer-condition-badge.peer-condition-badge-card {
+    display: inline-block !important;
+    border: none !important;
+    padding: 3px 6px !important;
+    border-radius: 6px !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+/* Badges État (taille standard hors carte) */
 .flavoriz-product-card .peer-condition-badge,
 .peer-condition-badge {
     display: inline-block !important;
@@ -2139,7 +2173,7 @@ footer.main:not(.flavoriz-footer),
     }
     
     .flavoriz-product-card > div:first-child {
-        padding-top: 75% !important;
+        padding-top: 82% !important; /* Zone image plus grande sur mobile */
     }
     
     .flavoriz-product-body {
@@ -2179,18 +2213,29 @@ footer.main:not(.flavoriz-footer),
         font-size: 9px !important;
     }
     
-    /* Prix plus petit sur mobile */
-    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) {
+    /* Prix plus petit sur mobile (ne pas appliquer à la ligne meta date/localisation) */
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3):not(.flavoriz-card-meta) {
         margin-bottom: 6px !important;
     }
     
-    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) span:first-child {
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3):not(.flavoriz-card-meta) span:first-child {
         font-size: 12px !important;
         font-weight: 700 !important;
     }
     
-    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3) span:last-child {
+    .flavoriz-product-card .flavoriz-product-body > div:nth-child(3):not(.flavoriz-card-meta) span:last-child {
         font-size: 9px !important;
+    }
+    
+    /* Meta (date + localisation) : même style sur mobile, gris doux, pas de gras */
+    .flavoriz-card-meta {
+        font-size: 11px !important;
+        color: #9CA3AF !important;
+        font-weight: normal !important;
+    }
+    .flavoriz-card-meta span {
+        font-size: inherit !important;
+        font-weight: normal !important;
     }
     
     .flavoriz-hero {
@@ -2466,6 +2511,14 @@ footer.main:not(.flavoriz-footer),
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Lazy loading / HTMX : afficher l'indicateur pendant le chargement des produits */
+.htmx-indicator {
+    display: none !important;
+}
+.htmx-indicator.htmx-request {
+    display: block !important;
 }
 
 .flavoriz-spinner {

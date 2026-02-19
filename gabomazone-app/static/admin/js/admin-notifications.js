@@ -5,9 +5,9 @@
 (function() {
     'use strict';
     
-    const NOTIFICATIONS_URL = '/admin/notifications/';
-    const MARK_READ_URL = '/admin/notifications/';
-    const MARK_ALL_READ_URL = '/admin/notifications/read-all/';
+    const NOTIFICATIONS_URL = '/staff/notifications/';
+    const MARK_READ_URL = '/staff/notifications/';
+    const MARK_ALL_READ_URL = '/staff/notifications/read-all/';
     const POLL_INTERVAL = 10000; // 10 secondes
     
     let pollInterval = null;

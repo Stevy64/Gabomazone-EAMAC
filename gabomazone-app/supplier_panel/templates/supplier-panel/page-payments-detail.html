@@ -10,16 +10,16 @@
     {% for message in messages %}
     <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         {% if message.tags == 'success' %}
-            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <i class="fas fa-check-circle" style="color: #059669;"></i>
             <span style="color: #059669;">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons" style="color: #DC2626;">error</i>
+            <i class="fas fa-times-circle" style="color: #DC2626;"></i>
             <span style="color: #DC2626;">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons" style="color: #D97706;">warning</i>
+            <i class="fas fa-exclamation-triangle" style="color: #D97706;"></i>
             <span style="color: #D97706;">{{ message }}</span>
         {% else %}
-            <i class="material-icons" style="color: #2563EB;">info</i>
+            <i class="fas fa-info-circle" style="color: #2563EB;"></i>
             <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
     </div>
@@ -31,11 +31,11 @@
 <div class="payments-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">account_balance_wallet</i>
+            <i class="fas fa-wallet"></i>
         </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">monetization_on</i>
+                <i class="fas fa-coins"></i>
                 Gestion des paiements
             </h2>
             <p>Suivez vos entrées/sorties, recettes et gérez votre portefeuille</p>
@@ -48,60 +48,60 @@
     <div class="financial-card balance-card clickable-card" onclick="openBalanceModal()">
         <div class="financial-card-header">
             <div class="financial-card-icon">
-                <i class="material-icons">account_balance</i>
+                <i class="fas fa-university"></i>
             </div>
             <div class="financial-card-label">Solde disponible</div>
         </div>
         <div class="financial-card-value">{{vendor.blance|format_price}} FCFA</div>
         <div class="financial-card-footer">
-            <i class="material-icons">trending_up</i>
+            <i class="fas fa-chart-line"></i>
             <span>Montant total disponible</span>
-            <i class="material-icons click-indicator">arrow_forward</i>
+            <i class="fas fa-chevron-right click-indicator"></i>
         </div>
     </div>
     
     <div class="financial-card requested-card clickable-card" onclick="openRequestedModal()">
         <div class="financial-card-header">
             <div class="financial-card-icon">
-                <i class="material-icons">pending_actions</i>
+                <i class="fas fa-hourglass-half"></i>
             </div>
             <div class="financial-card-label">Dernière demande</div>
         </div>
         <div class="financial-card-value">{{vendor.requested|format_price}} FCFA</div>
         <div class="financial-card-footer">
-            <i class="material-icons">schedule</i>
+            <i class="far fa-clock"></i>
             <span>En attente de traitement</span>
-            <i class="material-icons click-indicator">arrow_forward</i>
+            <i class="fas fa-chevron-right click-indicator"></i>
         </div>
     </div>
     
     <div class="financial-card total-card clickable-card" onclick="openTransactionsModal()">
         <div class="financial-card-header">
             <div class="financial-card-icon">
-                <i class="material-icons">payments</i>
+                <i class="fas fa-money-check-alt"></i>
             </div>
             <div class="financial-card-label">Total transactions</div>
         </div>
         <div class="financial-card-value">{{payments.paginator.count}}</div>
         <div class="financial-card-footer">
-            <i class="material-icons">receipt_long</i>
+            <i class="fas fa-receipt"></i>
             <span>Historique complet</span>
-            <i class="material-icons click-indicator">arrow_forward</i>
+            <i class="fas fa-chevron-right click-indicator"></i>
         </div>
     </div>
     
     <div class="financial-card revenue-card clickable-card" onclick="openRevenueModal()">
         <div class="financial-card-header">
             <div class="financial-card-icon">
-                <i class="material-icons">attach_money</i>
+                <i class="fas fa-coins"></i>
             </div>
             <div class="financial-card-label">Récettes</div>
         </div>
         <div class="financial-card-value">{{total_revenue|format_price}} FCFA</div>
         <div class="financial-card-footer">
-            <i class="material-icons">bar_chart</i>
+            <i class="fas fa-chart-bar"></i>
             <span>Total des ventes</span>
-            <i class="material-icons click-indicator">arrow_forward</i>
+            <i class="fas fa-chevron-right click-indicator"></i>
         </div>
     </div>
 </div>
@@ -111,11 +111,11 @@
 <div class="bank-info-card">
     <div class="bank-info-header">
         <div class="bank-info-title">
-            <i class="material-icons">account_balance</i>
+            <i class="fas fa-university"></i>
             <h3>Informations bancaires</h3>
         </div>
-        <button class="btn-request-payment" onclick="openPaymentRequestModal()">
-            <i class="material-icons">send</i>
+        <button class="btn-request-payment" onclick="openPaymentRequestModal()" type="button">
+            <i class="fas fa-paper-plane"></i>
             Demander un paiement
         </button>
     </div>
@@ -123,35 +123,35 @@
         <div class="bank-info-grid">
             <div class="bank-info-item">
                 <div class="bank-info-label">
-                    <i class="material-icons">business</i>
+                    <i class="fas fa-building"></i>
                     <span>Banque</span>
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.bank_name|default:"Non renseigné"}}</div>
             </div>
             <div class="bank-info-item">
                 <div class="bank-info-label">
-                    <i class="material-icons">credit_card</i>
+                    <i class="fas fa-credit-card"></i>
                     <span>Numéro de compte</span>
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.account_number|default:"Non renseigné"}}</div>
             </div>
             <div class="bank-info-item">
                 <div class="bank-info-label">
-                    <i class="material-icons">code</i>
+                    <i class="fas fa-code"></i>
                     <span>Code Swift</span>
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.swift_code|default:"Non renseigné"}}</div>
             </div>
             <div class="bank-info-item">
                 <div class="bank-info-label">
-                    <i class="material-icons">person</i>
+                    <i class="fas fa-user"></i>
                     <span>Titulaire du compte</span>
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.account_name|default:"Non renseigné"}}</div>
             </div>
             <div class="bank-info-item">
                 <div class="bank-info-label">
-                    <i class="material-icons">public</i>
+                    <i class="fas fa-globe"></i>
                     <span>Pays</span>
                 </div>
                 <div class="bank-info-value">{{bank_info_obj.country|default:"Non renseigné"}}</div>
@@ -164,7 +164,7 @@
 <div class="transactions-card-modern">
     <div class="transactions-header">
         <div class="transactions-title">
-            <i class="material-icons">history</i>
+            <i class="fas fa-history"></i>
             <h3>Historique des transactions</h3>
         </div>
     </div>
@@ -188,7 +188,7 @@
                     <tr>
                         <td>
                             <div class="transaction-id">
-                                <i class="material-icons">receipt</i>
+                                <i class="fas fa-receipt"></i>
                                 <span>#{{payment.id}}</span>
                             </div>
                         </td>
@@ -206,12 +206,12 @@
                             <div class="transaction-method">
                                 {% if payment.method == "SingPay" %}
                                 <div class="method-badge method-singpay">
-                                    <i class="material-icons">bolt</i>
+                                    <i class="fas fa-bolt"></i>
                                     <span>SingPay</span>
                                 </div>
                                 {% else %}
                                 <div class="method-badge method-bank">
-                                    <i class="material-icons">account_balance</i>
+                                    <i class="fas fa-university"></i>
                                     <span>Banque</span>
                                 </div>
                                 {% endif %}
@@ -220,29 +220,29 @@
                             <td>
                                 {% if payment.status == "Paid" %}
                                 <span class="status-badge status-paid">
-                                    <i class="material-icons">check_circle</i>
+                                    <i class="fas fa-check-circle"></i>
                                     Payé
                                 </span>
                             {% elif payment.status == "Pending" %}
                                 <span class="status-badge status-pending">
-                                    <i class="material-icons">schedule</i>
+                                    <i class="far fa-clock"></i>
                                     En attente
                                 </span>
                             {% elif payment.status == "Progressing" %}
                                 <span class="status-badge status-progressing">
-                                    <i class="material-icons">sync</i>
+                                    <i class="fas fa-sync"></i>
                                     En cours
                                 </span>
                             {% else %}
                                 <span class="status-badge status-refunded">
-                                    <i class="material-icons">undo</i>
+                                    <i class="fas fa-undo"></i>
                                     Remboursé
                                 </span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="transaction-date">
-                                <i class="material-icons">calendar_today</i>
+                                <i class="fas fa-calendar-alt"></i>
                                 <span>{{payment.date|date:"d M Y à H:i"}}</span>
                             </div>
                         </td>
@@ -263,7 +263,7 @@
         {% else %}
         <div class="empty-transactions">
             <div class="empty-icon">
-                <i class="material-icons">receipt_long</i>
+                <i class="fas fa-receipt"></i>
             </div>
             <h3>Aucune transaction</h3>
             <p>Vos transactions apparaîtront ici une fois que vous aurez effectué des demandes de paiement.</p>
@@ -280,7 +280,7 @@
             {% if payments.has_previous %}
             <li class="pagination-item">
                 <a href="?page={{ payments.previous_page_number }}" class="pagination-link pagination-prev">
-                    <i class="material-icons">chevron_left</i>
+                    <i class="fas fa-chevron-left"></i>
                     Précédent
                 </a>
             </li>
@@ -328,7 +328,7 @@
             <li class="pagination-item">
                 <a href="?page={{ payments.next_page_number }}" class="pagination-link pagination-next">
                     Suivant
-                    <i class="material-icons">chevron_right</i>
+                    <i class="fas fa-chevron-right"></i>
                 </a>
                 </li>
             {% endif %}
@@ -342,7 +342,7 @@
     <div class="billing-section-header-modern">
         <div class="billing-header-content">
             <div class="billing-header-icon">
-                <i class="material-icons">receipt_long</i>
+                <i class="fas fa-receipt"></i>
             </div>
             <div class="billing-header-text">
                 <h3>Facturation des services</h3>
@@ -356,18 +356,18 @@
         <div class="billing-card-modern subscription-card">
             <div class="billing-card-header-modern">
                 <div class="billing-card-icon-wrapper premium-icon">
-                    <i class="material-icons">workspace_premium</i>
+                    <i class="fas fa-crown"></i>
                 </div>
                 <div class="billing-card-title-wrapper">
                     <h4>Abonnement Premium</h4>
                     {% if subscription_stats.active %}
                     <span class="status-badge-modern active-badge">
-                        <i class="material-icons">check_circle</i>
+                        <i class="fas fa-check-circle"></i>
                         Actif
                     </span>
                     {% else %}
                     <span class="status-badge-modern inactive-badge">
-                        <i class="material-icons">cancel</i>
+                        <i class="fas fa-times-circle"></i>
                         Inactif
                     </span>
                     {% endif %}
@@ -377,7 +377,7 @@
             <div class="billing-stats-modern">
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper">
-                        <i class="material-icons">account_balance_wallet</i>
+                        <i class="fas fa-wallet"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total payé</span>
@@ -387,7 +387,7 @@
                 
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper">
-                        <i class="material-icons">calendar_month</i>
+                        <i class="fas fa-calendar-alt"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Coût mensuel</span>
@@ -397,7 +397,7 @@
                 
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper">
-                        <i class="material-icons">event</i>
+                        <i class="fas fa-calendar-day"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Date de début</span>
@@ -407,7 +407,7 @@
                 
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper">
-                        <i class="material-icons">event_available</i>
+                        <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Date de fin</span>
@@ -421,7 +421,7 @@
         <div class="billing-card-modern boost-card">
             <div class="billing-card-header-modern">
                 <div class="billing-card-icon-wrapper boost-icon">
-                    <i class="material-icons">rocket_launch</i>
+                    <i class="fas fa-rocket"></i>
                 </div>
                 <div class="billing-card-title-wrapper">
                     <h4>Boosts de produits</h4>
@@ -434,7 +434,7 @@
             <div class="billing-stats-modern">
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper success-icon">
-                        <i class="material-icons">check_circle</i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Validés</span>
@@ -444,7 +444,7 @@
                 
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper warning-icon">
-                        <i class="material-icons">schedule</i>
+                        <i class="far fa-clock"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">En attente</span>
@@ -454,7 +454,7 @@
                 
                 <div class="billing-stat-modern">
                     <div class="stat-icon-wrapper error-icon">
-                        <i class="material-icons">cancel</i>
+                        <i class="fas fa-times-circle"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Refusés</span>
@@ -464,7 +464,7 @@
                 
                 <div class="billing-stat-modern highlight-stat">
                     <div class="stat-icon-wrapper money-icon">
-                        <i class="material-icons">attach_money</i>
+                        <i class="fas fa-coins"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total dépensé</span>
@@ -474,7 +474,7 @@
                 
                 <div class="billing-stat-modern highlight-stat">
                     <div class="stat-icon-wrapper money-icon">
-                        <i class="material-icons">calendar_month</i>
+                        <i class="fas fa-calendar-alt"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Ce mois</span>
@@ -492,33 +492,33 @@
     <div class="modal-container revenue-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">attach_money</i>
+                <i class="fas fa-coins"></i>
                 Récettes
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeRevenueModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
             <div class="revenue-filters">
                 <button class="revenue-filter-btn active" data-filter="all" onclick="changeRevenueFilter('all')">
-                    <i class="material-icons">all_inclusive</i>
+                    <i class="fas fa-infinity"></i>
                     Total
                 </button>
                 <button class="revenue-filter-btn" data-filter="day" onclick="changeRevenueFilter('day')">
-                    <i class="material-icons">today</i>
+                    <i class="fas fa-calendar-day"></i>
                     Aujourd'hui
                 </button>
                 <button class="revenue-filter-btn" data-filter="week" onclick="changeRevenueFilter('week')">
-                    <i class="material-icons">date_range</i>
+                    <i class="fas fa-calendar-week"></i>
                     Semaine
                 </button>
                 <button class="revenue-filter-btn" data-filter="month" onclick="changeRevenueFilter('month')">
-                    <i class="material-icons">calendar_month</i>
+                    <i class="fas fa-calendar-alt"></i>
                     Mois
                 </button>
                 <button class="revenue-filter-btn" data-filter="year" onclick="changeRevenueFilter('year')">
-                    <i class="material-icons">calendar_today</i>
+                    <i class="fas fa-calendar-alt"></i>
                     Année
                 </button>
             </div>
@@ -529,28 +529,28 @@
             <div class="revenue-details">
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
-                        <i class="material-icons">today</i>
+                        <i class="fas fa-calendar-day"></i>
                         Aujourd'hui
                     </span>
                     <span class="revenue-detail-value">{{daily_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
-                        <i class="material-icons">date_range</i>
+                        <i class="fas fa-calendar-week"></i>
                         Cette semaine
                     </span>
                     <span class="revenue-detail-value">{{weekly_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
-                        <i class="material-icons">calendar_month</i>
+                        <i class="fas fa-calendar-alt"></i>
                         Ce mois
                     </span>
                     <span class="revenue-detail-value">{{monthly_revenue|format_price}} FCFA</span>
                 </div>
                 <div class="revenue-detail-item">
                     <span class="revenue-detail-label">
-                        <i class="material-icons">calendar_today</i>
+                        <i class="fas fa-calendar-alt"></i>
                         Cette année
                     </span>
                     <span class="revenue-detail-value">{{yearly_revenue|format_price}} FCFA</span>
@@ -565,11 +565,11 @@
     <div class="modal-container stat-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">account_balance</i>
+                <i class="fas fa-university"></i>
                 Solde disponible
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeBalanceModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
@@ -578,12 +578,12 @@
                 <div class="stat-modal-description">Montant total disponible sur votre compte</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
-                        <i class="material-icons">trending_up</i>
+                        <i class="fas fa-chart-line"></i>
                         <span>Solde actuel</span>
                         <strong>{{vendor.blance|format_price}} FCFA</strong>
                     </div>
                     <div class="stat-detail-item">
-                        <i class="material-icons">pending_actions</i>
+                        <i class="fas fa-hourglass-half"></i>
                         <span>En attente</span>
                         <strong>{{vendor.requested|format_price}} FCFA</strong>
                     </div>
@@ -598,11 +598,11 @@
     <div class="modal-container stat-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">pending_actions</i>
+                <i class="fas fa-hourglass-half"></i>
                 Dernière demande
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeRequestedModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
@@ -611,12 +611,12 @@
                 <div class="stat-modal-description">Montant en attente de traitement</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
-                        <i class="material-icons">schedule</i>
+                        <i class="far fa-clock"></i>
                         <span>Statut</span>
                         <strong>En attente</strong>
                     </div>
                     <div class="stat-detail-item">
-                        <i class="material-icons">account_balance</i>
+                        <i class="fas fa-university"></i>
                         <span>Solde disponible</span>
                         <strong>{{vendor.blance|format_price}} FCFA</strong>
                     </div>
@@ -631,11 +631,11 @@
     <div class="modal-container stat-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">payments</i>
+                <i class="fas fa-money-check-alt"></i>
                 Total transactions
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeTransactionsModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
@@ -644,12 +644,12 @@
                 <div class="stat-modal-description">Nombre total de transactions effectuées</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
-                        <i class="material-icons">receipt_long</i>
+                        <i class="fas fa-receipt"></i>
                         <span>Total transactions</span>
                         <strong>{{payments.paginator.count}}</strong>
                     </div>
                     <div class="stat-detail-item">
-                        <i class="material-icons">history</i>
+                        <i class="fas fa-history"></i>
                         <span>Historique</span>
                         <strong>Voir ci-dessous</strong>
                     </div>
@@ -664,11 +664,11 @@
     <div class="modal-container payment-modal">
                     <div class="modal-header">
             <h2>
-                <i class="material-icons">send</i>
+                <i class="fas fa-paper-plane"></i>
                 Demande de paiement
             </h2>
             <button type="button" class="modal-close-btn" onclick="closePaymentRequestModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
                     </div>
                     <div class="modal-body">
@@ -678,7 +678,7 @@
                 
                             <div class="form-group">
                     <label class="form-label">
-                        <i class="material-icons">account_balance</i>
+                        <i class="fas fa-university"></i>
                         Solde disponible
                     </label>
                     <input type="text" name="available_balance" id="balance" class="form-input" value="{{vendor.blance|floatformat:'2'}} FCFA" readonly>
@@ -686,7 +686,7 @@
                 
                             <div class="form-group">
                     <label class="form-label">
-                        <i class="material-icons">attach_money</i>
+                        <i class="fas fa-coins"></i>
                         Montant à retirer
                     </label>
                     <input type="number" name="request_amount" id="request_amount" step="any" class="form-input" placeholder="Entrez le montant" required>
@@ -695,7 +695,7 @@
                 
                             <div class="form-group">
                     <label class="form-label">
-                        <i class="material-icons">payment</i>
+                        <i class="fas fa-credit-card"></i>
                         Méthode de paiement
                     </label>
                     <select name="method" class="form-select" required>
@@ -706,7 +706,7 @@
                 
                             <div class="form-group">
                     <label class="form-label">
-                        <i class="material-icons">description</i>
+                        <i class="fas fa-file-alt"></i>
                         Description (optionnel)
                     </label>
                     <textarea class="form-textarea" name="description" id="description" rows="3" placeholder="Ajoutez une description pour cette demande..."></textarea>
@@ -717,7 +717,7 @@
                         Annuler
                     </button>
                     <button type="submit" class="btn-submit" id="request_btn">
-                        <i class="material-icons">send</i>
+                        <i class="fas fa-paper-plane"></i>
                         Envoyer la demande
                     </button>
                     </div>

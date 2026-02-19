@@ -8,70 +8,55 @@
             {% if messages %}
             {% for message in messages %}
         <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 14px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; border-left: 4px solid {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; display: flex; align-items: center; gap: 10px;">
-            <i class="fi-rs-{% if message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}exclamation{% else %}check-circle{% endif %}" style="font-size: 18px;"></i>
-            <span>{{message}}</span>
+            <i class="fas fa-{% if message.tags == 'error' %}times-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}check-circle{% endif %}" style="font-size: 18px;"></i>
+            <span>{{ message }}</span>
             </div>
             {% endfor %}
             {% endif %}
 
     <!-- Cartes de Statistiques -->
     <div class="stats-grid">
-        <!-- Carte Revenus -->
         <div class="stat-card stat-card-blue" onclick="openStatModal('revenue')" data-stat-type="revenue">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class="fi-rs-money"></i>
-        </div>
-                        </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">{{vendor.blance|format_price}} FCFA</div>
-                <div class="stat-card-label">Revenus totaux</div>
-                </div>
+                <div class="stat-card-icon"><i class="fas fa-wallet"></i></div>
             </div>
-
-        <!-- Carte Commandes en cours -->
+            <div class="stat-card-content">
+                <div class="stat-card-value">{{ vendor.blance|format_price }} FCFA</div>
+                <div class="stat-card-label">Revenus totaux</div>
+            </div>
+        </div>
         <div class="stat-card stat-card-green" onclick="openStatModal('orders-underway')" data-stat-type="orders-underway">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class="fi-rs-shopping-cart"></i>
-                </div>
-                        </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">{{orders_underway.count}}</div>
-                <div class="stat-card-label">Commandes en cours</div>
-                </div>
+                <div class="stat-card-icon"><i class="fas fa-shopping-cart"></i></div>
             </div>
-
-        <!-- Carte Produits -->
+            <div class="stat-card-content">
+                <div class="stat-card-value">{{ orders_underway.count }}</div>
+                <div class="stat-card-label">Commandes en cours</div>
+            </div>
+        </div>
         <div class="stat-card stat-card-orange" onclick="openStatModal('products')" data-stat-type="products">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class="fi-rs-shopping-bag"></i>
-                </div>
-                        </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">{{products_supplier.count}}</div>
-                <div class="stat-card-label">Produits actifs</div>
-                </div>
+                <div class="stat-card-icon"><i class="fas fa-box"></i></div>
             </div>
-
-        <!-- Carte Total Commandes -->
+            <div class="stat-card-content">
+                <div class="stat-card-value">{{ products_supplier.count }}</div>
+                <div class="stat-card-label">Produits actifs</div>
+            </div>
+        </div>
         <div class="stat-card stat-card-purple" onclick="openStatModal('total-orders')" data-stat-type="total-orders">
             <div class="stat-card-decoration"></div>
             <div class="stat-card-header">
-                <div class="stat-card-icon">
-                    <i class="fi-rs-receipt"></i>
-                </div>
-                        </div>
+                <div class="stat-card-icon"><i class="fas fa-receipt"></i></div>
+            </div>
             <div class="stat-card-content">
-                <div class="stat-card-value">{{orders_supplier.count}}</div>
+                <div class="stat-card-value">{{ orders_supplier.count }}</div>
                 <div class="stat-card-label">Total commandes</div>
-                </div>
             </div>
         </div>
+    </div>
 
     <!-- Graphique et Sections -->
     <div class="dashboard-grid">
@@ -79,7 +64,7 @@
         <div class="chart-card">
             <div class="chart-card-header">
                 <div class="chart-card-title">
-                    <i class="fi-rs-chart-line"></i>
+                    <i class="fas fa-chart-line"></i>
                     <h3>Statistiques de vente</h3>
                 </div>
                 <div class="chart-card-period">
@@ -97,32 +82,32 @@
         <div class="recent-orders-card">
             <div class="recent-orders-header">
                 <div class="recent-orders-title">
-                    <i class="fi-rs-clock"></i>
+                    <i class="fas fa-clock"></i>
                     <h3>Commandes récentes</h3>
-                        </div>
-                    </div>
+                </div>
+            </div>
             <div class="recent-orders-list">
-                                    {% for order in orders_underway|slice:"0:5"%}
+                {% for order in orders_underway|slice:"0:5" %}
                 <a href="{% url 'supplier_dashboard:order-details' order.id %}" class="recent-order-item">
                     <div class="recent-order-content">
                         <div class="recent-order-header">
-                            <span class="recent-order-id">#{{order.id}}</span>
+                            <span class="recent-order-id">#{{ order.id }}</span>
                             <span class="recent-order-status-dot"></span>
-                                        </div>
-                        <div class="recent-order-date">
-                            <i class="fi-rs-calendar"></i>
-                            {{order.date_update|date:"d/m/Y H:i"}}
-                                            </div>
-                                        </div>
-                    <div class="recent-order-arrow">
-                        <i class="fi-rs-angle-right"></i>
                         </div>
+                        <div class="recent-order-date">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ order.date_update|date:"d/m/Y H:i" }}
+                        </div>
+                    </div>
+                    <div class="recent-order-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
                 </a>
                 {% empty %}
                 <div class="recent-orders-empty">
-                    <i class="fi-rs-shopping-cart"></i>
+                    <i class="fas fa-shopping-cart"></i>
                     <p>Aucune commande en cours</p>
-                    </div>
+                </div>
                 {% endfor %}
                 </div>
             </div>
@@ -549,31 +534,9 @@
             font-style: normal;
         }
         
-        /* S'assurer que les icônes Flaticon s'affichent correctement */
-        /* Les icônes Flaticon utilisent le pseudo-élément :before */
-        .stat-modal-title i[class*="fi-rs-"] {
-            line-height: 0 !important;
+        .stat-modal-title i {
+            font-size: 1.25rem;
         }
-        
-        .stat-modal-title i[class*="fi-rs-"]:before {
-            font-family: "uicons-regular-rounded" !important;
-            font-style: normal !important;
-            font-weight: normal !important;
-            line-height: 1 !important;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            display: block;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 22px;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            line-height: 32px;
-        }
-        
         .stat-modal-title h3 {
             font-size: 18px;
             font-weight: 700;
@@ -701,8 +664,8 @@
                     <i id="statModalIcon"></i>
                     <h3 id="statModalTitle"></h3>
                     </div>
-                <button class="stat-modal-close" onclick="closeStatModal()">
-                    <i class="fi fi-rs-cross"></i>
+                <button class="stat-modal-close" onclick="closeStatModal()" type="button" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
                 </button>
                 </div>
             <div class="stat-modal-content">
@@ -727,7 +690,7 @@
     // Données des statistiques pour les modals
     const statData = {
         'revenue': {
-            icon: 'fi-rs-money',
+            icon: 'fas fa-wallet',
             title: 'Revenus totaux',
             value: '{{vendor.blance|format_price}} FCFA',
             description: 'Vos revenus totaux représentent l\'ensemble des commissions que vous avez gagnées sur toutes vos ventes.',
@@ -737,7 +700,7 @@
             ]
         },
         'orders-underway': {
-            icon: 'fi-rs-shopping-cart',
+            icon: 'fas fa-shopping-cart',
             title: 'Commandes en cours',
             value: '{{orders_underway.count}}',
             description: 'Nombre de commandes actuellement en cours de traitement. Ces commandes sont en phase de préparation ou d\'expédition.',
@@ -747,7 +710,7 @@
             ]
         },
         'products': {
-            icon: 'fi-rs-shopping-bag',
+            icon: 'fas fa-box',
             title: 'Produits actifs',
             value: '{{products_supplier.count}}',
             description: 'Nombre total de vos produits actuellement disponibles à la vente sur la plateforme.',
@@ -757,7 +720,7 @@
             ]
         },
         'total-orders': {
-            icon: 'fi-rs-receipt',
+            icon: 'fas fa-receipt',
             title: 'Total commandes',
             value: '{{orders_supplier.count}}',
             description: 'Nombre total de commandes que vous avez reçues (hors commandes en attente).',
@@ -773,20 +736,11 @@
         const data = statData[statType];
         if (!data) return;
         
-        // Mettre à jour l'icône - créer un nouvel élément i avec la classe
         const iconElement = document.getElementById('statModalIcon');
-        // Supprimer toutes les classes et attributs
-        iconElement.removeAttribute('class');
-        // Appliquer la nouvelle classe de l'icône
-        iconElement.setAttribute('class', data.icon);
-        
-        // S'assurer que l'icône est visible
+        iconElement.className = data.icon;
         iconElement.style.display = 'inline-flex';
         iconElement.style.visibility = 'visible';
         iconElement.style.opacity = '1';
-        
-        // Forcer le reflow pour que le CSS soit appliqué
-        void iconElement.offsetHeight;
         
         document.getElementById('statModalTitle').textContent = data.title;
         document.getElementById('statModalValue').textContent = data.value;

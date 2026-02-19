@@ -84,3 +84,9 @@ docker run -it --rm --name gabomazone-app gabomazone-app
 2) Retirer l’app de `INSTALLED_APPS` et des URLs
 3) `python manage.py makemigrations` puis `python manage.py migrate`
 4) Supprimer le dossier de l’app
+
+### IMPORTANT !
+Ne pas oublier d'installer Gunicron en Prod
+source .venv/bin/activate
+pip install gunicorn
+

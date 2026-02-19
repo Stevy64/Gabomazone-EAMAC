@@ -1846,6 +1846,26 @@ table thead th .text,
     margin-top: 0.5rem;
 }
 
+/* Sidebar : sections rétractables (treeview) */
+.sidebar .nav-item.has-treeview > .nav-link {
+    cursor: pointer;
+}
+.sidebar .nav-item.has-treeview > .nav-link .fa-angle-left {
+    transition: transform 0.2s ease;
+}
+.sidebar .nav-item.has-treeview.menu-open > .nav-link .fa-angle-left {
+    transform: rotate(-90deg);
+}
+.sidebar .nav-treeview {
+    padding-left: 0.5rem;
+}
+.sidebar .nav-treeview .nav-link {
+    padding-left: 2rem;
+}
+.sidebar .nav-treeview .nav-treeview .nav-link {
+    padding-left: 2.5rem;
+}
+
 /* ============================================
    MOBILE-FIRST — Admin responsive
    ============================================ */

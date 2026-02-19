@@ -1077,29 +1077,47 @@ function deleteConversation(conversationId, otherUserName) {
 function deleteConversationFromPopup() {
     if (currentConversationId) {
         const conv = conversationsData.find(c => c.id === currentConversationId);
-        deleteConversation(currentConversationId, conv ? conv.buyer_name : null);
+        deleteConversation(currentConversationId, conv ? (conv.other_user_name || conv.buyer_name) : null);
     }
 }
 function doDeleteConversation(conversationId) {
-    fetch(`/delete-conversation/${conversationId}/`, {
+    const csrfToken = getCookie('csrftoken');
+    if (!csrfToken && typeof GMModal !== 'undefined' && GMModal.error) {
+        GMModal.error('Erreur', 'Token de sécurité manquant. Rechargez la page puis réessayez.');
+        return;
+    }
+    const deleteUrl = "{% url 'accounts:delete-conversation' 0 %}".replace('/0/', '/' + conversationId + '/');
+    fetch(deleteUrl, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}),
+        credentials: 'same-origin'
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(function(response) {
+        return response.json().then(function(data) {
+            return { ok: response.ok, status: response.status, data: data };
+        }).catch(function() {
+            return { ok: response.ok, status: response.status, data: { error: 'Réponse invalide du serveur' } };
+        });
+    })
+    .then(function(result) {
+        if (result.ok && result.data && result.data.success) {
             closeChatbot();
             location.reload();
-        } else if (data.error && typeof GMModal !== 'undefined' && GMModal.error) {
-            GMModal.error('Erreur', data.error);
+        } else {
+            const errMsg = (result.data && result.data.error) ? result.data.error : 'Erreur lors de la suppression';
+            if (typeof GMModal !== 'undefined' && GMModal.error) GMModal.error('Erreur', errMsg);
+            else alert(errMsg);
         }
     })
-    .catch(e => {
+    .catch(function(e) {
         console.error(e);
         if (typeof GMModal !== 'undefined' && GMModal.error) GMModal.error('Erreur', 'Erreur lors de la suppression');
+        else alert('Erreur lors de la suppression');
     });
 }
 

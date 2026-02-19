@@ -7,18 +7,18 @@
 <div class="orders-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">shopping_cart</i>
+            <i class="fas fa-shopping-cart"></i>
         </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">list</i>
+                <i class="fas fa-list"></i>
                 Gestion des commandes
             </h2>
             <p>Bienvenue, <strong>{{ vendor }}</strong> !</p>
             <p id="orders-num" class="orders-count">Nous avons trouvé <strong>0</strong> commande(s) pour vous !</p>
         </div>
         <div class="welcome-decorative-icon">
-            <i class="material-icons">shopping_bag</i>
+            <i class="fas fa-box"></i>
         </div>
     </div>
                 </div>
@@ -29,7 +29,7 @@
         <div class="filters-container">
             <div class="filter-group">
                 <label class="filter-label">
-                    <i class="material-icons">sort</i>
+                    <i class="fas fa-sort"></i>
                     Trier par
                 </label>
                 <div class="custom-dropdown-wrapper">
@@ -42,7 +42,7 @@
                     <div class="custom-dropdown" id="customDropdown1">
                         <button class="custom-dropdown-trigger" type="button">
                             <span class="dropdown-selected-text">Date, du plus récent au plus ancien</span>
-                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            <i class="fas fa-chevron-up dropdown-arrow"></i>
                         </button>
                         <div class="custom-dropdown-menu">
                             <div class="dropdown-option" data-value="-order_date" data-selected="true">
@@ -63,7 +63,7 @@
                 </div>
             <div class="filter-group">
                 <label class="filter-label">
-                    <i class="material-icons">filter_list</i>
+                    <i class="fas fa-filter"></i>
                     Statut
                 </label>
                 <div class="custom-dropdown-wrapper">
@@ -76,7 +76,7 @@
                     <div class="custom-dropdown" id="customDropdown2">
                         <button class="custom-dropdown-trigger" type="button">
                             <span class="dropdown-selected-text">Afficher tout</span>
-                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            <i class="fas fa-chevron-up dropdown-arrow"></i>
                         </button>
                         <div class="custom-dropdown-menu">
                             <div class="dropdown-option" data-value="All" data-selected="true">
@@ -120,7 +120,7 @@
         
         <!-- Empty State -->
         <div id="empty-box" class="empty-state not-visible">
-            <i class="material-icons">shopping_cart</i>
+            <i class="fas fa-shopping-cart"></i>
             <h3>Aucune commande trouvée</h3>
             <p>Vous n'avez aucune commande correspondant à vos filtres.</p>
     </div>
@@ -141,7 +141,7 @@
     <div id="loading-box" class="load-more-container">
         <button id="load-btn" type="button" class="load-more-btn">
             <span>Charger plus</span>
-            <i class="material-icons">arrow_downward</i>
+            <i class="fas fa-chevron-down"></i>
         </button>
               </div>
     </div>
@@ -204,15 +204,6 @@
         display: inline-block !important;
         line-height: 1 !important;
         opacity: 1 !important;
-        font-family: 'Material Icons' !important;
-        font-weight: normal;
-        font-style: normal;
-        letter-spacing: normal;
-        text-transform: none;
-        white-space: nowrap;
-        word-wrap: normal;
-        direction: ltr;
-        -webkit-font-feature-settings: 'liga';
         -webkit-font-smoothing: antialiased;
     }
     
@@ -232,9 +223,6 @@
     .welcome-icon i {
         font-size: 40px;
         color: white;
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
     }
     
     .welcome-text h2 {
@@ -251,9 +239,6 @@
         font-size: 32px;
         color: #FCD34D;
         filter: drop-shadow(0 2px 4px rgba(252, 211, 77, 0.3));
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
     }
     
     .welcome-text h2::before {
@@ -328,9 +313,6 @@
     .filter-label i {
         font-size: 16px;
         color: #6B46C1;
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
     }
     
     /* Custom Dropdown - Style comme screenshot */
@@ -384,9 +366,6 @@
         font-size: 18px;
         color: #6B46C1;
         transition: transform 0.3s ease;
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
     }
     
     .custom-dropdown.active .dropdown-arrow {
@@ -579,9 +558,6 @@
         margin-bottom: 20px;
         opacity: 0.3;
         color: #D1D5DB;
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
     }
     
     .empty-state h3 {
@@ -784,7 +760,7 @@
 {%endblock section%}
 
 {%block script%} 
-<script src="{% static 'assets-supplier/js/orders-list.js'%}" type="text/javascript"></script>
+<script src="{% static 'assets-supplier/js/orders-list.js' %}?v=2" type="text/javascript"></script>
 <script>
     // Custom Dropdown Functionality
     document.addEventListener('DOMContentLoaded', function() {

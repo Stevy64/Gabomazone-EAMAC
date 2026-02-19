@@ -10,16 +10,16 @@
     {% for message in messages %}
     <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         {% if message.tags == 'success' %}
-            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <i class="fas fa-check-circle" style="color: #059669;"></i>
             <span style="color: #059669;">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons" style="color: #DC2626;">error</i>
+            <i class="fas fa-exclamation-circle" style="color: #DC2626;"></i>
             <span style="color: #DC2626;">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons" style="color: #D97706;">warning</i>
+            <i class="fas fa-exclamation-triangle" style="color: #D97706;"></i>
             <span style="color: #D97706;">{{ message }}</span>
         {% else %}
-            <i class="material-icons" style="color: #2563EB;">info</i>
+            <i class="fas fa-info-circle" style="color: #2563EB;"></i>
             <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
     </div>
@@ -31,11 +31,11 @@
 <div class="settings-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">workspace_premium</i>
+            <i class="fas fa-crown"></i>
         </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">star</i>
+                <i class="fas fa-star"></i>
                 Abonnements et services premium
             </h2>
             <p>Gérez votre abonnement premium et boostez vos produits pour améliorer votre visibilité</p>
@@ -50,11 +50,11 @@
         <aside class="settings-sidebar">
             <nav class="settings-nav">
                 <a class="settings-nav-link active" href="{% url 'supplier_dashboard:subscriptions' %}">
-                    <i class="material-icons">workspace_premium</i>
+                    <i class="fas fa-crown"></i>
                     <span>Abonnements</span>
                 </a>
                 <a class="settings-nav-link" href="{% url 'supplier_dashboard:store-settings' %}">
-                    <i class="material-icons">settings</i>
+                    <i class="fas fa-cog"></i>
                     <span>Paramètres</span>
                 </a>
             </nav>
@@ -65,7 +65,7 @@
             <div class="settings-section">
                 <div class="settings-section-header">
                     <h3>
-                        <i class="material-icons">workspace_premium</i>
+                        <i class="fas fa-crown"></i>
                         Abonnements premium
                     </h3>
                     <p>Améliorez votre visibilité avec nos plans premium</p>
@@ -76,7 +76,7 @@
                     <div class="subscription-card premium-card">
                         <div class="subscription-header">
                             <div class="subscription-icon">
-                                <i class="material-icons">diamond</i>
+                                <i class="fas fa-gem"></i>
                             </div>
                             <div class="subscription-info">
                                 <h4>Plan Premium</h4>
@@ -92,27 +92,27 @@
                         
                         <div class="subscription-features">
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Nombre de produits illimité</span>
                             </div>
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Mise en avant des produits</span>
                             </div>
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Priorité dans les résultats de recherche</span>
                             </div>
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Badge "Vendeur Premium"</span>
                             </div>
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Accès prioritaire au support</span>
                             </div>
                             <div class="feature-item">
-                                <i class="material-icons">check_circle</i>
+                                <i class="fas fa-check-circle"></i>
                                 <span>Commission plafonnée à 5% pour des prix compétitifs</span>
                             </div>
                         </div>
@@ -128,12 +128,12 @@
                             <input type="hidden" name="action" value="toggle_subscription">
                             {% if subscription_active %}
                                 <button type="submit" class="btn-subscription btn-cancel-subscription">
-                                    <i class="material-icons">cancel</i>
+                                    <i class="fas fa-times-circle"></i>
                                     Désactiver l'abonnement
                                 </button>
                             {% else %}
                                 <button type="submit" class="btn-subscription btn-activate-subscription">
-                                    <i class="material-icons">workspace_premium</i>
+                                    <i class="fas fa-crown"></i>
                                     Activer l'abonnement premium
                                 </button>
                             {% endif %}
@@ -153,7 +153,7 @@
                     
                     <div class="boost-info-card">
                         <div class="boost-info-header">
-                            <i class="material-icons">trending_up</i>
+                            <i class="fas fa-chart-line"></i>
                             <div>
                                 <h5>Prix du boost</h5>
                                 <p class="boost-price" id="boost-price-display">Sélectionnez un produit <span>pour voir le prix</span></p>
@@ -168,7 +168,7 @@
                         
                         <div class="form-group" style="margin-top: 20px;">
                             <label class="form-label">
-                                <i class="material-icons">inventory_2</i>
+                                <i class="fas fa-boxes-stacked"></i>
                                 Sélectionner un produit à booster
                             </label>
                                 <div class="custom-dropdown-wrapper">
@@ -187,7 +187,7 @@
                                 <div class="custom-dropdown" id="customDropdownProduct">
                                     <button class="custom-dropdown-trigger" type="button" {% if not products_data %}disabled{% endif %}>
                                         <span class="dropdown-selected-text">{% if products_data %}Sélectionnez un produit{% else %}Aucun produit disponible{% endif %}</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         <div class="dropdown-option" data-value="" data-selected="true" data-price="0" data-boost-percentage="0" data-boost-price="0">{% if products_data %}Sélectionnez un produit{% else %}Aucun produit disponible{% endif %}</div>
@@ -206,7 +206,7 @@
                             </div>
                             {% if not products_data %}
                             <p style="font-size: 13px; color: #DC2626; margin-top: 8px;">
-                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">info</i>
+                                <i class="fas fa-info-circle" style="font-size: 16px; vertical-align: middle;"></i>
                                 Vous devez avoir au moins un produit actif pour demander un boost.
                             </p>
                             {% endif %}
@@ -214,7 +214,7 @@
                         
                         <div class="form-group">
                             <label class="form-label">
-                                <i class="material-icons">schedule</i>
+                                <i class="far fa-clock"></i>
                                 Durée du boost
                             </label>
                             <div class="custom-dropdown-wrapper">
@@ -226,7 +226,7 @@
                                 <div class="custom-dropdown" id="customDropdownDuration">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">1 semaine (7 jours)</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         <div class="dropdown-option" data-value="7" data-selected="true">1 semaine (7 jours)</div>
@@ -261,7 +261,7 @@
                         </div>
                         
                         <button type="submit" class="btn-submit-boost" {% if not products %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
-                            <i class="material-icons">rocket_launch</i>
+                            <i class="fas fa-rocket"></i>
                             Demander le boost
                         </button>
                     </form>
@@ -283,34 +283,34 @@
                                 <div style="flex: 1;">
                                     <h5 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">{{ request.product.product_name }}</h5>
                                     <p style="font-size: 13px; color: #6B7280; margin: 0;">
-                                        <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">schedule</i>
+                                        <i class="far fa-clock" style="font-size: 16px; vertical-align: middle; margin-right: 4px;"></i>
                                         Durée: {{ request.duration_days }} jour{{ request.duration_days|pluralize }}
                                     </p>
                                 </div>
                                 <div style="text-align: right;">
                                     {% if request.status == 'PENDING' %}
                                         <span style="display: inline-block; padding: 6px 12px; background: #FEF3C7; color: #D97706; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">hourglass_empty</i>
+                                            <i class="fas fa-hourglass-half" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></i>
                                             En attente
                                         </span>
                                     {% elif request.status == 'APPROVED' %}
                                         <span style="display: inline-block; padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">check_circle</i>
+                                            <i class="fas fa-check-circle" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></i>
                                             Approuvé
                                         </span>
                                     {% elif request.status == 'ACTIVE' %}
                                         <span style="display: inline-block; padding: 6px 12px; background: #DBEAFE; color: #2563EB; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">rocket_launch</i>
+                                            <i class="fas fa-rocket" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></i>
                                             Actif
                                         </span>
                                     {% elif request.status == 'REJECTED' %}
                                         <span style="display: inline-block; padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">cancel</i>
+                                            <i class="fas fa-times-circle" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></i>
                                             Rejeté
                                         </span>
                                     {% elif request.status == 'EXPIRED' %}
                                         <span style="display: inline-block; padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                                            <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">schedule</i>
+                                            <i class="far fa-clock" style="font-size: 14px; vertical-align: middle; margin-right: 4px;"></i>
                                             Expiré
                                         </span>
                                     {% endif %}
@@ -327,12 +327,12 @@
                                     <p style="font-size: 14px; font-weight: 600; margin: 0;">
                                         {% if request.payment_status %}
                                             <span style="color: #059669;">
-                                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">check_circle</i>
+                                                <i class="fas fa-check-circle" style="font-size: 16px; vertical-align: middle;"></i>
                                                 Payé
                                             </span>
                                         {% else %}
                                             <span style="color: #D97706;">
-                                                <i class="material-icons" style="font-size: 16px; vertical-align: middle;">pending</i>
+                                                <i class="fas fa-clock" style="font-size: 16px; vertical-align: middle;"></i>
                                                 En attente
                                             </span>
                                         {% endif %}
@@ -377,7 +377,7 @@
                         {% if vendor_badges.premium %}
                         <div class="badge-card badge-earned">
                             <div class="badge-icon">
-                                <i class="material-icons">workspace_premium</i>
+                                <i class="fas fa-crown"></i>
                             </div>
                             <h5>Premium</h5>
                             <p>Abonnement actif</p>
@@ -388,7 +388,7 @@
                         {% if vendor_badges.excellent_rating %}
                         <div class="badge-card badge-earned">
                             <div class="badge-icon">
-                                <i class="material-icons">star</i>
+                                <i class="fas fa-star"></i>
                             </div>
                             <h5>Note Excellente</h5>
                             <p>Note moyenne ≥ 4.5/5</p>
@@ -399,7 +399,7 @@
                         {% if vendor_badges.verified %}
                         <div class="badge-card badge-earned">
                             <div class="badge-icon">
-                                <i class="material-icons">verified</i>
+                                <i class="fas fa-certificate"></i>
                             </div>
                             <h5>Vérifié</h5>
                             <p>Compte vérifié</p>
@@ -410,7 +410,7 @@
                         {% if vendor_badges.new_seller %}
                         <div class="badge-card badge-earned">
                             <div class="badge-icon">
-                                <i class="material-icons">new_releases</i>
+                                <i class="fas fa-sparkles"></i>
                             </div>
                             <h5>Nouveau Vendeur</h5>
                             <p>Inscrit depuis moins de 30 jours</p>
@@ -422,7 +422,7 @@
                         {% if not vendor_badges.premium %}
                         <div class="badge-card badge-locked">
                             <div class="badge-icon">
-                                <i class="material-icons">workspace_premium</i>
+                                <i class="fas fa-crown"></i>
                             </div>
                             <h5>Premium</h5>
                             <p>Abonnement actif</p>
@@ -433,7 +433,7 @@
                         {% if not vendor_badges.excellent_rating %}
                         <div class="badge-card badge-locked">
                             <div class="badge-icon">
-                                <i class="material-icons">star</i>
+                                <i class="fas fa-star"></i>
                             </div>
                             <h5>Note Excellente</h5>
                             <p>Note moyenne ≥ 4.5/5</p>
@@ -444,7 +444,7 @@
                         {% if not vendor_badges.verified %}
                         <div class="badge-card badge-locked">
                             <div class="badge-icon">
-                                <i class="material-icons">verified</i>
+                                <i class="fas fa-certificate"></i>
                             </div>
                             <h5>Vérifié</h5>
                             <p>Compte vérifié</p>
@@ -455,7 +455,7 @@
                         {% if not vendor_badges.new_seller %}
                         <div class="badge-card badge-locked">
                             <div class="badge-icon">
-                                <i class="material-icons">new_releases</i>
+                                <i class="fas fa-sparkles"></i>
                             </div>
                             <h5>Nouveau Vendeur</h5>
                             <p>Inscrit depuis moins de 30 jours</p>

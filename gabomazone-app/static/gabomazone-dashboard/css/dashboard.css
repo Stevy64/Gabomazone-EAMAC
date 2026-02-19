@@ -412,3 +412,29 @@ body {
     box-shadow: var(--glass-shadow) !important;
 }
 
+/* ===== Espace vendeur B2C - Améliorations ergonomie ===== */
+.supplier-dashboard-body .stat-card:focus {
+    outline: 2px solid rgba(255,255,255,0.6);
+    outline-offset: 2px;
+}
+.supplier-dashboard-body .stat-card:active {
+    transform: translateY(-2px);
+}
+.supplier-dashboard-body .notification-list {
+    scrollbar-width: thin;
+}
+.supplier-dashboard-body .recent-order-item:focus {
+    outline: 2px solid #10B981;
+    outline-offset: 2px;
+}
+.supplier-dashboard-body .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.supplier-dashboard-body .notification-btn:focus,
+.supplier-dashboard-body .header-icon-link:focus {
+    outline: 2px solid #6B46C1;
+    outline-offset: 2px;
+}
+

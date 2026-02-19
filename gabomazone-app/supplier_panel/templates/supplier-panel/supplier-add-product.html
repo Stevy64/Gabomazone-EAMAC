@@ -10,16 +10,16 @@
                     {% for message in messages %}
     <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
         {% if message.tags == 'success' %}
-            <i class="material-icons" style="color: #059669;">check_circle</i>
+            <i class="fas fa-check-circle" style="color: #059669;"></i>
             <span style="color: #059669;">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons" style="color: #DC2626;">error</i>
+            <i class="fas fa-exclamation-circle" style="color: #DC2626;"></i>
             <span style="color: #DC2626;">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons" style="color: #D97706;">warning</i>
+            <i class="fas fa-exclamation-triangle" style="color: #D97706;"></i>
             <span style="color: #D97706;">{{ message }}</span>
         {% else %}
-            <i class="material-icons" style="color: #2563EB;">info</i>
+            <i class="fas fa-info-circle" style="color: #2563EB;"></i>
             <span style="color: #2563EB;">{{ message }}</span>
         {% endif %}
                     </div>
@@ -31,34 +31,40 @@
 <div class="products-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">shopping_bag</i>
-                                    </div>
+            <i class="fas fa-shopping-bag"></i>
+        </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">inventory_2</i>
+                <i class="fas fa-boxes-stacked"></i>
                 Gestion des produits
             </h2>
             <p>Bienvenue, <strong>{{ vendor.user.username }}</strong> !</p>
             <p id="products-count" class="products-count">Vous avez <strong>{{ products.count }}</strong> produit(s) dans votre boutique</p>
         </div>
+        <div class="welcome-action">
+            <button type="button" class="btn-publish-product" onclick="openAddProductModal()" title="Ajouter un article à votre catalogue">
+                <i class="fas fa-upload"></i>
+                <span>Publier un article</span>
+            </button>
+        </div>
     </div>
-                                            </div>
+</div>
 
 <!-- Search Bar with Filters -->
 <div class="products-search-card">
     <div class="search-filters-container">
         <div class="search-wrapper">
-            <i class="material-icons search-icon">search</i>
+            <i class="fas fa-search search-icon"></i>
             <input type="text" id="product-search" class="search-input" placeholder="Rechercher un produit par nom, catégorie, prix..." />
             <button type="button" class="search-clear-btn" id="clear-search" style="display: none;">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
                                             </div>
 
         <div class="filters-row">
             <div class="filter-group">
                 <label class="filter-label">
-                    <i class="material-icons">sort</i>
+                    <i class="fas fa-sort"></i>
                     Trier par
                                                 </label>
                 <div class="custom-dropdown-wrapper">
@@ -73,7 +79,7 @@
                     <div class="custom-dropdown" id="customDropdownSort">
                         <button class="custom-dropdown-trigger" type="button">
                             <span class="dropdown-selected-text">Nom, A-Z</span>
-                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            <i class="fas fa-chevron-up dropdown-arrow"></i>
                         </button>
                         <div class="custom-dropdown-menu">
                             <div class="dropdown-option" data-value="name" data-selected="true">Nom, A-Z</div>
@@ -89,7 +95,7 @@
 
             <div class="filter-group">
                 <label class="filter-label">
-                    <i class="material-icons">filter_list</i>
+                    <i class="fas fa-filter"></i>
                     Statut
                 </label>
                 <div class="custom-dropdown-wrapper">
@@ -101,7 +107,7 @@
                     <div class="custom-dropdown" id="customDropdownStatus">
                         <button class="custom-dropdown-trigger" type="button">
                             <span class="dropdown-selected-text">Tous</span>
-                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            <i class="fas fa-chevron-up dropdown-arrow"></i>
                         </button>
                         <div class="custom-dropdown-menu">
                             <div class="dropdown-option" data-value="All" data-selected="true">Tous</div>
@@ -114,7 +120,7 @@
 
             <div class="filter-group">
                 <label class="filter-label">
-                    <i class="material-icons">category</i>
+                    <i class="fas fa-folder"></i>
                     Catégorie
                 </label>
                 <div class="custom-dropdown-wrapper">
@@ -127,7 +133,7 @@
                     <div class="custom-dropdown" id="customDropdownCategory">
                         <button class="custom-dropdown-trigger" type="button">
                             <span class="dropdown-selected-text">Toutes</span>
-                            <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                            <i class="fas fa-chevron-up dropdown-arrow"></i>
                         </button>
                         <div class="custom-dropdown-menu">
                             <div class="dropdown-option" data-value="All" data-selected="true">Toutes</div>
@@ -164,7 +170,7 @@
                     <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" />
                 {% else %}
                     <div class="product-placeholder">
-                        <i class="material-icons">image</i>
+                        <i class="fas fa-image"></i>
                                                         </div>
                 {% endif %}
                                                     </div>
@@ -173,9 +179,9 @@
                     <h3 class="product-list-name">{{ product.product_name }}</h3>
                     <p class="product-list-category">
                         {% if product.product_supercategory %}
-                            <i class="material-icons">local_offer</i> {{ product.product_supercategory.name }}
+                            <i class="fas fa-tag"></i> {{ product.product_supercategory.name }}
                         {% else %}
-                            <i class="material-icons">local_offer</i> Sans catégorie
+                            <i class="fas fa-tag"></i> Sans catégorie
                         {% endif %}
                     </p>
                                                 </div>
@@ -188,10 +194,10 @@
                                                     </div>
                     <div class="product-list-meta">
                         <span class="meta-item">
-                            <i class="material-icons">inventory</i> {{ product.available|default:0 }}
+                            <i class="fas fa-cubes"></i> {{ product.available|default:0 }}
                         </span>
                         <span class="meta-item mobile-hide">
-                            <i class="material-icons">calendar_today</i> {{ product.date|date:"d/m/Y" }}
+                            <i class="far fa-calendar-alt"></i> {{ product.date|date:"d/m/Y" }}
                         </span>
                                                 </div>
                                                 </div>
@@ -199,30 +205,30 @@
             <div class="product-list-status">
                 <div class="status-badge-list {% if product.PRDISactive %}status-active{% else %}status-inactive{% endif %}">
                     {% if product.PRDISactive %}
-                        <i class="material-icons">check_circle</i> <span class="mobile-hide">Actif</span>
+                        <i class="fas fa-check-circle"></i> <span class="mobile-hide">Actif</span>
                     {% else %}
-                        <i class="material-icons">cancel</i> <span class="mobile-hide">Inactif</span>
+                        <i class="fas fa-times-circle"></i> <span class="mobile-hide">Inactif</span>
                     {% endif %}
                 </div>
-                <i class="material-icons chevron-icon desktop-only">chevron_right</i>
+                <i class="fas fa-chevron-right chevron-icon desktop-only"></i>
             </div>
             <!-- Mobile Action Buttons -->
             <div class="product-list-actions mobile-only">
                 <a href="{% url 'supplier_dashboard:supplier-edit-product' product.id %}" class="action-btn edit-btn" onclick="event.stopPropagation();" title="Modifier">
-                    <i class="material-icons">edit</i>
+                    <i class="fas fa-pen"></i>
                 </a>
                 <button type="button" class="action-btn delete-btn" onclick="event.stopPropagation(); openDeleteConfirmModal({{ product.id }}, '{{ product.product_name|escapejs }}');" title="Supprimer">
-                    <i class="material-icons">delete</i>
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
         {% empty %}
         <div class="empty-products">
-            <i class="material-icons">shopping_bag</i>
+            <i class="fas fa-shopping-bag"></i>
             <h3>Aucun produit</h3>
             <p>Vous n'avez pas encore de produits dans votre boutique.</p>
             <button type="button" class="add-first-product-btn" onclick="openAddProductModal()">
-                <i class="material-icons">add</i> Ajouter votre premier produit
+                <i class="fas fa-plus"></i> Ajouter votre premier produit
             </button>
         </div>
         {% endfor %}
@@ -230,7 +236,7 @@
 
     <!-- Empty Search State -->
     <div id="empty-search" class="empty-search" style="display: none;">
-        <i class="material-icons">search_off</i>
+        <i class="fas fa-search"></i>
         <h3>Aucun résultat</h3>
         <p>Aucun produit ne correspond à votre recherche.</p>
                                     </div>
@@ -246,11 +252,11 @@
     <div class="modal-container">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">add_circle</i>
+                <i class="fas fa-plus-circle"></i>
                 Ajouter un nouveau produit
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeAddProductModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
                                     </div>
         <div class="modal-body">
@@ -268,7 +274,7 @@
                 <!-- Basic Infos -->
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        <i class="material-icons">info</i>
+                        <i class="fas fa-info-circle"></i>
                         Informations de base
                     </h3>
                     
@@ -298,7 +304,7 @@
                                 <div class="custom-dropdown" id="customDropdownPromotional">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Nouveauté</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         <div class="dropdown-option" data-value="New" data-selected="true">Nouveauté</div>
@@ -326,11 +332,11 @@
                             <label class="form-label">Quantité disponible *</label>
                             <div class="number-input-wrapper">
                                 <button type="button" class="number-btn minus-btn" onclick="decrementValue('available')">
-                                    <i class="material-icons">remove</i>
+                                    <i class="fas fa-minus"></i>
                                 </button>
                                 <input type="number" name="available" id="available" class="number-input" min="0" value="0" required />
                                 <button type="button" class="number-btn plus-btn" onclick="incrementValue('available')">
-                                    <i class="material-icons">add</i>
+                                    <i class="fas fa-plus"></i>
                                 </button>
                                                 </div>
                                             </div>
@@ -339,11 +345,11 @@
                             <label class="form-label">Nombre d'unités *</label>
                             <div class="number-input-wrapper">
                                 <button type="button" class="number-btn minus-btn" onclick="decrementValue('pieces')">
-                                    <i class="material-icons">remove</i>
+                                    <i class="fas fa-minus"></i>
                                 </button>
                                 <input type="number" name="pieces" id="pieces" class="number-input" min="0" value="0" required />
                                 <button type="button" class="number-btn plus-btn" onclick="incrementValue('pieces')">
-                                    <i class="material-icons">add</i>
+                                    <i class="fas fa-plus"></i>
                                 </button>
                                     </div>
                                 </div>
@@ -353,7 +359,7 @@
                 <!-- Photos -->
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        <i class="material-icons">photo_library</i>
+                        <i class="fas fa-images"></i>
                         Photos du produit
                     </h3>
                     
@@ -363,7 +369,7 @@
                             <img id="url-img" width="100" height="100" src="{% static 'assets-supplier/imgs/theme/upload.svg'%}" alt="Upload" />
                             <input id="id_image" name="main_image" class="form-file-input" type="file" accept="image/*" required/>
                             <label for="id_image" class="upload-label">
-                                <i class="material-icons">cloud_upload</i> Cliquer pour uploader
+                                <i class="fas fa-cloud-upload-alt"></i> Cliquer pour uploader
                             </label>
                         </div>
                                     </div>
@@ -390,7 +396,7 @@
                                 <!-- Categories -->
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        <i class="material-icons">category</i>
+                        <i class="fas fa-folder"></i>
                         Catégories
                     </h3>
                     
@@ -406,7 +412,7 @@
                                 <div class="custom-dropdown" id="customDropdownSuperCategory">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">{% if super_category %}{{ super_category.0.name }}{% else %}Sélectionner{% endif %}</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         {% for super in super_category%}
@@ -425,7 +431,7 @@
                                 <div class="custom-dropdown" id="customDropdownMainCategory">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Sélectionner</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu" id="mainCategoryMenu">
                                         <div class="dropdown-option" data-value="">Sélectionner</div>
@@ -445,7 +451,7 @@
                                 <div class="custom-dropdown" id="customDropdownSubCategory">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Sélectionner</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu" id="subCategoryMenu">
                                         <div class="dropdown-option" data-value="">Sélectionner</div>
@@ -463,7 +469,7 @@
                                 <div class="custom-dropdown" id="customDropdownMiniCategory">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Sélectionner</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu" id="miniCategoryMenu">
                                         <div class="dropdown-option" data-value="">Sélectionner</div>
@@ -482,7 +488,7 @@
                 <!-- Product Details -->
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        <i class="material-icons">settings</i>
+                        <i class="fas fa-cog"></i>
                         Détails du produit
                     </h3>
                     
@@ -497,7 +503,7 @@
                                 <div class="custom-dropdown" id="customDropdownCondition">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Nouveau</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         <div class="dropdown-option" data-value="1" data-selected="true">Nouveau</div>
@@ -517,7 +523,7 @@
                                 <div class="custom-dropdown" id="customDropdownStatus">
                                     <button class="custom-dropdown-trigger" type="button">
                                         <span class="dropdown-selected-text">Actif</span>
-                                        <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                        <i class="fas fa-chevron-up dropdown-arrow"></i>
                                     </button>
                                     <div class="custom-dropdown-menu">
                                         <div class="dropdown-option" data-value="1" data-selected="true">Actif</div>
@@ -537,7 +543,7 @@
                 <!-- Product Sizes -->
                 <div class="form-section">
                     <h3 class="form-section-title">
-                        <i class="material-icons">straighten</i>
+                        <i class="fas fa-ruler-combined"></i>
                         Tailles disponibles
                     </h3>
                     
@@ -576,7 +582,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeAddProductModal()">Annuler</button>
                     <button type="submit" class="btn-submit">
-                        <i class="material-icons">check</i>
+                        <i class="fas fa-check"></i>
                         Publier le produit
                     </button>
                 </div>
@@ -590,11 +596,11 @@
     <div class="modal-container product-details-modal">
         <div class="modal-header">
             <h2>
-                <i class="material-icons">info</i>
+                <i class="fas fa-info-circle"></i>
                 Détails du produit
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeProductDetailsModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
                                     </div>
         <div class="modal-body" id="productDetailsContent">
@@ -616,17 +622,17 @@
     <div class="modal-container" style="max-width: 500px;">
         <div class="modal-header">
             <h2>
-                <i class="material-icons" style="color: #DC2626;">warning</i>
+                <i class="fas fa-exclamation-triangle" style="color: #DC2626;"></i>
                 Confirmer la suppression
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeDeleteConfirmModal()">
-                <i class="material-icons">close</i>
+                <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
             <div style="text-align: center; padding: 20px 0;">
                 <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="material-icons" style="font-size: 48px; color: #DC2626;">delete_outline</i>
+                    <i class="fas fa-trash-alt" style="font-size: 48px; color: #DC2626;"></i>
                 </div>
                 <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Êtes-vous sûr ?</h3>
                 <p style="font-size: 15px; color: #6B7280; margin: 0 0 8px 0;">Vous êtes sur le point de supprimer le produit :</p>
@@ -639,7 +645,7 @@
             <form id="deleteProductForm" method="post" style="display: inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
-                    <i class="material-icons">delete</i>
+                    <i class="fas fa-trash"></i>
                     Supprimer
                 </button>
             </form>
@@ -706,6 +712,44 @@
     .welcome-text strong {
         color: #FCD34D;
         font-weight: 700;
+    }
+    
+    .welcome-text {
+        flex: 1;
+    }
+    
+    .welcome-action {
+        flex-shrink: 0;
+    }
+    
+    .btn-publish-product {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        background: white;
+        color: #6B46C1;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .btn-publish-product:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        color: #5B21B6;
+    }
+    
+    .btn-publish-product:active {
+        transform: translateY(0);
+    }
+    
+    .btn-publish-product i {
+        font-size: 18px;
     }
     
     /* Search Card */
@@ -812,7 +856,8 @@
         letter-spacing: 0.5px;
     }
     
-    .filter-label .material-icons {
+    .filter-label .fas,
+    .filter-label .far {
         font-size: 18px;
         color: #6B46C1;
     }
@@ -1610,7 +1655,8 @@
         transform: scale(0.95);
     }
     
-    .number-btn .material-icons {
+    .number-btn .fas,
+    .number-btn .far {
         font-size: 20px;
     }
     
@@ -1843,6 +1889,16 @@
         .welcome-content {
             flex-direction: column;
             text-align: center;
+        }
+        
+        .welcome-action {
+            width: 100%;
+            margin-top: 8px;
+        }
+        
+        .btn-publish-product {
+            width: 100%;
+            justify-content: center;
         }
         
         /* Compact list on mobile */
@@ -2549,7 +2605,7 @@
         // Trouver le produit dans la liste
         const productItem = document.querySelector(`[data-product-id="${productId}"]`);
         if (!productItem) {
-            content.innerHTML = '<div style="text-align: center; padding: 40px; color: #DC2626;"><i class="material-icons" style="font-size: 48px; margin-bottom: 16px;">error</i><p>Produit introuvable</p></div>';
+            content.innerHTML = '<div style="text-align: center; padding: 40px; color: #DC2626;"><i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i><p>Produit introuvable</p></div>';
             return;
         }
         
@@ -2569,15 +2625,15 @@
         let modalHTML = `
             <div class="product-details-card">
                 <div class="product-details-header">
-                    ${productImageSrc ? `<img src="${productImageSrc}" alt="${productName}" />` : '<div class="product-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F3F4F6;"><i class="material-icons" style="font-size: 72px; color: #9CA3AF;">image</i></div>'}
+                    ${productImageSrc ? `<img src="${productImageSrc}" alt="${productName}" />` : '<div class="product-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #F3F4F6;"><i class="fas fa-image" style="font-size: 72px; color: #9CA3AF;"></i></div>'}
                     <div class="product-details-status ${productStatusClass}">
-                        <i class="material-icons">${productStatusClass === 'status-active' ? 'check_circle' : 'cancel'}</i> ${productStatus}
+                        <i class="fas ${productStatusClass === 'status-active' ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${productStatus}
                     </div>
                 </div>
                 <div class="product-details-body">
                     <h2 class="product-details-title">${productName}</h2>
                     <p class="product-details-category">
-                        <i class="material-icons">local_offer</i> ${productCategory}
+                        <i class="fas fa-tag"></i> ${productCategory}
                     </p>
                     <div class="product-details-price-section">
                         <span class="product-details-price">${parseFloat(productPrice).toLocaleString('fr-FR')} FCFA</span>
@@ -2585,14 +2641,14 @@
                     </div>
                     <div class="product-details-info-grid">
                         <div class="product-details-info-item">
-                            <i class="material-icons">inventory</i>
+                            <i class="fas fa-cubes"></i>
                             <div class="product-details-info-item-content">
                                 <span class="product-details-info-label">Stock</span>
                                 <span class="product-details-info-value">${productStock}</span>
                             </div>
                         </div>
                         <div class="product-details-info-item">
-                            <i class="material-icons">calendar_today</i>
+                            <i class="far fa-calendar-alt"></i>
                             <div class="product-details-info-item-content">
                                 <span class="product-details-info-label">Date d'ajout</span>
                                 <span class="product-details-info-value">${productDate}</span>
@@ -2601,10 +2657,10 @@
                     </div>
                     <div class="product-details-actions">
                         <a href="${urls.editProduct.replace('0', productId)}" class="action-btn edit-btn">
-                            <i class="material-icons">edit</i> <span class="btn-text">Modifier</span><span class="btn-text-mobile">Modif</span>
+                            <i class="fas fa-pen"></i> <span class="btn-text">Modifier</span><span class="btn-text-mobile">Modif</span>
                         </a>
                         <button type="button" class="action-btn delete-btn" onclick="closeProductDetailsModal(); openDeleteConfirmModal(${productId}, '${productName.replace(/'/g, "\\'")}');">
-                            <i class="material-icons">delete</i> <span>Supprimer</span>
+                            <i class="fas fa-trash"></i> <span>Supprimer</span>
                         </button>
                     </div>
                 </div>

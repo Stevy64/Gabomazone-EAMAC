@@ -1610,8 +1610,8 @@
 							<div class="gm-modal-message">${safeMessage}</div>
 						</div>
 						<div class="gm-modal-footer">
-							${config.showCancel ? `<button class="gm-modal-btn secondary" data-action="cancel">${escapeHtml(config.cancelText)}</button>` : ''}
-							<button class="gm-modal-btn ${config.type === 'error' ? 'danger' : config.type === 'success' ? 'success' : 'primary'}" data-action="confirm">${escapeHtml(config.confirmText)}</button>
+							${config.showCancel ? `<button type="button" class="gm-modal-btn secondary" data-action="cancel">${escapeHtml(config.cancelText)}</button>` : ''}
+							<button type="button" class="gm-modal-btn ${config.type === 'error' ? 'danger' : config.type === 'success' ? 'success' : 'primary'}" data-action="confirm">${escapeHtml(config.confirmText)}</button>
 						</div>
 					</div>
 				`;
