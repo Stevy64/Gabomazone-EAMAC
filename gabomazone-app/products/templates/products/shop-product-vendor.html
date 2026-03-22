@@ -759,35 +759,74 @@
                                 {% if product_detail.PRDDiscountPrice and product_detail.PRDDiscountPrice > 0 %}
                                 <span class="flavoriz-old-price">{{product_detail.PRDDiscountPrice|format_price}} FCFA</span>
                                 {% endif %}
-                                            </div>
-                                        </div>
+                            </div>
+                            {% if product_detail.product_vendor %}
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                                <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 13px;"></i>
+                                <span style="font-size: 14px; color: #6B7280;">{% if product_detail.product_vendor.city %}{{ product_detail.product_vendor.city }}{% if product_detail.product_vendor.country %}, {{ product_detail.product_vendor.country }}{% endif %}{% elif product_detail.product_vendor.country %}{{ product_detail.product_vendor.country }}{% endif %}</span>
+                            </div>
+                            {% endif %}
+                        </div>
                         
-                        <div class="flavoriz-product-description">
-                            {{product_detail.product_description|safe}}
-                                        </div>
+                        <!-- Seller Trust Block -->
+                        {% if product_detail.product_vendor %}
+                        <div class="gm-seller-block">
+                            <div class="gm-seller-header">
+                                <div class="gm-seller-avatar">
+                                    {% if product_detail.product_vendor.image %}
+                                    <img src="{{ product_detail.product_vendor.image.url }}" alt="{{ product_detail.product_vendor.display_name|default:product_detail.product_vendor.user.username }}" />
+                                    {% else %}
+                                    {{ product_detail.product_vendor.user.username|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="gm-seller-info">
+                                    <div class="gm-seller-name">
+                                        {% if product_detail.product_vendor.slug %}
+                                        <a href="{% url 'suppliers:vendor-details' product_detail.product_vendor.slug %}" style="text-decoration: none; color: inherit;">{{ product_detail.product_vendor.display_name|default:product_detail.product_vendor.user.username }}</a>
+                                        {% else %}
+                                        {{ product_detail.product_vendor.display_name|default:product_detail.product_vendor.user.username }}
+                                        {% endif %}
+                                        {% if product_detail.product_vendor.status == 'vendor' %}
+                                        <span class="gm-badge gm-badge-pro gm-badge-lg"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
+                                        {% else %}
+                                        <span class="gm-badge gm-badge-particulier gm-badge-lg">Particulier</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="gm-seller-meta">
+                                        {% if product_detail.product_vendor.city %}
+                                        <span><i class="fi-rs-marker"></i> {{ product_detail.product_vendor.city }}</span>
+                                        {% endif %}
+                                        <span><i class="fi-rs-star"></i> {{ average_rating|floatformat:1 }}/5 ({{ feedbak_number }} avis)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                         
-                        <div class="flavoriz-product-actions">
-                            <div class="flavoriz-qty-wrapper">
+                        <!-- Action Buttons -->
+                        <div class="gm-action-buttons">
+                            <button class="gm-action-btn gm-btn-buy" id="detail-add-cart-btn">
+                                <i class="fi-rs-shopping-bag"></i>
+                                <span>Acheter maintenant</span>
+                            </button>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <div class="flavoriz-qty-wrapper" style="flex: 0 0 auto;">
                                 <div class="flavoriz-qty-selector">
                                     <button class="flavoriz-qty-btn" onclick="decreaseQty()">−</button>
                                     <span class="flavoriz-qty-value" id="product-qty">1</span>
                                     <button class="flavoriz-qty-btn" onclick="increaseQty()">+</button>
                                 </div>
-                                
-                                <button class="flavoriz-favorite-btn-large flavoriz-favorite-btn-mobile {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn" data-product-id="{{product_detail.id}}">
-                                    <i class="fi-rs-heart" style="font-size: 20px;"></i>
-                                </button>
                             </div>
-                            
-                            <button class="flavoriz-add-cart-btn-large" id="detail-add-cart-btn">
-                                <i class="fi-rs-shopping-bag"></i>
-                                <span>Ajouter au panier</span>
-                            </button>
-                            
-                            <button class="flavoriz-favorite-btn-large flavoriz-favorite-btn-desktop {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn-desktop" data-product-id="{{product_detail.id}}">
+                            <button class="flavoriz-favorite-btn-large {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn" data-product-id="{{product_detail.id}}" style="width: 48px; height: 48px;">
                                 <i class="fi-rs-heart" style="font-size: 20px;"></i>
                             </button>
-                                        </div> 
+                        </div>
+                        
+                        <div class="flavoriz-product-description">
+                            {{product_detail.product_description|safe}}
+                        </div>
                         
                         <div class="flavoriz-product-meta">
                             <div class="flavoriz-meta-item">
@@ -807,7 +846,7 @@
                                 <span class="flavoriz-meta-value" id="detail-like-count">{{ like_count }}</span>
                             </div>
                         </div>
-                            </div>
+                    </div>
                 </div>
             </div>
             
@@ -1052,8 +1091,16 @@
                 </div>
             </div>
             {% endif %}
-                                </div>
-                            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Mobile Action Bar -->
+    <div class="gm-sticky-actions">
+        <button class="gm-action-btn gm-btn-buy" onclick="if(typeof window.addToCartFromDetail==='function'){window.addToCartFromDetail();}">
+            <i class="fi-rs-shopping-bag"></i>
+            <span>Acheter</span>
+        </button>
+    </div>
 </main>
 
 <script>
@@ -1153,60 +1200,28 @@
             body: formData,
             credentials: 'same-origin',
             headers: {
-                'X-CSRFToken': csrfToken
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(response => {
-            if (response.redirected) {
+            if (response.redirected && response.url.includes('login')) {
                 window.location.href = response.url;
                 return null;
-            } else if (response.ok) {
-                // Essayer de parser comme JSON d'abord
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return response.json();
-                } else {
-                    return response.text();
-                }
-            } else {
-                return response.json().then(err => {
-                    throw new Error(err.error || `HTTP error! status: ${response.status}`);
-                }).catch(() => {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                });
             }
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            }
+            window.location.href = '{% url "orders:cart" %}';
+            return null;
         })
         .then(data => {
             if (data !== null) {
-                if (typeof data === 'object' && data.success) {
-                    // Afficher un message de succès
-                    if (data.message) {
-                        if (typeof showCartSuccessMessage === 'function') {
-                            showCartSuccessMessage();
-                        } else {
-                            alert(data.message);
-                        }
-                    }
-                    // Mettre à jour le compteur du panier
-                    if (typeof updateCartCount === 'function') {
-                        setTimeout(() => updateCartCount(), 500);
-                    } else if (data.cart_count !== undefined) {
-                        const cartBadge = document.querySelector('.flavoriz-cart-badge');
-                        if (cartBadge) {
-                            cartBadge.textContent = data.cart_count;
-                            cartBadge.style.display = data.cart_count > 0 ? 'flex' : 'none';
-                        }
-                    }
-                } else if (typeof data === 'object' && data.error) {
+                if (data.error) {
                     alert(data.error);
                 } else {
-                    // Ancien format (texte)
-                    if (typeof showCartSuccessMessage === 'function') {
-                        showCartSuccessMessage();
-                    }
-                    if (typeof updateCartCount === 'function') {
-                        setTimeout(() => updateCartCount(), 500);
-                    }
+                    window.location.href = '{% url "orders:cart" %}';
                 }
             }
         })

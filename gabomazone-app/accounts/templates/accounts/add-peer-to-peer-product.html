@@ -4,19 +4,11 @@
 
 {%block body%}
 <style>
-/* Styles desktop pour le parcours de vente */
-.sales-journey-toggle {
-    display: none !important;
-}
-
-.sales-journey-title-desktop {
-    display: flex !important;
-}
-
+/* Sales journey collapsed by default */
 .sales-journey-content {
-    display: block !important;
-    max-height: none !important;
-    overflow: visible !important;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
 }
 
 /* Styles responsive pour mobile */
@@ -111,70 +103,10 @@
         font-size: 13px !important;
     }
     
-    /* Parcours visuel - liste déroulante sur mobile */
+    /* Parcours visuel - mobile */
     .sales-journey {
-        padding: 16px !important;
-        margin-bottom: 24px !important;
-    }
-    
-    .sales-journey-toggle {
-        display: flex !important;
-    }
-    
-    .sales-journey-title-desktop {
-        display: none !important;
-    }
-    
-    .sales-journey-content {
-        max-height: 0 !important;
-        overflow: hidden !important;
-        transition: max-height 0.3s ease-out !important;
-    }
-    
-    .sales-journey-content.expanded {
-        max-height: 2000px !important;
-        transition: max-height 0.5s ease-in !important;
-    }
-    
-    .sales-journey-icon {
-        transform: rotate(0deg) !important;
-        transition: transform 0.3s ease !important;
-    }
-    
-    .sales-journey-icon.rotated {
-        transform: rotate(180deg) !important;
-    }
-    
-    .sales-journey-steps {
-        flex-direction: column !important;
-        gap: 16px !important;
-        padding-top: 16px !important;
-    }
-    
-    .sales-journey-steps .journey-line {
-        display: none !important;
-    }
-    
-    .journey-step {
-        min-width: 100% !important;
-        flex: 1 1 100% !important;
-        padding: 12px !important;
-        background: white !important;
-        border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-    }
-    
-    .journey-step > div:first-child {
-        width: 50px !important;
-        height: 50px !important;
-    }
-    
-    .journey-step h4 {
-        font-size: 13px !important;
-    }
-    
-    .journey-step p {
-        font-size: 11px !important;
+        padding: 12px 16px !important;
+        margin-bottom: 20px !important;
     }
     
     /* Form sections */
@@ -276,10 +208,18 @@
         min-height: 48px !important;
     }
     
-    /* Mes articles - grille responsive */
-    .user-products-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
+    /* Mes articles - liste responsive */
+    .gm-my-articles-list .gm-article-row {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    .gm-my-articles-list .gm-article-thumb {
+        width: 100% !important;
+        height: 160px !important;
+    }
+    .gm-my-articles-list .gm-article-actions {
+        flex-direction: row !important;
+        width: 100% !important;
     }
     
     /* Preview images */
@@ -482,73 +422,44 @@ input[type="file"]:active {
             <div class="col-md-9" style="flex: 1; min-width: 0;">
                 <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
                     <!-- Header -->
-                    <div class="main-content-header" style="margin-bottom: 32px;">
-                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
-                            <i class="fi-rs-shopping-cart-add" style="color: var(--color-orange); font-size: 32px;"></i>
-                            Vendre un article en occasion
+                    <div class="main-content-header" style="margin-bottom: 24px;">
+                        <h1 style="font-size: 26px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
+                            <i class="fi-rs-shopping-cart-add" style="color: var(--color-orange); font-size: 28px;"></i>
+                            Vendez en 30 secondes
                         </h1>
-                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.5;">
-                            Publiez votre annonce. Commission 20%.
+                        <p style="color: #6B7280; font-size: 14px; margin: 0; line-height: 1.5;">
+                            Remplissez les champs ci-dessous et publiez. C'est rapide et gratuit (commission 20% à la vente).
                         </p>
                     </div>
 
-                    <!-- Parcours visuel des étapes -->
-                    <div class="sales-journey" style="margin-bottom: 40px; padding: 24px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 16px; border: 2px solid #E5E7EB;">
-                        <button type="button" class="sales-journey-toggle" onclick="toggleSalesJourney()" style="width: 100%; display: none; align-items: center; justify-content: space-between; background: none; border: none; padding: 0; margin: 0 0 16px 0; cursor: pointer; text-align: left;">
-                            <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                <i class="fi-rs-list-check" style="color: var(--color-orange);"></i>
-                                Parcours de vente
-                            </h3>
-                            <i class="fi-rs-angle-down sales-journey-icon" style="font-size: 20px; color: var(--color-orange); transition: transform 0.3s ease;"></i>
+                    <!-- Parcours visuel - collapsible -->
+                    <div class="sales-journey" style="margin-bottom: 24px; padding: 16px 20px; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+                        <button type="button" onclick="toggleSalesJourney()" style="width: 100%; display: flex; align-items: center; justify-content: space-between; background: none; border: none; padding: 0; cursor: pointer; text-align: left;">
+                            <span style="font-size: 14px; font-weight: 600; color: #6B7280; display: flex; align-items: center; gap: 8px;">
+                                <i class="fi-rs-info" style="color: var(--color-orange);"></i>
+                                Comment ça marche ?
+                            </span>
+                            <i class="fi-rs-angle-down sales-journey-icon" style="font-size: 16px; color: #9CA3AF; transition: transform 0.3s ease;"></i>
                         </button>
-                        <h3 class="sales-journey-title-desktop" style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;">
-                            <i class="fi-rs-list-check" style="color: var(--color-orange);"></i>
-                            Parcours de vente
-                        </h3>
-                        <div class="sales-journey-content" style="display: block;">
-                        <div class="sales-journey-steps" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; position: relative;">
-                            <div class="journey-line" style="position: absolute; top: 30px; left: 60px; right: 60px; height: 3px; background: linear-gradient(90deg, var(--color-orange) 0%, #E5E7EB 100%); z-index: 0; border-radius: 2px;"></div>
-                            <!-- 1. Publier l'annonce -->
-                            <div class="journey-step" style="flex: 1; min-width: 120px; text-align: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">
-                                    <i class="fi-rs-edit" style="color: white; font-size: 24px;"></i>
+                        <div class="sales-journey-content" style="max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;">
+                            <div style="display: flex; gap: 16px; padding-top: 16px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
+                                    <div style="font-size: 20px; margin-bottom: 4px;">📝</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">1. Publier</div>
                                 </div>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">1. Publier l'annonce</h4>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Vous déposez votre annonce</p>
-                            </div>
-                            <!-- 2. Validation -->
-                            <div class="journey-step" style="flex: 1; min-width: 120px; text-align: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-                                    <i class="fi-rs-check" style="color: white; font-size: 24px;"></i>
+                                <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
+                                    <div style="font-size: 20px; margin-bottom: 4px;">✅</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">2. Validation</div>
                                 </div>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">2. Validation</h4>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Contrôle par l'équipe</p>
-                            </div>
-                            <!-- 3. En ligne -->
-                            <div class="journey-step" style="flex: 1; min-width: 120px; text-align: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
-                                    <i class="fi-rs-world" style="color: white; font-size: 24px;"></i>
+                                <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
+                                    <div style="font-size: 20px; margin-bottom: 4px;">🌍</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">3. En ligne</div>
                                 </div>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">3. En ligne</h4>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Annonce visible aux acheteurs</p>
-                            </div>
-                            <!-- 4. Négociation du prix -->
-                            <div class="journey-step" style="flex: 1; min-width: 120px; text-align: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
-                                    <i class="fi-rs-money" style="color: white; font-size: 24px;"></i>
+                                <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
+                                    <div style="font-size: 20px; margin-bottom: 4px;">💰</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">4. Vendu !</div>
                                 </div>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">4. Négociation du prix</h4>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Accord avec l'acheteur</p>
                             </div>
-                            <!-- 5. Achat et remise -->
-                            <div class="journey-step" style="flex: 1; min-width: 120px; text-align: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
-                                    <i class="fi-rs-shopping-cart-check" style="color: white; font-size: 24px;"></i>
-                                </div>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">5. Achat et remise</h4>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0; line-height: 1.4;">Paiement et remise de l'article</p>
-                            </div>
-                        </div>
                         </div>
                     </div>
 
@@ -693,12 +604,14 @@ input[type="file"]:active {
                             </div>
                         </div>
 
-                        <!-- Catégories -->
+                        <!-- Catégories (optional, collapsible) -->
                         <div class="form-section" style="margin-bottom: 32px;">
-                            <h3 class="form-section-title" style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6;">
-                                <i class="fi-rs-money" style="color: var(--color-orange);"></i>
-                                Catégories
-                            </h3>
+                            <button type="button" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'; this.querySelector('.cat-chevron').style.transform=this.nextElementSibling.style.display==='none'?'rotate(0deg)':'rotate(180deg)';" style="width: 100%; font-size: 16px; font-weight: 700; color: #6B7280; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid #F3F4F6; background: none; border-left: none; border-right: none; border-top: none; cursor: pointer; text-align: left;">
+                                <i class="fi-rs-folder" style="color: var(--color-orange);"></i>
+                                Catégories <span style="font-size: 12px; font-weight: 500; color: #9CA3AF; margin-left: 4px;">(optionnel)</span>
+                                <i class="fi-rs-angle-down cat-chevron" style="margin-left: auto; font-size: 16px; transition: transform 0.3s ease;"></i>
+                            </button>
+                            <div style="display: none;">
                             
                             <div class="form-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                                 <div>
@@ -752,6 +665,7 @@ input[type="file"]:active {
                                     </div>
                                 </div>
                             </div>
+                            </div>
                         </div>
 
                         <!-- Informations de contact -->
@@ -786,21 +700,17 @@ input[type="file"]:active {
                         </div>
 
                         <!-- Bouton de soumission -->
-                        <div class="form-buttons" style="display: flex; justify-content: flex-end; gap: 16px; padding-top: 24px; border-top: 2px solid #F3F4F6;">
+                        <div class="form-buttons" style="display: flex; flex-direction: column; gap: 12px; padding-top: 24px; border-top: 2px solid #F3F4F6;">
+                            <button type="submit" style="width: 100%; padding: 20px 32px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(255, 123, 44, 0.35); display: flex; align-items: center; justify-content: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.45)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(255, 123, 44, 0.35)'">
+                                <i class="fi-rs-check" style="font-size: 20px;"></i>
+                                {% if is_edit %}Enregistrer les modifications{% else %}Publier l'article{% endif %}
+                            </button>
                             {% if is_edit %}
-                            <a href="{% url 'accounts:sell-product' %}" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                            <a href="{% url 'accounts:sell-product' %}" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 <i class="fi-rs-arrow-left"></i>
                                 Annuler
                             </a>
-                            {% else %}
-                            <button type="reset" style="padding: 14px 28px; background: white; color: #6B7280; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                                Réinitialiser
-                            </button>
                             {% endif %}
-                            <button type="submit" style="padding: 14px 32px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                                <i class="fi-rs-check"></i>
-                                {% if is_edit %}Enregistrer les modifications{% else %}Publier l'article{% endif %}
-                            </button>
                         </div>
                     </form>
 
@@ -808,67 +718,75 @@ input[type="file"]:active {
                     <!-- Mes articles -->
                     {% if user_products %}
                     <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid #F3F4F6;">
-                        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-list" style="color: var(--color-orange);"></i>
-                            Mes articles publiés ({{ user_products|length }})
-                        </h3>
-                        <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <i class="fi-rs-list" style="color: var(--color-orange);"></i>
+                                Mes articles <span style="font-size: 14px; font-weight: 500; color: #6B7280;">({{ user_products|length }})</span>
+                            </h3>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <select id="gm-articles-filter" style="padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; color: #374151; background: white; cursor: pointer;">
+                                    <option value="all">Tous</option>
+                                    <option value="APPROVED">Approuvés</option>
+                                    <option value="PENDING">En attente</option>
+                                    <option value="REJECTED">Rejetés</option>
+                                    <option value="SOLD">Vendus</option>
+                                </select>
+                                <div style="position: relative;">
+                                    <input type="text" id="gm-articles-search" placeholder="Rechercher..." style="padding: 8px 12px 8px 32px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; width: 180px; color: #374151;">
+                                    <i class="fi-rs-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #9CA3AF;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gm-my-articles-list" style="display: flex; flex-direction: column; gap: 12px;">
                             {% for product in user_products %}
-                            <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                                <div style="margin-bottom: 12px; position: relative;">
-                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                            <div class="gm-article-row" data-status="{{ product.status }}" data-name="{{ product.product_name|lower }}" style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #E5E7EB; display: flex; align-items: center; gap: 16px; transition: all 0.2s;">
+                                <div class="gm-article-thumb" style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; flex-shrink: 0; position: relative;">
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
                                     {% if product.is_boosted %}
-                                    <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
-                                        <i class="fi-rs-rocket" style="font-size: 12px;"></i>
-                                        <span>Boosté</span>
+                                    <span style="position: absolute; top: 4px; left: 4px; background: linear-gradient(135deg, #FFD700, #FFA500); color: #1F2937; padding: 2px 5px; border-radius: 4px; font-size: 8px; font-weight: 700;">
+                                        <i class="fi-rs-rocket" style="font-size: 8px;"></i> BOOST
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                                        <h4 style="font-size: 15px; font-weight: 600; color: #1F2937; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;">{{ product.product_name|truncatechars:40 }}</h4>
+                                        {% if product.status == 'PENDING' %}
+                                        <span style="padding: 3px 8px; background: #FEF3C7; color: #92400E; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">En attente</span>
+                                        {% elif product.status == 'APPROVED' %}
+                                        <span style="padding: 3px 8px; background: #D1FAE5; color: #065F46; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">Approuvé</span>
+                                        {% elif product.status == 'REJECTED' %}
+                                        <span style="padding: 3px 8px; background: #FEE2E2; color: #991B1B; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">Rejeté</span>
+                                        {% elif product.status == 'SOLD' %}
+                                        <span style="padding: 3px 8px; background: #DBEAFE; color: #1E40AF; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;">Vendu</span>
+                                        {% endif %}
                                     </div>
-                                    {% endif %}
+                                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                        <span style="font-size: 16px; font-weight: 700; color: var(--color-orange);">{{ product.PRDPrice|format_price }} FCFA</span>
+                                        {% if product.view_count > 0 %}
+                                        <span style="font-size: 12px; color: #9CA3AF; display: flex; align-items: center; gap: 3px;"><i class="fi-rs-eye" style="font-size: 10px;"></i> {{ product.view_count }}</span>
+                                        {% endif %}
+                                        <span style="font-size: 12px; color: #9CA3AF;">{{ product.date|date:"d/m/Y" }}</span>
+                                    </div>
+                                </div>
+                                <div class="gm-article-actions" style="display: flex; gap: 8px; flex-shrink: 0;">
                                     {% if product.status == 'APPROVED' %}
-                                    <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" target="_blank" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); padding: 6px 10px; border-radius: 6px; color: var(--color-orange); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                        <i class="fi-rs-eye"></i> Voir
+                                    <a href="{% url 'accounts:peer-product-details' product.PRDSlug %}" target="_blank" title="Voir l'annonce" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #F3F4F6; color: #6B7280; text-decoration: none; transition: all 0.2s;">
+                                        <i class="fi-rs-eye" style="font-size: 14px;"></i>
                                     </a>
                                     {% endif %}
-                                </div>
-                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.4;">{{ product.product_name|truncatechars:50 }}</h4>
-                                <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-                                    {% if product.status == 'PENDING' %}
-                                    <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fi-rs-clock" style="font-size: 12px;"></i> En attente
-                                    </span>
-                                    {% elif product.status == 'APPROVED' %}
-                                    <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fi-rs-check" style="font-size: 12px;"></i> Approuvé
-                                    </span>
-                                    {% elif product.status == 'REJECTED' %}
-                                    <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fi-rs-cross" style="font-size: 12px;"></i> Rejeté
-                                    </span>
-                                    {% elif product.status == 'SOLD' %}
-                                    <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fi-rs-shopping-bag" style="font-size: 12px;"></i> Vendu
-                                    </span>
-                                    {% endif %}
-                                    {% if product.view_count > 0 %}
-                                    <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-                                        <i class="fi-rs-eye" style="font-size: 12px;"></i> {{ product.view_count }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <p style="font-size: 12px; color: #6B7280; margin: 0 0 16px 0;">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
-                                
-                                <!-- Actions CRUD -->
-                                <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
-                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                        <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
+                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" title="Modifier" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #FFF7ED; color: var(--color-orange); text-decoration: none; transition: all 0.2s;">
+                                        <i class="fi-rs-edit" style="font-size: 14px;"></i>
                                     </a>
-                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
-                                        <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" title="Supprimer" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #FEE2E2; color: #DC2626; border: none; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fi-rs-trash" style="font-size: 14px;"></i>
                                     </button>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
+                        <p id="gm-articles-empty" style="display: none; text-align: center; color: #9CA3AF; padding: 24px 0; font-size: 14px;">Aucun article trouvé</p>
                     </div>
                     {% endif %}
                 </div>
@@ -878,14 +796,13 @@ input[type="file"]:active {
 </main>
 
 <script>
-// Fonction pour toggle le parcours de vente sur mobile
 function toggleSalesJourney() {
     const content = document.querySelector('.sales-journey-content');
     const icon = document.querySelector('.sales-journey-icon');
-    
     if (content && icon) {
-        content.classList.toggle('expanded');
-        icon.classList.toggle('rotated');
+        const isExpanded = content.style.maxHeight && content.style.maxHeight !== '0px';
+        content.style.maxHeight = isExpanded ? '0' : '300px';
+        icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
     }
 }
 
@@ -1143,6 +1060,34 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     {% endif %}
 });
+</script>
+
+<script>
+(function() {
+    var filterSel = document.getElementById('gm-articles-filter');
+    var searchInp = document.getElementById('gm-articles-search');
+    var emptyMsg = document.getElementById('gm-articles-empty');
+    if (!filterSel || !searchInp) return;
+    function applyFilter() {
+        var status = filterSel.value;
+        var query = searchInp.value.toLowerCase().trim();
+        var rows = document.querySelectorAll('.gm-article-row');
+        var visible = 0;
+        rows.forEach(function(row) {
+            var matchStatus = (status === 'all' || row.getAttribute('data-status') === status);
+            var matchSearch = (!query || row.getAttribute('data-name').indexOf(query) !== -1);
+            if (matchStatus && matchSearch) {
+                row.style.display = '';
+                visible++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        if (emptyMsg) emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+    }
+    filterSel.addEventListener('change', applyFilter);
+    searchInp.addEventListener('input', applyFilter);
+})();
 </script>
 
 <!-- Modal de confirmation de suppression -->

@@ -899,102 +899,78 @@ def remove_item(request, productdeatails_id):
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
-    # if request.user.is_authenticated and not request.user.is_anonymous and productdeatails_id:
     item_id = OrderDetails.objects.get(id=productdeatails_id)
+    order = item_id.order
     try:
-        # Utilisateur doit être authentifié (décorateur @login_required)
-        # Vérifier que l'item appartient à l'utilisateur connecté
-        if item_id.order.user.id != request.user.id:
+        if order.user.id != request.user.id:
             messages.error(request, 'Vous n\'avez pas l\'autorisation de modifier cette commande.')
             return redirect('orders:cart')
-        if item_id.order.id == order.id:
-            # if item_id.order.user.id == request.user.id:
-            item = OrderDetails.objects.all().filter(order_id=item_id.order_id).count()
-            if item-1 == 0:
-                # order = Order.objects.all().filter(user=request.user, is_finished=False)
-                try:
-
-                    # Utilisateur doit être authentifié (décorateur @login_required)
-                    old_orde = order
-                    old_orde.delete()
-                    messages.warning(request, 'Produit supprimé du panier')
-                    return redirect('orders:cart')
-                except:
-                    order_view = False
+        item = OrderDetails.objects.filter(order_id=order.id).count()
+        if item <= 1:
+            try:
+                order.delete()
                 if "coupon_id" in request.session.keys():
                     del request.session["coupon_id"]
-                messages.warning(request, 'Commande supprimée')
+                messages.warning(request, 'Panier vidé')
                 return redirect('orders:cart')
-            else:
-                # Recalculer les totaux avant de supprimer l'article
-                all_orders = OrderDetails.objects.filter(order_id=item_id.order_id)
-                f_total = Decimal('0')
-                w_total = Decimal('0')
-                weight = Decimal('0')
-                for sub in all_orders:
-                    if sub.price and sub.quantity:
-                        f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
-                    if sub.weight and sub.quantity:
-                        w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
-                total = f_total
-                weight = w_total
+            except:
+                messages.warning(request, 'Produit supprimé du panier')
+                return redirect('orders:cart')
+        else:
+            all_orders = OrderDetails.objects.filter(order_id=order.id).exclude(id=productdeatails_id)
+            f_total = Decimal('0')
+            w_total = Decimal('0')
+            for sub in all_orders:
+                if sub.price and sub.quantity:
+                    f_total += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                if sub.weight and sub.quantity:
+                    w_total += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
 
-                old_orde = Order.objects.get(id=cart_id, is_finished=False)
-                old_orde.sub_total = str(f_total)
-                old_orde.weight = float(weight)
-                old_orde.amount = str(total)
-                old_orde.save()
+            order.sub_total = str(f_total)
+            order.weight = float(w_total)
+            order.amount = str(f_total)
+            order.save()
 
-                # Vérifier si c'est un article C2C (pas de product_vendor)
-                if item_id.peer_product:
-                    # Pour les articles C2C, pas de OrderDetailsSupplier
-                    item_id.delete()
-                    messages.warning(request, 'Produit supprimé du panier')
-                    return redirect('orders:cart')
-                elif item_id.product and hasattr(item_id.product, 'product_vendor') and item_id.product.product_vendor:
-                    # Pour les produits normaux avec vendeur, gérer OrderDetailsSupplier
-                    try:
-                        item_supplier = OrderDetailsSupplier.objects.get(order_details=item_id)
-                        obj_order_supplier = OrderSupplier.objects.get(
-                            is_finished=False, order=old_orde, vendor=item_id.product.product_vendor)
+            if item_id.peer_product:
+                item_id.delete()
+                messages.warning(request, 'Produit supprimé du panier')
+                return redirect('orders:cart')
+            elif item_id.product and hasattr(item_id.product, 'product_vendor') and item_id.product.product_vendor:
+                try:
+                    item_supplier = OrderDetailsSupplier.objects.get(order_details=item_id)
+                    obj_order_supplier = OrderSupplier.objects.get(
+                        is_finished=False, order=order, vendor=item_id.product.product_vendor)
 
-                        item_supplier_count = OrderDetailsSupplier.objects.filter(
-                            order_supplier=obj_order_supplier).count()
+                    item_supplier_count = OrderDetailsSupplier.objects.filter(
+                        order_supplier=obj_order_supplier).count()
 
-                        if item_supplier_count == 1:
-                            # C'est le dernier article de ce vendeur
-                            obj_order_supplier.delete()
-                            item_id.delete()
-                            messages.warning(request, 'Produit supprimé du panier')
-                            return redirect('orders:cart')
-                        else:
-                            # Il reste d'autres articles de ce vendeur
-                            item_id.delete()
-                            # Recalculer les totaux du vendeur
-                            order_details__supplier = OrderDetailsSupplier.objects.filter(
-                                order_supplier=obj_order_supplier)
-                            f_total_supplier = Decimal('0')
-                            w_total_supplier = Decimal('0')
-                            for sub in order_details__supplier:
-                                if sub.price and sub.quantity:
-                                    f_total_supplier += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
-                                if sub.weight and sub.quantity:
-                                    w_total_supplier += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
-                            obj_order_supplier.weight = float(w_total_supplier)
-                            obj_order_supplier.amount = str(f_total_supplier)
-                            obj_order_supplier.save()
-                            messages.warning(request, 'Produit supprimé du panier')
-                            return redirect('orders:cart')
-                    except OrderDetailsSupplier.DoesNotExist:
-                        # Pas de OrderDetailsSupplier, supprimer directement
+                    if item_supplier_count == 1:
+                        obj_order_supplier.delete()
                         item_id.delete()
-                        messages.warning(request, 'Produit supprimé du panier')
-                        return redirect('orders:cart')
-                else:
-                    # Produit sans vendeur, supprimer directement
+                    else:
+                        item_id.delete()
+                        order_details__supplier = OrderDetailsSupplier.objects.filter(
+                            order_supplier=obj_order_supplier)
+                        f_total_supplier = Decimal('0')
+                        w_total_supplier = Decimal('0')
+                        for sub in order_details__supplier:
+                            if sub.price and sub.quantity:
+                                f_total_supplier += Decimal(str(sub.price)) * Decimal(str(sub.quantity))
+                            if sub.weight and sub.quantity:
+                                w_total_supplier += Decimal(str(sub.weight)) * Decimal(str(sub.quantity))
+                        obj_order_supplier.weight = float(w_total_supplier)
+                        obj_order_supplier.amount = str(f_total_supplier)
+                        obj_order_supplier.save()
+                    messages.warning(request, 'Produit supprimé du panier')
+                    return redirect('orders:cart')
+                except OrderDetailsSupplier.DoesNotExist:
                     item_id.delete()
                     messages.warning(request, 'Produit supprimé du panier')
                     return redirect('orders:cart')
+            else:
+                item_id.delete()
+                messages.warning(request, 'Produit supprimé du panier')
+                return redirect('orders:cart')
     except:
         messages.warning(request, "Vous ne pouvez pas supprimer ce produit !")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

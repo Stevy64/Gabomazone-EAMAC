@@ -575,18 +575,56 @@
                         {% endif %}
                         <div class="flavoriz-product-title-row" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
                             <h1 style="flex: 1; min-width: 0; margin: 0;">{{ peer_product.product_name }}</h1>
-                            {% if user.id != peer_product.seller.id %}
-                            <button type="button" id="peer-propose-offer-btn-top" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="flavoriz-propose-offer-btn-top" style="flex-shrink: 0; padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35); transition: all 0.3s ease; white-space: nowrap;">
-                                <i class="fi-rs-comment" style="font-size: 18px;"></i>
-                                <span>Proposer une offre</span>
-                            </button>
-                            {% endif %}
                         </div>
                         
                         <div class="flavoriz-product-price-section">
                             <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
                                 <span class="flavoriz-current-price">{{peer_product.PRDPrice|format_price}} FCFA</span>
                             </div>
+                            {% if peer_product.seller_city %}
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                                <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 13px;"></i>
+                                <span style="font-size: 14px; color: #6B7280;">{{ peer_product.seller_city }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Seller Trust Block -->
+                        <div class="gm-seller-block">
+                            <div class="gm-seller-header">
+                                <div class="gm-seller-avatar">
+                                    {{ peer_product.seller.username|first|upper }}
+                                </div>
+                                <div class="gm-seller-info">
+                                    <div class="gm-seller-name">
+                                        <button type="button" onclick="openSellerModal()" style="background: none; border: none; padding: 0; color: inherit; font-weight: 700; font-size: 18px; cursor: pointer; text-align: left;">{{ peer_product.seller.username }}</button>
+                                        <span class="gm-badge gm-badge-particulier gm-badge-lg">Particulier</span>
+                                    </div>
+                                    <div class="gm-seller-meta">
+                                        {% if peer_product.seller_city %}
+                                        <span><i class="fi-rs-marker"></i> {{ peer_product.seller_city }}</span>
+                                        {% endif %}
+                                        <span><i class="fi-rs-star"></i> {{ seller_stats.average_rating|floatformat:1|default:"0" }}/5 ({{ seller_stats.total_reviews|default:0 }} avis)</span>
+                                        {% if seller_products_count %}
+                                        <span><i class="fi-rs-box"></i> {{ seller_products_count }} articles</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="gm-action-buttons">
+                            {% if user.id != peer_product.seller.id %}
+                            <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
+                                <i class="fi-rs-comment"></i>
+                                <span>Proposer une offre</span>
+                            </button>
+                            {% endif %}
+                            <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="gm-action-btn gm-btn-contact">
+                                <i class="fi-rs-user"></i>
+                                <span>Contacter le vendeur</span>
+                            </a>
                         </div>
                         
                         <!-- Bloc Description (style Ayoka) -->
@@ -598,39 +636,6 @@
                             <div class="ayoka-description-body">
                                 {{peer_product.product_description|safe|linebreaks}}
                             </div>
-                        </div>
-                        
-                        <!-- Bloc Vendeur (grille 2x2 + style moderne) -->
-                        <div class="peer-card peer-card-seller">
-                            <div class="peer-card-header">
-                                <i class="fi-rs-user"></i>
-                                <span>Vendeur</span>
-                            </div>
-                            <div class="peer-card-grid">
-                                <div class="peer-card-cell">
-                                    <span class="peer-card-label">Vendeur</span>
-                                    <button type="button" class="peer-seller-name-btn" onclick="openSellerModal()" style="background: none; border: none; padding: 0; color: var(--color-orange); font-weight: 600; cursor: pointer; font-size: 15px; text-align: left; display: inline-flex; align-items: center; gap: 6px;">
-                                        {{ peer_product.seller.username }}
-                                        <i class="fi-rs-angle-right" style="font-size: 14px; opacity: 0.8;"></i>
-                                    </button>
-                                </div>
-                                <div class="peer-card-cell">
-                                    <span class="peer-card-label">Ville</span>
-                                    <span class="peer-card-value"><i class="fi-rs-marker" style="margin-right: 6px; color: var(--color-orange);"></i>{{ peer_product.seller_city|default:"—" }}</span>
-                                </div>
-                                <div class="peer-card-cell">
-                                    <span class="peer-card-label">Note</span>
-                                    <span class="peer-card-value"><i class="fi-rs-star" style="color: #FFD700; margin-right: 4px;"></i>{{ seller_stats.average_rating|floatformat:1|default:"0" }}/5</span>
-                                </div>
-                                <div class="peer-card-cell">
-                                    <span class="peer-card-label">Avis reçus</span>
-                                    <span class="peer-card-value">{{ seller_stats.total_reviews|default:0 }}</span>
-                                </div>
-                            </div>
-                            <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="peer-card-cta">
-                                <i class="fi-rs-user-check"></i>
-                                <span>Voir le profil</span>
-                            </a>
                         </div>
                         
                         <!-- Détails de l'annonce (grille 2x2 + style moderne) -->
@@ -718,6 +723,20 @@
             </div>
             {% endif %}
         </div>
+    </div>
+
+    <!-- Sticky Mobile Action Bar -->
+    <div class="gm-sticky-actions">
+        {% if user.id != peer_product.seller.id %}
+        <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
+            <i class="fi-rs-comment"></i>
+            <span>Offre</span>
+        </button>
+        {% endif %}
+        <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="gm-action-btn gm-btn-contact">
+            <i class="fi-rs-user"></i>
+            <span>Contacter</span>
+        </a>
     </div>
 </main>
 

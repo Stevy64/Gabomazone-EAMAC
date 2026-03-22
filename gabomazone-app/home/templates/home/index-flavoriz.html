@@ -5,292 +5,151 @@
 
 {%block body%}
 <main class="main">
-<!-- ===== Hero Banner Section FLAVORIZ ===== -->
-<section class="flavoriz-hero-banner">
-    <div class="flavoriz-hero-container">
-        <!-- Hero Carousel -->
-        <div class="flavoriz-hero-carousel-wrapper">
-            <div class="flavoriz-hero-carousel" id="heroCarousel">
-                {% if carousels %}
-                    {% for carousel in carousels %}
-                    <div class="flavoriz-hero-slide {% if forloop.first %}active{% endif %}">
-                        <div class="flavoriz-hero-slide-content">
-                            {% if carousel.CARImage %}
-                            <div class="flavoriz-hero-slide-image">
-                                <img src="{{carousel.CARImage.url}}" alt="{{carousel.CARtitle}}" />
-                                <div class="flavoriz-hero-slide-overlay"></div>
-                            </div>
-                            {% endif %}
-                            <div class="flavoriz-hero-slide-text">
-                                <h1 class="flavoriz-hero-slide-title">
-                                    {% if carousel.CARtitle %}
-                                        {{carousel.CARtitle}}
-                                    {% else %}
-                                        Explorez <span class="flavoriz-hero-highlight">Notre Marché</span>
-                                    {% endif %}
-                                </h1>
-                                {% if carousel.CARURL %}
-                                <a href="{{carousel.CARURL}}" class="flavoriz-hero-slide-btn">
-                                    Découvrir maintenant
-                                    <i class="fi-rs-arrow-right"></i>
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Slide par défaut -->
-                    <div class="flavoriz-hero-slide active">
-                        <div class="flavoriz-hero-slide-content">
-                            <div class="flavoriz-hero-slide-image">
-                                <div class="flavoriz-hero-placeholder-gradient"></div>
-                            </div>
-                            <div class="flavoriz-hero-slide-text">
-                                <h1 class="flavoriz-hero-slide-title">
-                                    Explorez <span class="flavoriz-hero-highlight">Notre Marché</span>
-                                </h1>
-                                <a href="{% url 'categories:shop' %}" class="flavoriz-hero-slide-btn">
-                                    Découvrir maintenant
-                                    <i class="fi-rs-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <!-- Navigation Buttons (style moderne) -->
-            {% if carousels|length > 1 %}
-            <button class="flavoriz-hero-nav-btn flavoriz-hero-prev" id="heroPrev" aria-label="Slide précédent">
-                <i class="fi-rs-arrow-left"></i>
-            </button>
-            <button class="flavoriz-hero-nav-btn flavoriz-hero-next" id="heroNext" aria-label="Slide suivant">
-                <i class="fi-rs-arrow-right"></i>
-            </button>
-            {% else %}
-            <button class="flavoriz-hero-nav-btn flavoriz-hero-prev" id="heroPrev" aria-label="Slide précédent" style="visibility: hidden; pointer-events: none;">
-                <i class="fi-rs-arrow-left"></i>
-            </button>
-            <button class="flavoriz-hero-nav-btn flavoriz-hero-next" id="heroNext" aria-label="Slide suivant" style="visibility: hidden; pointer-events: none;">
-                <i class="fi-rs-arrow-right"></i>
-            </button>
-            {% endif %}
-            
-            <!-- Slide Indicators -->
-            {% if carousels %}
-            <div class="flavoriz-hero-indicators">
-                {% for carousel in carousels %}
-                <button class="flavoriz-hero-indicator {% if forloop.first %}active{% endif %}" data-slide="{{forloop.counter0}}" aria-label="Aller au slide {{forloop.counter}}"></button>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="flavoriz-hero-indicators" style="display: none;">
-                <button class="flavoriz-hero-indicator active" data-slide="0"></button>
-            </div>
-            {% endif %}
-        </div>
-        
-        <!-- Publicités Banners -->
-        <div class="flavoriz-hero-ads">
-            <!-- Cartes publicitaires ShopAdSidebar (comme dans la page À Propos) -->
-            {% if shop_page_ad %}
-                {% for shop_ad in shop_page_ad|slice:":2" %}
-                <div class="flavoriz-hero-ad-card" style="background: var(--color-white); border-radius: 32px; padding: var(--spacing-xl); box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06); overflow: hidden;">
-                    <a href="{% if shop_ad.ad_URL %}{{shop_ad.ad_URL}}{% else %}#{% endif %}" style="text-decoration: none; display: block; position: relative;">
-                        {% if shop_ad.ad_mage %}
-                        <div style="position: relative; width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); overflow: hidden; min-height: 200px;">
-                            <img src="/media/{{shop_ad.ad_mage}}" alt="{{shop_ad.ad_title|default:'Publicité'}}" style="width: 100%; height: auto; border-radius: 16px; transition: transform 0.4s ease; display: block; position: relative; z-index: 2;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'" />
-                            <!-- Motif animé de fallback élégant (affiché seulement si l'image ne charge pas) -->
-                            <div class="ad-pattern-fallback" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; z-index: 1;">
-                                <div style="width: 100%; height: 100%; min-height: 200px; background: linear-gradient(135deg, #fff8f3 0%, #ffe8d6 50%, #fff8f3 100%); background-size: 200% 200%; animation: gradientShift 4s ease infinite; position: relative; overflow: hidden; border-radius: 16px;">
-                                    <!-- Motif géométrique moderne avec SVG -->
-                                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0; opacity: 0.3;">
-                                        <defs>
-                                            <pattern id="geometric-pattern-{{forloop.counter}}" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                                                <circle cx="40" cy="40" r="1.5" fill="rgba(255, 123, 44, 0.12)"/>
-                                                <path d="M0,40 L80,40 M40,0 L40,80" stroke="rgba(255, 123, 44, 0.06)" stroke-width="0.5"/>
-                                            </pattern>
-                                        </defs>
-                                        <rect width="100%" height="100%" fill="url(#geometric-pattern-{{forloop.counter}})"/>
-                                    </svg>
-                                    <!-- Formes géométriques flottantes subtiles -->
-                                    <div style="position: absolute; top: 15%; left: 20%; width: 50px; height: 50px; background: rgba(255, 123, 44, 0.08); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
-                                    <div style="position: absolute; top: 55%; right: 15%; width: 35px; height: 35px; background: rgba(255, 123, 44, 0.06); border-radius: 6px; transform: rotate(45deg); animation: float 8s ease-in-out infinite reverse;"></div>
-                                    <div style="position: absolute; bottom: 25%; left: 30%; width: 30px; height: 30px; background: rgba(255, 123, 44, 0.1); border-radius: 4px; animation: float 7s ease-in-out infinite;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        {% else %}
-                        <!-- Motif animé élégant si pas d'image -->
-                        <div style="width: 100%; border-radius: 16px; margin-bottom: var(--spacing-md); min-height: 200px; background: linear-gradient(135deg, #fff8f3 0%, #ffe8d6 50%, #fff8f3 100%); background-size: 200% 200%; animation: gradientShift 4s ease infinite; position: relative; overflow: hidden;">
-                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0; opacity: 0.3;">
-                                <defs>
-                                    <pattern id="geometric-pattern-2" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                                        <circle cx="40" cy="40" r="1.5" fill="rgba(255, 123, 44, 0.12)"/>
-                                        <path d="M0,40 L80,40 M40,0 L40,80" stroke="rgba(255, 123, 44, 0.06)" stroke-width="0.5"/>
-                                    </pattern>
-                                </defs>
-                                <rect width="100%" height="100%" fill="url(#geometric-pattern-2)"/>
-                            </svg>
-                            <div style="position: absolute; top: 15%; left: 20%; width: 50px; height: 50px; background: rgba(255, 123, 44, 0.08); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
-                            <div style="position: absolute; top: 55%; right: 15%; width: 35px; height: 35px; background: rgba(255, 123, 44, 0.06); border-radius: 6px; transform: rotate(45deg); animation: float 8s ease-in-out infinite reverse;"></div>
-                            <div style="position: absolute; bottom: 25%; left: 30%; width: 30px; height: 30px; background: rgba(255, 123, 44, 0.1); border-radius: 4px; animation: float 7s ease-in-out infinite;"></div>
-                        </div>
-                        {% endif %}
-                        <div>
-                            {% if shop_ad.supplier %}
-                            <span style="font-size: 12px; color: var(--text-gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.8px;">{% if shop_ad.supplier.user %}{{shop_ad.supplier.user.username}}{% else %}{{shop_ad.supplier}}{% endif %}</span>
-                            {% endif %}
-                            {% if shop_ad.ad_title %}
-                            <h4 style="font-size: 19px; font-weight: 700; color: var(--color-black); margin: var(--spacing-xs) 0 0 0; line-height: 1.4;">{{shop_ad.ad_title}}</h4>
-                            {% endif %}
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            {% endif %}
-            
-            <!-- Publicités HomeAdMiddlebar (fallback si pas de shop_page_ad) -->
-            {% if home_ad_middlebar and not shop_page_ad %}
-                {% for ad in home_ad_middlebar|slice:":2" %}
-                <div class="flavoriz-hero-ad-card">
-                    {% if ad.ad_mage %}
-                    <a href="{% if ad.ad_URL %}{{ad.ad_URL}}{% else %}#{% endif %}" class="flavoriz-hero-ad-link">
-                        <img src="{{ad.ad_mage.url}}" alt="{{ad.ad_title|default:'Publicité'}}" />
-                        {% if ad.ad_title %}
-                        <div class="flavoriz-hero-ad-overlay">
-                            <span class="flavoriz-hero-ad-title">{{ad.ad_title}}</span>
-                        </div>
-                        {% endif %}
-                    </a>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-    </div>
-</section>
 
-<!-- ===== Barre floutée transparente (inspiration Ayoka) ===== -->
-<section class="flavoriz-section ayoka-glass-bar" style="padding: 0 var(--spacing-lg); margin-bottom: var(--spacing-2xl);">
-    <div class="ayoka-glass-bar-inner">
-        <h2 class="flavoriz-section-title" style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: var(--spacing-md);">
-            Que recherchez-vous<span style="color: var(--color-orange);"> ?</span>
-        </h2>
-    
-    <!-- Category Tags -->
-    <div class="flavoriz-category-tags">
-        <a href="{% url 'categories:shop' %}" class="flavoriz-tag active">
-            <i class="fi-rs-apps"></i>
-            <span>Tous les types</span>
-        </a>
-        {% for categori in super_category|slice:":8" %}
-        <a href="{% url 'categories:super-category' categori.slug%}" class="flavoriz-tag">
-            {% if "électronique" in categori.name|lower or "electronique" in categori.name|lower or "tech" in categori.name|lower or "informatique" in categori.name|lower %}
-                <i class="fi-rs-laptop"></i>
-            {% elif "mode" in categori.name|lower or "vêtement" in categori.name|lower or "vetement" in categori.name|lower or "fashion" in categori.name|lower %}
-                <i class="fi-rs-shopping-bag"></i>
-            {% elif "immobilier" in categori.name|lower or "maison" in categori.name|lower or "logement" in categori.name|lower %}
-                <i class="fi-rs-building"></i>
-            {% elif "scolaire" in categori.name|lower or "fourniture" in categori.name|lower or "livre" in categori.name|lower or "papeterie" in categori.name|lower %}
-                <i class="fi-rs-book"></i>
-            {% elif "loisir" in categori.name|lower or "sport" in categori.name|lower or "jeu" in categori.name|lower or "musique" in categori.name|lower %}
-                <i class="fi-rs-heart"></i>
-            {% elif "service" in categori.name|lower or "autre" in categori.name|lower or "divers" in categori.name|lower %}
-                <i class="fi-rs-briefcase"></i>
-            {% else %}
-                <i class="fi-rs-apps"></i>
+<!-- ===== HERO: Carousel backgrounds + Value proposition overlay ===== -->
+<section class="gm-hero">
+    {% if carousels %}
+    <div class="gm-hero-slides">
+        {% for carousel in carousels %}
+        <div class="gm-hero-slide{% if forloop.first %} active{% endif %}">
+            {% if carousel.CARImage %}
+            <img src="{{ carousel.CARImage.url }}" alt="{{ carousel.CARtitle|default:'Gabomazone' }}"{% if forloop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %} />
             {% endif %}
-            <span>{{categori.name}}</span>
-        </a>
+        </div>
         {% endfor %}
     </div>
+    <div class="gm-hero-overlay"></div>
+    {% endif %}
+
+    <div class="gm-hero-inner">
+        <h1 class="gm-hero-title">
+            Achetez et vendez <span>facilement</span> au Gabon
+        </h1>
+
+        <div class="gm-hero-search">
+            <form action="{% url 'products:product-search'%}" method="post">
+                {% csrf_token %}
+                <input type="text" name="search-product" placeholder="Rechercher un produit..." autocomplete="off" required />
+                <button type="submit"><i class="fi-rs-search"></i></button>
+            </form>
+        </div>
+
+        <div class="gm-hero-ctas">
+            <a href="{% url 'categories:shop' %}" class="gm-hero-cta gm-hero-cta-buy">
+                <i class="fi-rs-shopping-bag"></i> Acheter
+            </a>
+            <a href="{% url 'accounts:sell-product' %}" class="gm-hero-cta gm-hero-cta-sell">
+                <i class="fi-rs-plus"></i> Vendre
+            </a>
+        </div>
+    </div>
+
+    {% if carousels.count > 1 %}
+    <div class="gm-hero-indicators">
+        {% for carousel in carousels %}
+        <button class="gm-hero-dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}" type="button" aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<!-- ===== Catégories populaires (max 6) ===== -->
+<section class="gm-section">
+    <div class="gm-container">
+        <div class="gm-section-header">
+            <h2 class="gm-section-title">Catégories populaires</h2>
+            <a href="{% url 'categories:category-list' %}" class="gm-section-link">Tout voir <i class="fi-rs-arrow-right"></i></a>
+        </div>
+        <div class="gm-categories-grid">
+            {% for categori in super_category|slice:":6" %}
+            <a href="{% url 'categories:super-category' categori.slug%}" class="gm-category-card">
+                <div class="gm-category-icon">
+                    {% if categori.category_image %}
+                    <img src="{{categori.category_image.url}}" alt="{{categori.name}}" loading="lazy" />
+                    {% else %}
+                    {% if "électronique" in categori.name|lower or "electronique" in categori.name|lower or "tech" in categori.name|lower or "informatique" in categori.name|lower %}
+                        <i class="fi-rs-laptop"></i>
+                    {% elif "mode" in categori.name|lower or "vêtement" in categori.name|lower or "vetement" in categori.name|lower or "fashion" in categori.name|lower %}
+                        <i class="fi-rs-shopping-bag"></i>
+                    {% elif "immobilier" in categori.name|lower or "maison" in categori.name|lower or "logement" in categori.name|lower %}
+                        <i class="fi-rs-building"></i>
+                    {% elif "scolaire" in categori.name|lower or "fourniture" in categori.name|lower or "livre" in categori.name|lower %}
+                        <i class="fi-rs-book"></i>
+                    {% elif "loisir" in categori.name|lower or "sport" in categori.name|lower or "jeu" in categori.name|lower %}
+                        <i class="fi-rs-heart"></i>
+                    {% elif "service" in categori.name|lower or "autre" in categori.name|lower or "divers" in categori.name|lower %}
+                        <i class="fi-rs-briefcase"></i>
+                    {% else %}
+                        <i class="fi-rs-apps"></i>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                <span class="gm-category-name">{{categori.name}}</span>
+            </a>
+            {% endfor %}
+        </div>
     </div>
 </section>
 
-<!-- ===== Carrousel Produits Populaires ===== -->
-<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin-bottom: var(--spacing-2xl); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div style="max-width: 1400px; margin: 0 auto;">
-        <!-- Section Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
-                    <i class="fi-rs-star" style="color: var(--color-orange); margin-right: 8px;"></i>
-                    Articles les plus populaires
-                </h2>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos produits les plus appréciés</p>
-            </div>
-            <a href="{% url 'categories:shop' %}?order_by=-like_count" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                <span>Voir plus</span>
-                <i class="fi-rs-arrow-right"></i>
-            </a>
+<!-- ===== Articles populaires ===== -->
+{% if popular_products_data %}
+<section class="gm-section gm-section-warm">
+    <div class="gm-container">
+        <div class="gm-section-header">
+            <h2 class="gm-section-title">Articles populaires</h2>
+            <a href="{% url 'categories:shop' %}?order_by=-like_count" class="gm-section-link">Voir plus <i class="fi-rs-arrow-right"></i></a>
         </div>
-        
-        <!-- Grille 2x2 (même rendu que la page Produits) -->
-        <div id="home-popular-products" class="flavoriz-product-grid home-products-grid">
+        <div class="gm-product-grid">
             {% for item in popular_products_data|slice:":4" %}
             {% with product=item.product product_images=item.product_images like_count=item.like_count is_boosted=item.is_boosted|default:False is_peer_to_peer=item.is_peer_to_peer|default:False view_count=item.view_count|default:0 %}
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
-            <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
-                <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
-                    <button class="flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
-                        <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
-                        <span class="favorite-count">{{ like_count }}</span>
+            <div class="gm-product-card" onclick="window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
+                <div class="gm-product-img">
+                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" />
+                    <button class="gm-fav-btn flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" onclick="event.stopPropagation(); if(typeof window.toggleFavorite==='function') window.toggleFavorite(this.getAttribute('data-product-id'), this);">
+                        <i class="fi-rs-heart"></i> <span class="favorite-count">{{ like_count }}</span>
                     </button>
                     {% if is_peer_to_peer and product.condition %}
-                    <div style="position: absolute; top: 8px; left: 8px; z-index: 10;">
-                        <span class="peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
-                    </div>
+                    <span class="gm-product-condition peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
+                    {% endif %}
+                    {% if not is_peer_to_peer and product.product_vendor and product.product_vendor.status == 'vendor' %}
+                    <span class="gm-badge gm-badge-pro gm-product-badge"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
+                    {% elif is_peer_to_peer %}
+                    <span class="gm-badge gm-badge-particulier gm-product-badge">Particulier</span>
                     {% endif %}
                     {% if view_count and view_count > 0 %}
-                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
-                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
-                        <span>{{ view_count }}</span>
-                    </div>
+                    <span class="gm-product-views"><i class="fi-rs-eye"></i> {{ view_count }}</span>
                     {% endif %}
                 </div>
-                <div class="flavoriz-product-body" style="padding: 10px 12px; flex: 1; display: flex; flex-direction: column;">
-                    {% if is_peer_to_peer %}
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
-                    {% else %}
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
-                    {% endif %}
-                    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex-shrink: 0;">
-                        <span class="flavoriz-product-price" style="font-size: 16px; font-weight: 700; color: var(--color-orange);">{{ price|format_price }} FCFA</span>
+                <div class="gm-product-body">
+                    <div class="gm-product-price-row">
+                        <span class="gm-product-price">{{ price|format_price }} FCFA</span>
                         {% if discount_price and discount_price > 0 %}
-                            <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|format_price }} FCFA</span>
+                        <span class="gm-product-old-price">{{ discount_price|format_price }}</span>
                         {% endif %}
                     </div>
-                    <div class="flavoriz-card-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: #9CA3AF; font-weight: normal; margin-bottom: 4px; line-height: 1.3;">
-                        <span style="min-width: 0; display: flex; align-items: center; gap: 3px;">
+                    <h3 class="gm-product-title">{{ product.product_name }}</h3>
+                    <div class="gm-product-meta">
+                        <span class="gm-product-location">
                             {% if is_peer_to_peer and product.seller_city %}
-                            <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ product.seller_city }}</span>
-                            {% elif product.product_vendor %}
-                            {% if product.product_vendor.city or product.product_vendor.country %}
-                            <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
-                            {% else %}
-                            <span></span>
-                            {% endif %}
-                            {% else %}
-                            <span></span>
+                            <i class="fi-rs-marker"></i> {{ product.seller_city }}
+                            {% elif product.product_vendor and product.product_vendor.city %}
+                            <i class="fi-rs-marker"></i> {{ product.product_vendor.city }}
                             {% endif %}
                         </span>
-                        {% if product.date %}<span style="flex-shrink: 0; color: #9CA3AF;">{{ product.date|relative_date }}</span>{% endif %}
+                        {% if product.date %}<span class="gm-product-date">{{ product.date|relative_date }}</span>{% endif %}
                     </div>
-                    <div style="display: flex; gap: 6px; margin-top: auto;">
-                        <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
-                            <i class="fi-rs-eye" style="font-size: 13px;"></i>
-                            <span>Voir</span>
+                    <div class="gm-product-actions">
+                        <button class="gm-product-btn-view" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
+                            <i class="fi-rs-eye"></i> Voir
                         </button>
                         {% if is_peer_to_peer %}
-                        <button class="flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                            <i class="fi-rs-comment" style="font-size: 15px;"></i>
+                        <button class="gm-product-btn-action flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre">
+                            <i class="fi-rs-comment"></i>
                         </button>
                         {% else %}
-                        <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                            <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
+                        <button class="gm-product-btn-action flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" onclick="event.stopPropagation(); if(typeof window.addToCartQuick==='function') window.addToCartQuick(this.getAttribute('data-product-id'), this.getAttribute('data-product-price'));">
+                            <i class="fi-rs-shopping-bag"></i>
                         </button>
                         {% endif %}
                     </div>
@@ -302,92 +161,70 @@
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- ===== Carrousel Nouveaux Produits ===== -->
-<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin-bottom: var(--spacing-2xl); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div style="max-width: 1400px; margin: 0 auto;">
-        <!-- Section Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
-                    <i class="fi-rs-sparkles" style="color: var(--color-orange); margin-right: 8px;"></i>
-                    Nouveaux articles
-                </h2>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos dernières nouveautés</p>
-            </div>
-            <a href="{% url 'categories:shop' %}?order_by=-date" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                <span>Voir plus</span>
-                <i class="fi-rs-arrow-right"></i>
-            </a>
+<!-- ===== Nouveaux articles ===== -->
+{% if new_products_data %}
+<section class="gm-section">
+    <div class="gm-container">
+        <div class="gm-section-header">
+            <h2 class="gm-section-title">Nouveaux articles</h2>
+            <a href="{% url 'categories:shop' %}?order_by=-date" class="gm-section-link">Voir plus <i class="fi-rs-arrow-right"></i></a>
         </div>
-        
-        <!-- Grille 2x2 (même rendu que la page Produits) -->
-        <div id="home-new-products" class="flavoriz-product-grid home-products-grid">
+        <div class="gm-product-grid">
             {% for item in new_products_data|slice:":4" %}
             {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:False %}
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
-            <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
-                <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
-                    <button class="flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
-                        <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
-                        <span class="favorite-count">{{ like_count }}</span>
+            <div class="gm-product-card" onclick="window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
+                <div class="gm-product-img">
+                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" />
+                    <button class="gm-fav-btn flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" onclick="event.stopPropagation(); if(typeof window.toggleFavorite==='function') window.toggleFavorite(this.getAttribute('data-product-id'), this);">
+                        <i class="fi-rs-heart"></i> <span class="favorite-count">{{ like_count }}</span>
                     </button>
                     {% if is_peer_to_peer and product.condition %}
-                    <div style="position: absolute; top: 8px; left: 8px; z-index: 10;">
-                        <span class="peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
-                    </div>
+                    <span class="gm-product-condition peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
+                    {% endif %}
+                    {% if not is_peer_to_peer and product.product_vendor and product.product_vendor.status == 'vendor' %}
+                    <span class="gm-badge gm-badge-pro gm-product-badge"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
+                    {% elif is_peer_to_peer %}
+                    <span class="gm-badge gm-badge-particulier gm-product-badge">Particulier</span>
                     {% endif %}
                     {% if product.view_count and product.view_count > 0 %}
-                    <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
-                        <i class="fi-rs-eye" style="font-size: 11px;"></i>
-                        <span>{{ product.view_count|default:0 }}</span>
-                    </div>
+                    <span class="gm-product-views"><i class="fi-rs-eye"></i> {{ product.view_count|default:0 }}</span>
                     {% endif %}
                 </div>
-                <div class="flavoriz-product-body" style="padding: 10px 12px; flex: 1; display: flex; flex-direction: column;">
-                    {% if is_peer_to_peer %}
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
-                    {% else %}
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
-                    {% endif %}
-                    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex-shrink: 0;">
-                        <span class="flavoriz-product-price" style="font-size: 16px; font-weight: 700; color: var(--color-orange);">{{ price|format_price }} FCFA</span>
+                <div class="gm-product-body">
+                    <div class="gm-product-price-row">
+                        <span class="gm-product-price">{{ price|format_price }} FCFA</span>
                         {% if discount_price and discount_price > 0 %}
-                            <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|format_price }} FCFA</span>
+                        <span class="gm-product-old-price">{{ discount_price|format_price }}</span>
                         {% endif %}
                     </div>
-                            <div class="flavoriz-card-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: #9CA3AF; font-weight: normal; margin-bottom: 4px; line-height: 1.3;">
-                                <span style="min-width: 0; display: flex; align-items: center; gap: 3px;">
-                                    {% if is_peer_to_peer and product.seller_city %}
-                                    <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ product.seller_city }}</span>
-                                    {% elif product.product_vendor %}
-                                    {% if product.product_vendor.city or product.product_vendor.country %}
-                                    <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
-                                    {% else %}
-                                    <span></span>
-                                    {% endif %}
-                                    {% else %}
-                                    <span></span>
-                                    {% endif %}
-                                </span>
-                                {% if product.date %}<span style="flex-shrink: 0; color: #9CA3AF;">{{ product.date|relative_date }}</span>{% endif %}
-                            </div>
-                            <div style="display: flex; gap: 6px; margin-top: auto;">
-                                <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
-                                    <i class="fi-rs-eye" style="font-size: 13px;"></i>
-                                    <span>Voir</span>
-                                </button>
-                                {% if is_peer_to_peer %}
-                                <button class="flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                                    <i class="fi-rs-comment" style="font-size: 15px;"></i>
-                                </button>
-                                {% else %}
-                                <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                                    <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
-                                </button>
-                                {% endif %}
-                            </div>
+                    <h3 class="gm-product-title">{{ product.product_name }}</h3>
+                    <div class="gm-product-meta">
+                        <span class="gm-product-location">
+                            {% if is_peer_to_peer and product.seller_city %}
+                            <i class="fi-rs-marker"></i> {{ product.seller_city }}
+                            {% elif product.product_vendor and product.product_vendor.city %}
+                            <i class="fi-rs-marker"></i> {{ product.product_vendor.city }}
+                            {% endif %}
+                        </span>
+                        {% if product.date %}<span class="gm-product-date">{{ product.date|relative_date }}</span>{% endif %}
+                    </div>
+                    <div class="gm-product-actions">
+                        <button class="gm-product-btn-view" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
+                            <i class="fi-rs-eye"></i> Voir
+                        </button>
+                        {% if is_peer_to_peer %}
+                        <button class="gm-product-btn-action flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre">
+                            <i class="fi-rs-comment"></i>
+                        </button>
+                        {% else %}
+                        <button class="gm-product-btn-action flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" onclick="event.stopPropagation(); if(typeof window.addToCartQuick==='function') window.addToCartQuick(this.getAttribute('data-product-id'), this.getAttribute('data-product-price'));">
+                            <i class="fi-rs-shopping-bag"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endwith %}
@@ -396,1257 +233,92 @@
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- ===== Meilleurs Magasins Section ===== -->
-<section class="flavoriz-section" style="padding: var(--spacing-xl) var(--spacing-lg); margin: var(--spacing-2xl) auto; max-width: 1400px;">
-    <div style="max-width: 1400px; margin: 0 auto;">
-        <!-- Section Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); flex-wrap: wrap; gap: 16px;">
-            <div>
-                <h2 style="font-size: 32px; font-weight: 700; color: var(--color-black); margin: 0 0 6px 0; font-family: var(--font-primary);">
-                    <i class="fi-rs-store" style="color: var(--color-orange); margin-right: 8px;"></i>
-                    Meilleurs Magasins
-                </h2>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez nos magasins partenaires les plus populaires</p>
-            </div>
-            <a href="{% url 'suppliers:supplier-list' %}" style="padding: 12px 24px; background: var(--color-orange); color: white; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                <span>Voir plus</span>
-                <i class="fi-rs-arrow-right"></i>
-            </a>
+<!-- ===== Meilleurs Magasins ===== -->
+{% if top_vendors_data %}
+<section class="gm-section">
+    <div class="gm-container">
+        <div class="gm-section-header">
+            <h2 class="gm-section-title">Meilleurs Magasins</h2>
+            <a href="{% url 'suppliers:supplier-list' %}" class="gm-section-link">Voir plus <i class="fi-rs-arrow-right"></i></a>
         </div>
-        
-        <!-- Carrousel Container -->
-        <div class="carousel-container" style="position: relative; padding: 0 8px;">
-            <div class="carousel-wrapper" style="position: relative;">
-                <div id="vendors-carousel" class="carousel-track" style="display: flex; gap: 12px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
-                    {% for item in top_vendors_data %}
-                    {% with vendor=item.vendor is_premium=item.is_premium total_views=item.total_views %}
-                    <div class="flavoriz-vendor-card carousel-item" onclick="window.location.href='{% url 'suppliers:vendor-details' vendor.slug %}'" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%; min-height: 280px;">
-                        <div style="position: relative; overflow: hidden; background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%); width: 100%; padding-top: 70%;">
-                            {% if vendor.image %}
-                            <img src="/media/{{ vendor.image }}" alt="{{ vendor.display_name|default:vendor.user.username }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" />
-                            {% else %}
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%);">
-                                <i class="fi-rs-store" style="font-size: 48px; color: white; opacity: 0.7;"></i>
-                            </div>
-                            {% endif %}
-                            {% if is_premium %}
-                            <div style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
-                                <i class="fi-rs-crown" style="font-size: 12px;"></i>
-                                <span>Premium</span>
-                            </div>
-                            {% endif %}
-                            {% if total_views > 0 %}
-                            <div style="position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;">
-                                <i class="fi-rs-eye" style="font-size: 11px;"></i>
-                                <span>{{ total_views|floatformat:0 }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
-                            <h3 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0;">
-                                {{ vendor.display_name|default:vendor.user.username }}
-                            </h3>
-                            {% if vendor.bio %}
-                            <p style="font-size: 13px; color: #6B7280; margin: 0 0 12px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
-                                {{ vendor.bio|truncatewords:15 }}
-                            </p>
-                            {% endif %}
-                            <div style="display: flex; gap: 6px; margin-top: auto;">
-                                <button onclick="event.stopPropagation(); window.location.href='{% url 'suppliers:vendor-details' vendor.slug %}';" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
-                                    <i class="fi-rs-store" style="font-size: 13px;"></i>
-                                    <span>Visiter</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endwith %}
-                    {% endfor %}
+        <div class="gm-vendors-scroll">
+            {% for item in top_vendors_data %}
+            {% with vendor=item.vendor is_premium=item.is_premium total_views=item.total_views %}
+            <a href="{% url 'suppliers:vendor-details' vendor.slug %}" class="gm-vendor-card">
+                <div class="gm-vendor-img">
+                    {% if vendor.image %}
+                    <img src="/media/{{ vendor.image }}" alt="{{ vendor.display_name|default:vendor.user.username }}" loading="lazy" />
+                    {% else %}
+                    <div class="gm-vendor-placeholder"><i class="fi-rs-store"></i></div>
+                    {% endif %}
+                    {% if is_premium %}
+                    <span class="gm-vendor-premium"><i class="fi-rs-crown"></i> Premium</span>
+                    {% endif %}
                 </div>
-            </div>
-            <!-- Navigation Buttons -->
-            <button class="carousel-btn carousel-prev" id="vendors-prev" style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
-                <i class="fi-rs-arrow-left" style="font-size: 20px; color: #1F2937;"></i>
-            </button>
-            <button class="carousel-btn carousel-next" id="vendors-next" style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); background: white; border: 2px solid #E5E7EB; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-50%) scale(1.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(-50%) scale(1)'">
-                <i class="fi-rs-arrow-right" style="font-size: 20px; color: #1F2937;"></i>
-            </button>
+                <div class="gm-vendor-body">
+                    <h3 class="gm-vendor-name">{{ vendor.display_name|default:vendor.user.username }}</h3>
+                </div>
+            </a>
+            {% endwith %}
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- ===== Newsletter Section ===== -->
-<section class="flavoriz-newsletter" style="padding: var(--spacing-xl) var(--spacing-lg); margin: var(--spacing-2xl) auto;">
-    <div class="flavoriz-newsletter-logo" style="font-size: 32px; margin-bottom: var(--spacing-sm);">{{site_info.site_name}}</div>
-    <p class="flavoriz-newsletter-text" style="font-size: 14px; margin-bottom: var(--spacing-md);">
-        Rejoignez {{site_info.site_name}} maintenant et découvrez une expérience d'achat exceptionnelle avec des produits de qualité et des prix compétitifs !
-    </p>
-    <form method="POST" class="flavoriz-newsletter-form">
-        {% csrf_token %}
-        <input type="email" name="email" class="flavoriz-newsletter-input" placeholder="Entrez votre adresse e-mail..." required style="padding: 14px 18px; font-size: 13px;" />
-        <button type="submit" class="flavoriz-newsletter-btn" style="padding: 14px 28px; font-size: 13px;">S'abonner</button>
-    </form>
-</section>
 </main>
-<!-- Footer est maintenant dans base.html pour toutes les pages -->
-
-<style>
-/* ===== Hero Banner Styles - Moderne et Élégant ===== */
-.flavoriz-hero-banner {
-    width: 100vw;
-    max-width: 100%;
-    margin: 0 0 40px 0;
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-}
-
-.flavoriz-hero-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.flavoriz-hero-carousel-wrapper {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    background: white;
-    height: 500px;
-    width: 100%;
-}
-
-.flavoriz-hero-carousel {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.flavoriz-hero-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateX(100%);
-}
-
-.flavoriz-hero-slide.active {
-    opacity: 1;
-    transform: translateX(0);
-    z-index: 1;
-}
-
-.flavoriz-hero-slide.prev {
-    transform: translateX(-100%);
-}
-
-.flavoriz-hero-slide-content {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.flavoriz-hero-slide-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
-
-.flavoriz-hero-slide-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 10s ease-out;
-}
-
-.flavoriz-hero-slide.active .flavoriz-hero-slide-image img {
-    transform: scale(1.1);
-}
-
-/* Dégradé type Ayoka : doux, moderne, accrocheur */
-.flavoriz-hero-slide-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.65) 0%, rgba(31, 41, 55, 0.25) 45%, rgba(255, 123, 44, 0.2) 100%);
-    z-index: 1;
-}
-
-.flavoriz-hero-slide-text {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    padding: 40px;
-    max-width: 700px;
-    color: white;
-}
-
-.flavoriz-hero-slide-title {
-    font-size: 48px;
-    font-weight: 800;
-    line-height: 1.2;
-    margin: 0 0 24px 0;
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    animation: slideInUp 0.8s ease-out;
-}
-
-.flavoriz-hero-slide-title .flavoriz-hero-highlight {
-    color: var(--color-orange);
-    display: inline-block;
-    position: relative;
-}
-
-.flavoriz-hero-slide-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 32px;
-    background: var(--color-orange);
-    color: white;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 16px;
-    text-decoration: none;
-    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.4);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: slideInUp 0.8s ease-out 0.2s both;
-}
-
-.flavoriz-hero-slide-btn:hover {
-    background: #E65A1F;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(255, 123, 44, 0.5);
-}
-
-.flavoriz-hero-slide-btn i {
-    font-size: 18px;
-    transition: transform 0.3s ease;
-}
-
-.flavoriz-hero-slide-btn:hover i {
-    transform: translateX(4px);
-}
-
-/* Bannière en mode dégradé (inspiration Ayoka, moderne) */
-.flavoriz-hero-placeholder-gradient {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #1F2937 0%, #374151 30%, var(--color-orange) 65%, #E65A1F 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 8s ease infinite;
-}
-
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Navigation Buttons - Flèches très stylées (moderne, accrocheur, type Ayoka) */
-.flavoriz-hero-nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 52px;
-    height: 52px;
-    background: rgba(255, 255, 255, 0.92);
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-    color: #1F2937;
-}
-.flavoriz-hero-nav-btn:hover {
-    background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%);
-    color: white;
-    transform: translateY(-50%) scale(1.12);
-    box-shadow: 0 12px 36px rgba(255, 123, 44, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
-}
-.flavoriz-hero-nav-btn:active {
-    transform: translateY(-50%) scale(1.06);
-    box-shadow: 0 8px 24px rgba(255, 123, 44, 0.4);
-}
-.flavoriz-hero-nav-btn i {
-    font-size: 22px;
-    font-weight: bold;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 1;
-}
-.flavoriz-hero-prev:hover i {
-    transform: translateX(-4px);
-}
-.flavoriz-hero-next:hover i {
-    transform: translateX(4px);
-}
-.flavoriz-hero-prev {
-    left: 20px;
-}
-.flavoriz-hero-next {
-    right: 20px;
-}
-
-/* Indicators - style pill moderne */
-.flavoriz-hero-indicators {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 10;
-    padding: 8px 14px;
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(8px);
-    border-radius: 999px;
-}
-
-.flavoriz-hero-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-}
-
-.flavoriz-hero-indicator.active {
-    background: white;
-    border-color: white;
-    width: 26px;
-    border-radius: 5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.flavoriz-hero-indicator:hover {
-    background: rgba(255, 255, 255, 0.4);
-    border-color: white;
-}
-
-/* Publicités Banners */
-.flavoriz-hero-ads {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.flavoriz-hero-ad-card {
-    flex: 1;
-    border-radius: 16px;
-    overflow: visible !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    background: white;
-}
-
-/* Forcer l'affichage des images dans les cartes publicitaires ShopAdSidebar */
-.flavoriz-hero-ad-card a {
-    overflow: visible !important;
-}
-
-.flavoriz-hero-ad-card img {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-    background: transparent !important;
-    position: relative !important;
-    z-index: 10 !important;
-    max-height: none !important;
-}
-
-.flavoriz-hero-ad-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-/* ===== Barre légèrement floutée transparente (inspiration Ayoka) ===== */
-.ayoka-glass-bar {
-    margin-top: -24px;
-    position: relative;
-    z-index: 5;
-}
-.ayoka-glass-bar-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px 28px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-}
-@media (max-width: 768px) {
-    .ayoka-glass-bar-inner {
-        padding: 18px 20px;
-        border-radius: 16px;
-    }
-}
-
-/* Cartes articles style Ayoka */
-.ayoka-product-card:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
-    border-color: rgba(255, 123, 44, 0.2);
-    transform: translateY(-2px);
-}
-
-/* Animations pour le motif de fallback des publicités - Design moderne et élégant */
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0) translateX(0);
-        opacity: 0.6;
-    }
-    33% {
-        transform: translateY(-15px) translateX(10px);
-        opacity: 0.8;
-    }
-    66% {
-        transform: translateY(10px) translateX(-5px);
-        opacity: 0.7;
-    }
-}
-
-/* Afficher le motif si l'image ne charge pas */
-.flavoriz-hero-ad-card .show-pattern .ad-pattern-fallback {
-    opacity: 1 !important;
-}
-
-.flavoriz-hero-ad-link {
-    display: block;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    min-height: 242px;
-    overflow: hidden;
-}
-
-.flavoriz-hero-ad-link img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.flavoriz-hero-ad-card:hover .flavoriz-hero-ad-link img {
-    transform: scale(1.05);
-}
-
-.flavoriz-hero-ad-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
-    padding: 20px;
-    color: white;
-}
-
-.flavoriz-hero-ad-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .flavoriz-hero-container {
-        grid-template-columns: 1fr;
-        padding: 0 16px;
-    }
-    
-    .flavoriz-hero-ads {
-        flex-direction: row;
-    }
-    
-    .flavoriz-hero-ad-link {
-        min-height: 200px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Aligner le contenu exactement sous la sous-barre de menu (pas d'espace blanc) */
-    main.main:has(.flavoriz-hero-banner) {
-        margin-top: 123px !important;
-    }
-    
-    /* Bannière : à hauteur exacte avec le bas de la sous-barre, pleine largeur */
-    .flavoriz-hero-banner {
-        margin: 0 0 24px 0 !important;
-        padding: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        margin-left: calc(-50vw + 50%) !important;
-        margin-right: calc(-50vw + 50%) !important;
-    }
-    
-    .flavoriz-hero-container {
-        padding: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    .flavoriz-hero-carousel-wrapper {
-        height: 380px;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        position: relative;
-    }
-    
-    /* Smartphone : pas de dégradé sur la bannière */
-    .flavoriz-hero-slide-overlay {
-        background: transparent !important;
-    }
-    .flavoriz-hero-placeholder-gradient {
-        background: #1F2937 !important;
-        background-size: auto !important;
-        animation: none !important;
-    }
-    .flavoriz-hero-carousel-wrapper::after {
-        display: none !important;
-    }
-    
-    .flavoriz-hero-slide-title {
-        font-size: 32px;
-        margin-bottom: 20px;
-    }
-    
-    .flavoriz-hero-slide-btn {
-        padding: 14px 28px;
-        font-size: 14px;
-    }
-    
-    .flavoriz-hero-nav-btn {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .flavoriz-hero-nav-btn i {
-        font-size: 20px;
-    }
-    
-    .flavoriz-hero-prev {
-        left: 12px;
-    }
-    
-    .flavoriz-hero-next {
-        right: 12px;
-    }
-    
-    .flavoriz-hero-indicators {
-        bottom: 16px;
-        gap: 8px;
-    }
-    
-    .flavoriz-hero-indicator {
-        width: 8px;
-        height: 8px;
-    }
-    
-    .flavoriz-hero-indicator.active {
-        width: 24px;
-    }
-    
-    .flavoriz-hero-ads {
-        flex-direction: column;
-    }
-    
-    .flavoriz-hero-ad-link {
-        min-height: 180px;
-    }
-}
-
-/* Styles pour les carrousels (desktop par défaut) */
-.carousel-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 0 60px;
-    box-sizing: border-box;
-}
-
-.carousel-wrapper {
-    width: 100%;
-    overflow: hidden;
-}
-
-@media (max-width: 768px) {
-    .carousel-container:not(.ayoka-listings-mobile) .carousel-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .carousel-wrapper::-webkit-scrollbar {
-        display: none;
-    }
-}
-
-/* Grille articles page d'accueil : même affichage que la page Produits (4 cols desktop, 3 tablette, 2 mobile) */
-.home-products-grid.flavoriz-product-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 0 !important;
-    box-sizing: border-box !important;
-    padding: 0 !important;
-}
-@media (max-width: 1024px) {
-    .home-products-grid.flavoriz-product-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 16px !important;
-    }
-}
-@media (max-width: 768px) {
-    .home-products-grid.flavoriz-product-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-    }
-}
-.home-products-grid .flavoriz-product-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* Listes articles: sur mobile (≤768px) grille 2x2 style Ayoka via .ayoka-listings-mobile */
-.carousel-track {
-    display: flex !important;
-    gap: 20px !important;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.carousel-item {
-    flex: 0 0 calc(25% - 15px) !important;
-    min-width: 0 !important;
-    max-width: calc(25% - 15px) !important;
-}
-
-/* Masquer les boutons de navigation sur mobile - Mobile First */
-@media (max-width: 768px) {
-    /* Section principale : padding cohérent pour éviter tout débordement */
-    .flavoriz-section {
-        padding: var(--spacing-md) 16px !important;
-        margin-bottom: var(--spacing-lg) !important;
-        box-sizing: border-box !important;
-    }
-    .flavoriz-section > div {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Titre de section */
-    .flavoriz-section-title {
-        font-size: 24px !important;
-        margin-bottom: var(--spacing-sm) !important;
-    }
-    
-    /* En-tête des carrousels */
-    .flavoriz-section > div > div:first-child {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-        margin-bottom: var(--spacing-md) !important;
-    }
-    
-    .flavoriz-section > div > div:first-child h2 {
-        font-size: 22px !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .flavoriz-section > div > div:first-child p {
-        font-size: 12px !important;
-    }
-    
-    .flavoriz-section > div > div:first-child a {
-        width: 100% !important;
-        justify-content: center !important;
-        padding: 10px 20px !important;
-        font-size: 13px !important;
-    }
-    
-    /* Container carrousel (Mobile First) */
-    .carousel-container {
-        padding: 0 12px !important;
-    }
-    
-    .carousel-btn {
-        display: none !important;
-    }
-    
-    /* Scroll horizontal uniquement pour les carrousels qui ne sont PAS les listes articles */
-    .carousel-container:not(.ayoka-listings-mobile) .carousel-wrapper {
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        scroll-snap-type: x mandatory !important;
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
-        width: 100% !important;
-    }
-    
-    /* Listes articles : grille 2x2, pas de scroll, pas de débordement (Mobile First) */
-    .ayoka-listings-mobile.carousel-container {
-        overflow: visible !important;
-        padding: 0 12px !important;
-    }
-    .ayoka-listings-mobile .carousel-wrapper {
-        overflow: visible !important;
-        scroll-snap-type: none !important;
-        width: 100% !important;
-    }
-    .ayoka-listings-mobile .carousel-track {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        transform: none !important;
-        overflow: visible !important;
-    }
-    .ayoka-listings-mobile .carousel-item {
-        flex: none !important;
-        min-width: 0 !important;
-        max-width: none !important;
-        width: auto !important;
-        scroll-snap-align: none !important;
-        box-sizing: border-box !important;
-    }
-    
-    .carousel-wrapper::-webkit-scrollbar {
-        display: none !important;
-    }
-    
-    /* Règles 50vw UNIQUEMENT pour les carrousels scroll (magasins, etc.), jamais pour les listes articles */
-    .carousel-container:not(.ayoka-listings-mobile) .carousel-track {
-        display: flex !important;
-        gap: 12px !important;
-        width: max-content !important;
-    }
-    .carousel-container:not(.ayoka-listings-mobile) .carousel-item {
-        flex: 0 0 calc(50vw - 26px) !important;
-        min-width: calc(50vw - 26px) !important;
-        max-width: calc(50vw - 26px) !important;
-        width: calc(50vw - 26px) !important;
-        scroll-snap-align: start !important;
-        flex-shrink: 0 !important;
-    }
-    
-    .carousel-container:not(.ayoka-listings-mobile) {
-        overflow-x: auto !important;
-    }
-    
-    /* Cartes produits sur mobile */
-    .carousel-item.flavoriz-product-card {
-        border-radius: 10px !important;
-    }
-    
-    .carousel-item .flavoriz-product-body {
-        padding: 10px !important;
-    }
-    
-    .carousel-item .flavoriz-product-title {
-        font-size: 13px !important;
-        min-height: 36px !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .carousel-item .flavoriz-product-card-btn,
-    .carousel-item .flavoriz-add-cart-btn,
-    .carousel-item .flavoriz-propose-offer-btn {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-        border-radius: 6px !important;
-    }
-    
-    .carousel-item .flavoriz-favorite-btn {
-        padding: 4px 8px !important;
-        font-size: 9px !important;
-        border-radius: 12px !important;
-    }
-    
-    .carousel-item .flavoriz-favorite-btn i {
-        font-size: 11px !important;
-    }
-    
-    /* Prix sur mobile */
-    .carousel-item .flavoriz-product-body > div:first-of-type span:first-child {
-        font-size: 16px !important;
-    }
-    
-    /* Cartes magasins sur mobile */
-    .carousel-item.flavoriz-vendor-card {
-        min-height: 240px !important;
-    }
-    
-    .carousel-item.flavoriz-vendor-card > div:last-child {
-        padding: 12px !important;
-    }
-    
-    .carousel-item.flavoriz-vendor-card h3 {
-        font-size: 14px !important;
-        margin-bottom: 6px !important;
-    }
-    
-    .carousel-item.flavoriz-vendor-card p {
-        font-size: 12px !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .carousel-item.flavoriz-vendor-card button {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-    }
-    
-    /* Tags de catégories */
-    .flavoriz-category-tags {
-        gap: 8px !important;
-        flex-wrap: wrap !important;
-    }
-    
-    .flavoriz-tag {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-        border-radius: 8px !important;
-    }
-    
-    .flavoriz-tag i {
-        font-size: 14px !important;
-    }
-    
-    /* Hero section sur mobile */
-    .flavoriz-hero {
-        padding: var(--spacing-md) 16px !important;
-        margin-bottom: var(--spacing-lg) !important;
-    }
-    
-    .flavoriz-hero-title {
-        font-size: 28px !important;
-    }
-    
-    /* Section "Que recherchez-vous?" */
-    section.flavoriz-section:first-of-type {
-        padding: var(--spacing-md) 16px !important;
-        margin-bottom: var(--spacing-lg) !important;
-    }
-    
-    /* Newsletter section */
-    .flavoriz-newsletter {
-        padding: var(--spacing-lg) 16px !important;
-        margin: var(--spacing-lg) auto !important;
-    }
-    
-    .flavoriz-newsletter-logo {
-        font-size: 24px !important;
-    }
-    
-    .flavoriz-newsletter-form {
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-    
-    .flavoriz-newsletter-input,
-    .flavoriz-newsletter-btn {
-        width: 100% !important;
-    }
-    
-    /* Footer sur mobile */
-    .flavoriz-footer {
-        padding: var(--spacing-lg) 16px !important;
-    }
-    
-    .flavoriz-footer-content {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: var(--spacing-md) !important;
-    }
-}
-
-/* Responsive pour tablette */
-@media (min-width: 769px) and (max-width: 1199px) {
-    .carousel-item {
-        flex: 0 0 calc(33.333% - 12px) !important;
-        max-width: calc(33.333% - 12px) !important;
-        width: calc(33.333% - 12px) !important;
-    }
-}
-
-/* Styles pour les cartes produits dans les carrousels - Identique à la page shop */
-.carousel-item.flavoriz-product-card {
-    background: white !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border: 1px solid #F3F4F6 !important;
-    cursor: pointer !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-}
-
-.carousel-item.flavoriz-product-card:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    border-color: rgba(255, 123, 44, 0.3) !important;
-}
-
-.carousel-item.flavoriz-product-card:hover .flavoriz-product-image {
-    transform: scale(1.05) !important;
-}
-</style>
 
 <script>
 (function() {
     'use strict';
-    
-    // ===== Hero Carousel =====
-    function initHeroCarousel() {
-        const carousel = document.getElementById('heroCarousel');
-        const prevBtn = document.getElementById('heroPrev');
-        const nextBtn = document.getElementById('heroNext');
-        const indicators = document.querySelectorAll('.flavoriz-hero-indicator');
-        const slides = document.querySelectorAll('.flavoriz-hero-slide');
-        
-        if (!carousel || slides.length <= 1) return;
-        
-        let currentSlide = 0;
-        let autoPlayInterval;
-        const autoPlayDelay = 5000; // 5 secondes
-        
-        function showSlide(index) {
-            // Retirer la classe active de tous les slides
-            slides.forEach((slide, i) => {
-                slide.classList.remove('active', 'prev');
-                if (i < index) {
-                    slide.classList.add('prev');
-                }
-            });
-            
-            // Ajouter la classe active au slide actuel
-            slides[index].classList.add('active');
-            
-            // Mettre à jour les indicateurs
-            indicators.forEach((indicator, i) => {
-                indicator.classList.toggle('active', i === index);
-            });
-            
-            currentSlide = index;
-        }
-        
-        function nextSlide() {
-            const next = (currentSlide + 1) % slides.length;
-            showSlide(next);
-        }
-        
-        function prevSlide() {
-            const prev = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(prev);
-        }
-        
-        function startAutoPlay() {
-            autoPlayInterval = setInterval(nextSlide, autoPlayDelay);
-        }
-        
-        function stopAutoPlay() {
-            if (autoPlayInterval) {
-                clearInterval(autoPlayInterval);
-            }
-        }
-        
-        // Event listeners pour les boutons
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                nextSlide();
-                stopAutoPlay();
-                startAutoPlay();
-            });
-        }
-        
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                prevSlide();
-                stopAutoPlay();
-                startAutoPlay();
-            });
-        }
-        
-        // Event listeners pour les indicateurs
-        indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
-                showSlide(index);
-                stopAutoPlay();
-                startAutoPlay();
-            });
-        });
-        
-        // Pause au survol
-        carousel.addEventListener('mouseenter', stopAutoPlay);
-        carousel.addEventListener('mouseleave', startAutoPlay);
-        
-        // Démarrer l'auto-play
-        startAutoPlay();
-        
-        // Gérer le swipe sur mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        carousel.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-        
-        carousel.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-        
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
-                }
-                stopAutoPlay();
-                startAutoPlay();
-            }
-        }
-    }
-    
-    // Initialiser le carrousel hero
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initHeroCarousel);
-    } else {
-        initHeroCarousel();
-    }
-    
-    // Initialiser les event listeners pour les produits
+
     if (typeof window.attachProductEventListeners === 'function') {
         window.attachProductEventListeners();
     }
-    
-    // Fonction pour gérer le carrousel
-    function initCarousel(carouselId, prevBtnId, nextBtnId) {
-        const carousel = document.getElementById(carouselId);
-        const prevBtn = document.getElementById(prevBtnId);
-        const nextBtn = document.getElementById(nextBtnId);
-        
-        if (!carousel || !prevBtn || !nextBtn) return;
-        
-        const items = carousel.querySelectorAll('.carousel-item');
-        if (items.length === 0) return;
-        
-        let currentIndex = 0;
-        
-        function getItemsPerView() {
-            if (window.innerWidth >= 1200) return 4;
-            if (window.innerWidth >= 769) return 3;
-            return 2; // 2 items sur mobile
+
+    // Hero carousel (crossfade)
+    var slides = document.querySelectorAll('.gm-hero-slide');
+    var dots = document.querySelectorAll('.gm-hero-dot');
+    if (slides.length > 1) {
+        var current = 0;
+        var total = slides.length;
+        var interval = 5000;
+
+        function showSlide(idx) {
+            slides[current].classList.remove('active');
+            if (dots[current]) dots[current].classList.remove('active');
+            current = idx % total;
+            slides[current].classList.add('active');
+            if (dots[current]) dots[current].classList.add('active');
         }
-        
-        // Sur mobile : grille 2x2 pour sections Ayoka (articles), sinon scroll horizontal natif
-        const isAyokaListings = carousel.closest('.ayoka-listings-mobile');
-        if (window.innerWidth <= 768) {
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            if (!isAyokaListings) {
-                carousel.style.overflowX = 'auto';
-                carousel.style.scrollSnapType = 'x mandatory';
-                carousel.style.webkitOverflowScrolling = 'touch';
-            } else {
-                carousel.style.overflowX = '';
-                carousel.style.scrollSnapType = '';
-                carousel.style.webkitOverflowScrolling = '';
-            }
-        }
-        
-        function updateCarousel() {
-            // Sur mobile, ne pas appliquer de transformation (scroll natif)
-            if (window.innerWidth <= 768) {
-                return;
-            }
-            
-            const itemsPerView = getItemsPerView();
-            const maxIndex = Math.max(0, items.length - itemsPerView);
-            
-            if (currentIndex > maxIndex) {
-                currentIndex = maxIndex;
-            }
-            
-            // Calculer la largeur d'un item (en incluant le gap)
-            const firstItem = items[0];
-            if (!firstItem) return;
-            
-            // Obtenir la largeur réelle de l'item
-            const itemWidth = firstItem.getBoundingClientRect().width;
-            const gap = 20; // gap entre les items
-            const translateX = -currentIndex * (itemWidth + gap);
-            
-            carousel.style.transform = `translateX(${translateX}px)`;
-            
-            // Gérer la visibilité des boutons
-            prevBtn.style.opacity = currentIndex > 0 ? '1' : '0.5';
-            prevBtn.style.pointerEvents = currentIndex > 0 ? 'auto' : 'none';
-            prevBtn.style.cursor = currentIndex > 0 ? 'pointer' : 'not-allowed';
-            nextBtn.style.opacity = currentIndex < maxIndex ? '1' : '0.5';
-            nextBtn.style.pointerEvents = currentIndex < maxIndex ? 'auto' : 'none';
-            nextBtn.style.cursor = currentIndex < maxIndex ? 'pointer' : 'not-allowed';
-        }
-        
-        prevBtn.addEventListener('click', function() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCarousel();
-            }
-        });
-        
-        nextBtn.addEventListener('click', function() {
-            const itemsPerView = getItemsPerView();
-            const maxIndex = Math.max(0, items.length - itemsPerView);
-            if (currentIndex < maxIndex) {
-                currentIndex++;
-                updateCarousel();
-            }
-        });
-        
-        // Gérer le redimensionnement
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                currentIndex = 0;
-                // Sur mobile, désactiver les boutons ; grille 2x2 pour ayoka-listings-mobile, sinon scroll natif
-                const wrapper = carousel.closest('.carousel-wrapper');
-                const isAyokaGrid = carousel.closest('.ayoka-listings-mobile');
-                if (window.innerWidth <= 768) {
-                    prevBtn.style.display = 'none';
-                    nextBtn.style.display = 'none';
-                    carousel.style.transform = 'none';
-                    if (isAyokaGrid) {
-                        carousel.style.overflowX = '';
-                        carousel.style.scrollSnapType = '';
-                        if (wrapper) wrapper.style.overflowX = 'visible';
-                    } else if (wrapper) {
-                        wrapper.style.overflowX = 'auto';
-                        wrapper.style.scrollSnapType = 'x mandatory';
-                        wrapper.style.webkitOverflowScrolling = 'touch';
-                    }
-                } else {
-                    prevBtn.style.display = 'flex';
-                    nextBtn.style.display = 'flex';
-                    if (wrapper) {
-                        wrapper.style.overflowX = 'hidden';
-                    }
-                }
-                updateCarousel();
-            }, 250);
-        });
-        
-        // Sur mobile : grille 2x2 pour ayoka-listings-mobile (articles), sinon scroll natif
-        const isAyokaGrid = carousel.closest('.ayoka-listings-mobile');
-        if (window.innerWidth <= 768) {
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            carousel.style.transform = 'none';
-            const wrapper = carousel.closest('.carousel-wrapper');
-            if (isAyokaGrid) {
-                carousel.style.overflowX = '';
-                carousel.style.scrollSnapType = '';
-                if (wrapper) wrapper.style.overflowX = 'visible';
-            } else if (wrapper) {
-                wrapper.style.overflowX = 'auto';
-                wrapper.style.scrollSnapType = 'x mandatory';
-                wrapper.style.webkitOverflowScrolling = 'touch';
-            }
-            items.forEach(item => {
-                item.style.transform = 'none';
-                item.style.flexShrink = '0';
+
+        var timer = setInterval(function() { showSlide(current + 1); }, interval);
+
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() {
+                clearInterval(timer);
+                showSlide(parseInt(this.dataset.index));
+                timer = setInterval(function() { showSlide(current + 1); }, interval);
             });
-        } else {
-            // Initialiser après un court délai pour s'assurer que les éléments sont rendus
-            setTimeout(updateCarousel, 100);
-        }
-    }
-    
-    // Initialiser le carrousel magasins uniquement (articles en grille 2x2, plus de carrousel)
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            initCarousel('vendors-carousel', 'vendors-prev', 'vendors-next');
         });
-    } else {
-        initCarousel('vendors-carousel', 'vendors-prev', 'vendors-next');
+
+        // Pause on touch for mobile
+        var hero = document.querySelector('.gm-hero');
+        if (hero) {
+            hero.addEventListener('touchstart', function() { clearInterval(timer); }, {passive: true});
+            hero.addEventListener('touchend', function() { timer = setInterval(function() { showSlide(current + 1); }, interval); }, {passive: true});
+        }
     }
 })();
 
-// Fonction pour proposer une offre au vendeur (articles peer-to-peer)
 function proposeOfferToSeller(productId, productSlug, productPrice) {
     {% if not user.is_authenticated %}
-    // Rediriger vers la page de connexion
     window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
     return;
     {% endif %}
-    
-    // Rediriger vers la création d'intention d'achat C2C
-    const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
+    var createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
     window.location.href = createIntentUrl;
 }
 </script>
