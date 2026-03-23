@@ -33,12 +33,12 @@
         
         <!-- Section rétractable : Résultats + Tri + Sous-catégories (masquée par défaut) -->
         <div class="shop-filters-collapsible collapsed gm-s-79d3ff" >
-            <div class="shop-filters-collapse-header" id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" class="gm-s-4731a7">
+            <div id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" class="shop-filters-collapse-header gm-s-4731a7">
                 <span class="gm-s-2aff0a">
                     <i class="fi-rs-filter gm-s-0ffe3c" ></i>
                     Résultats et filtres
                 </span>
-                <i class="fi-rs-angle-small-down" id="shop-filters-toggle-icon" class="gm-s-84a429"></i>
+                <i id="shop-filters-toggle-icon" class="fi-rs-angle-small-down gm-s-84a429"></i>
             </div>
             <div class="shop-filters-collapse-body" id="shop-filters-collapse-body">
                 <div class="gm-s-245117">
@@ -50,13 +50,13 @@
                     </div>
                     <div class="gm-s-1c20bb">
                         <span class="gm-s-e1e689">Trier par:</span>
-                        <select class="sorting mySelect" id="mySelect" class="gm-s-b04e44"
+                        <select id="mySelect"
                                 hx-get="{% url 'categories:shop-htmx' %}"
                                 hx-target="#products-list"
                                 hx-swap="innerHTML"
                                 hx-trigger="change"
                                 hx-include="[name='cat_type'], [name='cat_id']"
-                                name="order_by">
+                                name="order_by" class="sorting mySelect gm-s-b04e44">
                             <option value="-date" selected>Date, nouveau à ancien</option>
                             <option value="date">Date, ancien à nouveau</option>
                             <option value="PRDPrice">Prix, bas à haut</option>
@@ -70,12 +70,12 @@
                     <h4 class="gm-s-3c7554">Sous-catégories</h4>
                     <div class="category-filter-grid gm-s-532f24" >
                         <!-- Option "Toutes les sous-catégories" -->
-                        <a href="#" class="category-filter-link active" data-cat-type="main" data-cat-id="{{main_category_obj.id}}" class="gm-s-ddc734">
+                        <a href="#" data-cat-type="main" data-cat-id="{{main_category_obj.id}}" class="category-filter-link active gm-s-ddc734">
                             <i class="fi-rs-apps gm-s-8a7e75" ></i>
                             <span class="gm-s-13e38d">Toutes les sous-catégories</span>
                         </a>
                         {% for sub in sub_category_obj|slice:":10"%}
-                        <a href="#" class="category-filter-link" data-cat-type="sub" data-cat-id="{{sub.id}}" data-cat-slug="{{sub.slug}}" class="gm-s-75219b">
+                        <a href="#" data-cat-type="sub" data-cat-id="{{sub.id}}" data-cat-slug="{{sub.slug}}" class="category-filter-link gm-s-75219b">
                             {%if sub.category_image %}
                             <img src="{{sub.category_image.url}}" alt="{{sub.name}}" class="gm-s-d6d197" />
                             {%else %}
@@ -94,7 +94,7 @@
                     </div>
                     <div class="category-filter-grid more_slide_open gm-s-52f6a5" >
                         {%for sub in sub_category_obj|slice:"10:" %}
-                        <a href="#" class="category-filter-link" data-cat-type="sub" data-cat-id="{{sub.id}}" data-cat-slug="{{sub.slug}}" class="gm-s-75219b">
+                        <a href="#" data-cat-type="sub" data-cat-id="{{sub.id}}" data-cat-slug="{{sub.slug}}" class="category-filter-link gm-s-75219b">
                             {%if sub.category_image %}
                             <img src="{{sub.category_image.url}}" alt="{{sub.name}}" class="gm-s-d6d197" />
                             {%else %}

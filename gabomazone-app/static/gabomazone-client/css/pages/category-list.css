@@ -181,3 +181,41 @@ header.flavoriz-header + header.flavoriz-header {
 .gm-s-a3976b {
     display: none; text-align: center; padding: 60px 24px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); margin-top: 20px;
 }
+
+/* Critical layout fallback (semantic classes) */
+#categories-grid.categories-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.category-card {
+    display: block !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.category-card-image {
+    width: 100% !important;
+    height: 140px !important;
+    overflow: hidden !important;
+    background: linear-gradient(135deg, #fdf8f3 0%, #ffe5d4 100%) !important;
+}
+
+.category-card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+@media (min-width: 900px) {
+    #categories-grid.categories-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+    }
+}

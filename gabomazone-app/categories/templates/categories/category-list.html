@@ -37,10 +37,10 @@
 
             <!-- Grille de catégories (2 colonnes) -->
             {% if super_categories_data %}
-            <div class="categories-grid" id="categories-grid" class="gm-s-31a0d2">
+            <div id="categories-grid" class="categories-grid gm-s-31a0d2">
                 {% for data in super_categories_data %}
                 {% with super=data.super %}
-                <a href="{% url 'categories:super-category' super.slug %}" class="category-card" data-category-name="{{ super.name|lower }}" class="gm-s-896442">
+                <a href="{% url 'categories:super-category' super.slug %}" data-category-name="{{ super.name|lower }}" class="category-card gm-s-896442">
                     <!-- Image de la catégorie -->
                     <div class="category-card-image gm-s-23df80" >
                         {% if super.category_image %}

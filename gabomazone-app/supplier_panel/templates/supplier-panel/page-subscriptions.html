@@ -265,7 +265,7 @@
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn-submit-boost" {% if not products %}disabled class="gm-s-ba6c3d"{% endif %}>
+                        <button type="submit" {% if not products %}disabled{% endif %} class="btn-submit-boost gm-s-ba6c3d">
                             <i class="fas fa-rocket"></i>
                             Demander le boost
                         </button>

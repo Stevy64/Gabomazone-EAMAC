@@ -76,8 +76,8 @@
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
             <div class="flavoriz-product-card gm-s-e381d7" >
                 <div class="gm-s-fa68a2">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" class="gm-s-f62258" />
-                    <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" class="gm-s-f534be">
+                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');"  class="flavoriz-product-image gm-s-f62258" />
+                    <button data-product-id="{{ product.id }}" type="button" class="flavoriz-favorite-btn gm-s-f534be">
                         <i class="fi-rs-heart gm-s-b87308" ></i>
                         <span class="favorite-count">{{ like_count }}</span>
                     </button>
@@ -94,7 +94,7 @@
                             <span class="gm-s-47b7e7">{{ discount_price|format_price }} FCFA</span>
                         {% endif %}
                     </div>
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="gm-s-e9ae14">{{ product.product_name }}</h3>
+                    <h3 onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="flavoriz-product-title gm-s-e9ae14">{{ product.product_name }}</h3>
                     <div class="flavoriz-card-meta gm-s-af2ea0" >
                         <span class="gm-s-447ca1">
                             {% if product.product_vendor %}
@@ -110,11 +110,11 @@
                         {% if product.date %}<span class="gm-s-6abb06">{{ product.date|relative_date }}</span>{% endif %}
                     </div>
                     <div class="gm-s-0e6856">
-                        <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="gm-s-7c6af0">
+                        <button onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-7c6af0">
                             <i class="fi-rs-eye gm-s-766745" ></i>
                             <span>Voir</span>
                         </button>
-                        <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" class="gm-s-9745ec">
+                        <button data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" class="flavoriz-add-cart-btn gm-s-9745ec">
                             <i class="fi-rs-shopping-bag gm-s-499df8" ></i>
                         </button>
                                 </div>

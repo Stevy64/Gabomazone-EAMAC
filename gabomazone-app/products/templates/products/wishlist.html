@@ -33,9 +33,9 @@
                          loading="lazy" decoding="async"
                          onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'"
                          class="gm-s-446654" />
-                    <button class="flavoriz-favorite-btn" data-product-id="{{ favorite.product.id }}" 
+                    <button data-product-id="{{ favorite.product.id }}" 
                             onclick="event.stopPropagation(); toggleFavorite({{ favorite.product.id }}, this);" 
-                            class="gm-s-da5dea">
+                            class="flavoriz-favorite-btn gm-s-da5dea">
                         <i class="fi-rs-heart gm-s-3eb35f" ></i>
                     </button>
                     {% if favorite.product.view_count and favorite.product.view_count > 0 %}
@@ -46,7 +46,7 @@
                     {% endif %}
                 </div>
                 <div class="flavoriz-product-body gm-s-8552df" >
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="gm-s-63da28">{{ favorite.product.product_name }}</h3>
+                    <h3 onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-title gm-s-63da28">{{ favorite.product.product_name }}</h3>
                     <div class="gm-s-14d12e">
                         <span class="gm-s-43b675">{{ favorite.product.PRDPrice|format_price }} FCFA</span>
                         {% if favorite.product.PRDDiscountPrice %}
@@ -54,11 +54,11 @@
                         {% endif %}
                     </div>
                     <div class="gm-s-9e58e3">
-                        <button class="flavoriz-product-card-btn" onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="gm-s-606ada">
+                        <button onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-606ada">
                             <i class="fi-rs-eye gm-s-766745" ></i>
                             <span>Voir</span>
                         </button>
-                        <button class="flavoriz-add-cart-btn" data-product-id="{{ favorite.product.id }}" data-product-price="{{ favorite.product.PRDPrice }}" onclick="event.stopPropagation(); addToCartQuick({{ favorite.product.id }}, '{{ favorite.product.PRDPrice }}');" class="gm-s-3eec59">
+                        <button data-product-id="{{ favorite.product.id }}" data-product-price="{{ favorite.product.PRDPrice }}" onclick="event.stopPropagation(); addToCartQuick({{ favorite.product.id }}, '{{ favorite.product.PRDPrice }}');" class="flavoriz-add-cart-btn gm-s-3eec59">
                             <i class="fi-rs-shopping-bag gm-s-499df8" ></i>
                         </button>
                     </div>
@@ -77,9 +77,9 @@
                         <span class="peer-condition-badge peer-condition-badge-card peer-condition-{{ favorite.product.condition|condition_slug }}">{{ favorite.product.get_condition_display }}</span>
                     </div>
                     {% endif %}
-                    <button class="flavoriz-favorite-btn" data-product-id="peer_{{ favorite.product.id }}" 
+                    <button data-product-id="peer_{{ favorite.product.id }}" 
                             onclick="event.stopPropagation(); toggleFavorite('peer_{{ favorite.product.id }}', this);" 
-                            class="gm-s-da5dea">
+                            class="flavoriz-favorite-btn gm-s-da5dea">
                         <i class="fi-rs-heart gm-s-3eb35f" ></i>
                     </button>
                     {% if favorite.product.view_count and favorite.product.view_count > 0 %}
@@ -90,16 +90,16 @@
                     {% endif %}
                 </div>
                 <div class="flavoriz-product-body gm-s-8552df" >
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="gm-s-63da28">{{ favorite.product.product_name }}</h3>
+                    <h3 onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-title gm-s-63da28">{{ favorite.product.product_name }}</h3>
                     <div class="gm-s-14d12e">
                         <span class="gm-s-43b675">{{ favorite.product.PRDPrice|format_price }} FCFA</span>
                     </div>
                     <div class="gm-s-9e58e3">
-                        <button class="flavoriz-product-card-btn" onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="gm-s-606ada">
+                        <button onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-606ada">
                             <i class="fi-rs-eye gm-s-766745" ></i>
                             <span>Voir</span>
                         </button>
-                        <button class="flavoriz-propose-offer-btn" data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" title="Négocier le prix" class="gm-s-3eec59">
+                        <button data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" title="Négocier le prix" class="flavoriz-propose-offer-btn gm-s-3eec59">
                             <i class="fi-rs-money gm-s-499df8" ></i>
                         </button>
                     </div>

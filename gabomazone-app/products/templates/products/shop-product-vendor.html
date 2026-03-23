@@ -36,7 +36,7 @@
                 <div class="flavoriz-product-detail-content">
                     <!-- Gallery -->
                     <div class="flavoriz-product-gallery">
-                        <div class="flavoriz-main-image" id="main-image-container" class="gm-s-a70309">
+                        <div id="main-image-container" class="flavoriz-main-image gm-s-a70309">
                             {%if product_detail.product_image %}
                             <img src="{{product_detail.product_image.url}}" alt="{{product_detail.product_name}}" id="main-product-image" onclick="openProductImagePreview()" />
                             {%else %}
@@ -134,7 +134,7 @@
                                     <button class="flavoriz-qty-btn" onclick="increaseQty()">+</button>
                                 </div>
                             </div>
-                            <button class="flavoriz-favorite-btn-large {% if is_favorited %}liked{% endif %}" id="detail-favorite-btn" data-product-id="{{product_detail.id}}" class="gm-s-143e03">
+                            <button id="detail-favorite-btn" data-product-id="{{product_detail.id}}" class="flavoriz-favorite-btn-large {% if is_favorited %}liked{% endif %} gm-s-143e03">
                                 <i class="fi-rs-heart gm-s-af18ea" ></i>
                             </button>
                         </div>
@@ -340,8 +340,8 @@
                                     </div>
                                 </div>
                                 <div class="flavoriz-form-comment gm-s-7002f9" >
-                                    <label class="flavoriz-form-label" for="detail-client-message" class="gm-s-f443d1">Commentaire</label>
-                                    <textarea class="flavoriz-comment-textarea" name="client_message" id="detail-client-message" cols="30" rows="5" placeholder="Partagez votre expérience avec ce produit..." required class="gm-s-26db9f"></textarea>
+                                    <label for="detail-client-message" class="flavoriz-form-label gm-s-f443d1">Commentaire</label>
+                                    <textarea name="client_message" id="detail-client-message" cols="30" rows="5" placeholder="Partagez votre expérience avec ce produit..." required class="flavoriz-comment-textarea gm-s-26db9f"></textarea>
                                 </div>
                                 <div id="detail-message-rate"></div>
                                 <button type="submit" class="flavoriz-submit-review-btn gm-s-37274d" >
@@ -367,16 +367,16 @@
                     <div class="flavoriz-product-card gm-s-e381d7"  onclick="window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'">
                         <div class="gm-s-f77169">
                             {% if related_product.product_image %}
-                            <img src="{{ related_product.product_image.url }}" alt="{{ related_product.product_name }}" class="flavoriz-product-image" loading="lazy" decoding="async" class="gm-s-446654" />
+                            <img src="{{ related_product.product_image.url }}" alt="{{ related_product.product_name }}" loading="lazy" decoding="async"  class="flavoriz-product-image gm-s-446654" />
                             {% else %}
-                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="{{ related_product.product_name }}" class="flavoriz-product-image" loading="lazy" decoding="async" class="gm-s-343494" />
+                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="{{ related_product.product_name }}" loading="lazy" decoding="async"  class="flavoriz-product-image gm-s-343494" />
                             {% endif %}
-                            <button type="button" class="flavoriz-favorite-btn" data-product-id="{{ related_product.id }}" onclick="event.stopPropagation();" class="gm-s-1ab7bf">
+                            <button type="button" data-product-id="{{ related_product.id }}" onclick="event.stopPropagation();" class="flavoriz-favorite-btn gm-s-1ab7bf">
                                 <i class="fi-rs-heart gm-s-345895" ></i>
                             </button>
                         </div>
                         <div class="flavoriz-product-body gm-s-4ef801" >
-                            <h3 class="flavoriz-product-title" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="gm-s-e9ae14">{{ related_product.product_name }}</h3>
+                            <h3 onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="flavoriz-product-title gm-s-e9ae14">{{ related_product.product_name }}</h3>
                             <div class="gm-s-2c7351">
                                 <span class="flavoriz-product-price gm-s-cb8b8a" >{{ related_product.PRDPrice|format_price }} FCFA</span>
                                 {% if related_product.PRDDiscountPrice and related_product.PRDDiscountPrice > 0 %}
@@ -392,7 +392,7 @@
                                 {% endif %}
                             </div>
                             <div class="gm-s-0e6856">
-                                <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="gm-s-7c6af0">
+                                <button onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-7c6af0">
                                     <i class="fi-rs-eye gm-s-766745" ></i>
                                     <span>Voir</span>
                                 </button>

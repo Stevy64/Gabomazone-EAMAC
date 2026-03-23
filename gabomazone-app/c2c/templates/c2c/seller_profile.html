@@ -158,7 +158,7 @@
                 <div class="flavoriz-product-card gm-s-e381d7" >
                     <div class="gm-s-f77169">
                         {% if product.product_image %}
-                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="flavoriz-product-image" loading="lazy" decoding="async" class="gm-s-446654" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'">
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-image gm-s-446654">
                         {% else %}
                         <div class="gm-s-224d8f" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'"><i class="fi-rs-picture gm-s-46288c" ></i></div>
                         {% endif %}
@@ -169,7 +169,7 @@
                         {% endif %}
                     </div>
                     <div class="flavoriz-product-body gm-s-4ef801" >
-                        <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="gm-s-e9ae14">{{ product.product_name }}</h3>
+                        <h3 onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-title gm-s-e9ae14">{{ product.product_name }}</h3>
                         <div class="gm-s-2c7351">
                             <span class="flavoriz-product-price gm-s-cb8b8a" >{{ product.PRDPrice|format_price }} FCFA</span>
                         </div>
@@ -184,11 +184,11 @@
                             {% if product.date %}<span class="gm-s-6abb06">{{ product.date|relative_date }}</span>{% endif %}
                         </div>
                         <div class="gm-s-0e6856">
-                            <button class="flavoriz-product-card-btn" type="button" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="gm-s-7c6af0">
+                            <button type="button" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-7c6af0">
                                 <i class="fi-rs-eye gm-s-766745" ></i>
                                 <span>Voir</span>
                             </button>
-                            <button class="flavoriz-propose-offer-btn" type="button" title="Proposer une offre" onclick="event.stopPropagation(); proposeOfferFromSellerProfile({{ product.id }}, '{{ product.PRDSlug }}', {{ product.PRDPrice|floatformat:0 }}, {{ seller.id }});" class="gm-s-9745ec">
+                            <button type="button" title="Proposer une offre" onclick="event.stopPropagation(); proposeOfferFromSellerProfile({{ product.id }}, '{{ product.PRDSlug }}', {{ product.PRDPrice|floatformat:0 }}, {{ seller.id }});" class="flavoriz-propose-offer-btn gm-s-9745ec">
                                 <i class="fi-rs-comment gm-s-499df8" ></i>
                             </button>
                         </div>

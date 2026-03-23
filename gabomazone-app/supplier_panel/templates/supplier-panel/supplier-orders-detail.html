@@ -225,10 +225,10 @@
 
 <!-- Actions de facture -->
 <div class="gm-s-baec34">
-    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}" target="_blank" class="flavoriz-print-btn" title="Voir la facture" class="gm-s-4fc353">
+    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}" target="_blank" title="Voir la facture" class="flavoriz-print-btn gm-s-4fc353">
         <i class="fi-rs-eye"></i>
     </a>
-    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}?format=pdf" target="_blank" class="flavoriz-print-btn" title="Télécharger PDF" class="gm-s-371217">
+    <a href="{% url 'orders:invoice-print' order_supplier.order.id %}?format=pdf" target="_blank" title="Télécharger PDF" class="flavoriz-print-btn gm-s-371217">
         <i class="fi-rs-file-pdf"></i>
     </a>
 </div>

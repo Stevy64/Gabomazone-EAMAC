@@ -125,8 +125,8 @@
                 </div>
                 
                 <!-- Delivery Form Card (section rétractable) -->
-                <div class="cart-delivery-card" id="cart-delivery-card" class="gm-s-1d4817">
-                    <button type="button" class="cart-delivery-toggle" id="cart-delivery-toggle" aria-expanded="true" aria-controls="cart-delivery-body" class="gm-s-be71e7">
+                <div id="cart-delivery-card" class="cart-delivery-card gm-s-1d4817">
+                    <button type="button" id="cart-delivery-toggle" aria-expanded="true" aria-controls="cart-delivery-body" class="cart-delivery-toggle gm-s-be71e7">
                         <div class="gm-s-9f47b8">
                             <i class="fi-rs-package gm-s-be90db" ></i>
                         </div>
@@ -139,7 +139,7 @@
                     </button>
                     <form method="post" action="{% url 'orders:payment' %}" id="cart-delivery-form">
                         {% csrf_token %}
-                        <div class="cart-delivery-body" id="cart-delivery-body" class="gm-s-a14bdb">
+                        <div id="cart-delivery-body" class="cart-delivery-body gm-s-a14bdb">
                         <div class="gm-s-72dbb5">
                             <div>
                                 <label class="gm-s-ed2bb0">Prénom *</label>

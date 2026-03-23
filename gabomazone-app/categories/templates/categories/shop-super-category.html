@@ -31,12 +31,12 @@
         
         <!-- Section rétractable : Résultats + Tri + Sous-catégories (masquée par défaut) -->
         <div class="shop-filters-collapsible collapsed gm-s-79d3ff" >
-            <div class="shop-filters-collapse-header" id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" class="gm-s-6d1e8b">
+            <div id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" class="shop-filters-collapse-header gm-s-6d1e8b">
                 <span class="gm-s-2aff0a">
                     <i class="fi-rs-filter gm-s-0ffe3c" ></i>
                     Résultats et filtres
                 </span>
-                <i class="fi-rs-angle-small-down" id="shop-filters-toggle-icon" class="gm-s-84a429"></i>
+                <i id="shop-filters-toggle-icon" class="fi-rs-angle-small-down gm-s-84a429"></i>
             </div>
             <div class="shop-filters-collapse-body" id="shop-filters-collapse-body">
                 <!-- Product Count & Sort -->
@@ -51,13 +51,13 @@
                         <span class="gm-s-71a215">
                             <i class="fi-rs-apps-sort gm-s-9ac29e" ></i> Trier par:
                         </span>
-                        <select class="sorting mySelect" id="mySelect" class="gm-s-49ee30"
+                        <select id="mySelect"
                                 hx-get="{% url 'categories:shop-htmx' %}"
                                 hx-target="#products-list"
                                 hx-swap="innerHTML"
                                 hx-trigger="change"
                                 hx-include="[name='cat_type'], [name='cat_id']"
-                                name="order_by">
+                                name="order_by" class="sorting mySelect gm-s-49ee30">
                             <option value="-date" {% if request.GET.order_by == '-date' or not request.GET.order_by %}selected{% endif %}>Date, nouveau à ancien</option>
                             <option value="date" {% if request.GET.order_by == 'date' %}selected{% endif %}>Date, ancien à nouveau</option>
                             <option value="-like_count" {% if request.GET.order_by == '-like_count' %}selected{% endif %}>Plus populaires</option>
@@ -77,12 +77,12 @@
                     <!-- Grille des sous-catégories -->
                     <div class="category-filter-grid gm-s-532f24" >
                         <!-- Option "Toutes les sous-catégories" -->
-                        <a href="#" class="category-filter-link active" data-cat-type="super" data-cat-id="{{super_category_obj.id}}" class="gm-s-ddc734">
+                        <a href="#" data-cat-type="super" data-cat-id="{{super_category_obj.id}}" class="category-filter-link active gm-s-ddc734">
                             <i class="fi-rs-apps gm-s-8a7e75" ></i>
                             <span class="gm-s-13e38d">Toutes les sous-catégories</span>
                         </a>
                         {% for main in main_category_obj|slice:":10"%}
-                        <a href="#" class="category-filter-link" data-cat-type="main" data-cat-id="{{main.id}}" data-cat-slug="{{main.slug}}" class="gm-s-75219b">
+                        <a href="#" data-cat-type="main" data-cat-id="{{main.id}}" data-cat-slug="{{main.slug}}" class="category-filter-link gm-s-75219b">
                             {%if main.category_image %}
                             <img src="{{main.category_image.url}}" alt="{{main.name}}" class="gm-s-d6d197" />
                             {%else %}
@@ -101,7 +101,7 @@
                     </div>
                     <div class="category-filter-grid more_slide_open gm-s-52f6a5" >
                         {%for main in main_category_obj|slice:"10:" %}
-                        <a href="#" class="category-filter-link" data-cat-type="main" data-cat-id="{{main.id}}" data-cat-slug="{{main.slug}}" class="gm-s-75219b">
+                        <a href="#" data-cat-type="main" data-cat-id="{{main.id}}" data-cat-slug="{{main.slug}}" class="category-filter-link gm-s-75219b">
                             {%if main.category_image %}
                             <img src="{{main.category_image.url}}" alt="{{main.name}}" class="gm-s-d6d197" />
                             {%else %}

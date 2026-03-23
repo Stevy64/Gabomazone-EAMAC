@@ -29,27 +29,27 @@
 
         <!-- Section de recherche rétractable (masquée par défaut) -->
         <div class="vendors-search-form-container collapsed gm-s-8d56d1" >
-            <div class="vendors-search-collapse-header" id="vendors-search-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vendors-search-collapse-body" class="gm-s-ee6ea8">
+            <div id="vendors-search-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vendors-search-collapse-body" class="vendors-search-collapse-header gm-s-ee6ea8">
                 <span class="gm-s-4d56e6">
                     <i class="fi-rs-search gm-s-d92ad9" ></i>
                     Recherche et filtres
                 </span>
-                <i class="fi-rs-angle-small-down vendors-search-collapse-chevron" id="vendors-search-collapse-chevron" class="gm-s-393dc7"></i>
+                <i id="vendors-search-collapse-chevron" class="fi-rs-angle-small-down vendors-search-collapse-chevron gm-s-393dc7"></i>
             </div>
-            <div class="vendors-search-collapse-body" id="vendors-search-collapse-body" class="gm-s-abf627">
+            <div id="vendors-search-collapse-body" class="vendors-search-collapse-body gm-s-abf627">
             <form id="vendors-search-form" class="vendors-search-form gm-s-7500a5" >
                 <div class="vendors-search-row gm-s-99229c" >
                     <div class="vendors-search-input-wrapper gm-s-69e0c8" >
                         <i class="fi-rs-search gm-s-8b8d68" ></i>
                         <input type="text" id="vendor-search-q" name="q" placeholder="Rechercher un magasin..."
-                               class="vendors-search-input" autocomplete="off"
-                               class="gm-s-bb11a0">
+                               autocomplete="off"
+                               class="vendors-search-input gm-s-bb11a0">
                     </div>
                     <input type="text" id="vendor-filter-city" name="city" placeholder="Ville"
                            class="gm-s-d0ec8d"
                            autocomplete="off">
                     <!-- Liste déroulante Catégorie (custom) -->
-                    <div class="flavoriz-dropdown" id="dropdown-category-wrap" class="gm-s-bcb14c">
+                    <div id="dropdown-category-wrap" class="flavoriz-dropdown gm-s-bcb14c">
                         <input type="hidden" id="vendor-filter-category" name="category" value="">
                         <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-category-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="dropdown-category-label">
                             <span class="flavoriz-dropdown-label" id="dropdown-category-label">Toutes les catégories</span>
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     <!-- Liste déroulante Tri (custom) -->
-                    <div class="flavoriz-dropdown" id="dropdown-order-wrap" class="gm-s-f38fa3">
+                    <div id="dropdown-order-wrap" class="flavoriz-dropdown gm-s-f38fa3">
                         <input type="hidden" id="vendor-filter-order" name="order" value="recent">
                         <button type="button" class="flavoriz-dropdown-trigger" id="dropdown-order-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="dropdown-order-label">
                             <span class="flavoriz-dropdown-label" id="dropdown-order-label">Plus récents</span>

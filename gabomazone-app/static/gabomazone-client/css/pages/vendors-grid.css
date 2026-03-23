@@ -512,3 +512,55 @@
 .gm-s-607eaf {
     font-size: 48px; color: var(--color-orange);
 }
+
+/* Critical layout fallback (semantic classes) */
+#vendors-list.vendors-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+}
+
+.vendor-card {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    border: 1px solid #f3f4f6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.vendor-card-image {
+    width: 100% !important;
+    aspect-ratio: 1/1 !important;
+    overflow: hidden !important;
+    background: linear-gradient(135deg, #fdf8f3 0%, #ffe5d4 100%) !important;
+}
+
+.vendor-card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.vendor-card-body {
+    padding: 12px !important;
+}
+
+@media (min-width: 1200px) {
+    #vendors-list.vendors-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    #vendors-list.vendors-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+    }
+}

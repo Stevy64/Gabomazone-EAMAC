@@ -118,7 +118,7 @@
                     {% if conversations %}
                     <div class="conversations-grid">
                         {% for conversation in conversations %}
-                        <div class="conversation-card msg-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" class="gm-s-eda5c9" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'">
+                        <div onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'" class="conversation-card msg-card gm-s-eda5c9">
                             <!-- Actions : supprimer -->
                             <button onclick="event.stopPropagation(); deleteConversation({{ conversation.id }}, '{{ conversation.other_user.get_full_name|default:conversation.other_user.username|escapejs }}')" title="Supprimer la conversation" class="gm-s-9a002b" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='rgba(255,255,255,0.95)'; this.style.color='#9CA3AF'">
                                 <i class="fi-rs-trash gm-s-267f6d" ></i>
@@ -167,7 +167,7 @@
                             
                             <!-- Informations sur l'article -->
                             <div class="gm-s-9480e5">
-                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" class="gm-s-e08855">
+                                <img src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" class="conversation-product-img gm-s-e08855">
                                 <div class="gm-s-ec2eba">
                                     <h5 class="conversation-product-name gm-s-443ac7" >
                                         {{ conversation.product.product_name|truncatechars:40 }}
