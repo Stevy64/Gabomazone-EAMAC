@@ -516,26 +516,3 @@
         .flavoriz-success-page .products-table-mobile { display: none !important; }
         .flavoriz-success-page .products-table { display: table !important; }
     }
-
-
-/* === Extracted inline styles === */
-
-.gm-s-dc2cb2 {
-    margin-bottom: 24px;
-}
-
-.gm-s-98a9ab {
-    background: #059669;
-}
-
-.gm-s-a77b0c {
-    color: var(--color-orange);
-}
-
-.gm-s-7a1ce1 {
-    margin-top: 32px;
-}
-
-.gm-s-267f6d {
-    font-size: 14px;
-}

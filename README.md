@@ -72,6 +72,8 @@ templates/
 
 Chaque app a ses propres templates dans `<app>/templates/<app>/`.
 
+**Important — `gm-extracted.css` :** ce fichier ne doit contenir que du CSS valide. Les littéraux de template JavaScript (`${...}`) copiés par erreur depuis des balises `style` cassent le parseur du navigateur : tout le fichier peut être ignoré après la première erreur. Vérifier l’absence de `${` dans ce fichier après toute extraction automatique.
+
 **Conventions templates :**
 - `{% extends 'base.html' %}` pour toutes les pages
 - `{% include "components/..." %}` pour les composants partagés
@@ -86,6 +88,7 @@ gabomazone-client/
 │   ├── flavoriz-force.css       # Overrides prioritaires
 │   ├── gabomazone-ux.css        # Styles UX spécifiques
 │   ├── layout.css               # Layout global (header offset, footer)
+│   ├── gm-extracted.css         # Styles extraits (classes .gm-s-*), chargé dans base.html
 │   ├── alerts.css               # Styles toasts
 │   ├── modals.css               # Styles modals
 │   └── pages/                   # CSS par page (46 fichiers)

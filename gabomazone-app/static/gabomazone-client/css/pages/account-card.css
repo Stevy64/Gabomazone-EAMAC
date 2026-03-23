@@ -96,38 +96,3 @@
         width: auto !important;
     }
 }
-
-
-/* === Extracted inline styles === */
-
-.gm-s-42f13c {
-    background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); position: sticky; top: 120px; transition: all 0.3s ease;
-}
-
-.gm-s-b5c601 {
-    width: 100%; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6; background: none; border: none; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-}
-
-.gm-s-924c79 {
-    font-size: 18px; font-weight: 700; color: var(--text-dark); margin: 0; font-family: var(--font-primary); display: flex; align-items: center; gap: 8px;
-}
-
-.gm-s-0ffe3c {
-    color: var(--color-orange); font-size: 20px;
-}
-
-.gm-s-8bbedc {
-    font-size: 13px; font-weight: 600; color: var(--color-orange);
-}
-
-.gm-s-7812d6 {
-    font-size: 18px; color: var(--color-orange); transition: transform 0.3s ease;
-}
-
-.gm-s-b47078 {
-    list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px;
-}
-
-.gm-s-0b4152 {
-    margin-left: auto; background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700;
-}

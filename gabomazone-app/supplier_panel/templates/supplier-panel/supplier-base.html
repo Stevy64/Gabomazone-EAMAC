@@ -30,6 +30,8 @@
         <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
         <!-- Gabomazone Dashboard Theme -->
         <link rel="stylesheet" href="{% static 'gabomazone-dashboard/css/dashboard.css'%}" />
+        <!-- Extracted inline styles (consolidated) -->
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/gm-extracted.css'%}?v=3.0" />
         {% endblock head %}
     </head>
 
@@ -172,7 +174,7 @@
                 </div>
             </header>
                 <div class="dashboard-content" id="dashboardContent">
-            <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/base.css' %}?v=1.0">
+            <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/base.css' %}?v=2.0">
 {% block section %}
             
             {% endblock section %}

@@ -1608,30 +1608,3 @@
             justify-content: center;
         }
     }
-
-
-/* === Extracted inline styles === */
-
-.gm-s-dc2cb2 {
-    margin-bottom: 24px;
-}
-
-.gm-s-a24055 {
-    padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.gm-s-12461c {
-    color: #059669;
-}
-
-.gm-s-b9ac80 {
-    color: #DC2626;
-}
-
-.gm-s-1232eb {
-    color: #D97706;
-}
-
-.gm-s-2e637e {
-    color: #2563EB;
-}
