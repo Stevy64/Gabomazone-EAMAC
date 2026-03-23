@@ -2,147 +2,113 @@
 {% load static %}
 {% load cart_template_tags %}
 
-{% block headextra%}
+{% block headextra %}
     <!-- Modals homogènes via GMModal (base.html) -->
-    <style>
-        /* Masquer le preloader immédiatement pour cette page */
-        #preloader-active {
-            display: none !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-        }
-        
-        /* S'assurer qu'il n'y a qu'un seul header */
-        body > header.flavoriz-header:not(:first-of-type),
-        body > .flavoriz-header:not(:first-of-type),
-        .flavoriz-header ~ .flavoriz-header,
-        header.flavoriz-header + header.flavoriz-header {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            opacity: 0 !important;
-        }
-        
-        /* Forcer le header à rester visible et fixe */
-        .flavoriz-header {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            z-index: 9999 !important;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
-    </style>
-{% endblock headextra%}
+    <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/checkout.css' %}?v=1.0" />
+{% endblock headextra %}
 
-{%block body%}
+{% block body %}
 <!-- ===== Payment Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<main class="main pages gm-s-8748cb" >
+    <div class="container gm-s-b8c14a" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <a href="{% url 'orders:cart' %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">Panier</a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Paiement</span>
+            <span class="gm-s-ad3665">/</span>
+            <a href="{% url 'orders:cart' %}" class="gm-s-c95646">Panier</a>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Paiement</span>
         </nav>
 
         <!-- Page Header -->
-        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div class="gm-s-d96aad">
             <div>
-                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">Paiement</h1>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Finalisez votre commande en toute sécurité</p>
+                <h1 class="gm-s-aae6b7">Paiement</h1>
+                <p class="gm-s-7d59e2">Finalisez votre commande en toute sécurité</p>
             </div>
         </div>
 
         <!-- Notification verte supprimée : seule la notification blanche (toast avec flèche) de base.html est conservée -->
 
         <!-- Main Content -->
-        <div style="display: grid; grid-template-columns: 1fr 480px; gap: 24px; align-items: start;">
+        <div class="gm-s-d579d1">
             <!-- Left Column: Billing Details -->
             <div>
                 <!-- Billing Details Card -->
-                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                <div class="gm-s-fa1099">
+                    <div class="gm-s-68975c">
+                        <div class="gm-s-3666f5">
                             <i class="fi-rs-user"></i>
                 </div>
                         <div>
-                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Détails de facturation</h3>
-                            <p style="font-size: 13px; color: #6B7280; margin: 0;">Informations de livraison</p>
+                            <h3 class="gm-s-9a3428">Détails de facturation</h3>
+                            <p class="gm-s-1f6e71">Informations de livraison</p>
             </div>
         </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div class="gm-s-60f588">
                         <!-- Full Name -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Nom complet</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 600;">
+                            <label class="gm-s-951632">Nom complet</label>
+                            <div class="gm-s-726bda">
                                 {{payment_info.last_name}} {{payment_info.first_name}}
                         </div>
                                     </div>
 
                         <!-- Email -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Email</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                            <label class="gm-s-951632">Email</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.Email_Address}}
                                             </div>
                                         </div>
 
                         <!-- Phone -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Téléphone</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                            <label class="gm-s-951632">Téléphone</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.phone}}
                             </div>
                         </div>
 
                         <!-- Country -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Pays</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                            <label class="gm-s-951632">Pays</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.country}}
                     </div>
                     </div>
                                     
                                     <!-- Province -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Province</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                            <label class="gm-s-951632">Province</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.province}}
                             </div>
                         </div>
 
                         <!-- City -->
                         <div>
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Ville</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                            <label class="gm-s-951632">Ville</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.state}}
                             </div>
                         </div>
 
                         <!-- Address (Full Width) -->
-                        <div style="grid-column: 1 / -1;">
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Adresse complète</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                        <div class="gm-s-e86cdd">
+                            <label class="gm-s-951632">Adresse complète</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.street_address}}
                             </div>
                         </div>
                        
                         <!-- Neighborhood (Full Width) -->
-                        <div style="grid-column: 1 / -1;">
-                            <label style="display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Quartier</label>
-                            <div style="padding: 14px 16px; background: #FAFAFA; border-radius: 10px; border: 1px solid #E5E7EB; font-size: 15px; color: #1F2937; font-weight: 500;">
+                        <div class="gm-s-e86cdd">
+                            <label class="gm-s-951632">Quartier</label>
+                            <div class="gm-s-3d8347">
                                 {{payment_info.City}}
                             </div>
                         </div>
@@ -151,45 +117,45 @@
             </div>
 
             <!-- Right Column: Order Summary & Payment -->
-            <div style="position: sticky; top: 100px;">
+            <div class="gm-s-f323e0">
                 <!-- Order Summary Card -->
-                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                <div class="gm-s-fa1099">
+                    <div class="gm-s-68975c">
+                        <div class="gm-s-3666f5">
                             <i class="fi-rs-shopping-bag"></i>
                     </div>
                         <div>
-                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Votre commande</h3>
-                            <p style="font-size: 13px; color: #6B7280; margin: 0;">{{order_details.count}} article(s)</p>
+                            <h3 class="gm-s-9a3428">Votre commande</h3>
+                            <p class="gm-s-1f6e71">{{order_details.count}} article(s)</p>
                                                 </div>
                                             </div>
 
                     <!-- Order Items -->
-                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding-right: 8px;">
+                    <div class="gm-s-a4f7ae">
                         {% for item in order_details %}
-                        <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
-                            <div style="flex-shrink: 0;">
+                        <div class="gm-s-63dc8f">
+                            <div class="gm-s-c99770">
                                 {% if item.peer_product %}
-                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" loading="lazy" decoding="async" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.peer_product.product_image %}{{item.peer_product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.peer_product.product_name}}" loading="lazy" decoding="async" class="gm-s-3bc9f7" />
                                 {% elif item.product %}
-                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" loading="lazy" decoding="async" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% if item.product.product_image %}{{item.product.product_image.url}}{% else %}{% static 'assets/imgs/shop/thumbnail-1.jpg'%}{% endif %}" alt="{{item.product.product_name}}" loading="lazy" decoding="async" class="gm-s-3bc9f7" />
                                 {% else %}
-                                    <img src="{% static 'assets/imgs/shop/thumbnail-1.jpg'%}" alt="Produit" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #F3F4F6;" />
+                                    <img src="{% static 'assets/imgs/shop/thumbnail-1.jpg'%}" alt="Produit" class="gm-s-3bc9f7" />
                                 {% endif %}
                             </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <h4 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            <div class="gm-s-ec2eba">
+                                <h4 class="gm-s-c05405">
                                     {% if item.peer_product and item.peer_product.PRDSlug|length > 0 %}
-                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.peer_product.product_name|truncatechars:40}}</a>
+                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" class="gm-s-932b90">{{item.peer_product.product_name|truncatechars:40}}</a>
                                     {% elif item.product and item.product.PRDSlug|length > 0 %}
-                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none;">{{item.product.product_name|truncatechars:40}}</a>
+                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" class="gm-s-932b90">{{item.product.product_name|truncatechars:40}}</a>
                                     {% else %}
-                                        <span style="color: #1F2937;">{% if item.peer_product %}{{item.peer_product.product_name|truncatechars:40}}{% elif item.product %}{{item.product.product_name|truncatechars:40}}{% else %}Produit{% endif %}</span>
+                                        <span class="gm-s-b32e61">{% if item.peer_product %}{{item.peer_product.product_name|truncatechars:40}}{% elif item.product %}{{item.product.product_name|truncatechars:40}}{% else %}Produit{% endif %}</span>
                                     {% endif %}
                                 </h4>
-                                <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #6B7280; margin-top: 4px;">
-                                    <span>Qté: <strong style="color: #1F2937;">{{item.quantity}}</strong></span>
-                                    <span style="margin-left: auto; font-size: 15px; font-weight: 700; color: var(--color-orange);">{{ item.price|multiply_and_format:item.quantity }} FCFA</span>
+                                <div class="gm-s-38e6fc">
+                                    <span>Qté: <strong class="gm-s-b32e61">{{item.quantity}}</strong></span>
+                                    <span class="gm-s-df072a">{{ item.price|multiply_and_format:item.quantity }} FCFA</span>
                                         </div>
                     </div>
                 </div>
@@ -197,82 +163,82 @@
                         </div>
 
                     <!-- Order Totals -->
-                    <div style="border-top: 2px solid #F3F4F6; padding-top: 20px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                            <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
-                            <strong style="font-size: 16px; color: #1F2937; font-weight: 600;">{{order.sub_total|format_price}} FCFA</strong>
+                    <div class="gm-s-18829a">
+                        <div class="gm-s-3f32c3">
+                            <span class="gm-s-1e849f">Sous-total</span>
+                            <strong class="gm-s-91d203">{{order.sub_total|format_price}} FCFA</strong>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                            <span style="font-size: 14px; color: #6B7280;">Articles</span>
-                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order_details.count}}</strong>
+                        <div class="gm-s-3f32c3">
+                            <span class="gm-s-1e849f">Articles</span>
+                            <strong class="gm-s-7f3303">{{order_details.count}}</strong>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                            <span style="font-size: 14px; color: #6B7280;">Poids total</span>
-                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.weight|floatformat:"2"}} KG</strong>
+                        <div class="gm-s-3f32c3">
+                            <span class="gm-s-1e849f">Poids total</span>
+                            <strong class="gm-s-7f3303">{{order.weight|floatformat:"2"}} KG</strong>
                         </div> 
                         {% if order.coupon %}
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                            <span style="font-size: 14px; color: #6B7280;">Code promo ({{order.coupon}})</span>
-                            <strong style="font-size: 15px; color: #10B981; font-weight: 700;">-{{order.discount|format_price}} FCFA</strong>
+                        <div class="gm-s-3f32c3">
+                            <span class="gm-s-1e849f">Code promo ({{order.coupon}})</span>
+                            <strong class="gm-s-f742b3">-{{order.discount|format_price}} FCFA</strong>
                         </div> 
                         {% endif %}
                         {% if order.shipping %}
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                            <span style="font-size: 14px; color: #6B7280;">Livraison</span>
-                            <strong style="font-size: 15px; color: #1F2937; font-weight: 600;">{{order.shipping|format_price}} FCFA</strong>
+                        <div class="gm-s-3f32c3">
+                            <span class="gm-s-1e849f">Livraison</span>
+                            <strong class="gm-s-7f3303">{{order.shipping|format_price}} FCFA</strong>
                         </div> 
                         {% endif %}
-                        <div style="height: 1px; background: #E5E7EB; margin: 12px 0;"></div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-top: 8px;">
-                            <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
-                            <strong style="font-size: 24px; color: var(--color-orange); font-weight: 700;">{{order.amount|format_price}} FCFA</strong>
+                        <div class="gm-s-3ef4c0"></div>
+                        <div class="gm-s-f179ed">
+                            <span class="gm-s-7f5551">Total</span>
+                            <strong class="gm-s-181d7e">{{order.amount|format_price}} FCFA</strong>
                         </div>
                     </div>
                 </div>
 
                 <!-- Payment Methods Card -->
-                <div style="background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; flex-shrink: 0;">
+                <div class="gm-s-c558ed">
+                    <div class="gm-s-68975c">
+                        <div class="gm-s-3666f5">
                             <i class="fi-rs-credit-card"></i>
                         </div>
                         <div>
-                            <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; font-family: var(--font-primary);">Méthode de paiement</h3>
-                            <p style="font-size: 13px; color: #6B7280; margin: 0;">Choisissez votre mode de paiement</p>
+                            <h3 class="gm-s-9a3428">Méthode de paiement</h3>
+                            <p class="gm-s-1f6e71">Choisissez votre mode de paiement</p>
                         </div>
                         </div>
                        
                     <form action="#">
                         {% csrf_token %}
-                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                        <div class="gm-s-f87e4e">
                             <!-- Cash on Delivery -->
-                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-cash').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-cash" value="cash" checked style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                            <label class="gm-s-191cad" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-cash').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-cash" value="cash" checked class="gm-s-1bf515">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Paiement à la livraison</div>
-                                    <div style="font-size: 13px; color: #6B7280;">Payez en espèces à la réception de votre commande</div>
+                                    <div class="gm-s-e06969">Paiement à la livraison</div>
+                                    <div class="gm-s-d41658">Payez en espèces à la réception de votre commande</div>
                                 </div>
-                                <i class="fi-rs-package" style="font-size: 24px; color: var(--color-orange);"></i>
+                                <i class="fi-rs-package gm-s-37e102" ></i>
                             </label>
 
                             <!-- SingPay Mobile Money -->
-                            <label style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #FAFAFA; border: 2px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;" id="singpay-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-singpay').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" style="width: 20px; height: 20px; margin: 0; cursor: pointer; accent-color: var(--color-orange);">
+                            <label class="gm-s-191cad" id="singpay-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-singpay').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input class="form-check-input" required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" class="gm-s-1bf515">
                                 <div style="flex: 1;">
-                                    <div style="font-size: 15px; font-weight: 600; color: #1F2937; margin-bottom: 4px;">Mobile Money via SingPay</div>
-                                    <div style="font-size: 13px; color: #6B7280;">AirtelMoney, MoovMoney et autres</div>
+                                    <div class="gm-s-e06969">Mobile Money via SingPay</div>
+                                    <div class="gm-s-d41658">AirtelMoney, MoovMoney et autres</div>
                                 </div>
-                                <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-                                    <img src="{% static 'assets/imgs/theme/icons/airtel-logo.png' %}" alt="Airtel Money" style="height: 28px; width: auto; display: block; object-fit: contain;" />
-                                    <img src="{% static 'assets/imgs/theme/icons/moov-logo.png' %}" alt="Moov Money" style="height: 28px; width: auto; display: block; object-fit: contain;" />
+                                <div class="gm-s-527fb6">
+                                    <img src="{% static 'assets/imgs/theme/icons/airtel-logo.png' %}" alt="Airtel Money" class="gm-s-5bace9" />
+                                    <img src="{% static 'assets/imgs/theme/icons/moov-logo.png' %}" alt="Moov Money" class="gm-s-5bace9" />
                                 </div>
                             </label>
                         </div>
 
                         <!-- Place Order Button -->
-                        <button id="checkout-button" type="button" style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 16px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                        <button id="checkout-button" type="button" class="gm-s-201043" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             <span>Passer la commande</span>
-                            <i class="fi-rs-arrow-right" style="font-size: 18px;"></i>
+                            <i class="fi-rs-arrow-right gm-s-768e1f" ></i>
                         </button>
             </form>
                 </div>
@@ -281,54 +247,9 @@
     </div>
 </main>
 
-<style>
-.not-visible {
-    display: none !important;
-}
+{% endblock body %}
 
-/* Styles pour les radio buttons sélectionnés */
-input[type="radio"]:checked + div + label,
-input[type="radio"]:checked ~ label {
-    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%) !important;
-    border-color: var(--color-orange) !important;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .main.pages > div > div[style*="grid-template-columns: 1fr 480px"] {
-        grid-template-columns: 1fr !important;
-    }
-    
-    div[style*="position: sticky"] {
-        position: static !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
-    }
-    
-    h1 {
-        font-size: 24px !important;
-    }
-    
-    /* Billing Details Grid */
-    div[style*="grid-template-columns: repeat(2, 1fr)"] {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-    }
-    
-    /* Order Items Scroll */
-    div[style*="max-height: 300px"] {
-        max-height: 200px !important;
-    }
-}
-</style>
-{%endblock body%}
-
-{%block script%}
+{% block script %}
 {{ block.super }}
       <script>
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -402,7 +323,7 @@ input[type="radio"]:checked ~ label {
                 } else if (selectedPayment.value === 'singpay') {
                     // Paiement SingPay - initialiser le paiement
                     checkoutButton.disabled = true;
-                    checkoutButton.innerHTML = '<span>Initialisation...</span><i class="fi-rs-spinner" style="font-size: 18px; animation: spin 1s linear infinite;"></i>';
+                    checkoutButton.innerHTML = '<span>Initialisation...</span><i class="fi-rs-spinner gm-s-e32802" ></i>';
                     
                     fetch("{% url 'payments:init-singpay' %}", {
                         method: "POST",
@@ -418,14 +339,14 @@ input[type="radio"]:checked ~ label {
                             window.location.href = data.payment_url;
                         } else {
                             checkoutButton.disabled = false;
-                            checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
+                            checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right gm-s-768e1f" ></i>';
                             GMModal.error('Erreur', data.error || "Erreur lors de l'initialisation du paiement");
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         checkoutButton.disabled = false;
-                        checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right" style="font-size: 18px;"></i>';
+                        checkoutButton.innerHTML = '<span>Passer la commande</span><i class="fi-rs-arrow-right gm-s-768e1f" ></i>';
                         GMModal.error('Erreur', "Une erreur est survenue. Veuillez réessayer.");
                     });
                 }
@@ -442,11 +363,4 @@ input[type="radio"]:checked ~ label {
                 });
             });
         </script>
-        
-        <style>
-            @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-        </style>
 {% endblock script %}

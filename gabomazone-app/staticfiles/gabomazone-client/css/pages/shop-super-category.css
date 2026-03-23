@@ -1,0 +1,259 @@
+/* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+    
+    /* Correction affichage mobile - éviter que le contenu soit caché sous le header */
+    @media (max-width: 768px) {
+        .main.pages {
+            padding-top: 140px !important;
+        }
+    }
+
+.not-visible {
+    display: none !important;
+}
+
+.category-filter-link:hover {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
+    color: var(--color-orange) !important;
+    transform: translateY(-2px);
+    border-color: rgba(255, 123, 44, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.15) !important;
+}
+
+.category-filter-link.active {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%) !important;
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+
+.flavoriz-filters-header:hover {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%) !important;
+}
+
+#filters-toggle-icon.rotated {
+    transform: rotate(180deg) !important;
+}
+
+.shop-page-main .shop-page-container { padding-left: 24px !important; padding-right: 24px !important; box-sizing: border-box !important; }
+@media (max-width: 768px) {
+    .shop-page-main .shop-page-container { padding-left: 16px !important; padding-right: 16px !important; }
+}
+.shop-filters-collapse-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+.shop-filters-collapsible:not(.collapsed) .shop-filters-collapse-body { max-height: 2000px; opacity: 1; transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; }
+.shop-filters-collapsible.collapsed #shop-filters-toggle-icon { transform: rotate(-90deg); transition: transform 0.35s ease; }
+.shop-filters-collapsible:not(.collapsed) #shop-filters-toggle-icon { transform: rotate(180deg); transition: transform 0.35s ease; }
+.shop-filters-collapse-header:hover { background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.05) 100%) !important; }
+
+.more_categories:hover {
+    color: #E65A1F !important;
+}
+
+select.mySelect:focus {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background: white !important;
+}
+
+/* Masquer automatiquement les filtres sur mobile au chargement initial */
+@media (max-width: 768px) {
+    .flavoriz-filters-header {
+        display: flex !important;
+    }
+    
+    .category-filter-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    
+    .category-filter-link {
+        min-height: 90px !important;
+        padding: 12px 10px !important;
+        font-size: 12px !important;
+    }
+    
+    .category-filter-link img,
+    .category-filter-link > div {
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .main.pages > div > div[style*="grid-template-columns: 280px 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+    }
+    
+    #products-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    
+    #products-list > * {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    /* Mobile : même style cartes que magasins (image carrée, padding 12px) */
+    .flavoriz-product-image-wrap {
+        aspect-ratio: 1 !important;
+        min-height: 0 !important;
+    }
+    .flavoriz-product-image-wrap .flavoriz-product-image {
+        height: 100% !important;
+        position: absolute !important;
+        top: 0; left: 0; width: 100%; object-fit: cover !important;
+    }
+    .flavoriz-product-body {
+        padding: 12px !important;
+    }
+    .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 36px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .flavoriz-product-card-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-add-cart-btn,
+    .flavoriz-propose-offer-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        min-width: 44px !important;
+    }
+    
+    .flavoriz-favorite-btn {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-favorite-btn .favorite-count {
+        font-size: 9px !important;
+    }
+}
+
+/* Amélioration des cartes produits */
+.flavoriz-product-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #F3F4F6 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flavoriz-product-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15) !important;
+    border-color: rgba(255, 123, 44, 0.25) !important;
+}
+
+.flavoriz-product-image-wrap {
+    width: 100% !important;
+    aspect-ratio: 1 !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.flavoriz-product-image-wrap .flavoriz-product-image {
+    transition: transform 0.35s ease !important;
+}
+.flavoriz-product-card:hover .flavoriz-product-image-wrap .flavoriz-product-image {
+    transform: scale(1.06) !important;
+}
+
+.flavoriz-product-card-btn:hover {
+    background: var(--color-orange) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
+}
+
+/* Mobile-First: grille 2x2 par défaut (style Ayoka) */
+#products-list,
+#products-list.flavoriz-product-grid,
+#products-list.ayoka-products-grid,
+div#products-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+#products-list > *,
+#products-list.flavoriz-product-grid > *,
+div#products-list > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Tablette: 3 colonnes */
+@media (min-width: 769px) {
+    #products-list,
+    #products-list.flavoriz-product-grid,
+    #products-list.ayoka-products-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+
+/* Desktop: 4 colonnes */
+@media (min-width: 1200px) {
+    #products-list,
+    #products-list.flavoriz-product-grid,
+    #products-list.ayoka-products-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+}

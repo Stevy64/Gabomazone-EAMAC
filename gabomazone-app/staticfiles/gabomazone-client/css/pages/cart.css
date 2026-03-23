@@ -1,0 +1,356 @@
+/* Masquer le preloader immédiatement pour cette page */
+#preloader-active {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* S'assurer qu'il n'y a qu'un seul header */
+body > header.flavoriz-header:not(:first-of-type),
+body > .flavoriz-header:not(:first-of-type),
+.flavoriz-header ~ .flavoriz-header,
+header.flavoriz-header + header.flavoriz-header {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+}
+
+/* S'assurer qu'il n'y a qu'un seul footer */
+body > footer.flavoriz-footer:not(:first-of-type),
+body > .flavoriz-footer:not(:first-of-type),
+.flavoriz-footer ~ .flavoriz-footer,
+footer.flavoriz-footer + footer.flavoriz-footer {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Panier : espacement réduit sous le header (base.html gère déjà margin-top) */
+main.main.pages.shop-cart-page {
+    padding-top: 24px !important;
+}
+
+@media (max-width: 768px) {
+    main.main.pages.shop-cart-page {
+        padding-top: 20px !important;
+    }
+}
+
+/* Section Détails de livraison rétractable */
+.cart-delivery-card .cart-delivery-body {
+    max-height: 1200px;
+    opacity: 1;
+    padding: 0 24px 24px 24px;
+    box-sizing: border-box;
+}
+.cart-delivery-card.collapsed .cart-delivery-body {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden;
+}
+.cart-delivery-card .cart-delivery-chevron {
+    transform: rotate(0deg);
+}
+.cart-delivery-card.collapsed .cart-delivery-chevron {
+    transform: rotate(-90deg);
+}
+.cart-delivery-toggle:hover,
+.cart-delivery-toggle:focus {
+    background: #F3F4F6 !important;
+    outline: none;
+}
+.cart-delivery-toggle:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 123, 44, 0.4);
+}
+
+/**
+ * ============================================================================
+ * STYLES POUR LE SELECT PROVINCE - UNIFORMISATION AVEC LES AUTRES CHAMPS
+ * ============================================================================
+ *
+ * Ces styles garantissent que le select Province a exactement la même apparence
+ * que les autres champs du formulaire (inputs text, etc.).
+ *
+ * Objectifs :
+ * - Hauteur identique : 44px (identique aux autres inputs)
+ * - Padding identique : 12px 14px (avec padding-right: 40px pour la flèche)
+ * - Bordures, border-radius et couleurs cohérentes
+ * - Flèche SVG personnalisée pour remplacer la flèche native du navigateur
+ * - États hover et focus cohérents avec le reste du formulaire
+ */
+
+/* ============================================================================
+   STYLES DE BASE DU SELECT PROVINCE
+   ============================================================================ */
+
+select.flavoriz-input,
+select.flavoriz-select {
+    /* Suppression de l'apparence native du navigateur pour un contrôle total */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+
+    /* Dimensions : identiques aux autres champs du formulaire */
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    /* Padding : identique aux autres inputs (12px 14px) + espace pour la flèche */
+    padding: 12px 14px !important;
+    padding-right: 40px !important; /* Espace pour la flèche SVG */
+
+    /* Bordures et coins arrondis : cohérents avec le design Flavoriz */
+    border: 2px solid #E5E7EB !important;
+    border-radius: 10px !important;
+
+    /* Typographie : identique aux autres champs */
+    font-size: 13px !important;
+    font-family: var(--font-secondary) !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    color: #1F2937 !important;
+
+    /* Fond et flèche SVG personnalisée */
+    background: #FAFAFA !important;
+    /* Flèche SVG en gris (#6B7280) positionnée à droite */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236B7280"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 20px !important;
+
+    /* Comportement et transitions */
+    outline: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+}
+
+/* ============================================================================
+   ÉTAT FOCUS DU SELECT
+   ============================================================================ */
+
+select.flavoriz-input:focus,
+select.flavoriz-select:focus {
+    /* Bordure orange et ombre lors du focus (cohérent avec les autres champs) */
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background-color: white !important;
+    /* Flèche SVG en orange lors du focus */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF7B2C"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+}
+
+/* ============================================================================
+   ÉTAT HOVER DU SELECT (uniquement si pas en focus)
+   ============================================================================ */
+
+select.flavoriz-input:hover:not(:focus),
+select.flavoriz-select:hover:not(:focus) {
+    border-color: #D1D5DB !important;
+    background-color: #F9FAFB !important;
+}
+
+/* ============================================================================
+   STYLES POUR LES OPTIONS DE LA LISTE DÉROULANTE (SELECT NATIF)
+   ============================================================================
+   
+   Note: Ces styles s'appliquent uniquement au select natif du navigateur.
+   Si Select2 est utilisé, les styles Select2 ci-dessous prennent le relais.
+   */
+
+select.flavoriz-input option,
+select.flavoriz-select option {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+    color: #1F2937 !important;
+    background: white !important;
+    font-family: var(--font-secondary) !important;
+    line-height: 1.6 !important;
+    min-height: 48px !important;
+    font-weight: 400 !important;
+    cursor: pointer !important;
+}
+
+/* Option placeholder (première option) : style gris et italique */
+select.flavoriz-input option:first-child,
+select.flavoriz-select option:first-child {
+    color: #9CA3AF !important;
+    font-style: italic !important;
+    font-weight: 400 !important;
+}
+
+/* Option sélectionnée ou survolée : fond dégradé orange */
+select.flavoriz-input option:checked,
+select.flavoriz-select option:checked,
+select.flavoriz-input option:hover,
+select.flavoriz-select option:hover {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%) !important;
+    color: var(--color-orange) !important;
+    font-weight: 600 !important;
+}
+
+/* ============================================================================
+   STYLES POUR SELECT2 (si Select2 est initialisé)
+   ============================================================================
+   
+   Ces styles s'appliquent uniquement si Select2 est utilisé pour améliorer
+   l'apparence du select. Ils garantissent que Select2 respecte le design
+   Flavoriz et a la même apparence que le select natif stylé.
+   */
+
+/* Position relative pour le conteneur du select Province */
+#province.flavoriz-select {
+    position: relative !important;
+}
+
+/* ============================================================================
+   SELECT2 : STYLES DU CHAMP DE SÉLECTION
+   ============================================================================ */
+
+/* Conteneur principal du select Select2 */
+.select2-container--default .select2-selection--single {
+    height: 44px !important; /* Identique aux autres champs */
+    border: 2px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    background: #FAFAFA !important;
+    padding: 0 !important;
+}
+
+/* Texte affiché dans le select Select2 */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 44px !important; /* Centrage vertical */
+    padding-left: 14px !important; /* Identique aux autres champs */
+    padding-right: 40px !important; /* Espace pour la flèche */
+    font-size: 13px !important;
+    color: #1F2937 !important;
+    font-family: var(--font-secondary) !important;
+}
+
+/* Flèche du select Select2 */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 42px !important;
+    right: 12px !important;
+    top: 1px !important;
+}
+
+/* Style de la flèche Select2 (triangle) */
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #6B7280 transparent transparent transparent !important;
+    border-width: 6px 5px 0 5px !important;
+    margin-top: -3px !important;
+}
+
+/* ============================================================================
+   SELECT2 : ÉTATS FOCUS ET OUVERT
+   ============================================================================ */
+
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background-color: white !important;
+}
+
+/* Flèche orange lors du focus/ouverture */
+.select2-container--default.select2-container--focus .select2-selection--single .select2-selection__arrow b,
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--color-orange) transparent transparent transparent !important;
+}
+
+/* ============================================================================
+   SELECT2 : STYLES DU DROPDOWN (LISTE DÉROULANTE)
+   ============================================================================ */
+
+/* Conteneur du dropdown Select2 */
+.select2-dropdown {
+    border: 2px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important; /* Ombre moderne */
+    margin-top: 4px !important;
+    overflow: hidden !important;
+}
+
+/* Conteneur des options avec scroll si nécessaire */
+.select2-container--default .select2-results > .select2-results__options {
+    max-height: 300px !important;
+    padding: 4px 0 !important;
+}
+
+/* Style de chaque option dans le dropdown */
+.select2-container--default .select2-results__option {
+    padding: 14px 16px !important;
+    font-size: 13px !important;
+    color: #1F2937 !important;
+    font-family: var(--font-secondary) !important;
+    line-height: 1.6 !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Option désactivée (placeholder) : gris et italique */
+.select2-container--default .select2-results__option[aria-disabled="true"] {
+    color: #9CA3AF !important;
+    font-style: italic !important;
+}
+
+/* Option survolée ou sélectionnée : fond dégradé orange */
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%) !important;
+    color: var(--color-orange) !important;
+    font-weight: 600 !important;
+}
+
+/* Option actuellement sélectionnée : fond plus foncé */
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
+}
+
+@media (max-width: 1023px) {
+    .main.pages > div > div[style*="grid-template-columns: 1fr 400px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    div[style*="position: sticky"] {
+        position: static !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages.shop-cart-page {
+        padding-top: 20px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .container {
+        padding: 0 16px !important;
+    }
+
+    h1 {
+        font-size: 24px !important;
+    }
+
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}

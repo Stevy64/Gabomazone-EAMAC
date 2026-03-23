@@ -1,0 +1,158 @@
+{% load static %}
+{% load cart_template_tags %}
+
+<!-- ===== HEADER FLAVORIZ ===== -->
+<header class="flavoriz-header">
+    <div class="flavoriz-header-top">
+        <!-- Logo -->
+        <a href="{% url 'home:index' %}" class="flavoriz-logo">
+            <span class="flavoriz-logo-part1">Gaboma</span><span class="flavoriz-logo-part2">Zone</span>
+        </a>
+
+        <!-- Navigation Desktop -->
+        <nav class="flavoriz-nav-desktop">
+            <ul class="flavoriz-nav">
+                <li><a href="{% url 'categories:shop' %}" class="{% if 'shop' in request.path %}active{% endif %}">ACHETER</a></li>
+                <li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
+                <li><a href="{% url 'accounts:my-messages' %}" class="{% if 'my-messages' in request.path %}active{% endif %}">MESSAGES{% if unread_messages_count and unread_messages_count > 0 %} <span class="gm-badge-count">{{ unread_messages_count }}</span>{% endif %}</a></li>
+                <li><a href="{% url 'accounts:sell-product' %}" class="gm-nav-sell">+ VENDRE</a></li>
+            </ul>
+        </nav>
+
+        <!-- Actions Header Desktop -->
+        <div class="flavoriz-header-actions flavoriz-header-actions-desktop">
+            <!-- Search -->
+            <div class="flavoriz-search">
+                <form action="{% url 'products:product-search'%}" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="search-product" placeholder="Rechercher un produit (ex: iPhone, voiture, terrain...)" autocomplete="off" required/>
+                    <button type="submit"><i class="fi-rs-search"></i></button>
+                </form>
+            </div>
+
+            <!-- Wishlist Icon -->
+            <a href="{% url 'products:wishlist'%}" class="flavoriz-icon-btn" title="Liste à souhaits">
+                <i class="fi-rs-heart"></i>
+                <span class="flavoriz-wishlist-badge gm-icon-badge" style="display: {% if wishlist_count and wishlist_count > 0 %}flex{% else %}none{% endif %};">{{wishlist_count|default:0}}</span>
+            </a>
+
+            <!-- Cart Icon -->
+            <a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn" title="Panier">
+                <i class="fi-rs-shopping-bag"></i>
+                <span class="flavoriz-cart-badge gm-icon-badge gm-icon-badge--cart" style="display: {% if cart_count and cart_count > 0 %}flex{% else %}none{% endif %};">{{cart_count|default:0}}</span>
+            </a>
+
+            <!-- Account Icon with Dropdown -->
+            <div class="flavoriz-account-dropdown">
+                <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn" title="Compte" id="account-dropdown-trigger">
+                    <i class="fi-rs-user"></i>
+                    {% if user.is_authenticated and total_notifications_count and total_notifications_count > 0 %}
+                    <span class="flavoriz-profile-badge gm-icon-badge gm-icon-badge--alert">{{ total_notifications_count }}</span>
+                    {% endif %}
+                </a>
+                {% if user.is_authenticated %}
+                <div class="flavoriz-account-menu" id="account-dropdown-menu">
+                    <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fi-rs-comment"></i> Messages</span>
+                        {% if unread_messages_count and unread_messages_count > 0 %}
+                        <span class="gm-badge-count">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'accounts:dashboard_customer' %}" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fi-rs-shopping-bag"></i> Mes commandes</span>
+                        {% if unread_orders_count and unread_orders_count > 0 %}
+                        <span class="gm-badge-count gm-badge-count--orange">{{ unread_orders_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'accounts:account_details' %}">
+                        <i class="fi-rs-settings-sliders"></i> Paramètres
+                    </a>
+                    <div class="gm-dropdown-divider"></div>
+                    <a href="{% url 'accounts:logout' %}" class="gm-dropdown-logout">
+                        <i class="fi-rs-sign-out"></i> Déconnexion
+                    </a>
+                </div>
+                {% else %}
+                <div class="flavoriz-account-menu" id="account-dropdown-menu">
+                    <a href="{% url 'accounts:login' %}">
+                        <i class="fi-rs-user"></i> Connexion
+                    </a>
+                    <a href="{% url 'accounts:register' %}">
+                        <i class="fi-rs-user-add"></i> Inscription
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions Header Mobile -->
+        <div class="flavoriz-header-actions-mobile">
+            <!-- Search Mobile -->
+            <div class="flavoriz-search-mobile">
+                <button type="button" class="flavoriz-search-trigger-mobile" title="Rechercher">
+                    <i class="fi-rs-search"></i>
+                </button>
+                <form action="{% url 'products:product-search'%}" method="post" class="flavoriz-search-form-mobile" style="display: none;">
+                    {% csrf_token %}
+                    <input type="text" name="search-product" id="mobile-search-input" placeholder="Rechercher (iPhone, voiture...)" autocomplete="off" required/>
+                    <button type="submit" class="flavoriz-search-submit-mobile"><i class="fi-rs-search"></i></button>
+                    <button type="button" class="flavoriz-search-close-mobile"><i class="fi-rs-cross"></i></button>
+                </form>
+            </div>
+
+            <!-- Wishlist Icon Mobile -->
+            <a href="{% url 'products:wishlist'%}" class="flavoriz-icon-btn-mobile" title="Liste à souhaits">
+                <i class="fi-rs-heart"></i>
+                <span class="flavoriz-wishlist-badge-mobile gm-icon-badge gm-icon-badge--sm" style="display: {% if wishlist_count and wishlist_count > 0 %}flex{% else %}none{% endif %};">{{wishlist_count|default:0}}</span>
+            </a>
+
+            <!-- Cart Icon Mobile -->
+            <a href="{% url 'orders:cart'%}" class="flavoriz-icon-btn-mobile" title="Panier">
+                <i class="fi-rs-shopping-bag"></i>
+                <span class="flavoriz-cart-badge-mobile gm-icon-badge gm-icon-badge--sm gm-icon-badge--cart" style="display: {% if cart_count and cart_count > 0 %}flex{% else %}none{% endif %};">{{cart_count|default:0}}</span>
+            </a>
+
+            <!-- Account Icon Mobile with Dropdown -->
+            <div class="flavoriz-account-dropdown-mobile">
+                <a href="{% url 'accounts:dashboard_customer' %}" class="flavoriz-icon-btn-mobile" title="Compte" id="account-dropdown-trigger-mobile">
+                    <i class="fi-rs-user"></i>
+                    {% if user.is_authenticated and total_notifications_count and total_notifications_count > 0 %}
+                    <span class="flavoriz-profile-badge-mobile gm-icon-badge gm-icon-badge--sm gm-icon-badge--alert">{{ total_notifications_count }}</span>
+                    {% endif %}
+                </a>
+                {% if user.is_authenticated %}
+                <div class="flavoriz-account-menu-mobile" id="account-dropdown-menu-mobile">
+                    <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fi-rs-comment"></i> Messages</span>
+                        {% if unread_messages_count and unread_messages_count > 0 %}
+                        <span class="gm-badge-count">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'accounts:dashboard_customer' %}" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fi-rs-shopping-bag"></i> Mes commandes</span>
+                        {% if unread_orders_count and unread_orders_count > 0 %}
+                        <span class="gm-badge-count gm-badge-count--orange">{{ unread_orders_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'accounts:account_details' %}">
+                        <i class="fi-rs-settings-sliders"></i> Paramètres
+                    </a>
+                    <div class="gm-dropdown-divider"></div>
+                    <a href="{% url 'accounts:logout' %}" class="gm-dropdown-logout">
+                        <i class="fi-rs-sign-out"></i> Déconnexion
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Mobile -->
+    <nav class="flavoriz-nav-mobile">
+        <ul class="flavoriz-nav-mobile-list">
+            <li><a href="{% url 'categories:shop' %}" class="{% if 'shop' in request.path %}active{% endif %}">ACHETER</a></li>
+            <li><a href="{% url 'categories:category-list' %}" class="{% if 'category' in request.path %}active{% endif %}">CATÉGORIES</a></li>
+            <li><a href="{% url 'accounts:sell-product' %}" class="gm-nav-sell">+ VENDRE</a></li>
+        </ul>
+    </nav>
+</header>

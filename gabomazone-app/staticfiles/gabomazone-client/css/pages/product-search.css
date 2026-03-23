@@ -1,0 +1,322 @@
+/* Masquer le preloader immédiatement pour cette page */
+    #preloader-active {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
+    body > header.flavoriz-header:not(:first-of-type),
+    body > .flavoriz-header:not(:first-of-type),
+    .flavoriz-header ~ .flavoriz-header,
+    header.flavoriz-header + header.flavoriz-header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    /* Forcer le header à rester visible et fixe */
+    .flavoriz-header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 9999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+/* Styles pour les cartes produits */
+.flavoriz-product-card {
+    background: white !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #F3F4F6 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.flavoriz-product-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    border-color: rgba(255, 123, 44, 0.3) !important;
+}
+
+.flavoriz-product-card:hover .flavoriz-product-image {
+    transform: scale(1.05) !important;
+}
+
+.flavoriz-product-card-btn:hover {
+    background: var(--color-orange) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
+}
+
+.flavoriz-add-cart-btn:hover {
+    background: var(--color-orange) !important;
+    color: white !important;
+    border-color: var(--color-orange) !important;
+}
+
+.flavoriz-favorite-btn:hover {
+    background: rgba(255, 123, 44, 0.1) !important;
+    color: var(--color-orange) !important;
+}
+
+/* Styles de base pour la grille - FORCER 4 colonnes par défaut - PRIORITÉ MAXIMALE */
+#products-list,
+#products-list.flavoriz-product-grid,
+div#products-list,
+div#products-list.flavoriz-product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    justify-items: stretch !important;
+    align-items: stretch !important;
+}
+
+#products-list > *,
+#products-list.flavoriz-product-grid > *,
+div#products-list > *,
+div#products-list.flavoriz-product-grid > *,
+#products-list .flavoriz-product-card,
+#products-list.flavoriz-product-grid .flavoriz-product-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Garantir que les cartes ont la même taille que dans la page shop */
+#products-list .flavoriz-product-card,
+#products-list.flavoriz-product-grid .flavoriz-product-card {
+    max-width: 100% !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+/* Forcer la grille à 4 colonnes sur grand écran */
+@media (min-width: 1200px) {
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+        display: grid !important;
+        padding: 0 !important;
+        justify-items: stretch !important;
+        align-items: stretch !important;
+    }
+    
+    /* Garantir que les cartes ont la même taille que dans la page shop */
+    #products-list .flavoriz-product-card,
+    #products-list.flavoriz-product-grid .flavoriz-product-card {
+        max-width: 100% !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* 3 colonnes sur écran moyen */
+@media (max-width: 1199px) and (min-width: 769px) {
+    #products-list,
+    #products-list.flavoriz-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+        display: grid !important;
+        padding: 0 !important;
+    }
+}
+
+/* Styles pour la barre de recherche */
+.search-form-container {
+    width: 100%;
+}
+
+.search-form {
+    width: 100%;
+}
+
+.search-input-wrapper:focus-within {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+}
+
+.search-input-wrapper:hover {
+    border-color: #D1D5DB !important;
+}
+
+/* Style du select identique à la page shop */
+select.mySelect,
+.category-select.mySelect {
+    padding: 10px 16px !important;
+    border: 2px solid #E5E7EB !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    background: #FAFAFA !important;
+    color: #1F2937 !important;
+    cursor: pointer !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    font-family: var(--font-secondary) !important;
+    min-width: 200px !important;
+}
+
+select.mySelect:hover,
+.category-select.mySelect:hover {
+    border-color: var(--color-orange) !important;
+    background: white !important;
+}
+
+select.mySelect:focus,
+.category-select.mySelect:focus {
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
+    background: white !important;
+    outline: none !important;
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    .search-form-container {
+        margin-bottom: 24px !important;
+    }
+    
+    .search-form {
+        padding: 10px !important;
+        border-radius: 12px !important;
+    }
+    
+    .search-form-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .search-input-wrapper {
+        width: 100% !important;
+        min-width: 100% !important;
+        padding: 0 12px !important;
+    }
+    
+    .search-input {
+        font-size: 14px !important;
+        padding: 10px 0 !important;
+    }
+    
+    .search-actions {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .category-select {
+        width: 100% !important;
+        min-width: 100% !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+    }
+    
+    .search-submit-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    /* Results Count Mobile */
+    .results-count {
+        margin-bottom: 16px !important;
+        padding: 14px 16px !important;
+    }
+    
+    .results-count p {
+        font-size: 12px !important;
+        flex-wrap: wrap !important;
+        text-align: center !important;
+    }
+    
+    .results-count span {
+        display: inline-block !important;
+    }
+    
+    /* Products Grid Mobile */
+    #products-list,
+    #products-list.flavoriz-product-grid,
+    div#products-list,
+    div#products-list.flavoriz-product-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+        padding: 0 !important;
+    }
+    
+    #products-list > *,
+    #products-list.flavoriz-product-grid > *,
+    div#products-list > *,
+    div#products-list.flavoriz-product-grid > * {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .flavoriz-product-card {
+        border-radius: 10px !important;
+    }
+    
+    .flavoriz-product-image {
+        height: auto !important;
+    }
+    
+    .flavoriz-product-body {
+        padding: 12px !important;
+    }
+    
+    .flavoriz-product-title {
+        font-size: 13px !important;
+        min-height: 36px !important;
+        margin-bottom: 6px !important;
+        line-height: 1.3 !important;
+    }
+    
+    .flavoriz-product-card-btn,
+    .flavoriz-add-cart-btn {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+    
+    .flavoriz-favorite-btn {
+        padding: 5px 8px !important;
+        font-size: 9px !important;
+    }
+    
+    .flavoriz-favorite-btn i {
+        font-size: 11px !important;
+    }
+}

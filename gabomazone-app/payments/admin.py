@@ -3,19 +3,10 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import VendorPayments, SingPayTransaction, SingPayWebhookLog
 from .services.singpay import singpay_service
-from accounts.models import BankAccount
 
-
-# Register your models here.
-# class Inline_BankAccount(admin.StackedInline):
-#     model = BankAccount
-#     # readonly_fields = ("",)
-#     extra = 0
 
 @admin.register(VendorPayments)
 class VendorPaymentsAdmin(admin.ModelAdmin):
-    #fields = ("","")
-    # inlines = [Inline_BankAccount, ]
     list_display = ('id', 'vendor_profile', 'request_amount', 'fee',
                     'method', 'date', 'status', )
     list_filter = ('status', 'method', )

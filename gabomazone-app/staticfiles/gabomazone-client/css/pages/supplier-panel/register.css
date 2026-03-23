@@ -1,0 +1,82 @@
+/* Variables CSS pour cohérence */
+                :root {
+                    --spacing-xs: 8px;
+                    --spacing-sm: 12px;
+                    --spacing-md: 16px;
+                    --spacing-lg: 24px;
+                    --spacing-xl: 32px;
+                    --spacing-2xl: 48px;
+                    --color-white: #FFFFFF;
+                    --color-black: #1F2937;
+                }
+                
+                /* Responsive Mobile */
+                @media (max-width: 767px) {
+                    .content-main {
+                        padding: var(--spacing-lg) var(--spacing-md) !important;
+                        min-height: calc(100vh - 80px) !important;
+                    }
+                    
+                    .login-container {
+                        max-width: 100% !important;
+                        padding: 0 !important;
+                    }
+                    
+                    .login-card {
+                        border-radius: 20px !important;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                    }
+                    
+                    .login-form-panel {
+                        padding: var(--spacing-lg) var(--spacing-md) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child {
+                        margin-bottom: var(--spacing-md) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a {
+                        margin-bottom: var(--spacing-sm) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:first-child {
+                        width: 36px !important;
+                        height: 36px !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:first-child span {
+                        font-size: 18px !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:last-child span {
+                        font-size: 20px !important;
+                    }
+                    
+                    .login-form-panel h1 {
+                        font-size: 28px !important;
+                        margin: var(--spacing-xs) 0 !important;
+                    }
+                    
+                    .login-form-panel > div:first-child p {
+                        font-size: 14px !important;
+                    }
+                    
+                    .form-container {
+                        gap: var(--spacing-sm) !important;
+                    }
+                    
+                    .form-container label {
+                        font-size: 12px !important;
+                        margin-bottom: 4px !important;
+                    }
+                    
+                    .form-container input {
+                        padding: 10px 12px 10px 40px !important;
+                        font-size: 14px !important;
+                    }
+                    
+                    .form-container button[type="submit"] {
+                        padding: 12px !important;
+                        font-size: 14px !important;
+                    }
+                 }

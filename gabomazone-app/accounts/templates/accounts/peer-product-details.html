@@ -3,506 +3,11 @@
 {% load cart_template_tags %}
 {% load category_icons %}
 
-{%block body%}
-<style>
-    /* Styles pour la page de détails article C2C */
-    .flavoriz-product-detail {
-        padding: 24px 0 60px 0;
-        background: #FAFAFA;
-        min-height: calc(100vh - 200px);
-    }
-    
-    .flavoriz-product-detail-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-    
-    .flavoriz-breadcrumb {
-        margin-bottom: 24px;
-        font-size: 13px;
-        color: #6B7280;
-    }
-    
-    .flavoriz-breadcrumb a {
-        color: var(--color-orange);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-    
-    .flavoriz-breadcrumb a:hover {
-        color: #E65A1F;
-    }
-    
-    .flavoriz-product-detail-main {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        margin-bottom: 32px;
-    }
-    
-    .flavoriz-product-detail-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        padding: 24px;
-    }
-    
-    .flavoriz-product-gallery {
-        position: relative;
-    }
-    
-    .flavoriz-main-image {
-        width: 100%;
-        aspect-ratio: 1;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #FAFAFA;
-        margin-bottom: 16px;
-        cursor: zoom-in;
-        position: relative;
-    }
-    
-    .flavoriz-main-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    
-    .flavoriz-main-image:hover img {
-        transform: scale(1.05);
-    }
-    
-    .flavoriz-thumbnails {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-    }
-    
-    .flavoriz-thumbnail {
-        aspect-ratio: 1;
-        border-radius: 8px;
-        overflow: hidden;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        background: #FAFAFA;
-    }
-    
-    .flavoriz-thumbnail.active {
-        border-color: var(--color-orange);
-    }
-    
-    .flavoriz-thumbnail img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .flavoriz-product-info h1 {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1F2937;
-        margin-bottom: 12px;
-        line-height: 1.3;
-    }
-    
-    .flavoriz-product-price-section {
-        margin-bottom: 24px;
-    }
-    
-    .flavoriz-current-price {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--color-orange);
-    }
-    
-    .flavoriz-product-description {
-        color: #4B5563;
-        line-height: 1.8;
-        margin-bottom: 24px;
-        font-size: 14px;
-    }
-    
-    .flavoriz-peer-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%);
-        color: var(--color-orange);
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 16px;
-    }
-    
-    .flavoriz-seller-info {
-        background: #F9FAFB;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 20px;
-    }
-    
-    .flavoriz-seller-info h3 {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1F2937;
-        margin-bottom: 12px;
-    }
-    
-    .flavoriz-seller-detail {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
-        font-size: 14px;
-        color: #4B5563;
-    }
-    
-    .flavoriz-seller-detail i {
-        color: var(--color-orange);
-        width: 20px;
-    }
-    
-    .flavoriz-contact-seller-btn {
-        width: 100%;
-        padding: 14px 28px;
-        background: var(--color-orange);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
-        margin-top: 16px;
-    }
-    
-    .flavoriz-contact-seller-btn:hover {
-        background: #E65A1F;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
-    }
-    
-    /* Style Ayoka listing - bloc Détails de l'annonce */
-    .ayoka-listing-infos {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-    .ayoka-listing-infos .ayoka-infos-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #1F2937;
-        padding: 16px 20px;
-        background: #F9FAFB;
-        border-bottom: 1px solid #E5E7EB;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .ayoka-listing-infos .ayoka-infos-title i {
-        color: var(--color-orange);
-        font-size: 18px;
-    }
-    .ayoka-infos-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-    .ayoka-infos-list li {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 20px;
-        border-bottom: 1px solid #F3F4F6;
-        font-size: 14px;
-    }
-    .ayoka-infos-list li:last-child {
-        border-bottom: none;
-    }
-    .ayoka-infos-list .ayoka-infos-label {
-        color: #6B7280;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .ayoka-infos-list .ayoka-infos-label i {
-        color: #9CA3AF;
-        font-size: 16px;
-        width: 20px;
-        text-align: center;
-    }
-    .ayoka-infos-list .ayoka-infos-value {
-        color: #1F2937;
-        font-weight: 600;
-    }
-    .ayoka-infos-list .ayoka-infos-value.status-ok {
-        color: #059669;
-    }
-    
-    .flavoriz-product-meta {
-        display: none; /* Remplacé par ayoka-listing-infos */
-    }
-    
-    .flavoriz-meta-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .flavoriz-meta-label {
-        font-size: 12px;
-        color: #6B7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-    }
-    
-    .flavoriz-meta-value {
-        font-size: 15px;
-        color: #1F2937;
-        font-weight: 600;
-    }
-    
-    /* Bloc Description style Ayoka */
-    .ayoka-description-block {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-    .ayoka-description-block .ayoka-infos-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #1F2937;
-        padding: 16px 20px;
-        background: #F9FAFB;
-        border-bottom: 1px solid #E5E7EB;
-    }
-    .ayoka-description-block .ayoka-description-body {
-        padding: 20px;
-        color: #4B5563;
-        line-height: 1.8;
-        font-size: 14px;
-    }
-    
-    /* Cartes Vendeur & Détails (style moderne + grille 2x2) */
-    .peer-card {
-        background: linear-gradient(145deg, #FFFFFF 0%, #F9FAFB 100%);
-        border: 1px solid #E5E7EB;
-        border-radius: 16px;
-        overflow: hidden;
-        margin-bottom: 24px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    }
-    .peer-card-header {
-        padding: 16px 20px;
-        background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.03) 100%);
-        border-bottom: 1px solid #E5E7EB;
-        font-size: 16px;
-        font-weight: 700;
-        color: #1F2937;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .peer-card-header i {
-        color: var(--color-orange);
-        font-size: 20px;
-    }
-    .peer-card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0;
-    }
-    .peer-card-cell {
-        padding: 16px 20px;
-        border-bottom: 1px solid #F3F4F6;
-        border-right: 1px solid #F3F4F6;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    .peer-card-cell:nth-child(2n) { border-right: none; }
-    .peer-card-cell:nth-last-child(-n+2) { border-bottom: none; }
-    .peer-card-label {
-        font-size: 12px;
-        color: #6B7280;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-    }
-    .peer-card-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1F2937;
-    }
-    .peer-card-value.status-ok { color: #059669; }
-    .peer-card-cta {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 16px 20px;
-        background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
-        color: white;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 10px rgba(255, 123, 44, 0.25);
-    }
-    .peer-card-cta:hover { color: white; opacity: 0.95; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35); }
-    .flavoriz-propose-offer-btn-top:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255, 123, 44, 0.45); }
-    
-    /* Modal vendeur : toujours centré (desktop + mobile) */
-    .peer-seller-modal-backdrop {
-        display: none;
-        position: fixed;
-        inset: 0;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9998;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .peer-seller-modal-backdrop.is-open { display: flex !important; }
-    .peer-seller-modal {
-        background: white;
-        border-radius: 20px;
-        max-width: 400px;
-        width: 100%;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        overflow: hidden;
-        margin: auto;
-        flex-shrink: 0;
-    }
-    .peer-seller-modal-header {
-        padding: 24px 24px 16px;
-        border-bottom: 1px solid #E5E7EB;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .peer-seller-modal-header h3 { margin: 0; font-size: 20px; font-weight: 700; color: #1F2937; }
-    .peer-seller-modal-close {
-        background: none; border: none; padding: 8px; cursor: pointer; color: #6B7280; font-size: 24px; line-height: 1;
-    }
-    .peer-seller-modal-close:hover { color: #1F2937; }
-    .peer-seller-modal-body {
-        padding: 24px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
-    .peer-seller-modal-stat {
-        background: #F9FAFB;
-        border-radius: 12px;
-        padding: 16px;
-        text-align: center;
-    }
-    .peer-seller-modal-stat .val { font-size: 22px; font-weight: 700; color: var(--color-orange); display: block; margin-bottom: 4px; }
-    .peer-seller-modal-stat .lbl { font-size: 12px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; }
-    .peer-seller-modal-footer {
-        padding: 16px 24px 24px;
-    }
-    .peer-seller-modal-footer a {
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
-        color: white; text-decoration: none; font-weight: 600; border-radius: 12px;
-        transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.3);
-    }
-    .peer-seller-modal-footer a:hover { color: white; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 123, 44, 0.4); }
-    
-    /* Mode smartphone : même disposition (titre + bouton à droite, grilles 2x2, modal adapté) */
-    @media (max-width: 600px) {
-        .flavoriz-product-info h1 { font-size: 18px !important; line-height: 1.35; }
-        .flavoriz-product-title-row {
-            flex-direction: row !important;
-            align-items: center !important;
-            gap: 12px !important;
-        }
-        .flavoriz-propose-offer-btn-top {
-            padding: 10px 14px !important;
-            font-size: 13px !important;
-            white-space: nowrap !important;
-        }
-        .flavoriz-propose-offer-btn-top i { font-size: 16px !important; }
-        .peer-card { border-radius: 14px; margin-bottom: 20px; }
-        .peer-card-header { padding: 14px 16px; font-size: 15px; }
-        .peer-card-header i { font-size: 18px; }
-        .peer-card-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        .peer-card-cell { padding: 12px 14px; gap: 4px; }
-        .peer-card-label { font-size: 11px; }
-        .peer-card-value { font-size: 14px; }
-        .peer-card-cta { padding: 14px 16px; font-size: 14px; }
-        .peer-seller-modal-backdrop {
-            padding: 12px;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        .peer-seller-modal-backdrop.is-open {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        .peer-seller-modal {
-            max-height: min(85vh, 90%);
-            overflow-y: auto;
-            border-radius: 16px;
-            margin: auto !important;
-        }
-        .peer-seller-modal-header { padding: 20px 20px 14px; }
-        .peer-seller-modal-header h3 { font-size: 18px; }
-        .peer-seller-modal-body { padding: 20px; gap: 12px; grid-template-columns: repeat(2, 1fr); }
-        .peer-seller-modal-stat { padding: 12px; }
-        .peer-seller-modal-stat .val { font-size: 18px; }
-        .peer-seller-modal-footer { padding: 14px 20px 20px; }
-        .peer-seller-modal-footer a { padding: 12px 20px; font-size: 15px; }
-    }
-    
-    .flavoriz-related-products {
-        margin-top: 48px;
-    }
-    
-    .flavoriz-section-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1F2937;
-        margin-bottom: 24px;
-    }
-    
-    @media (max-width: 968px) {
-        .flavoriz-product-detail-content {
-            grid-template-columns: 1fr;
-            gap: 24px;
-            padding: 20px;
-        }
-        
-        .flavoriz-product-meta {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-c2c.css' %}?v=1.0" />
+{% endblock headextra %}
+
+{% block body %}
 
 <main class="main">
     <div class="flavoriz-product-detail">
@@ -514,7 +19,7 @@
                 <a href="{% url 'categories:shop' %}">Boutique</a>
                 <span> / </span>
                 {% if peer_product.product_supercategory %}
-                <a href="{% url 'categories:super-category' peer_product.product_supercategory.slug%}">{{peer_product.product_supercategory}}</a>
+                <a href="{% url 'categories:super-category' peer_product.product_supercategory.slug %}">{{peer_product.product_supercategory}}</a>
                 <span> / </span>
                 {% endif %}
                 <span>{{peer_product.product_name|truncatechars:40}}</span>
@@ -523,7 +28,7 @@
             <!-- Messages -->
             {% if messages %}
             {% for message in messages %}
-            <div class="mt-20 alert align-middle alert-{{message.tags}}" style="padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="mt-20 alert align-middle alert-{{message.tags}} gm-s-ac224a" >
                 <span class="align-middle">{{message}}</span>
             </div>
             {% endfor %}
@@ -534,12 +39,12 @@
                 <div class="flavoriz-product-detail-content">
                     <!-- Gallery -->
                     <div class="flavoriz-product-gallery">
-                        <div class="flavoriz-main-image" id="main-image-container" style="cursor: zoom-in;">
-                            {%if peer_product.product_image%}
+                        <div class="flavoriz-main-image" id="main-image-container" class="gm-s-a70309">
+                            {%if peer_product.product_image %}
                             <img src="{{peer_product.product_image.url}}" alt="{{peer_product.product_name}}" id="main-product-image" onclick="openPeerProductImagePreview()" />
-                            {%else%}
+                            {%else %}
                             <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{peer_product.product_name}}" id="main-product-image" onclick="openPeerProductImagePreview()" />
-                            {%endif%}
+                            {%endif %}
                         </div>
                         
                         {% if peer_product.additional_image_1 or peer_product.additional_image_2 or peer_product.additional_image_3 %}
@@ -550,7 +55,7 @@
                             </div>
                             {% endif %}
                             {% if peer_product.additional_image_1 %}
-                            <div class="flavoriz-thumbnail {% if not peer_product.product_image and forloop.first %}active{% endif %}" onclick="changeMainImage('{{peer_product.additional_image_1.url}}', this)">
+                            <div class="flavoriz-thumbnail {% if not peer_product.product_image %}active{% endif %}" onclick="changeMainImage('{{peer_product.additional_image_1.url}}', this)">
                                 <img src="{{peer_product.additional_image_1.url}}" alt="Thumbnail 2" />
                             </div>
                             {% endif %}
@@ -571,20 +76,20 @@
                     <!-- Product Info (style Ayoka listing) -->
                     <div class="flavoriz-product-info">
                         {% if peer_product.condition %}
-                        <span class="peer-condition-badge peer-condition-{{ peer_product.condition|condition_slug }}" style="margin-bottom: 12px; vertical-align: middle;">{{ peer_product.get_condition_display }}</span>
+                        <span class="peer-condition-badge peer-condition-{{ peer_product.condition|condition_slug }} gm-s-74c6b3" >{{ peer_product.get_condition_display }}</span>
                         {% endif %}
-                        <div class="flavoriz-product-title-row" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">
-                            <h1 style="flex: 1; min-width: 0; margin: 0;">{{ peer_product.product_name }}</h1>
+                        <div class="flavoriz-product-title-row gm-s-64f94f" >
+                            <h1 class="gm-s-ad36f0">{{ peer_product.product_name }}</h1>
                         </div>
                         
                         <div class="flavoriz-product-price-section">
-                            <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+                            <div class="gm-s-27dc97">
                                 <span class="flavoriz-current-price">{{peer_product.PRDPrice|format_price}} FCFA</span>
                             </div>
                             {% if peer_product.seller_city %}
-                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
-                                <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 13px;"></i>
-                                <span style="font-size: 14px; color: #6B7280;">{{ peer_product.seller_city }}</span>
+                            <div class="gm-s-1dedb0">
+                                <i class="fi-rs-marker gm-s-646536" ></i>
+                                <span class="gm-s-1e849f">{{ peer_product.seller_city }}</span>
                             </div>
                             {% endif %}
                         </div>
@@ -597,7 +102,7 @@
                                 </div>
                                 <div class="gm-seller-info">
                                     <div class="gm-seller-name">
-                                        <button type="button" onclick="openSellerModal()" style="background: none; border: none; padding: 0; color: inherit; font-weight: 700; font-size: 18px; cursor: pointer; text-align: left;">{{ peer_product.seller.username }}</button>
+                                        <button type="button" onclick="openSellerModal()" class="gm-s-01d3be">{{ peer_product.seller.username }}</button>
                                         <span class="gm-badge gm-badge-particulier gm-badge-lg">Particulier</span>
                                     </div>
                                     <div class="gm-seller-meta">
@@ -688,7 +193,7 @@
                             <span class="lbl">Avis reçus</span>
                         </div>
                         <div class="peer-seller-modal-stat">
-                            <span class="val" style="font-size: 16px;"><i class="fi-rs-marker" style="font-size: 14px; color: var(--color-orange); margin-right: 4px;"></i>{{ peer_product.seller_city|default:"—" }}</span>
+                            <span class="val gm-s-beab58" ><i class="fi-rs-marker gm-s-dcd4f1" ></i>{{ peer_product.seller_city|default:"—" }}</span>
                             <span class="lbl">Ville</span>
                         </div>
                     </div>
@@ -705,16 +210,16 @@
             {% if similar_products %}
             <div class="flavoriz-related-products">
                 <h2 class="flavoriz-section-title">Articles similaires</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                <div class="gm-s-cb1afc">
                     {% for similar in similar_products %}
-                    <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;" onclick="window.location.href='{% url 'accounts:peer-product-details' similar.PRDSlug %}'">
-                        <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;">
-                            <img src="{{similar.product_image.url}}" alt="{{similar.product_name}}" loading="lazy" decoding="async" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;" />
+                    <div class="flavoriz-product-card gm-s-5d42fd"  onclick="window.location.href='{% url 'accounts:peer-product-details' similar.PRDSlug %}'">
+                        <div class="gm-s-f77169">
+                            <img src="{{similar.product_image.url}}" alt="{{similar.product_name}}" loading="lazy" decoding="async" class="gm-s-343494" />
                         </div>
                         <div style="padding: 14px;">
-                            <h3 style="font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{similar.product_name}}</h3>
-                            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
-                                <span style="font-size: 18px; font-weight: 700; color: var(--color-orange);">{{similar.PRDPrice|format_price}} FCFA</span>
+                            <h3 class="gm-s-529591">{{similar.product_name}}</h3>
+                            <div class="gm-s-8036ab">
+                                <span class="gm-s-43b675">{{similar.PRDPrice|format_price}} FCFA</span>
                             </div>
                         </div>
                     </div>
@@ -930,5 +435,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{%endblock body%}
+{% endblock body %}
 

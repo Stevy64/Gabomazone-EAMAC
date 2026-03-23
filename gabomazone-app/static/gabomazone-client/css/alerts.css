@@ -1,0 +1,99 @@
+/* ========== ALERT TOASTS ========== */
+
+.gm-alerts-container {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+    pointer-events: none;
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(100%); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.flavoriz-alert-toast {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 320px;
+    pointer-events: auto;
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flavoriz-alert-success { border-left: 4px solid #10B981; }
+.flavoriz-alert-error   { border-left: 4px solid #EF4444; }
+.flavoriz-alert-warning { border-left: 4px solid #F59E0B; }
+.flavoriz-alert-info    { border-left: 4px solid #3B82F6; }
+
+.gm-alert-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.gm-alert-icon--success { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+.gm-alert-icon--error   { background: rgba(239, 68, 68, 0.1);  color: #EF4444; }
+.gm-alert-icon--warning { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+.gm-alert-icon--info    { background: rgba(59, 130, 246, 0.1);  color: #3B82F6; }
+
+.gm-alert-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.gm-alert-body p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1F2937;
+    line-height: 1.5;
+}
+
+.flavoriz-alert-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.flavoriz-alert-close:hover {
+    background: #F3F4F6;
+    color: #6B7280;
+}
+
+@media (max-width: 768px) {
+    .gm-alerts-container {
+        top: 80px;
+        right: 12px;
+        left: 12px;
+        max-width: none;
+    }
+    .flavoriz-alert-toast {
+        min-width: auto;
+        width: 100%;
+    }
+}

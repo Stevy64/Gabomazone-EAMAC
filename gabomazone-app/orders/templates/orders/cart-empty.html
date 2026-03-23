@@ -1,60 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{%block head%}
+{% block head %}
 {{ block.super }}
-<style>
-    /* S'assurer qu'il n'y a qu'un seul header */
-    body > header.flavoriz-header:not(:first-of-type),
-    body > .flavoriz-header:not(:first-of-type),
-    .flavoriz-header ~ .flavoriz-header,
-    header.flavoriz-header + header.flavoriz-header {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        opacity: 0 !important;
-    }
-</style>
-{%endblock head%}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/cart-empty.css' %}?v=1.0">
+{% endblock head %}
 
-{%block script%}
+{% block script %}
 {{ block.super }}
-<script>
-    // Supprimer les doublons de header
-    (function() {
-        function removeDuplicateHeaders() {
-            const headers = document.querySelectorAll('header.flavoriz-header');
-            if (headers.length > 1) {
-                // Garder seulement le premier header, supprimer les autres
-                for (let i = 1; i < headers.length; i++) {
-                    headers[i].remove();
-                }
-            }
-        }
-        
-        // Exécuter immédiatement
-        removeDuplicateHeaders();
-        
-        // Exécuter après DOMContentLoaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', removeDuplicateHeaders);
-        } else {
-            removeDuplicateHeaders();
-        }
-        
-        // Exécuter après window.load
-        window.addEventListener('load', removeDuplicateHeaders);
-    })();
-</script>
-{%endblock script%}
 
-{%block body%}
+<script src="{% static 'gabomazone-client/js/pages/cart-empty.js' %}?v=1.0"></script>
+{% endblock script %}
+
+{% block body %}
 <!-- ===== Empty Cart Page FLAVORIZ Design ===== -->
-<main class="main pages shop-cart-page" style="padding-top: 24px; padding-bottom: 80px; min-height: calc(100vh - 140px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); display: flex; align-items: center; justify-content: center;">
-    <div class="container" style="max-width: 800px; margin: 0 auto; padding: 0 24px; text-align: center;">
+<main class="main pages shop-cart-page gm-s-941657" >
+    <div class="container gm-s-c257af" >
                     {% if messages %}
                         {% for message in messages %}
         <div class="flavoriz-alert" style="background: {% if message.tags == 'error' %}#fee2e2{% elif message.tags == 'warning' %}#fef3c7{% else %}#d1fae5{% endif %}; color: {% if message.tags == 'error' %}#dc2626{% elif message.tags == 'warning' %}#d97706{% else %}#059669{% endif %}; padding: 16px; border-radius: 10px; margin-bottom: 24px; font-size: 14px; max-width: 600px; margin-left: auto; margin-right: auto;">
@@ -63,78 +24,25 @@
         {% endfor %}
         {% endif %}
             
-        <div style="margin-bottom: 40px;">
-            <i class="fi-rs-shopping-cart" style="font-size: 120px; color: #D1D5DB; opacity: 0.5;"></i>
+        <div class="gm-s-138f8f">
+            <i class="fi-rs-shopping-cart gm-s-74de33" ></i>
                         </div>
         
-        <h1 style="font-size: 36px; font-weight: 700; color: #1F2937; margin-bottom: 20px; font-family: var(--font-primary); line-height: 1.2;">Votre panier est vide</h1>
-        <p style="font-size: 16px; color: #6B7280; margin-bottom: 40px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <h1 class="gm-s-edd6a6">Votre panier est vide</h1>
+        <p class="gm-s-2413c1">
             Ajoutez quelque chose pour nous rendre heureux :)
             <br />
             {% if user.is_authenticated %}
-            Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a>
+            Commencez à <a href="{% url 'categories:shop'%}" class="gm-s-3904dd">faire vos achats</a>
             {% else %}
-            Commencez à <a href="{% url 'categories:shop'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">faire vos achats</a> ou <a href="{% url 'accounts:login' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 600;">connectez-vous</a> pour voir les produits dans votre panier
+            Commencez à <a href="{% url 'categories:shop'%}" class="gm-s-3904dd">faire vos achats</a> ou <a href="{% url 'accounts:login' %}" class="gm-s-3904dd">connectez-vous</a> pour voir les produits dans votre panier
                     {% endif %}
         </p>
         
-        <a href="{% url 'categories:shop'%}" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; background: var(--color-orange); color: white; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.3);">
-            <i class="fi-rs-shopping-bag" style="font-size: 18px;"></i>
+        <a href="{% url 'categories:shop'%}" class="gm-s-db9e40">
+            <i class="fi-rs-shopping-bag gm-s-768e1f" ></i>
             <span>Découvrir les produits</span>
         </a>
     </div>
 </main>
-<style>
-@media (min-width: 1200px) {
-    .main.pages.shop-cart-page {
-        padding-top: 32px !important;
-        padding-bottom: 100px !important;
-    }
-    
-    .main.pages .container {
-        max-width: 900px !important;
-    }
-    
-    .main.pages h1 {
-        font-size: 42px !important;
-    }
-    
-    .main.pages p {
-        font-size: 18px !important;
-    }
-    
-    .main.pages i.fi-rs-shopping-cart {
-        font-size: 140px !important;
-    }
-    
-    .main.pages a[href*="categories:shop"] {
-        padding: 18px 48px !important;
-        font-size: 17px !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .main.pages.shop-cart-page {
-        padding-top: 20px !important;
-        padding-bottom: 60px !important;
-    }
-    
-    .main.pages h1 {
-        font-size: 28px !important;
-    }
-    
-    .main.pages p {
-        font-size: 14px !important;
-    }
-    
-    .main.pages i.fi-rs-shopping-cart {
-        font-size: 80px !important;
-    }
-    
-    .main.pages a[href*="categories:shop"] {
-        padding: 14px 28px !important;
-        font-size: 14px !important;
-    }
-}
-</style>
-{%endblock body%}
+{% endblock body %}

@@ -1,0 +1,150 @@
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.flavoriz-downloads-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) {
+    position: relative;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover {
+    background: rgba(255, 123, 44, 0.08) !important;
+    color: var(--color-orange) !important;
+    transform: translateX(4px);
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) i {
+    transition: all 0.3s ease;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover i {
+    color: var(--color-orange) !important;
+    transform: scale(1.1);
+}
+
+a[style*="background: var(--color-orange)"]:hover {
+    background: #E65A1F !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.4) !important;
+}
+
+@media (min-width: 1200px) {
+    .col-md-3 {
+        flex: 0 0 280px !important;
+        max-width: 280px !important;
+    }
+    
+    .col-md-9 {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .flavoriz-dashboard-card {
+        padding: 24px !important;
+    }
+    
+    .flavoriz-dashboard-card h2 {
+        font-size: 24px !important;
+    }
+    
+    .flavoriz-dashboard-card p {
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 993px) {
+    .col-md-3 {
+        flex: 0 0 calc(30% - 12px) !important;
+    }
+    
+    .col-md-9 {
+        flex: 0 0 calc(70% - 12px) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 80px !important;
+    }
+    
+    .col-md-3,
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: static !important;
+        margin-bottom: 28px;
+    }
+    
+    .flavoriz-dashboard-card {
+        padding: 32px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .flavoriz-dashboard-card {
+        padding: 24px !important;
+        border-radius: 16px !important;
+    }
+    
+    h2 {
+        font-size: 24px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    .flavoriz-downloads-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .flavoriz-downloads-table thead {
+        display: none;
+    }
+    
+    .flavoriz-downloads-table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 16px;
+        background: white;
+    }
+    
+    .flavoriz-downloads-table tbody td {
+        display: block;
+        padding: 12px 0 !important;
+        text-align: left !important;
+        border: none;
+    }
+    
+    .flavoriz-downloads-table tbody td:first-child {
+        font-weight: 700;
+        color: var(--color-orange);
+        padding-bottom: 8px !important;
+    }
+    
+    .flavoriz-downloads-table tbody td:last-child {
+        padding-top: 16px !important;
+    }
+    
+    .flavoriz-downloads-table tbody td:last-child a {
+        width: 100%;
+        justify-content: center;
+    }
+}

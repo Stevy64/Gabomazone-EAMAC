@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.utils import timezone
-from django.contrib import messages
 import json
 import logging
 
@@ -18,12 +17,12 @@ from .services.singpay import singpay_service
 from orders.models import Order, Payment as OrderPayment, OrderDetails
 from orders.utils import code_generator
 from accounts.models import Profile
-from django.db import transaction as db_transaction
 
 logger = logging.getLogger(__name__)
 
 
 def _ensure_tracking(order: Order) -> None:
+    """Génère un numéro de suivi si la commande n'en a pas encore."""
     if order and not order.tracking_no:
         order.tracking_no = code_generator()
 

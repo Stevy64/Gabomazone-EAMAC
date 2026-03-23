@@ -1,0 +1,61 @@
+{% load static %}
+
+<!-- ===== Footer FLAVORIZ ===== -->
+<footer class="flavoriz-footer">
+    <div class="flavoriz-footer-content">
+        <div class="flavoriz-footer-column">
+            <h4>Entreprise</h4>
+            <ul>
+                {% for page_obj in pages_list|slice:"0:5"%}
+                <li>
+                    <a href="/pages/{{ page_obj.slug }}/">{% if page_obj.slug == 'about-us' or page_obj.slug == 'a-propos' or 'about' in page_obj.slug %}À propos{% elif 'terms' in page_obj.slug or 'conditions' in page_obj.slug %}Conditions d'utilisation{% elif 'refund' in page_obj.slug or 'remboursement' in page_obj.slug %}Politique de remboursement{% else %}{{ page_obj.name }}{% endif %}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4>Support</h4>
+            <ul>
+                <li><a href="{% url 'orders:cart'%}">Voir le panier</a></li>
+                <li><a href="{% url 'supplier_dashboard:supplier-login'%}">Devenir vendeur</a></li>
+                <li><a href="/contact/">Nous contacter</a></li>
+                <li><a href="/faq/">FAQ</a></li>
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4>Contact</h4>
+            <ul>
+                {% for number_obj in support_number|slice:"0:1"%}
+                <li>
+                    <a href="tel:{{number_obj.number}}">
+                        <i class="fi-rs-phone"></i>Téléphone: {{number_obj.number}}
+                    </a>
+                </li>
+                {%endfor %}
+                <li>
+                    <a href="mailto:{{site_info.email|default:'contact@gabomazone.com'}}">
+                        <i class="fi-rs-envelope"></i>Email: {{site_info.email|default:'contact@gabomazone.com'}}
+                    </a>
+                </li>
+                {%for info in contact_info|slice:":1"%}
+                <li>
+                    <span><i class="fi-rs-marker"></i>{{info.full_address}}</span>
+                </li>
+                {%endfor %}
+            </ul>
+        </div>
+        <div class="flavoriz-footer-column">
+            <h4>Suivez-nous</h4>
+            <ul>
+                {% for link in Socail_links|slice:":1"%}
+                <li><a href="{{link.facebook|default:'#'}}" target="_blank"><i class="fi-rs-facebook"></i>Facebook</a></li>
+                <li><a href="{{link.instagram|default:'#'}}" target="_blank"><i class="fi-rs-instagram"></i>Instagram</a></li>
+                <li><a href="{{link.youtube|default:'#'}}" target="_blank"><i class="fi-rs-youtube"></i>YouTube</a></li>
+                {%endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="flavoriz-footer-bottom">
+        <p>Copyright {% now "Y" %} {{site_info.site_name|default:'GabomaZone'}} © Tous droits réservés.</p>
+    </div>
+</footer>

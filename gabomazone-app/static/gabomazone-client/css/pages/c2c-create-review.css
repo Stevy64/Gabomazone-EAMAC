@@ -1,0 +1,112 @@
+.review-form-container {
+        max-width: 600px;
+        margin: 100px auto;
+        padding: 0 20px;
+    }
+    
+    .review-form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rating-input {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin: 24px 0;
+    }
+    
+    .star-input {
+        font-size: 40px;
+        color: #E5E7EB;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .star-input:hover,
+    .star-input.active {
+        color: #FFD700;
+        transform: scale(1.1);
+    }
+    
+    .star-input.selected {
+        color: #FFD700;
+    }
+    
+    textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.3s;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: var(--color-orange);
+    }
+
+
+/* === Extracted inline styles === */
+
+.gm-s-11a938 {
+    padding-top: 100px; padding-bottom: 100px; background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);
+}
+
+.gm-s-56c403 {
+    font-size: 24px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; text-align: center;
+}
+
+.gm-s-d8ae82 {
+    text-align: center; color: #6B7280; margin: 0 0 32px 0;
+}
+
+.gm-s-64ac31 {
+    background: #FAFAFA; border-radius: 12px; padding: 16px; margin-bottom: 24px; border: 1px solid #E5E7EB;
+}
+
+.gm-s-1c20bb {
+    display: flex; align-items: center; gap: 12px;
+}
+
+.gm-s-75abcb {
+    width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
+}
+
+.gm-s-02455c {
+    font-weight: 600; color: #1F2937; margin-bottom: 4px;
+}
+
+.gm-s-1e849f {
+    font-size: 14px; color: #6B7280;
+}
+
+.gm-s-dc2cb2 {
+    margin-bottom: 24px;
+}
+
+.gm-s-8669c0 {
+    display: block; font-weight: 600; color: #1F2937; margin-bottom: 12px; text-align: center;
+}
+
+.gm-s-2ef718 {
+    display: block; font-weight: 600; color: #1F2937; margin-bottom: 8px;
+}
+
+.gm-s-800a82 {
+    display: flex; gap: 12px;
+}
+
+.gm-s-33c896 {
+    flex: 1; padding: 14px 24px; background: #F3F4F6; color: #6B7280; border-radius: 10px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s;
+}
+
+.gm-s-eae46b {
+    flex: 1; padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+}

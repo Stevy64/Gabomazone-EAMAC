@@ -247,3 +247,40 @@ SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandb
 # Domaine de production pour les URLs de callback SingPay
 # Les callbacks doivent être accessibles publiquement depuis Internet
 SINGPAY_PRODUCTION_DOMAIN = config('SINGPAY_PRODUCTION_DOMAIN', default='gabomazone.pythonanywhere.com')
+
+
+# =============================================================================
+# LOGGING — structured logging for traceability
+# =============================================================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'gabomazone.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'accounts': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'orders':   {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'payments': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'products': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'c2c':      {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'categories': {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+        'home':     {'handlers': ['console', 'file'], 'level': 'INFO', 'propagate': False},
+    },
+}

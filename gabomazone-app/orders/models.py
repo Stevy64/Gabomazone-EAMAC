@@ -86,7 +86,7 @@ class Order(models.Model):
                 blance = Profile.objects.get(user=recommended_by)
                 blance.blance = blance.blance + float(ref)
                 blance.save()
-            except:
+            except Exception:
                 pass
 
         super().save(*args, **kwargs)
@@ -279,7 +279,7 @@ class OrderSupplier(models.Model):
                 blance = Profile.objects.get(user=recommended_by)
                 blance.blance = blance.blance + float(ref)
                 blance.save()
-            except:
+            except Exception:
                 pass
         super().save(*args, **kwargs)
 

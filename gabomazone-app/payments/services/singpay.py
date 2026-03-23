@@ -317,7 +317,7 @@ class SingPayService:
                             transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
                             if transaction_id:
                                 logger.info(f"transaction_id extrait de l'URL: {transaction_id}")
-                        except:
+                        except Exception:
                             pass
                     # Essayer d'extraire depuis les paramètres de requête
                     if not transaction_id and 'transaction_id=' in payment_url:
@@ -328,7 +328,7 @@ class SingPayService:
                             if 'transaction_id' in params:
                                 transaction_id = params['transaction_id'][0]
                                 logger.info(f"transaction_id extrait des paramètres: {transaction_id}")
-                        except:
+                        except Exception:
                             pass
                     # Essayer d'extraire depuis /ext/ ou autres patterns
                     if not transaction_id:
@@ -344,7 +344,7 @@ class SingPayService:
                 if payment_url and '/payment/' in payment_url:
                     try:
                         transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
-                    except:
+                    except Exception:
                         pass
             elif 'url' in response:
                 payment_url = response['url']
@@ -352,7 +352,7 @@ class SingPayService:
                 if payment_url and '/payment/' in payment_url:
                     try:
                         transaction_id = payment_url.split('/payment/')[-1].split('/')[0].split('?')[0]
-                    except:
+                    except Exception:
                         pass
             
             # Vérifier aussi si transaction_id est directement dans la réponse

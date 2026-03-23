@@ -1,32 +1,34 @@
-from urllib import request
+import logging
+import secrets
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
 from django.contrib.auth.models import User
-from accounts.models import Profile, BankAccount, SocialLink
-from django.contrib.auth import get_user_model
-from products.models import Product, ProductImage, ProductRating, ProductSize
-from django.http import JsonResponse
-from categories.models import SuperCategory, MainCategory, SubCategory, MiniCategory
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views import View
-from PIL import Image
-from django.http import HttpResponseRedirect
-from orders.models import Order, OrderSupplier,  OrderDetailsSupplier, Payment
-from .utils import vendor_only
 from django.db.models import Sum
-from datetime import datetime, date, timedelta
-from django.utils import timezone as tz
-from payments.models import VendorPayments
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
-import secrets
+from datetime import datetime, date, timedelta
+from PIL import Image
+
+from accounts.models import Profile, BankAccount, SocialLink
+from products.models import Product, ProductImage, ProductRating, ProductSize
+from categories.models import SuperCategory, MainCategory, SubCategory, MiniCategory
+from orders.models import Order, OrderSupplier, OrderDetailsSupplier, Payment
+from payments.models import VendorPayments
+from .utils import vendor_only
+
+logger = logging.getLogger(__name__)
 
 
 @vendor_only
 def supplier_dashboard(request):
+    """Tableau de bord du vendeur B2C avec résumé commandes et produits."""
     vendor = Profile.objects.get(user=request.user)
     orders_supplier = OrderSupplier.objects.all().filter(
         vendor=vendor).exclude(status="PENDING")
@@ -145,6 +147,8 @@ class chartJsonListView(View):
 
 
 class chartJsonListViewAdmin(View):
+    """API JSON des statistiques globales (admin uniquement)."""
+
     def get(self, *args, **kwargs):
         today = date.today()
         if self.request.user.is_authenticated and not self.request.user.is_anonymous:
@@ -165,9 +169,7 @@ class chartJsonListViewAdmin(View):
 
 
 def supplier_login(request):
-    # if request.user.is_authenticated:
-    #     return redirect('supplier_dashboard:supplier-panel')
-
+    """Authentification du vendeur B2C."""
     if request.method == 'POST':
 
         username = request.POST['username']
@@ -182,7 +184,7 @@ def supplier_login(request):
                 user_email = User.objects.get(email=username).email
 
                 profile_obj = Profile.objects.get(user__email=user_email)
-        except:
+        except Exception:
             messages.warning(request, ' username or password is incorrect')
             profile_obj = None
 
@@ -192,7 +194,7 @@ def supplier_login(request):
                 user = authenticate(request, username=User.objects.get(
                     email=username), password=password)
 
-            except:
+            except Exception:
                 user = authenticate(
                     request, username=username, password=password)
 
@@ -212,9 +214,7 @@ def supplier_login(request):
 
 
 def supplier_register(request):
-    # if request.user.is_authenticated:
-    #     return redirect('supplier_dashboard:supplier-panel')
-
+    """Inscription d'un nouveau vendeur B2C avec vérification email."""
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
@@ -670,20 +670,9 @@ class CategoriesJsonListView(View):
         }, safe=False)
 
 
-# Page supplier-products-list supprimée - redirection vers supplier-add-product
-# @vendor_only
-# def supplier_products_list(request):
-#     vendor = Profile.objects.get(user=request.user)
-#     super_categories = SuperCategory.objects.all()
-#     
-#     context = {
-#         "vendor": vendor,
-#         "super_category": super_categories,
-#     }
-#     return render(request, "supplier-panel/supplier-products-list.html", context)
-
-
 class SupplierProductsJsonListView(View):
+    """API JSON paginée pour la liste des produits du vendeur."""
+
     def get(self, *args, **kwargs):
         user = Profile.objects.get(user=self.request.user)
         upper = int(self.request.GET.get('num_products'))
@@ -763,6 +752,7 @@ def remove_product(request, id):
 
 @vendor_only
 def supplier_edit_product(request, id):
+    """Formulaire d'édition d'un produit existant du vendeur."""
     product = None
     product_variations = None
     if not request.user.is_authenticated and request.user.is_anonymous:
@@ -784,75 +774,71 @@ def supplier_edit_product(request, id):
             # description = request.POST['description']
             try:
                 super_category_value = request.POST['super_category_value']
-            except:
+            except Exception:
                 super_category_value = None
 
             try:
                 main_category_value = request.POST['main_category_value']
-            except:
+            except Exception:
                 main_category_value = None
             try:
                 sub_category_value = request.POST['sub_category_value']
-            except:
+            except Exception:
                 sub_category_value = None
 
             try:
                 mini_category_value = request.POST['mini_category_value']
-            except:
+            except Exception:
                 mini_category_value = None
 
             XXS = "XXS-Delete"
             try:
                 XXS = request.POST['XXS']
 
-            except:
-                XSS = "XXS-Delete"
-            # print("xxs: ", XXS)
+            except Exception:
+                XXS = "XXS-Delete"
 
             XS = "XS-Delete"
             try:
                 XS = request.POST['XS']
 
-            except:
+            except Exception:
                 XS = "XS-Delete"
 
             S = "S-Delete"
             try:
                 S = request.POST['S']
 
-            except:
+            except Exception:
                 S = "S-Delete"
 
             M = "M-Delete"
             try:
                 M = request.POST['M']
 
-            except:
+            except Exception:
                 M = "M-Delete"
 
             L = "L-Delete"
             try:
                 L = request.POST['L']
 
-            except:
+            except Exception:
                 L = "L-Delete"
 
             XL = "XL-Delete"
             try:
                 XL = request.POST['XL']
 
-            except:
+            except Exception:
                 XL = "XL-Delete"
 
             XXL = "XXL-Delete"
             try:
                 XXL = request.POST['XXL']
 
-            except:
+            except Exception:
                 XXL = "XXL-Delete"
-            # checkbox = request.POST['checkbox']
-            # if checkbox:
-            #     print("checkbox: ", checkbox)
             available = request.POST.get('available', '0')
             pieces = request.POST.get('pieces', '0')
             promotional = request.POST.get('promotional', 'New')
@@ -873,7 +859,6 @@ def supplier_edit_product(request, id):
                 product_status = True
             else:
                 product_status = False
-            # print(f"product_status: {product_status}", type(product_status))
             try:
                 price = float(request.POST["price"])
             except (ValueError, TypeError):
@@ -888,67 +873,67 @@ def supplier_edit_product(request, id):
 
             try:
                 main_image = request.FILES["main_image"]
-            except:
+            except Exception:
                 main_image = None
             if main_image:
                 try:
                     Image.open(main_image)
 
-                except:
+                except Exception:
                     messages.warning(request, 'sorry, your image is invalid')
                     return redirect("supplier_dashboard:supplier-add-product")
 
             try:
                 name_image_1 = request.FILES["name_image_1"]
-            except:
+            except Exception:
                 name_image_1 = None
             if name_image_1:
                 try:
                     Image.open(name_image_1)
 
-                except:
+                except Exception:
                     messages.warning(request, 'sorry, your image is invalid')
                     return redirect("supplier_dashboard:supplier-add-product")
 
             try:
                 name_image_2 = request.FILES["name_image_2"]
-            except:
+            except Exception:
                 name_image_2 = None
             if name_image_2:
                 try:
                     Image.open(name_image_2)
 
-                except:
+                except Exception:
                     messages.warning(request, 'sorry, your image is invalid')
                     return redirect("supplier_dashboard:supplier-add-product")
 
             try:
                 name_image_3 = request.FILES["name_image_3"]
-            except:
+            except Exception:
                 name_image_3 = None
             if name_image_3:
                 try:
                     Image.open(name_image_3)
 
-                except:
+                except Exception:
                     messages.warning(request, 'sorry, your image is invalid')
                     return redirect("supplier_dashboard:supplier-add-product")
 
             try:
                 name_image_4 = request.FILES["name_image_4"]
-            except:
+            except Exception:
                 name_image_4 = None
             if name_image_4:
                 try:
                     Image.open(name_image_4)
 
-                except:
+                except Exception:
                     messages.warning(request, 'sorry, your image is invalid')
                     return redirect("supplier_dashboard:supplier-add-product")
 
             try:
                 digital_file = request.FILES["digital_file"]
-            except:
+            except Exception:
                 digital_file = None
 
             if super_category_value:
@@ -1043,7 +1028,6 @@ def supplier_edit_product(request, id):
                 request, 'Votre produit a été modifié avec succès !')
             return redirect('supplier_dashboard:supplier-add-product')
 
-    # product_obj = Product.objects.get(id=id)
     if product_obj.product_vendor.user.id == request.user.id:
         product = Product.objects.all().filter(
             product_vendor__user=request.user, id=id).exists()
@@ -1058,27 +1042,27 @@ def supplier_edit_product(request, id):
         super_category = SuperCategory.objects.all()
         super_category_first = SuperCategory.objects.get(
             name=product.product_supercategory)
-    except:
+    except Exception:
         super_category = None
     try:
         main_category = MainCategory.objects.all().filter(
             super_category=super_category_first)
         main_category_first = MainCategory.objects.get(
             name=product.product_maincategory)
-    except:
+    except Exception:
         main_category = None
     try:
         sub_category = SubCategory.objects.all().filter(
             main_category=main_category_first)
         sub_category_first = SubCategory.objects.get(
             name=product.product_subcategory)
-    except:
+    except Exception:
         sub_category = None
     try:
         mini_category = MiniCategory.objects.all().filter(
             sub_category=sub_category_first
         )
-    except:
+    except Exception:
         mini_category = None
     # Récupération du vendeur et des produits pour le header
     vendor = Profile.objects.get(user=request.user)
@@ -1087,7 +1071,6 @@ def supplier_edit_product(request, id):
         PRDISDeleted=False
     ).order_by('-date')
     
-    # print(sub_category)
     context = {
         "product": product,
         "product_variations": product_variations,
@@ -1104,6 +1087,7 @@ def supplier_edit_product(request, id):
 
 @vendor_only
 def supplier_orders_list(request):
+    """Page de la liste des commandes du vendeur."""
     vendor = Profile.objects.get(user=request.user)
     context = {
         "vendor": vendor,
@@ -1112,6 +1096,8 @@ def supplier_orders_list(request):
 
 
 class SupplierOrdersJsonListView(View):
+    """API JSON paginée pour les commandes du vendeur."""
+
     def get(self, *args, **kwargs):
         user = Profile.objects.get(user=self.request.user)
         upper = int(self.request.GET.get('num_products'))
@@ -1160,6 +1146,7 @@ class SupplierOrdersJsonListView(View):
 
 @vendor_only
 def supplier_orders_detail(request, id):
+    """Détails d'une commande vendeur avec informations de paiement."""
     user = Profile.objects.get(user=request.user)
     order_supplier = get_object_or_404(
         OrderSupplier, id=id, is_finished=True, vendor=user)
@@ -1172,7 +1159,7 @@ def supplier_orders_detail(request, id):
     try:
         from payments.models import SingPayTransaction
         transaction = SingPayTransaction.objects.filter(order=order_supplier.order).first()
-    except:
+    except Exception:
         pass
 
     context = {
@@ -1182,19 +1169,6 @@ def supplier_orders_detail(request, id):
         "transaction": transaction,
     }
     return render(request, 'supplier-panel/supplier-orders-detail.html', context)
-
-# @vendor_only
-# def supplier_transactions(request):
-#     return render(request, 'supplier-panel/supplier-transactions.html')
-
-
-# def page_settings_1(request):
-#     return render(request, 'supplier-panel/page-settings-1.html')
-
-
-# def page_settings_2(request):
-#     return render(request, 'supplier-panel/page-settings-2.html')
-
 
 @vendor_only
 def store_settings(request):
@@ -1242,10 +1216,10 @@ def store_settings(request):
                     try:
                         Image.open(image)
                         profile.image = image
-                    except:
+                    except Exception:
                         messages.warning(request, 'Désolé, votre image est invalide')
                         return redirect("supplier_dashboard:store-settings")
-            except:
+            except Exception:
                 pass
             
             # Mise à jour du profil du vendeur (Profile model)
@@ -1284,6 +1258,7 @@ def store_settings(request):
 
 @vendor_only
 def delete_account(request):
+    """Suppression définitive du compte vendeur (profil + utilisateur)."""
     if request.method == 'POST':
         try:
             user = request.user
@@ -1369,6 +1344,7 @@ def get_boost_percentage(product):
 
 @vendor_only
 def subscriptions(request):
+    """Gestion des abonnements premium et boosts de produits."""
     if request.user.is_authenticated and not request.user.is_anonymous:
         profile = Profile.objects.get(user=request.user)
         
@@ -1602,7 +1578,7 @@ def subscriptions(request):
             premium_sub = PremiumSubscription.objects.filter(vendor=profile).first()
             if premium_sub and premium_sub.is_active():
                 subscription_active = True
-        except:
+        except Exception:
             pass
         
         # Récupérer les demandes de boost du vendeur
@@ -1612,7 +1588,7 @@ def subscriptions(request):
             boost_requests = ProductBoostRequest.objects.filter(
                 vendor=profile
             ).order_by('-created_date')[:10]  # Les 10 dernières demandes
-        except:
+        except Exception:
             pass
         
         context = {
@@ -1651,9 +1627,7 @@ def subscription_success(request):
                 status=PremiumSubscription.ACTIVE
             ).first()
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Erreur lors de la récupération de l'abonnement: {str(e)}")
+            logger.error("Erreur lors de la récupération de l'abonnement: %s", e)
         
         context = {
             'vendor': profile,
@@ -1686,9 +1660,7 @@ def boost_success(request, boost_request_id):
             messages.error(request, 'Demande de boost introuvable.')
             return redirect('supplier_dashboard:subscriptions')
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"Erreur lors de la récupération du boost: {str(e)}")
+            logger.error("Erreur lors de la récupération du boost: %s", e)
             messages.error(request, 'Une erreur est survenue.')
             return redirect('supplier_dashboard:subscriptions')
         
@@ -1705,6 +1677,7 @@ def boost_success(request, boost_request_id):
 
 @vendor_only
 def payments(request):
+    """Page de gestion des paiements et récettes du vendeur."""
     if request.user.is_authenticated and not request.user.is_anonymous:
         vendor = Profile.objects.get(user=request.user)
         payments = VendorPayments.objects.all().filter(
@@ -1719,7 +1692,7 @@ def payments(request):
         except PageNotAnInteger:
             payments = paginator.page(1)
         except EmptyPage:
-            payments = paginator.page(paginator.num_page)
+            payments = paginator.page(paginator.num_pages)
         
         # Calculer les récettes totales (commandes complétées)
         completed_orders = OrderSupplier.objects.filter(
@@ -1827,6 +1800,7 @@ def payments(request):
 
 @vendor_only
 def request_payment(request):
+    """Demande de retrait de solde par le vendeur (virement ou SingPay)."""
     if request.user.is_authenticated and not request.user.is_anonymous:
         if request.method == 'POST':
             try:
@@ -1943,6 +1917,7 @@ def mark_all_notifications_read(request):
     return JsonResponse({'success': False}, status=400)
 
 def supplier_reviews(request):
+    """Page des avis clients pour le vendeur."""
     if request.user.is_authenticated and not request.user.is_anonymous:
         profile = Profile.objects.get(user=request.user)
         reviews = ProductRating.objects.all().filter(vendor=profile)
@@ -1953,7 +1928,7 @@ def supplier_reviews(request):
         except PageNotAnInteger:
             reviews = paginator.page(1)
         except EmptyPage:
-            reviews = paginator.page(paginator.num_page)
+            reviews = paginator.page(paginator.num_pages)
         context = {
             "reviews": reviews,
             "paginator": paginator,

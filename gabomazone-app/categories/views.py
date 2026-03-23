@@ -1,16 +1,17 @@
-from urllib import request
+import logging
+
 from django.shortcuts import render
-from .models import SubCategory, MainCategory, SuperCategory, MiniCategory
-from django.views.generic import View, TemplateView
-from products.models import Product
+from django.views.generic import View
 from django.http import JsonResponse
-from django.db.models import Count, Q
-from django.core.paginator import Paginator
-from django.template.loader import render_to_string
-from accounts.models import PeerToPeerProduct, ProductBoostRequest
+from django.db.models import Count
 from django.db import OperationalError
 from django.utils import timezone
-# Create your views here.
+
+from .models import SubCategory, MainCategory, SuperCategory, MiniCategory
+from products.models import Product
+from accounts.models import PeerToPeerProduct, ProductBoostRequest
+
+logger = logging.getLogger(__name__)
 
 
 def get_active_boosted_product_ids():
@@ -105,12 +106,12 @@ class PeerToPeerProductWrapper:
 
 
 def shop(request):
-
+    """Page grille produits (shop principal)."""
     return render(request, "categories/shop-grid-left.html")
 
 
 def super_category(request, slug):
-
+    """Affiche les sous-catégories principales d'une super-catégorie."""
     super_category_obj = SuperCategory.objects.get(slug=slug)
     main_category_obj = MainCategory.objects.all().filter(
         super_category=super_category_obj)
@@ -125,7 +126,7 @@ def super_category(request, slug):
 
 
 def main_category(request, slug):
-
+    """Affiche les sous-catégories d'une catégorie principale."""
     main_category_obj = MainCategory.objects.get(slug=slug)
     sub_category_obj = SubCategory.objects.all().filter(
         main_category=main_category_obj)
@@ -139,7 +140,7 @@ def main_category(request, slug):
 
 
 def sub_category(request, slug):
-
+    """Affiche les mini-catégories d'une sous-catégorie."""
     sub_category_obj = SubCategory.objects.get(slug=slug)
     mini_category_obj = MiniCategory.objects.all().filter(
         sub_category=sub_category_obj)
@@ -153,6 +154,7 @@ def sub_category(request, slug):
 
 
 def category_list(request):
+    """Page listant toutes les catégories avec compteurs de produits."""
     supercategory = SuperCategory.objects.all().order_by('name')
     maincategory = MainCategory.objects.all().order_by('name')
     subcategory = SubCategory.objects.all().order_by('name')
@@ -170,23 +172,21 @@ def category_list(request):
         # Compter les produits (Product + PeerToPeerProduct) pour cette super catégorie
         product_count = 0
         try:
-            # Compter les produits normaux
             product_count += Product.objects.filter(
                 product_supercategory=super,
                 PRDISDeleted=False,
                 PRDISactive=True
             ).count()
-        except:
-            pass
+        except (OperationalError, Exception) as e:
+            logger.debug("Product count query failed for super %s: %s", super.name, e)
         
         try:
-            # Compter les articles peer-to-peer approuvés
             product_count += PeerToPeerProduct.objects.filter(
                 product_supercategory=super,
                 status=PeerToPeerProduct.APPROVED
             ).count()
-        except:
-            pass
+        except (OperationalError, Exception) as e:
+            logger.debug("PeerToPeerProduct count query failed for super %s: %s", super.name, e)
         
         # Ajouter le compteur à l'objet super
         super.product_count = product_count
@@ -303,280 +303,6 @@ def get_peer_to_peer_products(cat_type, cat_id, order_by, lower, upper):
         return []
 
 
-# CategoryJsonListView supprimé - utilisation exclusive de HTMX (ProductListHTMXView)
-"""
-class CategoryJsonListView(View):
-    def get(self, *args, **kwargs):
-
-        upper = int(self.request.GET.get("num_products"))
-        orderd_by = self.request.GET.get("order_by")
-        CAT_id = self.request.GET.get("CAT_id")
-        CAT_type = self.request.GET.get("cat_type")
-
-        if CAT_type == "all":
-            lower = upper - 10
-            # print(lower, upper)
-            try:
-                products_queryset = Product.objects.all().filter(PRDISDeleted = False , PRDISactive = True ).annotate(
-                    like_count=Count('favorites')
-                ).order_by(orderd_by)[lower:upper]
-            except:
-                # Si la table favorites n'existe pas encore, utiliser values() directement
-                products_queryset = Product.objects.all().filter(PRDISDeleted = False , PRDISactive = True ).order_by(orderd_by)[lower:upper]
-            
-            products = []
-            for product in products_queryset:
-                # Collecter toutes les images du produit
-                product_images = [str(product.product_image)] if product.product_image else []
-                if product.additional_image_1:
-                    product_images.append(str(product.additional_image_1))
-                if product.additional_image_2:
-                    product_images.append(str(product.additional_image_2))
-                if product.additional_image_3:
-                    product_images.append(str(product.additional_image_3))
-                if product.additional_image_4:
-                    product_images.append(str(product.additional_image_4))
-                
-                product_dict = {
-                    'id': product.id,
-                    'product_name': product.product_name,
-                    'PRDPrice': product.PRDPrice,
-                    'PRDDiscountPrice': product.PRDDiscountPrice,
-                    'product_image': str(product.product_image),
-                    'product_images': product_images,  # Toutes les images
-                    'PRDSlug': product.PRDSlug,
-                    'view_count': getattr(product, 'view_count', 0),
-                    'like_count': getattr(product, 'like_count', 0),
-                    'is_peer_to_peer': False,
-                }
-                products.append(product_dict)
-            
-            # Ajouter les articles C2C approuvés
-            peer_products = get_peer_to_peer_products("all", None, orderd_by, lower, upper)
-            products.extend(peer_products)
-            
-            # Ajouter le flag is_boosted et trier avec priorité aux boostés
-            products = add_boost_flag_to_products(products)
-            products = sort_products_with_boost_priority(products, orderd_by)
-            
-            # Calculer la taille totale
-            try:
-                products_size = len(Product.objects.all().filter(PRDISDeleted = False , PRDISactive = True ))
-                try:
-                    peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED))
-                    products_size += peer_size
-                except (OperationalError, AttributeError):
-                    pass
-            except:
-                products_size = len(products)
-            
-            max_size = True if upper >= products_size else False
-            return JsonResponse({"data": products,  "max": max_size, "products_size": products_size, }, safe=False)
-
-        else:      # 3
-            lower = upper - 10
-            # print(lower, upper)
-            if CAT_type == "super":
-                try:
-                    products_queryset = Product.objects.all().filter(product_supercategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
-                        like_count=Count('favorites')
-                    ).order_by(orderd_by)[lower:upper]
-                except:
-                    products_queryset = Product.objects.all().filter(product_supercategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).order_by(orderd_by)[lower:upper]
-                
-                products = []
-                for product in products_queryset:
-                    # Collecter toutes les images du produit
-                    product_images = [str(product.product_image)] if product.product_image else []
-                    if product.additional_image_1:
-                        product_images.append(str(product.additional_image_1))
-                    if product.additional_image_2:
-                        product_images.append(str(product.additional_image_2))
-                    if product.additional_image_3:
-                        product_images.append(str(product.additional_image_3))
-                    if product.additional_image_4:
-                        product_images.append(str(product.additional_image_4))
-                    
-                    product_dict = {
-                        'id': product.id,
-                        'product_name': product.product_name,
-                        'PRDPrice': product.PRDPrice,
-                        'PRDDiscountPrice': product.PRDDiscountPrice,
-                        'product_image': str(product.product_image),
-                        'product_images': product_images,  # Toutes les images
-                        'PRDSlug': product.PRDSlug,
-                        'view_count': getattr(product, 'view_count', 0),
-                        'like_count': getattr(product, 'like_count', 0),
-                        'is_peer_to_peer': False,
-                    }
-                    products.append(product_dict)
-                
-                # Ajouter les articles C2C approuvés de cette catégorie
-                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
-                products.extend(peer_products)
-                
-                # Ajouter le flag is_boosted et trier avec priorité aux boostés
-                products = add_boost_flag_to_products(products)
-                products = sort_products_with_boost_priority(products, orderd_by)
-                
-                try:
-                    products_size = len(Product.objects.all().filter(product_supercategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
-                    try:
-                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_supercategory_id=int(CAT_id)))
-                        products_size += peer_size
-                    except (OperationalError, AttributeError):
-                        pass
-                except:
-                    products_size = len(products)
-            elif CAT_type == "main":
-                try:
-                    products_queryset = Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
-                        like_count=Count('favorites')
-                    ).order_by(orderd_by)[lower:upper]
-                except:
-                    products_queryset = Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).order_by(orderd_by)[lower:upper]
-                
-                products = []
-                for product in products_queryset:
-                    # Collecter toutes les images du produit
-                    product_images = [str(product.product_image)] if product.product_image else []
-                    if product.additional_image_1:
-                        product_images.append(str(product.additional_image_1))
-                    if product.additional_image_2:
-                        product_images.append(str(product.additional_image_2))
-                    if product.additional_image_3:
-                        product_images.append(str(product.additional_image_3))
-                    if product.additional_image_4:
-                        product_images.append(str(product.additional_image_4))
-                    
-                    product_dict = {
-                        'id': product.id,
-                        'product_name': product.product_name,
-                        'PRDPrice': product.PRDPrice,
-                        'PRDDiscountPrice': product.PRDDiscountPrice,
-                        'product_image': str(product.product_image),
-                        'product_images': product_images,  # Toutes les images
-                        'PRDSlug': product.PRDSlug,
-                        'view_count': getattr(product, 'view_count', 0),
-                        'like_count': getattr(product, 'like_count', 0),
-                        'is_peer_to_peer': False,
-                    }
-                    products.append(product_dict)
-                
-                # Ajouter les articles C2C approuvés de cette catégorie
-                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
-                products.extend(peer_products)
-                
-                # Ajouter le flag is_boosted et trier avec priorité aux boostés
-                products = add_boost_flag_to_products(products)
-                products = sort_products_with_boost_priority(products, orderd_by)
-                
-                try:
-                    products_size = len(Product.objects.all().filter(product_maincategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
-                    try:
-                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_maincategory_id=int(CAT_id)))
-                        products_size += peer_size
-                    except (OperationalError, AttributeError):
-                        pass
-                except:
-                    products_size = len(products)
-            elif CAT_type == "sub":
-                try:
-                    products_queryset = Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
-                        like_count=Count('favorites')
-                    ).order_by(orderd_by)[lower:upper]
-                except:
-                    products_queryset = Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).order_by(orderd_by)[lower:upper]
-                
-                products = []
-                for product in products_queryset:
-                    # Collecter toutes les images du produit
-                    product_images = [str(product.product_image)] if product.product_image else []
-                    if product.additional_image_1:
-                        product_images.append(str(product.additional_image_1))
-                    if product.additional_image_2:
-                        product_images.append(str(product.additional_image_2))
-                    if product.additional_image_3:
-                        product_images.append(str(product.additional_image_3))
-                    if product.additional_image_4:
-                        product_images.append(str(product.additional_image_4))
-                    
-                    product_dict = {
-                        'id': product.id,
-                        'product_name': product.product_name,
-                        'PRDPrice': product.PRDPrice,
-                        'PRDDiscountPrice': product.PRDDiscountPrice,
-                        'product_image': str(product.product_image),
-                        'product_images': product_images,  # Toutes les images
-                        'PRDSlug': product.PRDSlug,
-                        'view_count': getattr(product, 'view_count', 0),
-                        'like_count': getattr(product, 'like_count', 0),
-                        'is_peer_to_peer': False,
-                    }
-                    products.append(product_dict)
-                
-                # Ajouter les articles C2C approuvés de cette catégorie
-                peer_products = get_peer_to_peer_products(CAT_type, CAT_id, orderd_by, lower, upper)
-                products.extend(peer_products)
-                
-                # Ajouter le flag is_boosted et trier avec priorité aux boostés
-                products = add_boost_flag_to_products(products)
-                products = sort_products_with_boost_priority(products, orderd_by)
-                
-                try:
-                    products_size = len(Product.objects.all().filter(product_subcategory=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
-                    try:
-                        peer_size = len(PeerToPeerProduct.objects.filter(status=PeerToPeerProduct.APPROVED, product_subcategory_id=int(CAT_id)))
-                        products_size += peer_size
-                    except (OperationalError, AttributeError):
-                        pass
-                except:
-                    products_size = len(products)
-
-            else:
-                try:
-                    products_queryset = Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).annotate(
-                        like_count=Count('favorites')
-                    ).order_by(orderd_by)[lower:upper]
-                except:
-                    products_queryset = Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ).order_by(orderd_by)[lower:upper]
-                
-                products = []
-                for product in products_queryset:
-                    # Collecter toutes les images du produit
-                    product_images = [str(product.product_image)] if product.product_image else []
-                    if product.additional_image_1:
-                        product_images.append(str(product.additional_image_1))
-                    if product.additional_image_2:
-                        product_images.append(str(product.additional_image_2))
-                    if product.additional_image_3:
-                        product_images.append(str(product.additional_image_3))
-                    if product.additional_image_4:
-                        product_images.append(str(product.additional_image_4))
-                    
-                    product_dict = {
-                        'id': product.id,
-                        'product_name': product.product_name,
-                        'PRDPrice': product.PRDPrice,
-                        'PRDDiscountPrice': product.PRDDiscountPrice,
-                        'product_image': str(product.product_image),
-                        'product_images': product_images,  # Toutes les images
-                        'PRDSlug': product.PRDSlug,
-                        'view_count': getattr(product, 'view_count', 0),
-                        'like_count': getattr(product, 'like_count', 0),
-                        'is_peer_to_peer': False,
-                    }
-                    products.append(product_dict)
-                
-                # Pour les mini catégories, on n'inclut pas les articles C2C car ils n'ont pas de mini catégorie
-                try:
-                    products_size = len(Product.objects.all().filter(product_minicategor=int(CAT_id), PRDISDeleted = False , PRDISactive = True ))
-                except:
-                    products_size = len(products)
-
-            max_size = True if upper >= products_size else False
-            return JsonResponse({"data": products, "max": max_size, "products_size": products_size, }, safe=False)
-"""
 
 
 class ProductListHTMXView(View):
@@ -594,7 +320,7 @@ class ProductListHTMXView(View):
         if cat_type and cat_id:
             try:
                 cat_id_int = int(cat_id)
-                print(f"DEBUG get_queryset - cat_type: '{cat_type}', cat_id_int: {cat_id_int}")
+                logger.debug("get_queryset - cat_type: '%s', cat_id_int: %s", cat_type, cat_id_int)
                 if cat_type == "super":
                     base_filter['product_supercategory'] = cat_id_int
                 elif cat_type == "main":
@@ -603,10 +329,10 @@ class ProductListHTMXView(View):
                     base_filter['product_subcategory'] = cat_id_int
                 elif cat_type == "mini":
                     base_filter['product_minicategor'] = cat_id_int
-                print(f"DEBUG get_queryset - base_filter: {base_filter}")
+                logger.debug("get_queryset - base_filter: %s", base_filter)
             except (ValueError, TypeError) as e:
                 # Si cat_id n'est pas un entier valide, ignorer le filtre
-                print(f"DEBUG get_queryset - Erreur conversion cat_id: {e}, cat_id reçu: '{cat_id}'")
+                logger.debug("get_queryset - Erreur conversion cat_id: %s, cat_id reçu: '%s'", e, cat_id)
                 pass
         
         # Construire le queryset avec annotation pour like_count et select_related pour le lieu (product_vendor)
@@ -614,12 +340,11 @@ class ProductListHTMXView(View):
             queryset = Product.objects.filter(**base_filter).select_related('product_vendor').annotate(
                 like_count=Count('favorites')
             ).order_by(order_by)
-            print(f"DEBUG get_queryset - queryset count: {queryset.count()}")
+            logger.debug("get_queryset - queryset count: %s", queryset.count())
         except Exception as e:
-            # Si la table favorites n'existe pas encore
-            print(f"DEBUG get_queryset - Exception avec favorites: {e}")
+            logger.debug("get_queryset - Exception avec favorites: %s", e)
             queryset = Product.objects.filter(**base_filter).select_related('product_vendor').order_by(order_by)
-            print(f"DEBUG get_queryset - queryset count (sans favorites): {queryset.count()}")
+            logger.debug("get_queryset - queryset count (sans favorites): %s", queryset.count())
         
         return queryset
     
@@ -659,7 +384,7 @@ class ProductListHTMXView(View):
             return PeerToPeerProduct.objects.none()
     
     def get(self, request, *args, **kwargs):
-        # Récupérer les paramètres
+        """Retourne un fragment HTML de produits paginés pour scroll infini HTMX."""
         page = int(request.GET.get('page', 1))
         order_by = request.GET.get('order_by', '-date')
         cat_type = request.GET.get('cat_type', 'all')
@@ -667,14 +392,14 @@ class ProductListHTMXView(View):
         product_type = request.GET.get('product_type', 'all')  # 'all', 'shop', 'peer'
         
         # Debug: imprimer les paramètres reçus
-        print(f"DEBUG ProductListHTMXView - cat_type: '{cat_type}', cat_id: '{cat_id}', order_by: '{order_by}', page: {page}")
+        logger.debug("ProductListHTMXView - cat_type: '%s', cat_id: '%s', order_by: '%s', page: %s", cat_type, cat_id, order_by, page)
         
         # Construire le queryset pour les produits de magasin
         shop_queryset = None
         if product_type in ['all', 'shop']:
             # Si cat_type est "all" ou vide, ou si cat_id est vide, récupérer tous les produits
             if cat_type == "all" or not cat_type or (cat_id == '' or cat_id is None):
-                print(f"DEBUG - Récupération de tous les produits (cat_type='{cat_type}', cat_id='{cat_id}')")
+                logger.debug("Récupération de tous les produits (cat_type='%s', cat_id='%s')", cat_type, cat_id)
                 try:
                     shop_queryset = Product.objects.filter(
                         PRDISDeleted=False, 
@@ -682,16 +407,16 @@ class ProductListHTMXView(View):
                     ).select_related('product_vendor').annotate(
                         like_count=Count('favorites')
                     ).order_by(order_by)
-                except:
+                except Exception:
                     shop_queryset = Product.objects.filter(
                         PRDISDeleted=False, 
                         PRDISactive=True
                     ).select_related('product_vendor').order_by(order_by)
             else:
                 # Filtrer par catégorie
-                print(f"DEBUG - Filtrage par catégorie (cat_type='{cat_type}', cat_id='{cat_id}')")
+                logger.debug("Filtrage par catégorie (cat_type='%s', cat_id='%s')", cat_type, cat_id)
                 shop_queryset = self.get_queryset(cat_type, cat_id, order_by)
-                print(f"DEBUG shop_queryset count after get_queryset: {shop_queryset.count() if shop_queryset else 0}")
+                logger.debug("shop_queryset count after get_queryset: %s", shop_queryset.count() if shop_queryset else 0)
         else:
             shop_queryset = Product.objects.none()
         
@@ -700,7 +425,7 @@ class ProductListHTMXView(View):
         if product_type in ['all', 'peer']:
             try:
                 peer_queryset = self.get_peer_to_peer_queryset(cat_type, cat_id, order_by)
-            except:
+            except Exception:
                 peer_queryset = PeerToPeerProduct.objects.none()
         else:
             peer_queryset = PeerToPeerProduct.objects.none()

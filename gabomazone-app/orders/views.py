@@ -9,7 +9,6 @@ from accounts.models import Profile
 from settings.models import SiteSetting, ContactInfo
 from urllib.parse import quote
 import re
-# from django.contrib.messages.storage import session
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -18,9 +17,11 @@ from django.http import HttpResponseRedirect
 from django.views import View
 from django.views.decorators.http import require_http_methods
 import datetime
-# from django_countries import countries as allcountries  # Plus utilisé, on travaille uniquement au Gabon
 from .utils import code_generator
 from django.db.models import Sum
+import logging
+
+logger = logging.getLogger(__name__)
 
 ts = datetime.datetime.now().timestamp()
 time = round(ts * 1000)
@@ -56,14 +57,16 @@ def safe_decimal_price(price_value, max_digits=10, decimal_places=2):
             context = Context(prec=28, rounding='ROUND_HALF_UP')
             return decimal_value.quantize(quantize_value, context=context)
     except (ValueError, TypeError, InvalidOperation) as e:
-        print(f"Erreur dans safe_decimal_price: {e}, valeur: {price_value}")
+        logger.warning("Erreur dans safe_decimal_price: %s, valeur: %s", e, price_value)
         # En cas d'erreur, retourner 0 plutôt que de planter
         return Decimal('0')
 
 
 @login_required(login_url='accounts:login')
 def add_to_cart(request):
+    """Add a product (B2B or C2C) to the user's cart."""
     try:
+        logger.info("add_to_cart called by user=%s method=%s", request.user, request.method)
         if not request.session.has_key('currency'):
             request.session['currency'] = settings.DEFAULT_CURRENCY
 
@@ -81,7 +84,7 @@ def add_to_cart(request):
             size = None
             try:
                 size = request.POST['name_variation']
-            except:
+            except Exception:
                 size = None
 
             # Vérifier si c'est un article C2C
@@ -156,10 +159,10 @@ def add_to_cart(request):
                 # Utilisateur doit être authentifié (décorateur @login_required)
                 order = Order.objects.filter(
                     user=request.user, is_finished=False).first()
-                print("order: ", order)
+                logger.debug("order: %s", order)
 
             except Exception as e:
-                print(f"Erreur lors de la récupération de la commande: {e}")
+                logger.warning("Erreur lors de la récupération de la commande: %s", e)
                 order = None
 
             # Vérifier que le produit existe (normal ou C2C)
@@ -178,9 +181,6 @@ def add_to_cart(request):
                     if is_ajax:
                         return JsonResponse({'success': False, 'error': 'Erreur: Commande non trouvée'}, status=400)
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-                # old_orde_supplier = OrderSupplier.objects.get(
-                #     user=request.user, is_finished=False, order=old_orde)
-                # print("old_orde_supplier:", old_orde_supplier)
                 # Chercher l'item dans OrderDetails (produit normal ou C2C)
                 if is_peer_to_peer:
                     item = OrderDetails.objects.filter(order=old_orde, peer_product=peer_product).first()
@@ -220,12 +220,9 @@ def add_to_cart(request):
                     else:
                         # Si le produit n'a pas de vendeur ou c'est un article C2C, on ne crée pas OrderDetailsSupplier
                         item_supplier = None
-                    # for i in items:
                     # Vérifier le stock seulement pour les produits normaux
                     if not is_peer_to_peer and product and item.quantity >= product.available:
                         qyt = item.quantity
-                        # i.quantity = int(qyt)
-                        # i.save()
                         if is_ajax:
                             return JsonResponse({'success': False, 'error': f"Vous ne pouvez pas ajouter plus de ce produit, disponible seulement : {qyt}"}, status=400)
                         messages.warning(
@@ -297,7 +294,7 @@ def add_to_cart(request):
                                     try:
                                         item_supplier.order_supplier = old_order_supplier
                                         item_supplier.save()
-                                    except:
+                                    except Exception:
                                         pass
                                 # Calculer le total
                                 order_supplier = OrderDetailsSupplier.objects.all().filter(
@@ -321,22 +318,8 @@ def add_to_cart(request):
                                 messages.error(request, f'Erreur lors de la mise à jour: {str(e)}')
                                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-                    # if i.size != size:
-                    #     order_details = OrderDetails.objects.create(
-                    #         supplier=product.product_vendor.user,
-                    #         product=product,
-                    #         order=old_orde,
-                    #         price=product.PRDPrice,
-                    #         quantity=qyt,
-                    #         size=size,
-                    #         weight=product.PRDWeight
-
-                    #     )
-                    #     break
-
                     else:
                         item.quantity = int(qyt)
-                        # i.supplier = product.product_vendor.user
                         item.save()
                         # Vérifier si item_supplier existe avant de le mettre à jour - seulement si le produit a un vendeur (pas pour les articles C2C)
                         if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
@@ -452,7 +435,6 @@ def add_to_cart(request):
                         
                         # Retourner une réponse JSON pour AJAX
                         if is_ajax:
-                            from django.db.models import Sum
                             cart_count = OrderDetails.objects.filter(order=old_orde).aggregate(total=Sum('quantity'))['total'] or 0
                             return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -577,12 +559,11 @@ def add_to_cart(request):
                             new_order_supplier.save()
 
                 messages.success(request, 'Produit ajouté au panier avec succès !')
-                # return redirect('orders:cart')
                 if is_ajax:
                     # Compter les articles dans le panier
                     try:
                         cart_count = OrderDetails.objects.filter(order=old_orde).count()
-                    except:
+                    except Exception:
                         cart_count = 0
                     return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -595,9 +576,6 @@ def add_to_cart(request):
                     new_order.email_client = request.user.email
 
                 new_order.save()
-                # will edite
-                # new_order.supplier = product.product_vendor.user
-                # new_order.vendors.add(product.product_vendor)
 
                 # order for supllier - seulement si le produit a un vendeur (pas pour les articles C2C)
                 if not is_peer_to_peer and product and hasattr(product, 'product_vendor') and product.product_vendor:
@@ -684,12 +662,11 @@ def add_to_cart(request):
                     new_order_supplier.save()
                 request.session['cart_id'] = new_order.id
                 messages.success(request, 'Produit ajouté au panier avec succès !')
-                # return redirect('orders:cart')
                 if is_ajax:
                     # Compter les articles dans le panier
                     try:
                         cart_count = OrderDetails.objects.filter(order=new_order).count()
-                    except:
+                    except Exception:
                         cart_count = 0
                     return JsonResponse({'success': True, 'message': 'Produit ajouté au panier avec succès !', 'cart_count': cart_count})
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -705,19 +682,13 @@ def add_to_cart(request):
         messages.error(request, 'Produit non trouvé !')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     except InvalidOperation as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        print(f"Erreur Decimal dans add_to_cart: {str(e)}")
-        print(f"Traceback: {error_trace}")
+        logger.exception("Erreur Decimal dans add_to_cart")
         if is_ajax:
             return JsonResponse({'success': False, 'error': 'Erreur de calcul lors de l\'ajout au panier. Veuillez réessayer.'}, status=500)
         messages.error(request, 'Erreur de calcul lors de l\'ajout au panier. Veuillez réessayer.')
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        print(f"Erreur dans add_to_cart: {str(e)}")
-        print(f"Traceback: {error_trace}")
+        logger.exception("Erreur dans add_to_cart")
         if is_ajax:
             return JsonResponse({'success': False, 'error': f'Erreur lors de l\'ajout au panier: {str(e)}'}, status=500)
         messages.error(request, f'Erreur lors de l\'ajout au panier: {str(e)}')
@@ -726,6 +697,8 @@ def add_to_cart(request):
 
 @login_required(login_url='accounts:login')
 def cart(request):
+    """Display the shopping cart page."""
+    logger.debug("cart view user=%s", request.user)
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
@@ -744,7 +717,6 @@ def cart(request):
             messages.warning(
                 request, 'Le code de réduction n\'est pas disponible ou a expiré')
             request.session['coupon_id'] = None
-            # request.session['code'] = None
         return redirect('orders:cart')
 
     context = None
@@ -764,7 +736,7 @@ def cart(request):
         try:
             blance = Profile.objects.get(user=request.user).blance
 
-        except:
+        except Exception:
             blance = 0
 
         if request.user.is_authenticated and not request.user.is_anonymous:
@@ -798,9 +770,6 @@ def cart(request):
                 discount = Coupon.objects.get(id=coupon_id).discount
                 value = (discount / Decimal("100")) * f_total
                 total = f_total-value
-                # print(total)
-
-                # order = Order.objects.all().filter(user=request.user, is_finished=False)
                 if order:
                     if request.user.is_authenticated and not request.user.is_anonymous:
                         old_orde = Order.objects.get(
@@ -812,16 +781,10 @@ def cart(request):
                     old_orde.amount = total
                     old_orde.discount = value
                     old_orde.sub_total = f_total
-                    # old_orde = weight
                     old_orde.coupon = Coupon.objects.get(id=coupon_id)
                     old_orde.save()
 
-            # else:
-            #     total = f_total
-            #     coupon_id = None
         else:
-            # total = f_total
-            # coupon_id = None
             # Utilisateur doit être authentifié (décorateur @login_required)
             old_orde = Order.objects.get(
                 user=request.user, is_finished=False)
@@ -830,15 +793,7 @@ def cart(request):
             old_orde.sub_total = f_total
             old_orde.weight = weight
             old_orde.coupon = None
-            # if request.user.is_authenticated and not request.user.is_anonymous:
-            #     old_orde.user = request.user
-            #     old_orde.email_client = request.user.email
             old_orde.save()
-
-            # print(total)
-
-        # if "coupon_id" in request.session.keys():
-        #     del request.session["coupon_id"]
 
         # Récupérer le profil utilisateur pour pré-remplir le formulaire
         profile = None
@@ -858,7 +813,6 @@ def cart(request):
             "code": code,
             "blance": blance,
             "provinces": provinces,
-            # "states": states,
             "weight": weight,
             "profile": profile,
             "has_peer_products": has_peer_products,
@@ -882,7 +836,10 @@ def cart(request):
 
 
 class StatesJsonListView(View):
+    """Return the list of provinces (states) as JSON for the Gabon-only checkout."""
+
     def get(self, *args, **kwargs):
+        """Handle GET request and return provinces as a JSON list."""
         # Pays fixé au Gabon uniquement
         country = 'GA'  # Code ISO du Gabon
 
@@ -892,10 +849,11 @@ class StatesJsonListView(View):
         states = [province.name_province for province in provinces]
 
         return JsonResponse({"success": True, "data": states}, safe=False)
-        # return JsonResponse({"success": False, }, safe=False)
 
 
 def remove_item(request, productdeatails_id):
+    """Remove a single item from the cart and recalculate totals."""
+    logger.info("remove_item id=%s user=%s", productdeatails_id, request.user)
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
@@ -913,7 +871,7 @@ def remove_item(request, productdeatails_id):
                     del request.session["coupon_id"]
                 messages.warning(request, 'Panier vidé')
                 return redirect('orders:cart')
-            except:
+            except Exception:
                 messages.warning(request, 'Produit supprimé du panier')
                 return redirect('orders:cart')
         else:
@@ -971,7 +929,7 @@ def remove_item(request, productdeatails_id):
                 item_id.delete()
                 messages.warning(request, 'Produit supprimé du panier')
                 return redirect('orders:cart')
-    except:
+    except Exception:
         messages.warning(request, "Vous ne pouvez pas supprimer ce produit !")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -988,12 +946,11 @@ def payment(request):
     context = None
     try:
         shipping = SiteSetting.objects.all().first().shipping
-    except:
+    except Exception:
         shipping = 0
     if shipping is None:
         shipping = 0
 
-    # if "vodafone_cash" in request.POST and "pubg_username" in request.POST and "pubg_id" in request.POST and "notes" in request.POST and request.user.is_authenticated and not request.user.is_anonymous:
     if request.method == 'POST':
 
         first_name = request.POST['first_name']
@@ -1028,9 +985,6 @@ def payment(request):
         # Configuration pour le Gabon uniquement
         product_group = "DOM"
         product_type = "OND"
-        # country_obj = Country.objects.get(
-        #     country_code=country)
-        # country_code = country_obj.country_code
         # Utilisateur doit être authentifié (décorateur @login_required)
         order = Order.objects.filter(
             user=request.user, is_finished=False).first()
@@ -1054,7 +1008,7 @@ def payment(request):
                 if Payment.objects.all().filter(order=old_orde):
                     payment_info = Payment.objects.get(order=old_orde)
                     payment_info.delete()
-            except:
+            except Exception:
                 pass
             order_payment = Payment.objects.create(
                 order=old_orde,
@@ -1070,9 +1024,6 @@ def payment(request):
                 phone=phone,
                 payment_method='Cash on Delivery',  # Par défaut, sera mis à jour si SingPay est sélectionné
             )
-            # old_orde.is_finished = True
-            # old_orde.status = "جارى التنفيذ"
-            # old_orde.save()
 
             if "coupon_id" in request.session.keys():
                 del request.session["coupon_id"]
@@ -1104,6 +1055,7 @@ def payment(request):
 
 
 def payment_blance(request):
+    """Process payment using the user's account balance."""
     if not request.user.is_authenticated and request.user.is_anonymous:
         return redirect('accounts:login')
 
@@ -1114,18 +1066,11 @@ def payment_blance(request):
         try:
             Consignee_id = old_orde.user.id
             Consignee_email = old_orde.user.email
-        except:
+        except Exception:
             pass
 
         profile = Profile.objects.get(user=request.user)
         if float(old_orde.amount) <= float(profile.blance):
-            # print(f"{old_orde.amount} - {profile.blance}")
-
-            # order_payment = Payment.objects.create(
-
-            #     order=old_orde,
-            #     by_blance=True
-            # )
             payment_method = Payment.objects.get(order=old_orde)
             payment_method.payment_method = "Blance"
             payment_method.save()
@@ -1142,16 +1087,6 @@ def payment_blance(request):
             obj_order_suppliers = OrderSupplier.objects.all().filter(
                 user=request.user,  order=old_orde)
             for obj_order_supplier in obj_order_suppliers:
-                # order_details__supplier = OrderDetailsSupplier.objects.all().filter(
-                #     order_supplier=obj_order_supplier, order=old_orde)
-                # f_total = 0
-                # w_total = 0
-                # weight = 0
-                # for sub in order_details__supplier:
-                #     f_total += sub.price * sub.quantity
-                #     w_total += sub.weight * sub.quantity
-                #     total = f_total
-                #     weight = w_total
                 supplier = Profile.objects.get(id=obj_order_supplier.vendor.id)
                 supplier.blance = float(
                     supplier.blance) + float(obj_order_supplier.amount)
@@ -1159,8 +1094,6 @@ def payment_blance(request):
 
             if "coupon_id" in request.session.keys():
                 del request.session["coupon_id"]
-            # messages.success(
-            #     request, ' Great, you have completed your purchase, we will work to complete your order from our side')
 
             return redirect("orders:success")
         else:
@@ -1294,6 +1227,7 @@ def verify_b2c_seller_code(request, order_id):
 
 
 def success(request):
+    """Display the order-success / confirmation page after checkout."""
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
 
@@ -1301,9 +1235,9 @@ def success(request):
         try:
             order_id = request.session['cart_id']
 
-        except:
+        except Exception:
             order_id = request.session.get("order_id")
-    except:
+    except Exception:
         pass
 
     order = Order.objects.all().filter(id=order_id, is_finished=True)
@@ -1356,6 +1290,8 @@ def success(request):
 
 
 class CancelView(TemplateView):
+    """Display the order-cancellation page."""
+
     template_name = "orders/cancel.html"
 
 
@@ -1365,10 +1301,7 @@ def invoice_print(request, order_id):
     Vue pour afficher la facture imprimable avec le nouveau design
     Supporte l'export PDF via le paramètre ?format=pdf
     """
-    from django.shortcuts import get_object_or_404
-    from orders.models import Payment
     from payments.models import SingPayTransaction
-    from settings.models import SiteSetting, ContactInfo
     
     # Vérifier que la commande appartient à l'utilisateur
     order = get_object_or_404(
@@ -1382,10 +1315,9 @@ def invoice_print(request, order_id):
     is_vendor = False
     if hasattr(order, 'ordersupplier'):
         try:
-            from accounts.models import Profile
             vendor_profile = Profile.objects.get(user=request.user)
             is_vendor = order.ordersupplier.vendor == vendor_profile
-        except:
+        except Exception:
             pass
     
     if not is_admin and not is_vendor and order.user != request.user and order.email_client != request.user.email:
@@ -1399,14 +1331,14 @@ def invoice_print(request, order_id):
     payment_info = None
     try:
         payment_info = Payment.objects.filter(order=order).first()
-    except:
+    except Exception:
         pass
     
     # Récupérer la transaction SingPay si elle existe
     transaction = None
     try:
         transaction = SingPayTransaction.objects.filter(order=order).first()
-    except:
+    except Exception:
         pass
     
     # Récupérer les informations du site
@@ -1427,7 +1359,6 @@ def invoice_print(request, order_id):
         try:
             from weasyprint import HTML, CSS
             from django.template.loader import render_to_string
-            from django.http import HttpResponse
             import io
             
             # Ajouter un flag pour forcer le design desktop dans le PDF

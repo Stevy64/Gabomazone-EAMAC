@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{%block head%}
+{% block head %}
 {{ block.super }}
 <style>
 #preloader-active { display: none !important; opacity: 0 !important; visibility: hidden !important; }
 </style>
-{%endblock head%}
+{% endblock head %}
 
-{%block body%}
-<main class="main pages" style="padding-top: 80px; padding-bottom: 80px; min-height: 100vh; background: #FAFAFA;">
+{% block body %}
+<main class="main pages gm-s-4d3479" >
 
     <!-- ===== Page Header (like Categories page) ===== -->
     <div class="gm-page-bar">
@@ -24,7 +24,7 @@
     <div class="gm-page-search-wrap">
         <div class="gm-page-search">
             <i class="fi-rs-search"></i>
-            <form action="{% url 'products:product-search'%}" method="post" style="display:contents;">
+            <form action="{% url 'products:product-search'%}" method="post" class="gm-s-0d2168">
                 {% csrf_token %}
                 <input type="text" name="search-product" placeholder="Rechercher un produit..." autocomplete="off" required />
             </form>
@@ -75,15 +75,15 @@
             </a>
             {% for super in supercategory|slice:":12"%}
             <a href="#" class="gm-cat-chip" data-cat-type="super" data-cat-id="{{super.id}}" data-cat-slug="{{super.slug}}">
-                {%if super.category_image%}
+                {%if super.category_image %}
                 <img src="{{super.category_image.url}}" alt="{{super.name}}" />
-                {%else%}
+                {%else %}
                 <span class="gm-cat-chip-letter">{{super.name|first|upper}}</span>
-                {%endif%}
+                {%endif %}
                 {{super.name}}
             </a>
             {% empty %}
-            <span style="color: #9CA3AF; font-size: 13px; grid-column: 1/-1; text-align: center; padding: 16px;">Aucune catégorie</span>
+            <span class="gm-s-7fdef5">Aucune catégorie</span>
             {% endfor %}
         </div>
     </div>
@@ -103,22 +103,22 @@
              hx-indicator="#loading-indicator">
         </div>
 
-        <div id="spinner-box" class="not-visible" style="text-align: center; padding: 40px;">
-            <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
-            <p style="margin-top: 12px; color: #6B7280; font-size: 13px;">Chargement...</p>
+        <div id="spinner-box" class="not-visible gm-s-9fcb89" >
+            <div class="flavoriz-spinner gm-s-accd61" ></div>
+            <p class="gm-s-5132a2">Chargement...</p>
         </div>
-        <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px;">
-            <i class="fi-rs-shopping-bag" style="font-size: 48px; color: #D1D5DB; margin-bottom: 12px;"></i>
-            <p style="font-size: 15px; font-weight: 600; color: #6B7280; margin: 0;">Aucun produit disponible</p>
+        <div id="empty-box" class="not-visible gm-s-abddf3" >
+            <i class="fi-rs-shopping-bag gm-s-88b4b5" ></i>
+            <p class="gm-s-1eccdf">Aucun produit disponible</p>
         </div>
-        <div id="loading-indicator" class="htmx-indicator" style="text-align: center; padding: 24px; display: none;">
-            <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
+        <div id="loading-indicator" class="htmx-indicator gm-s-d43d70" >
+            <div class="flavoriz-spinner gm-s-accd61" ></div>
         </div>
     </div>
 </main>
-{%endblock body%}
+{% endblock body %}
 
-{%block script%}
+{% block script %}
 {{ block.super }}
 <script>
 (function() {
@@ -177,4 +177,4 @@ $(document).ready(function() {
     });
 });
 </script>
-{%endblock script%}
+{% endblock script %}

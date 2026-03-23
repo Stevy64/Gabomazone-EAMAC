@@ -1,0 +1,79 @@
+
+
+/* === Extracted inline styles === */
+
+.gm-s-ac224a {
+    padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;
+}
+
+.gm-s-a70309 {
+    cursor: zoom-in;
+}
+
+.gm-s-74c6b3 {
+    margin-bottom: 12px; vertical-align: middle;
+}
+
+.gm-s-64f94f {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;
+}
+
+.gm-s-ad36f0 {
+    flex: 1; min-width: 0; margin: 0;
+}
+
+.gm-s-27dc97 {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+
+.gm-s-1dedb0 {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+}
+
+.gm-s-646536 {
+    color: var(--color-orange); font-size: 13px;
+}
+
+.gm-s-1e849f {
+    font-size: 14px; color: #6B7280;
+}
+
+.gm-s-01d3be {
+    background: none; border: none; padding: 0; color: inherit; font-weight: 700; font-size: 18px; cursor: pointer; text-align: left;
+}
+
+.gm-s-beab58 {
+    font-size: 16px;
+}
+
+.gm-s-dcd4f1 {
+    font-size: 14px; color: var(--color-orange); margin-right: 4px;
+}
+
+.gm-s-cb1afc {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;
+}
+
+.gm-s-5d42fd {
+    cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;
+}
+
+.gm-s-f77169 {
+    position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;
+}
+
+.gm-s-343494 {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+}
+
+.gm-s-529591 {
+    font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.gm-s-8036ab {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;
+}
+
+.gm-s-43b675 {
+    font-size: 18px; font-weight: 700; color: var(--color-orange);
+}

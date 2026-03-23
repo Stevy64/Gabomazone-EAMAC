@@ -3,87 +3,74 @@
 
 {% block head %}
 {{ block.super }}
-<style>
-    #preloader-active { display: none !important; opacity: 0 !important; visibility: hidden !important; }
-    body > header.flavoriz-header:not(:first-of-type),
-    .flavoriz-header ~ .flavoriz-header,
-    header.flavoriz-header + header.flavoriz-header {
-        display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important;
-        margin: 0 !important; padding: 0 !important; opacity: 0 !important;
-    }
-    .flavoriz-header {
-        position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
-        z-index: 9999 !important; display: block !important; visibility: visible !important;
-        opacity: 1 !important; transform: translateY(0) !important;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/category-list.css' %}?v=1.0" />
 {% endblock head %}
 
 {% block body %}
 <!-- ===== Page Catégories style Template ===== -->
-<main class="main pages" style="padding-top: 80px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: #FAFAFA;">
-    <div class="category-page-container" style="max-width: 100%; margin: 0 auto; padding: 0;">
+<main class="main pages gm-s-ac87a2" >
+    <div class="category-page-container gm-s-5aa431" >
         <!-- Header avec retour et titre -->
-        <div class="category-header" style="background: #fff; padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; margin-bottom: 0;">
-            <a href="{% url 'home:index' %}" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; text-decoration: none; color: #1F2937; font-size: 20px;">
+        <div class="category-header gm-s-deddd2" >
+            <a href="{% url 'home:index' %}" class="gm-s-aa4479">
                 <i class="fi-rs-arrow-left"></i>
             </a>
-            <h1 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0; flex: 1; text-align: center;">
+            <h1 class="gm-s-6d05a4">
                 Catégories
             </h1>
             <div style="width: 40px;"></div>
         </div>
 
         <!-- Barre de recherche -->
-        <div style="padding: 16px 20px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: center;">
-            <div class="category-search-bar" style="position: relative; width: 100%; max-width: 500px;">
-                <i class="fi-rs-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9CA3AF; font-size: 18px; z-index: 1;"></i>
-                <input type="text" id="category-search-input" placeholder="Rechercher une catégorie..." style="width: 100%; padding: 12px 16px 12px 48px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 15px; background: #FAFAFA; color: #1F2937; outline: none; transition: all 0.2s;">
+        <div class="gm-s-57afde">
+            <div class="category-search-bar gm-s-37054c" >
+                <i class="fi-rs-search gm-s-5705cb" ></i>
+                <input type="text" id="category-search-input" placeholder="Rechercher une catégorie..." class="gm-s-b8cc22">
             </div>
         </div>
 
         <!-- Section Toutes catégories -->
-        <div style="padding: 20px; background: #FAFAFA;">
-            <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">
+        <div class="gm-s-8dd3c9">
+            <h2 class="gm-s-6c84dc">
                 Toutes catégories
             </h2>
 
             <!-- Grille de catégories (2 colonnes) -->
             {% if super_categories_data %}
-            <div class="categories-grid" id="categories-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            <div class="categories-grid" id="categories-grid" class="gm-s-31a0d2">
                 {% for data in super_categories_data %}
                 {% with super=data.super %}
-                <a href="{% url 'categories:super-category' super.slug %}" class="category-card" data-category-name="{{ super.name|lower }}" style="display: block; background: #fff; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <a href="{% url 'categories:super-category' super.slug %}" class="category-card" data-category-name="{{ super.name|lower }}" class="gm-s-896442">
                     <!-- Image de la catégorie -->
-                    <div class="category-card-image" style="width: 100%; height: 140px; overflow: hidden; background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%); position: relative;">
+                    <div class="category-card-image gm-s-23df80" >
                         {% if super.category_image %}
-                        <img src="{{ super.category_image.url }}" alt="{{ super.name }}" style="width: 100%; height: 100%; object-fit: cover;" />
+                        <img src="{{ super.category_image.url }}" alt="{{ super.name }}" class="gm-s-7d1fae" />
                         {% else %}
-                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div class="gm-s-561113">
                             {% if "électronique" in super.name|lower or "electronique" in super.name|lower or "tech" in super.name|lower or "informatique" in super.name|lower %}
-                            <i class="fi-rs-laptop" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-laptop gm-s-607eaf" ></i>
                             {% elif "mode" in super.name|lower or "vêtement" in super.name|lower or "vetement" in super.name|lower or "fashion" in super.name|lower %}
-                            <i class="fi-rs-shopping-bag" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-shopping-bag gm-s-607eaf" ></i>
                             {% elif "immobilier" in super.name|lower or "maison" in super.name|lower or "logement" in super.name|lower %}
-                            <i class="fi-rs-building" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-building gm-s-607eaf" ></i>
                             {% elif "scolaire" in super.name|lower or "fourniture" in super.name|lower or "livre" in super.name|lower or "papeterie" in super.name|lower %}
-                            <i class="fi-rs-book" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-book gm-s-607eaf" ></i>
                             {% elif "loisir" in super.name|lower or "sport" in super.name|lower or "jeu" in super.name|lower or "musique" in super.name|lower %}
-                            <i class="fi-rs-heart" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-heart gm-s-607eaf" ></i>
                             {% elif "service" in super.name|lower or "autre" in super.name|lower or "divers" in super.name|lower %}
-                            <i class="fi-rs-briefcase" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-briefcase gm-s-607eaf" ></i>
                             {% else %}
-                            <i class="fi-rs-apps" style="font-size: 48px; color: var(--color-orange);"></i>
+                            <i class="fi-rs-apps gm-s-607eaf" ></i>
                             {% endif %}
                         </div>
                         {% endif %}
                     </div>
                     <!-- Nom et nombre d'annonces -->
                     <div style="padding: 12px;">
-                        <h3 style="font-size: 15px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0; line-height: 1.3;">
+                        <h3 class="gm-s-3dbe93">
                             {{ super.name }}
                         </h3>
-                        <p style="font-size: 12px; color: #6B7280; margin: 0;">
+                        <p class="gm-s-297460">
                             {% if super.product_count %}
                                 {{ super.product_count }} annonce{% if super.product_count > 1 %}s{% endif %}
                             {% else %}
@@ -96,124 +83,25 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="empty-state" style="text-align: center; padding: 60px 24px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06);">
-                <i class="fi-rs-apps" style="font-size: 56px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
-                <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 10px;">Aucune catégorie disponible</h2>
-                <p style="font-size: 15px; color: #6B7280; margin: 0;">Les catégories seront bientôt disponibles.</p>
+            <div class="empty-state gm-s-4b185c" >
+                <i class="fi-rs-apps gm-s-32e3da" ></i>
+                <h2 class="gm-s-32abc5">Aucune catégorie disponible</h2>
+                <p class="gm-s-f57776">Les catégories seront bientôt disponibles.</p>
             </div>
             {% endif %}
             
             <!-- Message "Aucun résultat" pour la recherche -->
-            <div id="no-results-message" style="display: none; text-align: center; padding: 60px 24px; background: #fff; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); margin-top: 20px;">
-                <i class="fi-rs-search" style="font-size: 56px; color: #D1D5DB; margin-bottom: 16px; display: block;"></i>
-                <h2 style="font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 10px;">Aucun résultat</h2>
-                <p style="font-size: 15px; color: #6B7280; margin: 0;">Aucune catégorie ne correspond à votre recherche.</p>
+            <div id="no-results-message" class="gm-s-a3976b">
+                <i class="fi-rs-search gm-s-32e3da" ></i>
+                <h2 class="gm-s-32abc5">Aucun résultat</h2>
+                <p class="gm-s-f57776">Aucune catégorie ne correspond à votre recherche.</p>
             </div>
         </div>
     </div>
 </main>
-
-<style>
-    /* Hover effect sur les cartes */
-    .category-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Focus sur la barre de recherche */
-    .category-search-bar input:focus {
-        border-color: var(--color-orange) !important;
-        background: #fff !important;
-        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1);
-    }
-
-    /* Responsive */
-    @media (min-width: 600px) {
-        .categories-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 16px !important;
-        }
-        .category-card-image {
-            height: 160px !important;
-        }
-    }
-    
-    @media (min-width: 900px) {
-        .category-page-container {
-            max-width: 1200px !important;
-            margin: 0 auto !important;
-        }
-        .categories-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 20px !important;
-        }
-        .category-card-image {
-            height: 180px !important;
-        }
-    }
-    
-    @media (max-width: 599px) {
-        .categories-grid {
-            gap: 10px !important;
-        }
-        .category-card-image {
-            height: 120px !important;
-        }
-        .category-header h1 {
-            font-size: 16px !important;
-        }
-    }
-</style>
 {% endblock body %}
 
 {% block script %}
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
-<script>
-    $(document).ready(function() {
-        // Animation au survol des cartes
-        $('.category-card').on('mouseenter', function() {
-            $(this).css('transform', 'translateY(-2px)');
-        }).on('mouseleave', function() {
-            $(this).css('transform', 'translateY(0)');
-        });
-
-        // Fonctionnalité de recherche
-        $('#category-search-input').on('input', function() {
-            const searchTerm = $(this).val().toLowerCase().trim();
-            const categoryCards = $('.category-card');
-            let visibleCount = 0;
-
-            categoryCards.each(function() {
-                const categoryName = $(this).attr('data-category-name') || '';
-                
-                if (searchTerm === '' || categoryName.includes(searchTerm)) {
-                    $(this).show();
-                    visibleCount++;
-                } else {
-                    $(this).hide();
-                }
-            });
-
-            // Afficher/masquer le message "Aucun résultat"
-            const categoriesGrid = $('#categories-grid');
-            const noResultsMessage = $('#no-results-message');
-            
-            if (visibleCount === 0 && searchTerm !== '') {
-                categoriesGrid.hide();
-                noResultsMessage.show();
-            } else {
-                categoriesGrid.show();
-                noResultsMessage.hide();
-            }
-        });
-
-        // Réinitialiser la recherche si l'utilisateur efface tout
-        $('#category-search-input').on('keyup', function() {
-            if ($(this).val() === '') {
-                $('#categories-grid').show();
-                $('#no-results-message').hide();
-            }
-        });
-    });
-</script>
+<script src="{% static 'gabomazone-client/js/pages/category-list.js' %}?v=1.0"></script>
 {% endblock script %}

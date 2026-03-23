@@ -2,89 +2,55 @@
 {% load static %}
 {% load cart_template_tags %}
 
-{%block head%}
+{% block head %}
 {{ block.super }}
-<style>
-    /* Masquer le preloader immédiatement pour cette page */
-    #preloader-active {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* S'assurer qu'il n'y a qu'un seul header et qu'il reste toujours visible */
-    body > header.flavoriz-header:not(:first-of-type),
-    body > .flavoriz-header:not(:first-of-type),
-    .flavoriz-header ~ .flavoriz-header,
-    header.flavoriz-header + header.flavoriz-header {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        opacity: 0 !important;
-    }
-    
-    /* Forcer le header à rester visible et fixe */
-    .flavoriz-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 9999 !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
-</style>
-{%endblock head%}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-search.css' %}?v=1.0">
+{% endblock head %}
 
-{%block body%}
+{% block body %}
 <!-- ===== Product Search Page FLAVORIZ Design ===== -->
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+<main class="main pages gm-s-8748cb" >
+    <div class="container gm-s-b8c14a" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Recherche</span>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Recherche</span>
         </nav>
 
         <!-- Page Header -->
-        <div style="margin-bottom: 32px; text-align: center;">
-            <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; font-family: var(--font-primary);">Recherche de produits</h1>
-            <p style="font-size: 14px; color: #6B7280; margin: 0;">Trouvez exactement ce que vous cherchez</p>
+        <div class="gm-s-094b19">
+            <h1 class="gm-s-6b667f">Recherche de produits</h1>
+            <p class="gm-s-7d59e2">Trouvez exactement ce que vous cherchez</p>
         </div>
         
         <!-- Modern Search Form -->
-        <div class="search-form-container" style="max-width: 800px; margin: 0 auto 40px;">
-            <form action="{% url 'products:product-search'%}" method="post" class="search-form" style="background: white; border-radius: 20px; padding: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border: 2px solid #F3F4F6; transition: all 0.3s ease;" onsubmit="this.style.boxShadow='0 6px 24px rgba(255, 123, 44, 0.15)'; this.style.borderColor='var(--color-orange)'">
+        <div class="search-form-container gm-s-155edb" >
+            <form action="{% url 'products:product-search'%}" method="post" class="search-form gm-s-a8a760"  onsubmit="this.style.boxShadow='0 6px 24px rgba(255, 123, 44, 0.15)'; this.style.borderColor='var(--color-orange)'">
                 {% csrf_token %}
-                <div class="search-form-row" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <div class="search-input-wrapper" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #FAFAFA; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.2s ease;">
-                        <i class="fi-rs-search" style="font-size: 18px; color: var(--color-orange); flex-shrink: 0;"></i>
+                <div class="search-form-row gm-s-99229c" >
+                    <div class="search-input-wrapper gm-s-69e0c8" >
+                        <i class="fi-rs-search gm-s-8b8d68" ></i>
                         <input name="search-product" 
                                type="text" 
                                placeholder="Rechercher un produit..." 
                                autocomplete="off" 
                                required 
                                value="{% if request.session.search_product %}{{ request.session.search_product }}{% endif %}"
-                               class="search-input"
-                               style="flex: 1; border: none; outline: none; font-size: 15px; padding: 12px 0; color: #1F2937; font-family: var(--font-secondary); background: transparent;" />
+                               class="search-input gm-s-bb11a0"
+                                />
             </div>
-                    <div class="search-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <select name="category-select" class="category-select mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; transition: all 0.2s ease; font-family: var(--font-secondary); min-width: 200px;">
+                    <div class="search-actions gm-s-c629c7" >
+                        <select name="category-select" class="category-select mySelect gm-s-49ee30" >
                             <option value="All Categories" {% if request.session.search_category_select == "All Categories" or not request.session.search_category_select %}selected{% endif %}>Toutes les catégories</option>
                             {% for super in supercategory %}
                             <option value="{{super.name}}" {% if request.session.search_category_select == super.name %}selected{% endif %}>{{super.name}}</option>
                             {% endfor %}
                         </select>
-                        <button type="submit" class="search-submit-btn" style="background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 16px; padding: 12px 28px; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                            <i class="fi-rs-search" style="font-size: 16px;"></i>
+                        <button type="submit" class="search-submit-btn gm-s-e1ee68"  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            <i class="fi-rs-search gm-s-beab58" ></i>
                             <span class="search-btn-text">Rechercher</span>
                         </button>
         </div>
@@ -94,10 +60,10 @@
         
         <!-- Results Count -->
         {% if products_data %}
-        <div class="results-count" style="display: flex; justify-content: center; align-items: center; margin-bottom: 24px; padding: 18px 24px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;">
-            <p style="font-size: 14px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; text-align: center;">
-                <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
-                <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;" id="total-products-count">{{ total_products|default:0 }}</strong> article(s) pour <strong style="color: var(--color-orange); font-weight: 700;">"{{ request.session.search_product|default:search_query }}"</strong></span>
+        <div class="results-count gm-s-f85eb9" >
+            <p class="gm-s-3b237a">
+                <i class="fi-rs-box gm-s-0accb1" ></i>
+                <span>Nous avons trouvé <strong class="gm-s-19c495" id="total-products-count">{{ total_products|default:0 }}</strong> article(s) pour <strong class="gm-s-19c495">"{{ request.session.search_product|default:search_query }}"</strong></span>
             </p>
                         </div>
         {% endif %}
@@ -108,32 +74,32 @@
             {% for item in products_data %}
             {% with product=item.product product_images=item.product_images like_count=item.like_count %}
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
-            <div class="flavoriz-product-card" style="cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;">
-                <div style="position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 58%;">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: zoom-in;" />
-                    <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" style="position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6B7280; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;">
-                        <i class="fi-rs-heart" style="font-size: 12px; transition: all 0.3s ease;"></i>
+            <div class="flavoriz-product-card gm-s-e381d7" >
+                <div class="gm-s-fa68a2">
+                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" class="flavoriz-product-image" data-images='{{ product_images|safe }}' loading="lazy" decoding="async" onclick="event.stopPropagation(); openImagePreview(JSON.parse(this.getAttribute('data-images')), 0, '{{ product.product_name|escapejs }}');" class="gm-s-f62258" />
+                    <button class="flavoriz-favorite-btn" data-product-id="{{ product.id }}" type="button" class="gm-s-f534be">
+                        <i class="fi-rs-heart gm-s-b87308" ></i>
                         <span class="favorite-count">{{ like_count }}</span>
                     </button>
                     {% if product.product_vendor and product.product_vendor.status == 'vendor' %}
-                    <div style="position: absolute; bottom: 8px; right: 8px; z-index: 10;">
+                    <div class="gm-s-045884">
                         <span class="gm-badge gm-badge-pro"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
                     </div>
                     {% endif %}
                     </div>
-                <div class="flavoriz-product-body" style="padding: 10px 12px; flex: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex-shrink: 0; margin-bottom: 4px;">
-                        <span class="flavoriz-product-price" style="font-size: 16px; font-weight: 700; color: var(--color-orange);">{{ price|format_price }} FCFA</span>
+                <div class="flavoriz-product-body gm-s-4ef801" >
+                    <div class="gm-s-32d4fd">
+                        <span class="flavoriz-product-price gm-s-cb8b8a" >{{ price|format_price }} FCFA</span>
                         {% if discount_price and discount_price > 0 %}
-                            <span style="font-size: 13px; color: #9CA3AF; text-decoration: line-through;">{{ discount_price|format_price }} FCFA</span>
+                            <span class="gm-s-47b7e7">{{ discount_price|format_price }} FCFA</span>
                         {% endif %}
                     </div>
-                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="font-size: 13px; font-weight: 600; color: #1F2937; margin: 0 0 6px 0; line-height: 1.35; min-height: 36px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;">{{ product.product_name }}</h3>
-                    <div class="flavoriz-card-meta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: #9CA3AF; font-weight: normal; margin-bottom: 4px; line-height: 1.3;">
-                        <span style="min-width: 0; display: flex; align-items: center; gap: 3px;">
+                    <h3 class="flavoriz-product-title" onclick="window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="gm-s-e9ae14">{{ product.product_name }}</h3>
+                    <div class="flavoriz-card-meta gm-s-af2ea0" >
+                        <span class="gm-s-447ca1">
                             {% if product.product_vendor %}
                             {% if product.product_vendor.city or product.product_vendor.country %}
-                            <i class="fi-rs-marker" style="font-size: 10px; flex-shrink: 0;"></i><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
+                            <i class="fi-rs-marker gm-s-66a0d8" ></i><span class="gm-s-eff43d">{% if product.product_vendor.city %}{{ product.product_vendor.city }}{% if product.product_vendor.country %}, {% endif %}{% endif %}{% if product.product_vendor.country %}{{ product.product_vendor.country }}{% endif %}</span>
                             {% else %}
                             <span></span>
                             {% endif %}
@@ -141,15 +107,15 @@
                             <span></span>
                             {% endif %}
                         </span>
-                        {% if product.date %}<span style="flex-shrink: 0; color: #9CA3AF;">{{ product.date|relative_date }}</span>{% endif %}
+                        {% if product.date %}<span class="gm-s-6abb06">{{ product.date|relative_date }}</span>{% endif %}
                     </div>
-                    <div style="display: flex; gap: 6px; margin-top: auto;">
-                        <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" style="flex: 1; padding: 7px 12px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
-                            <i class="fi-rs-eye" style="font-size: 13px;"></i>
+                    <div class="gm-s-0e6856">
+                        <button class="flavoriz-product-card-btn" onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' product.PRDSlug %}'" class="gm-s-7c6af0">
+                            <i class="fi-rs-eye gm-s-766745" ></i>
                             <span>Voir</span>
                         </button>
-                        <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" style="padding: 7px 12px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;">
-                            <i class="fi-rs-shopping-bag" style="font-size: 15px;"></i>
+                        <button class="flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" class="gm-s-9745ec">
+                            <i class="fi-rs-shopping-bag gm-s-499df8" ></i>
                         </button>
                                 </div>
                             </div>
@@ -161,20 +127,20 @@
 
         <!-- Pagination -->
         {% if page_obj.has_other_pages %}
-        <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 40px; margin-bottom: 24px;">
+        <div class="gm-s-3e88d2">
             {% if page_obj.has_previous %}
-            <a href="?page={{page_obj.previous_page_number}}" style="padding: 12px 20px; background: white; border: 2px solid #E5E7EB; border-radius: 12px; color: #1F2937; text-decoration: none; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(0)'">
+            <a href="?page={{page_obj.previous_page_number}}" class="gm-s-d4145d" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(0)'">
                 <i class="fi-rs-arrow-left"></i>
                 <span>Précédent</span>
             </a>
             {% endif %}
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border-radius: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);">{{page_obj.number}}</span>
-                <span style="color: #6B7280; font-size: 14px;">sur</span>
-                <span style="color: #6B7280; font-size: 14px; font-weight: 600;">{{page_obj.paginator.num_pages}}</span>
+            <div class="gm-s-bd9db1">
+                <span class="gm-s-6d4f1a">{{page_obj.number}}</span>
+                <span class="gm-s-b57b22">sur</span>
+                <span class="gm-s-c03ad9">{{page_obj.paginator.num_pages}}</span>
             </div>
             {% if page_obj.has_next %}
-            <a href="?page={{page_obj.next_page_number}}" style="padding: 12px 20px; background: white; border: 2px solid #E5E7EB; border-radius: 12px; color: #1F2937; text-decoration: none; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(0)'">
+            <a href="?page={{page_obj.next_page_number}}" class="gm-s-d4145d" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'; this.style.transform='translateY(0)'">
                 <span>Suivant</span>
                 <i class="fi-rs-arrow-right"></i>
             </a>
@@ -182,308 +148,17 @@
                             </div>
         {% endif %}
         {% else %}
-        <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
-            <i class="fi-rs-search" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px; display: block;"></i>
-            <h2 style="font-size: 24px; font-weight: 600; color: #1F2937; margin-bottom: 12px;">Aucun produit trouvé</h2>
-            <p style="font-size: 16px; color: #6B7280; margin: 0;">Essayez une autre recherche ou parcourez nos catégories.</p>
+        <div class="gm-s-f9912e">
+            <i class="fi-rs-search gm-s-bffa49" ></i>
+            <h2 class="gm-s-af9b59">Aucun produit trouvé</h2>
+            <p class="gm-s-b6c66b">Essayez une autre recherche ou parcourez nos catégories.</p>
                             </div>
                           {% endif %}
                        </div>
 </main>
+{% endblock body %}
 
-<style>
-/* Styles pour les cartes produits */
-.flavoriz-product-card {
-    background: white !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border: 1px solid #F3F4F6 !important;
-    cursor: pointer !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-
-.flavoriz-product-card:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    border-color: rgba(255, 123, 44, 0.3) !important;
-}
-
-.flavoriz-product-card:hover .flavoriz-product-image {
-    transform: scale(1.05) !important;
-}
-
-.flavoriz-product-card-btn:hover {
-    background: var(--color-orange) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
-}
-
-.flavoriz-add-cart-btn:hover {
-    background: var(--color-orange) !important;
-    color: white !important;
-    border-color: var(--color-orange) !important;
-}
-
-.flavoriz-favorite-btn:hover {
-    background: rgba(255, 123, 44, 0.1) !important;
-    color: var(--color-orange) !important;
-}
-
-/* Styles de base pour la grille - FORCER 4 colonnes par défaut - PRIORITÉ MAXIMALE */
-#products-list,
-#products-list.flavoriz-product-grid,
-div#products-list,
-div#products-list.flavoriz-product-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-    justify-items: stretch !important;
-    align-items: stretch !important;
-}
-
-#products-list > *,
-#products-list.flavoriz-product-grid > *,
-div#products-list > *,
-div#products-list.flavoriz-product-grid > *,
-#products-list .flavoriz-product-card,
-#products-list.flavoriz-product-grid .flavoriz-product-card {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Garantir que les cartes ont la même taille que dans la page shop */
-#products-list .flavoriz-product-card,
-#products-list.flavoriz-product-grid .flavoriz-product-card {
-    max-width: 100% !important;
-    margin: 0 !important;
-    width: 100% !important;
-}
-
-/* Forcer la grille à 4 colonnes sur grand écran */
-@media (min-width: 1200px) {
-    #products-list,
-    #products-list.flavoriz-product-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
-        gap: 20px !important;
-        display: grid !important;
-        padding: 0 !important;
-        justify-items: stretch !important;
-        align-items: stretch !important;
-    }
-    
-    /* Garantir que les cartes ont la même taille que dans la page shop */
-    #products-list .flavoriz-product-card,
-    #products-list.flavoriz-product-grid .flavoriz-product-card {
-        max-width: 100% !important;
-        margin: 0 !important;
-        width: 100% !important;
-    }
-}
-
-/* 3 colonnes sur écran moyen */
-@media (max-width: 1199px) and (min-width: 769px) {
-    #products-list,
-    #products-list.flavoriz-product-grid {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 18px !important;
-        display: grid !important;
-        padding: 0 !important;
-    }
-}
-
-/* Styles pour la barre de recherche */
-.search-form-container {
-    width: 100%;
-}
-
-.search-form {
-    width: 100%;
-}
-
-.search-input-wrapper:focus-within {
-    border-color: var(--color-orange) !important;
-    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
-}
-
-.search-input-wrapper:hover {
-    border-color: #D1D5DB !important;
-}
-
-/* Style du select identique à la page shop */
-select.mySelect,
-.category-select.mySelect {
-    padding: 10px 16px !important;
-    border: 2px solid #E5E7EB !important;
-    border-radius: 10px !important;
-    font-size: 13px !important;
-    background: #FAFAFA !important;
-    color: #1F2937 !important;
-    cursor: pointer !important;
-    outline: none !important;
-    transition: all 0.2s ease !important;
-    font-family: var(--font-secondary) !important;
-    min-width: 200px !important;
-}
-
-select.mySelect:hover,
-.category-select.mySelect:hover {
-    border-color: var(--color-orange) !important;
-    background: white !important;
-}
-
-select.mySelect:focus,
-.category-select.mySelect:focus {
-    border-color: var(--color-orange) !important;
-    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
-    background: white !important;
-    outline: none !important;
-}
-
-@media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
-    }
-    
-    .container {
-        padding: 0 16px !important;
-    }
-    
-    h1 {
-        font-size: 24px !important;
-        margin-bottom: 16px !important;
-    }
-    
-    .search-form-container {
-        margin-bottom: 24px !important;
-    }
-    
-    .search-form {
-        padding: 10px !important;
-        border-radius: 12px !important;
-    }
-    
-    .search-form-row {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    
-    .search-input-wrapper {
-        width: 100% !important;
-        min-width: 100% !important;
-        padding: 0 12px !important;
-    }
-    
-    .search-input {
-        font-size: 14px !important;
-        padding: 10px 0 !important;
-    }
-    
-    .search-actions {
-        width: 100% !important;
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    
-    .category-select {
-        width: 100% !important;
-        min-width: 100% !important;
-        padding: 10px 14px !important;
-        font-size: 14px !important;
-    }
-    
-    .search-submit-btn {
-        width: 100% !important;
-        justify-content: center !important;
-        padding: 12px 20px !important;
-        font-size: 14px !important;
-    }
-    
-    /* Results Count Mobile */
-    .results-count {
-        margin-bottom: 16px !important;
-        padding: 14px 16px !important;
-    }
-    
-    .results-count p {
-        font-size: 12px !important;
-        flex-wrap: wrap !important;
-        text-align: center !important;
-    }
-    
-    .results-count span {
-        display: inline-block !important;
-    }
-    
-    /* Products Grid Mobile */
-    #products-list,
-    #products-list.flavoriz-product-grid,
-    div#products-list,
-    div#products-list.flavoriz-product-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
-        margin-bottom: 20px !important;
-        padding: 0 !important;
-    }
-    
-    #products-list > *,
-    #products-list.flavoriz-product-grid > *,
-    div#products-list > *,
-    div#products-list.flavoriz-product-grid > * {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-    }
-    
-    .flavoriz-product-card {
-        border-radius: 10px !important;
-    }
-    
-    .flavoriz-product-image {
-        height: auto !important;
-    }
-    
-    .flavoriz-product-body {
-        padding: 12px !important;
-    }
-    
-    .flavoriz-product-title {
-        font-size: 13px !important;
-        min-height: 36px !important;
-        margin-bottom: 6px !important;
-        line-height: 1.3 !important;
-    }
-    
-    .flavoriz-product-card-btn,
-    .flavoriz-add-cart-btn {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-    }
-    
-    .flavoriz-favorite-btn {
-        padding: 5px 8px !important;
-        font-size: 9px !important;
-    }
-    
-    .flavoriz-favorite-btn i {
-        font-size: 11px !important;
-    }
-}
-</style>
-{%endblock body%}
-
-{%block script%}
+{% block script %}
 {{ block.super }}
 <script>
     // Réinitialiser les event listeners après chargement
@@ -493,4 +168,4 @@ select.mySelect:focus,
         }
     });
 </script>
-{%endblock script%}
+{% endblock script %}

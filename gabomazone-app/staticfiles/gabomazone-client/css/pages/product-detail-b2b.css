@@ -1,0 +1,687 @@
+/* Styles pour la page de détails produit FLAVORIZ */
+.flavoriz-product-detail {
+    padding: 24px 0 60px 0;
+    background: #FAFAFA;
+    min-height: calc(100vh - 200px);
+}
+
+.flavoriz-product-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.flavoriz-breadcrumb {
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.flavoriz-breadcrumb a {
+    color: var(--color-orange);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.flavoriz-breadcrumb a:hover {
+    color: #E65A1F;
+}
+
+.flavoriz-product-detail-main {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.flavoriz-product-detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 32px;
+}
+
+.flavoriz-product-gallery {
+    position: relative;
+}
+
+.flavoriz-main-image {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #FAFAFA;
+    margin-bottom: 16px;
+    cursor: zoom-in;
+    position: relative;
+}
+
+.flavoriz-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.flavoriz-main-image:hover img {
+    transform: scale(1.05);
+}
+
+.flavoriz-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.flavoriz-thumbnail {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    background: #FAFAFA;
+}
+
+.flavoriz-thumbnail.active {
+    border-color: var(--color-orange);
+}
+
+.flavoriz-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.flavoriz-product-info h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 16px 0;
+    line-height: 1.3;
+}
+
+.flavoriz-product-rating {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.flavoriz-rating-stars {
+    display: flex;
+    gap: 4px;
+}
+
+.flavoriz-rating-stars i {
+    color: #FCD34D;
+    font-size: 16px;
+}
+
+/* Système d'étoiles unique : 5 étoiles ★ (plus de double icônes) */
+.flavoriz-stars-five {
+    display: inline-flex;
+    gap: 2px;
+    font-size: 18px;
+    line-height: 1;
+}
+.flavoriz-stars-five .flavoriz-star {
+    color: #E5E7EB;
+}
+.flavoriz-stars-five .flavoriz-star.filled {
+    color: #F59E0B;
+}
+.flavoriz-stars-center {
+    justify-content: center;
+}
+.flavoriz-stars-empty .flavoriz-star {
+    color: #D1D5DB !important;
+    font-size: 32px;
+}
+/* Formulaire avis : étoiles 5 cliquables (inputs cachés, labels = étoiles) */
+.flavoriz-rate-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+.flavoriz-rate-stars {
+    display: inline-flex;
+    align-items: center;
+}
+.flavoriz-rate-display {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+.flavoriz-rate-star {
+    cursor: pointer;
+    font-size: 28px;
+    color: #E5E7EB;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+.flavoriz-rate-star:hover {
+    color: #FCD34D;
+}
+.flavoriz-rate-stars[data-rating="1"] .flavoriz-rate-star:nth-child(1),
+.flavoriz-rate-stars[data-rating="2"] .flavoriz-rate-star:nth-child(1),
+.flavoriz-rate-stars[data-rating="2"] .flavoriz-rate-star:nth-child(2),
+.flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(1),
+.flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(2),
+.flavoriz-rate-stars[data-rating="3"] .flavoriz-rate-star:nth-child(3),
+.flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(1),
+.flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(2),
+.flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(3),
+.flavoriz-rate-stars[data-rating="4"] .flavoriz-rate-star:nth-child(4),
+.flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(1),
+.flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(2),
+.flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(3),
+.flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(4),
+.flavoriz-rate-stars[data-rating="5"] .flavoriz-rate-star:nth-child(5) {
+    color: #F59E0B;
+}
+.flavoriz-review-form .flavoriz-form-label { margin-bottom: 10px; }
+.flavoriz-comment-textarea:focus {
+    outline: none;
+    border-color: var(--color-orange);
+    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.15);
+}
+
+.flavoriz-product-price-section {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%);
+    border-radius: 12px;
+}
+
+.flavoriz-current-price {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-orange);
+    margin-right: 12px;
+}
+
+.flavoriz-old-price {
+    font-size: 20px;
+    color: #9CA3AF;
+    text-decoration: line-through;
+}
+
+.flavoriz-product-description {
+    color: #4B5563;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-size: 15px;
+}
+
+.flavoriz-product-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.flavoriz-qty-selector {
+    display: flex;
+    align-items: center;
+    border: 2px solid #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+.flavoriz-qty-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.flavoriz-qty-btn {
+    width: 40px;
+    height: 48px;
+    border: none;
+    background: #F9FAFB;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #1F2937;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.flavoriz-qty-btn:hover {
+    background: #E5E7EB;
+}
+
+.flavoriz-qty-value {
+    width: 60px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    border-left: 2px solid #E5E7EB;
+    border-right: 2px solid #E5E7EB;
+}
+
+.flavoriz-add-cart-btn-large {
+    flex: 1;
+    min-width: 200px;
+    padding: 14px 28px;
+    background: var(--color-orange);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+}
+
+.flavoriz-add-cart-btn-large:hover {
+    background: #E65A1F;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4);
+}
+
+.flavoriz-favorite-btn-large {
+    width: 56px;
+    height: 56px;
+    border: 2px solid #E5E7EB;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #6B7280;
+}
+
+.flavoriz-favorite-btn-large:hover {
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+.flavoriz-favorite-btn-large.liked {
+    background: #FEE2E2;
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+/* Masquer le bouton wishlist mobile en desktop */
+.flavoriz-favorite-btn-mobile {
+    display: none;
+}
+
+/* Masquer le bouton wishlist desktop en mobile */
+.flavoriz-favorite-btn-desktop {
+    display: flex;
+}
+
+.flavoriz-product-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px;
+    background: #F9FAFB;
+    border-radius: 12px;
+    margin-bottom: 32px;
+}
+
+.flavoriz-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.flavoriz-meta-label {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.flavoriz-meta-value {
+    font-size: 15px;
+    color: #1F2937;
+    font-weight: 600;
+}
+
+.flavoriz-tabs {
+    border-bottom: 2px solid #E5E7EB;
+    margin-bottom: 24px;
+}
+
+.flavoriz-tab-list {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.flavoriz-tab-item {
+    padding: 12px 24px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 15px;
+    color: #6B7280;
+}
+
+.flavoriz-tab-item.active {
+    color: var(--color-orange);
+    border-bottom-color: var(--color-orange);
+}
+
+.flavoriz-tab-content {
+    padding: 24px 0;
+    color: #4B5563;
+    line-height: 1.8;
+}
+
+/* Mobile : onglets accessibles (scroll horizontal + grandes zones de clic) */
+@media (max-width: 768px) {
+    .flavoriz-tabs {
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+    .flavoriz-tabs::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 32px;
+        height: 100%;
+        background: linear-gradient(to left, rgba(255,255,255,0.95), transparent);
+        pointer-events: none;
+    }
+    .flavoriz-tab-list {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 4px;
+        padding-bottom: 2px;
+    }
+    .flavoriz-tab-list::-webkit-scrollbar {
+        display: none;
+    }
+    .flavoriz-tab-item {
+        flex-shrink: 0;
+        min-height: 48px;
+        min-width: 44px;
+        padding: 14px 18px;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: -2px;
+    }
+    .flavoriz-tab-item.active {
+        background: rgba(255, 123, 44, 0.08);
+    }
+    .flavoriz-tab-content {
+        padding: 20px 0;
+        min-height: 120px;
+    }
+    .flavoriz-tab-content p,
+    .flavoriz-tab-content li {
+        font-size: 15px;
+    }
+    /* Section avis : une colonne sur mobile, résumé en haut */
+    .flavoriz-reviews-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+    }
+    .flavoriz-reviews-summary {
+        order: -1;
+    }
+    .flavoriz-reviews-summary .flavoriz-stars-five {
+        justify-content: center;
+    }
+    .flavoriz-review-card {
+        padding: 16px !important;
+    }
+    .flavoriz-product-detail-main .flavoriz-tab-content img {
+        max-width: 100%;
+        height: auto;
+    }
+    .flavoriz-detail-card-inner {
+        padding: 20px 16px !important;
+    }
+    /* Section commentaire / formulaire avis en mobile */
+    .flavoriz-review-form {
+        padding: 20px 16px !important;
+        margin-top: 24px !important;
+    }
+    .flavoriz-review-form .flavoriz-form-label {
+        font-size: 15px;
+    }
+    .flavoriz-rate-star {
+        font-size: 32px !important;
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .flavoriz-comment-textarea {
+        width: 100% !important;
+        min-height: 140px !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    .flavoriz-submit-review-btn {
+        width: 100%;
+        padding: 16px !important;
+        font-size: 16px !important;
+    }
+    .flavoriz-stars-five {
+        font-size: 20px;
+    }
+}
+
+/* Tableau d'informations supplémentaires - Grille 2 colonnes (mobile + desktop) */
+.flavoriz-info-table {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    padding: 20px;
+}
+
+.flavoriz-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.flavoriz-info-row:hover {
+    background-color: #F3F4F6;
+}
+
+.flavoriz-info-label {
+    font-weight: 600;
+    color: #6B7280;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flavoriz-info-value {
+    color: #1F2937;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.flavoriz-info-value a {
+    color: var(--color-orange);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.flavoriz-info-value a:hover {
+    color: var(--color-orange-dark, #d97706);
+    text-decoration: underline;
+}
+
+.flavoriz-info-price {
+    color: var(--color-orange);
+    font-weight: 700;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .flavoriz-info-table {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .flavoriz-info-row {
+        padding: 10px 12px;
+    }
+    
+    .flavoriz-info-label {
+        font-size: 11px;
+    }
+    
+    .flavoriz-info-value {
+        font-size: 13px;
+    }
+}
+
+.flavoriz-related-products {
+    margin-top: 48px;
+}
+
+.flavoriz-section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 968px) {
+    .flavoriz-product-detail-content {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 20px;
+    }
+    
+    .flavoriz-product-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .flavoriz-qty-wrapper {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .flavoriz-qty-selector {
+        flex: 1;
+    }
+    
+    .flavoriz-favorite-btn-mobile {
+        display: flex !important;
+        width: 48px;
+        height: 48px;
+    }
+    
+    .flavoriz-favorite-btn-desktop {
+        display: none !important;
+    }
+    
+    .flavoriz-add-cart-btn-large {
+        width: 100%;
+    }
+}
+/* Grille des produits similaires - Responsive comme dans shop */
+.flavoriz-product-grid-related {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+.flavoriz-product-grid-related > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 4 colonnes sur grand écran */
+@media (min-width: 1200px) {
+    .flavoriz-product-grid-related {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+/* 3 colonnes sur écran moyen */
+@media (max-width: 1199px) and (min-width: 769px) {
+    .flavoriz-product-grid-related {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+
+/* 2 colonnes sur tablette ET mobile */
+@media (max-width: 768px) {
+    .flavoriz-product-grid-related {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+}
+
+/* 1 colonne sur très petit mobile (optionnel) */
+@media (max-width: 360px) {
+    .flavoriz-product-grid-related {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}

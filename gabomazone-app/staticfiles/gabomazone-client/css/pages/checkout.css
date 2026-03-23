@@ -1,0 +1,86 @@
+/* Masquer le preloader immédiatement pour cette page */
+#preloader-active {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* S'assurer qu'il n'y a qu'un seul header */
+body > header.flavoriz-header:not(:first-of-type),
+body > .flavoriz-header:not(:first-of-type),
+.flavoriz-header ~ .flavoriz-header,
+header.flavoriz-header + header.flavoriz-header {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Forcer le header à rester visible et fixe */
+.flavoriz-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.not-visible {
+    display: none !important;
+}
+
+/* Styles pour les radio buttons sélectionnés */
+input[type="radio"]:checked + div + label,
+input[type="radio"]:checked ~ label {
+    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.05) 100%) !important;
+    border-color: var(--color-orange) !important;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .main.pages > div > div[style*="grid-template-columns: 1fr 480px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    div[style*="position: sticky"] {
+        position: static !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+
+    h1 {
+        font-size: 24px !important;
+    }
+
+    /* Billing Details Grid */
+    div[style*="grid-template-columns: repeat(2, 1fr)"] {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    /* Order Items Scroll */
+    div[style*="max-height: 300px"] {
+        max-height: 200px !important;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

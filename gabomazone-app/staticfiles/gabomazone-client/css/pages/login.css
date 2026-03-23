@@ -1,0 +1,165 @@
+/* Desktop - Carte centrée et réduite */
+@media (min-width: 1024px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
+        padding-top: 10px !important;
+    }
+    
+    .login-container {
+        max-width: 480px !important;
+    }
+    .login-card {
+        min-height: auto !important;
+    }
+    .login-form-panel {
+        padding: var(--spacing-xl) !important;
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
+        padding-top: 10px !important;
+    }
+    
+    .login-container {
+        max-width: 500px !important;
+        padding: var(--spacing-lg) var(--spacing-md) !important;
+    }
+    .login-form-panel {
+        padding: var(--spacing-xl) !important;
+    }
+}
+
+/* Mobile - Design compact et moderne */
+@media (max-width: 768px) {
+    .flavoriz-section.login-page-section,
+    section.flavoriz-section.login-page-section {
+        margin-top: 120px !important;
+        min-height: calc(100vh - 80px - 64px) !important;
+        padding: var(--spacing-md) 0 !important;
+        align-items: flex-start !important;
+    }
+    
+    .login-container {
+        max-width: 100% !important;
+        padding: var(--spacing-md) var(--spacing-sm) !important;
+    }
+    
+    .login-card {
+        border-radius: var(--radius-lg) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+    
+    .login-form-panel {
+        padding: var(--spacing-lg) var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:first-child {
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:first-child a {
+        margin-bottom: var(--spacing-sm) !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:first-child {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:first-child span {
+        font-size: 18px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:last-child span {
+        font-size: 20px !important;
+    }
+    
+    .login-form-panel h1 {
+        font-size: 28px !important;
+        margin: var(--spacing-xs) 0 !important;
+    }
+    
+    .login-form-panel > div:first-child p {
+        font-size: 14px !important;
+    }
+    
+    .login-form-panel > div:nth-child(2) {
+        margin-bottom: var(--spacing-md) !important;
+    }
+    
+    .login-form-panel > div:nth-child(2) button {
+        padding: 8px 16px !important;
+        font-size: 12px !important;
+    }
+    
+    .form-container {
+        gap: var(--spacing-sm) !important;
+    }
+    
+    .form-container label {
+        font-size: 12px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .form-container input {
+        padding: 10px 12px 10px 40px !important;
+        font-size: 14px !important;
+    }
+    
+    .form-container button[type="submit"] {
+        padding: 12px !important;
+        font-size: 14px !important;
+        margin-top: var(--spacing-xs) !important;
+    }
+    
+    .flavoriz-alert {
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+}
+
+/* Très petits écrans */
+@media (max-width: 360px) {
+    .login-container {
+        padding: var(--spacing-sm) 8px !important;
+    }
+    
+    .login-form-panel {
+        padding: var(--spacing-md) var(--spacing-sm) !important;
+    }
+    
+    .login-form-panel h1 {
+        font-size: 24px !important;
+    }
+    
+    .login-form-panel > div:first-child a > div:last-child span {
+        font-size: 18px !important;
+    }
+}
+
+/* Animation smooth pour les formulaires */
+.form-container {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-container.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animation pour les boutons d'onglets */
+.tab-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tab-btn:hover {
+    transform: translateY(-1px);
+}

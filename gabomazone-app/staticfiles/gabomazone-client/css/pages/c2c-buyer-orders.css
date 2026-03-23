@@ -1,0 +1,29 @@
+.c2c-orders-container {
+        max-width: 1000px;
+        margin: 100px auto 60px;
+        padding: 0 20px;
+    }
+    
+    .c2c-order-item {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+    
+    .c2c-order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #F3F4F6;
+    }
+    
+    @media (max-width: 768px) {
+        .c2c-orders-container {
+            margin-top: 80px;
+            padding: 0 16px;
+        }
+    }

@@ -3,7 +3,7 @@
 {% load cart_template_tags %}
 {% load category_icons %}
 
-{%block body%}
+{% block body %}
 <main class="main">
 
 <!-- ===== HERO: Carousel backgrounds + Value proposition overlay ===== -->
@@ -62,7 +62,7 @@
         </div>
         <div class="gm-categories-grid">
             {% for categori in super_category|slice:":6" %}
-            <a href="{% url 'categories:super-category' categori.slug%}" class="gm-category-card">
+            <a href="{% url 'categories:super-category' categori.slug %}" class="gm-category-card">
                 <div class="gm-category-icon">
                     {% if categori.category_image %}
                     <img src="{{categori.category_image.url}}" alt="{{categori.name}}" loading="lazy" />
@@ -103,58 +103,7 @@
             {% for item in popular_products_data|slice:":4" %}
             {% with product=item.product product_images=item.product_images like_count=item.like_count is_boosted=item.is_boosted|default:False is_peer_to_peer=item.is_peer_to_peer|default:False view_count=item.view_count|default:0 %}
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
-            <div class="gm-product-card" onclick="window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
-                <div class="gm-product-img">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" />
-                    <button class="gm-fav-btn flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" onclick="event.stopPropagation(); if(typeof window.toggleFavorite==='function') window.toggleFavorite(this.getAttribute('data-product-id'), this);">
-                        <i class="fi-rs-heart"></i> <span class="favorite-count">{{ like_count }}</span>
-                    </button>
-                    {% if is_peer_to_peer and product.condition %}
-                    <span class="gm-product-condition peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
-                    {% endif %}
-                    {% if not is_peer_to_peer and product.product_vendor and product.product_vendor.status == 'vendor' %}
-                    <span class="gm-badge gm-badge-pro gm-product-badge"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
-                    {% elif is_peer_to_peer %}
-                    <span class="gm-badge gm-badge-particulier gm-product-badge">Particulier</span>
-                    {% endif %}
-                    {% if view_count and view_count > 0 %}
-                    <span class="gm-product-views"><i class="fi-rs-eye"></i> {{ view_count }}</span>
-                    {% endif %}
-                </div>
-                <div class="gm-product-body">
-                    <div class="gm-product-price-row">
-                        <span class="gm-product-price">{{ price|format_price }} FCFA</span>
-                        {% if discount_price and discount_price > 0 %}
-                        <span class="gm-product-old-price">{{ discount_price|format_price }}</span>
-                        {% endif %}
-                    </div>
-                    <h3 class="gm-product-title">{{ product.product_name }}</h3>
-                    <div class="gm-product-meta">
-                        <span class="gm-product-location">
-                            {% if is_peer_to_peer and product.seller_city %}
-                            <i class="fi-rs-marker"></i> {{ product.seller_city }}
-                            {% elif product.product_vendor and product.product_vendor.city %}
-                            <i class="fi-rs-marker"></i> {{ product.product_vendor.city }}
-                            {% endif %}
-                        </span>
-                        {% if product.date %}<span class="gm-product-date">{{ product.date|relative_date }}</span>{% endif %}
-                    </div>
-                    <div class="gm-product-actions">
-                        <button class="gm-product-btn-view" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
-                            <i class="fi-rs-eye"></i> Voir
-                        </button>
-                        {% if is_peer_to_peer %}
-                        <button class="gm-product-btn-action flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre">
-                            <i class="fi-rs-comment"></i>
-                        </button>
-                        {% else %}
-                        <button class="gm-product-btn-action flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" onclick="event.stopPropagation(); if(typeof window.addToCartQuick==='function') window.addToCartQuick(this.getAttribute('data-product-id'), this.getAttribute('data-product-price'));">
-                            <i class="fi-rs-shopping-bag"></i>
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            {% include "components/product_card.html" %}
             {% endwith %}
             {% endwith %}
             {% endfor %}
@@ -175,58 +124,7 @@
             {% for item in new_products_data|slice:":4" %}
             {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:False %}
             {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
-            <div class="gm-product-card" onclick="window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
-                <div class="gm-product-img">
-                    <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" />
-                    <button class="gm-fav-btn flavoriz-favorite-btn" data-product-id="{% if is_peer_to_peer %}peer_{{ product.id }}{% else %}{{ product.id }}{% endif %}" type="button" onclick="event.stopPropagation(); if(typeof window.toggleFavorite==='function') window.toggleFavorite(this.getAttribute('data-product-id'), this);">
-                        <i class="fi-rs-heart"></i> <span class="favorite-count">{{ like_count }}</span>
-                    </button>
-                    {% if is_peer_to_peer and product.condition %}
-                    <span class="gm-product-condition peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.condition_display|default:product.condition }}</span>
-                    {% endif %}
-                    {% if not is_peer_to_peer and product.product_vendor and product.product_vendor.status == 'vendor' %}
-                    <span class="gm-badge gm-badge-pro gm-product-badge"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
-                    {% elif is_peer_to_peer %}
-                    <span class="gm-badge gm-badge-particulier gm-product-badge">Particulier</span>
-                    {% endif %}
-                    {% if product.view_count and product.view_count > 0 %}
-                    <span class="gm-product-views"><i class="fi-rs-eye"></i> {{ product.view_count|default:0 }}</span>
-                    {% endif %}
-                </div>
-                <div class="gm-product-body">
-                    <div class="gm-product-price-row">
-                        <span class="gm-product-price">{{ price|format_price }} FCFA</span>
-                        {% if discount_price and discount_price > 0 %}
-                        <span class="gm-product-old-price">{{ discount_price|format_price }}</span>
-                        {% endif %}
-                    </div>
-                    <h3 class="gm-product-title">{{ product.product_name }}</h3>
-                    <div class="gm-product-meta">
-                        <span class="gm-product-location">
-                            {% if is_peer_to_peer and product.seller_city %}
-                            <i class="fi-rs-marker"></i> {{ product.seller_city }}
-                            {% elif product.product_vendor and product.product_vendor.city %}
-                            <i class="fi-rs-marker"></i> {{ product.product_vendor.city }}
-                            {% endif %}
-                        </span>
-                        {% if product.date %}<span class="gm-product-date">{{ product.date|relative_date }}</span>{% endif %}
-                    </div>
-                    <div class="gm-product-actions">
-                        <button class="gm-product-btn-view" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
-                            <i class="fi-rs-eye"></i> Voir
-                        </button>
-                        {% if is_peer_to_peer %}
-                        <button class="gm-product-btn-action flavoriz-propose-offer-btn" onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});" type="button" title="Proposer une offre">
-                            <i class="fi-rs-comment"></i>
-                        </button>
-                        {% else %}
-                        <button class="gm-product-btn-action flavoriz-add-cart-btn" data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}" type="button" onclick="event.stopPropagation(); if(typeof window.addToCartQuick==='function') window.addToCartQuick(this.getAttribute('data-product-id'), this.getAttribute('data-product-price'));">
-                            <i class="fi-rs-shopping-bag"></i>
-                        </button>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            {% include "components/product_card.html" %}
             {% endwith %}
             {% endwith %}
             {% endfor %}
@@ -323,4 +221,4 @@ function proposeOfferToSeller(productId, productSlug, productPrice) {
 }
 </script>
 
-{% endblock %}
+{% endblock body %}

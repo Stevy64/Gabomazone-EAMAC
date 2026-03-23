@@ -1,4 +1,5 @@
-{%load static%}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -23,13 +24,14 @@
         <!-- Flaticon Icons -->
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <!-- Template CSS -->
-        <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets-supplier/css/main.css' %}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/register.css' %}?v=1.0">
     </head>
 
-    <body style="margin: 0; padding: 0; overflow-x: hidden;">
-        <main style="margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column;">
+    <body class="gm-s-112bc9">
+        <main class="gm-s-b169b9">
             <!-- Header -->
-            <header class="main-header style-2 navbar" style="flex-shrink: 0;">
+            <header class="main-header style-2 navbar gm-s-c99770" >
                 <div class="col-brand">
                     <a href="{% url 'home:index'%}" class="brand-wrap">
                         <img src="{{site_info.site_logo.url}}" class="logo" alt="GabomaZone Dashboard" />
@@ -52,25 +54,25 @@
                 </div>
             </header>
 
-            <section class="content-main" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 80px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); padding: var(--spacing-2xl) var(--spacing-lg); margin: 0;">
-                <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto;">
-                    <div class="login-card" style="background: var(--color-white); border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); overflow: hidden; position: relative;">
+            <section class="content-main gm-s-efb4d3" >
+                <div class="login-container gm-s-d794d1" >
+                    <div class="login-card gm-s-5ddb9c" >
                         
                         <!-- Register Form Panel -->
-                        <div class="login-form-panel" id="register-panel" style="padding: var(--spacing-2xl); display: flex; flex-direction: column; background: var(--color-white); position: relative; transition: opacity 0.3s ease, transform 0.3s ease;">
+                        <div class="login-form-panel" id="register-panel" class="gm-s-f8a24f">
                             <!-- Logo & Welcome -->
-                            <div style="margin-bottom: var(--spacing-lg); text-align: center;">
-                                <a href="{% url 'home:index'%}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: var(--spacing-md); justify-content: center;">
-                                    <div style="width: 40px; height: 40px; background: var(--color-black); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                        <span style="color: white; font-size: 20px; font-weight: 800;">G</span>
+                            <div class="gm-s-6fdfb8">
+                                <a href="{% url 'home:index'%}" class="gm-s-02c759">
+                                    <div class="gm-s-782d7b">
+                                        <span class="gm-s-dfccc4">G</span>
                                     </div>
                                     <div>
-                                        <span style="font-size: 24px; font-weight: 800; color: var(--color-black);">Gaboma</span>
-                                        <span style="font-size: 24px; font-weight: 800; color: #FF7B2C;">Zone</span>
+                                        <span class="gm-s-061355">Gaboma</span>
+                                        <span class="gm-s-3bf9fa">Zone</span>
                                     </div>
                                 </a>
-                                <h1 style="font-size: 32px; font-weight: 800; color: var(--color-black); margin: var(--spacing-sm) 0 var(--spacing-xs) 0; line-height: 1.2;">Créer un compte</h1>
-                                <p style="font-size: 15px; color: #6B7280; margin: 0;">Espace vendeur - Rejoignez-nous dès aujourd'hui</p>
+                                <h1 class="gm-s-3456ea">Créer un compte</h1>
+                                <p class="gm-s-f57776">Espace vendeur - Rejoignez-nous dès aujourd'hui</p>
                             </div>
 
                         {% if messages %}
@@ -82,66 +84,66 @@
                             {% endif %}
 
                             <!-- Register Form -->
-                            <div id="register-form-container" class="form-container active" style="display: flex; flex-direction: column;">
-                                <form method="post" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                            <div id="register-form-container" class="form-container active gm-s-a4196e" >
+                                <form method="post" class="gm-s-0e1c9f">
                                     {% csrf_token %}
                                     
                                     <!-- Username Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Nom d'utilisateur</label>
-                                        <div style="position: relative;">
-                                            <input type="text" name="username" placeholder="Choisissez un nom d'utilisateur" maxlength="149" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Nom d'utilisateur</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="text" name="username" placeholder="Choisissez un nom d'utilisateur" maxlength="149" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-user gm-s-9923d4" ></i>
                                         </div>
-                                        <small style="display: block; font-size: 11px; color: #9CA3AF; margin-top: 4px;">Les noms d'utilisateur ne peuvent pas contenir d'espaces, uniquement des lettres, chiffres et @/./+/-/_</small>
+                                        <small class="gm-s-7f35b5">Les noms d'utilisateur ne peuvent pas contenir d'espaces, uniquement des lettres, chiffres et @/./+/-/_</small>
                     </div>
       
                                     <!-- Email Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Email</label>
-                                        <div style="position: relative;">
-                                            <input type="email" name="email" placeholder="Votre adresse email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Email</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="email" name="email" placeholder="Votre adresse email" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-envelope gm-s-9923d4" ></i>
                     </div> 
                 </div>
                 
                                     <!-- Phone Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Téléphone</label>
-                                        <div style="position: relative;">
-                                            <input type="tel" name="phone" placeholder="Votre numéro de téléphone" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-phone" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Téléphone</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="tel" name="phone" placeholder="Votre numéro de téléphone" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-phone gm-s-9923d4" ></i>
                             </div>
                             </div>
                             
                                     <!-- Password Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Créer un mot de passe</label>
-                                        <div style="position: relative;">
-                                            <input type="password" name="password" placeholder="Votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input-register" />
-                                            <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
-                                            <button type="button" onclick="togglePasswordRegister()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Créer un mot de passe</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="password" name="password" placeholder="Votre mot de passe" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input-register" />
+                                            <i class="fi-rs-lock gm-s-9923d4" ></i>
+                                            <button type="button" onclick="togglePasswordRegister()" class="gm-s-330ef3" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle-register"></i>
                                             </button>
                                 </div>
                             </div>
 
                                     <!-- Terms and Conditions -->
-                                    <div style="margin-top: var(--spacing-xs);">
-                                        <p style="font-size: 12px; color: #6B7280; text-align: center; line-height: 1.5; margin: 0;">
-                                            En vous inscrivant, vous confirmez avoir lu et accepté notre <a href="#" style="color: #FF7B2C; text-decoration: none; font-weight: 600;">Politique de confidentialité</a> et nos <a href="#" style="color: #FF7B2C; text-decoration: none; font-weight: 600;">Conditions d'utilisation</a>.
+                                    <div class="gm-s-2f5e1d">
+                                        <p class="gm-s-793800">
+                                            En vous inscrivant, vous confirmez avoir lu et accepté notre <a href="#" class="gm-s-9dfc37">Politique de confidentialité</a> et nos <a href="#" class="gm-s-9dfc37">Conditions d'utilisation</a>.
                                         </p>
                             </div>
 
                                     <!-- Submit Button -->
-                                    <button type="submit" style="width: 100%; padding: 14px; background: #FF7B2C; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: inherit; margin-top: var(--spacing-md);" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                                    <button type="submit" class="gm-s-83ca2b" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                                         Créer mon compte
                                     </button>
                                 </form>
                                 
                                 <!-- Sign In Link -->
-                                <p style="text-align: center; margin-top: var(--spacing-lg); font-size: 14px; color: #6B7280;">
-                                    Vous avez déjà un compte ? <a href="{% url 'supplier_dashboard:supplier-login' %}" style="color: #FF7B2C; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Se connecter</a>
+                                <p class="gm-s-8a8403">
+                                    Vous avez déjà un compte ? <a href="{% url 'supplier_dashboard:supplier-login' %}" class="gm-s-16f518" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Se connecter</a>
                                 </p>
                             </div>
                             </div>
@@ -149,111 +151,10 @@
                 </div>
             </section>
             
-            <script>
-                function togglePasswordRegister() {
-                    const passwordInput = document.getElementById('password-input-register');
-                    const passwordToggle = document.getElementById('password-toggle-register');
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                        passwordToggle.classList.remove('fi-rs-eye');
-                        passwordToggle.classList.add('fi-rs-eye-crossed');
-                    } else {
-                        passwordInput.type = 'password';
-                        passwordToggle.classList.remove('fi-rs-eye-crossed');
-                        passwordToggle.classList.add('fi-rs-eye');
-                    }
-                }
-            </script>
             
-            <style>
-                /* Variables CSS pour cohérence */
-                :root {
-                    --spacing-xs: 8px;
-                    --spacing-sm: 12px;
-                    --spacing-md: 16px;
-                    --spacing-lg: 24px;
-                    --spacing-xl: 32px;
-                    --spacing-2xl: 48px;
-                    --color-white: #FFFFFF;
-                    --color-black: #1F2937;
-                }
-                
-                /* Responsive Mobile */
-                @media (max-width: 767px) {
-                    .content-main {
-                        padding: var(--spacing-lg) var(--spacing-md) !important;
-                        min-height: calc(100vh - 80px) !important;
-                    }
+<footer class="main-footer text-center gm-s-8a0a60" >
+                <p class="font-xs gm-s-30cd2a" >
                     
-                    .login-container {
-                        max-width: 100% !important;
-                        padding: 0 !important;
-                    }
-                    
-                    .login-card {
-                        border-radius: 20px !important;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-                    }
-                    
-                    .login-form-panel {
-                        padding: var(--spacing-lg) var(--spacing-md) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child {
-                        margin-bottom: var(--spacing-md) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a {
-                        margin-bottom: var(--spacing-sm) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:first-child {
-                        width: 36px !important;
-                        height: 36px !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:first-child span {
-                        font-size: 18px !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:last-child span {
-                        font-size: 20px !important;
-                    }
-                    
-                    .login-form-panel h1 {
-                        font-size: 28px !important;
-                        margin: var(--spacing-xs) 0 !important;
-                    }
-                    
-                    .login-form-panel > div:first-child p {
-                        font-size: 14px !important;
-                    }
-                    
-                    .form-container {
-                        gap: var(--spacing-sm) !important;
-                    }
-                    
-                    .form-container label {
-                        font-size: 12px !important;
-                        margin-bottom: 4px !important;
-                    }
-                    
-                    .form-container input {
-                        padding: 10px 12px 10px 40px !important;
-                        font-size: 14px !important;
-                    }
-                    
-                    .form-container button[type="submit"] {
-                        padding: 12px !important;
-                        font-size: 14px !important;
-                    }
-                 }
-             </style>
-            <footer class="main-footer text-center" style="flex-shrink: 0; margin-top: auto; padding: var(--spacing-md) 0;">
-                <p class="font-xs" style="margin: 0; font-size: 13px; color: #6B7280;">
-                    <script>
-                        document.write(new Date().getFullYear());
-                    </script>
                     &copy; {{site_info.site_name}} - Tous droits réservés.
                 </p>
             </footer>
@@ -265,46 +166,10 @@
         <script src="{% static 'assets-supplier/js/main.js'%}" type="text/javascript"></script>
         <!-- GTranslate: https://gtranslate.io/ -->
 
-        <script type="text/javascript">
-            function googleTranslateElementInit2() {
-                new google.translate.TranslateElement({ pageLanguage: "en", autoDisplay: true }, "google_translate_element2");
-            }
-        </script>
+        
         <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
 
-        <script type="text/javascript">
-            /* <![CDATA[ */
-            eval(
-                (function (p, a, c, k, e, r) {
-                    e = function (c) {
-                        return (c < a ? "" : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36));
-                    };
-                    if (!"".replace(/^/, String)) {
-                        while (c--) r[e(c)] = k[c] || e(c);
-                        k = [
-                            function (e) {
-                                return r[e];
-                            },
-                        ];
-                        e = function () {
-                            return "\\w+";
-                        };
-                        c = 1;
-                    }
-                    while (c--) if (k[c]) p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c]);
-                    return p;
-                })(
-                    "6 7(a,b){n{4(2.9){3 c=2.9(\"o\");c.p(b,f,f);a.q(c)}g{3 c=2.r();a.s('t'+b,c)}}u(e){}}6 h(a){4(a.8)a=a.8;4(a=='')v;3 b=a.w('|')[1];3 c;3 d=2.x('y');z(3 i=0;i<d.5;i++)4(d[i].A=='B-C-D')c=d[i];4(2.j('k')==E||2.j('k').l.5==0||c.5==0||c.l.5==0){F(6(){h(a)},G)}g{c.8=b;7(c,'m');7(c,'m')}}",
-                    43,
-                    43,
-                    "||document|var|if|length|function|GTranslateFireEvent|value|createEvent||||||true|else|doGTranslate||getElementById|google_translate_element2|innerHTML|change|try|HTMLEvents|initEvent|dispatchEvent|createEventObject|fireEvent|on|catch|return|split|getElementsByTagName|select|for|className|goog|te|combo|null|setTimeout|500".split(
-                        "|"
-                    ),
-                    0,
-                    {}
-                )
-            );
-            /* ]]> */
-        </script>
-    </body>
+        
+    <script src="{% static 'gabomazone-client/js/pages/supplier-panel/register.js' %}?v=1.0"></script>
+</body>
 </html>

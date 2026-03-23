@@ -15,6 +15,7 @@ from django.conf import settings
 from decimal import Decimal
 import json
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +133,7 @@ def get_purchase_intent_for_conversation(request):
         else:
             return JsonResponse({'success': False, 'purchase_intent_id': None})
     except Exception as e:
-        import traceback
+        logger.exception("Error in get_purchase_intent_for_conversation")
         return JsonResponse({'success': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
@@ -258,7 +259,7 @@ def accept_negotiation(request, negotiation_id):
     except PermissionError as e:
         return JsonResponse({'error': str(e)}, status=403)
     except Exception as e:
-        import traceback
+        logger.exception("Error in accept_negotiation")
         return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
@@ -280,7 +281,7 @@ def reject_negotiation(request, negotiation_id):
     except PermissionError as e:
         return JsonResponse({'error': str(e)}, status=403)
     except Exception as e:
-        import traceback
+        logger.exception("Error in reject_negotiation")
         return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
@@ -343,8 +344,6 @@ def accept_purchase_intent(request, intent_id):
                 conversation.save()
             except Exception as msg_error:
                 # Logger l'erreur mais continuer
-                import logging
-                logger = logging.getLogger(__name__)
                 logger.error(f"Error creating message in accept_purchase_intent: {msg_error}")
         
         return JsonResponse({
@@ -354,12 +353,8 @@ def accept_purchase_intent(request, intent_id):
             'conversation_id': conversation.id if table_exists and 'conversation' in locals() else None
         })
     except Exception as e:
-        import traceback
-        import logging
-        error_trace = traceback.format_exc()
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error in accept_purchase_intent: {e}\n{error_trace}")
-        return JsonResponse({'error': str(e), 'trace': error_trace}, status=500)
+        logger.exception("Error in accept_purchase_intent")
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
 @login_required
@@ -421,8 +416,6 @@ def reject_purchase_intent(request, intent_id):
                 conversation.save()
             except Exception as msg_error:
                 # Logger l'erreur mais continuer
-                import logging
-                logger = logging.getLogger(__name__)
                 logger.error(f"Error creating message in reject_purchase_intent: {msg_error}")
         
         return JsonResponse({
@@ -430,12 +423,8 @@ def reject_purchase_intent(request, intent_id):
             'message': 'Intention d\'achat refusée.'
         })
     except Exception as e:
-        import traceback
-        import logging
-        error_trace = traceback.format_exc()
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error in reject_purchase_intent: {e}\n{error_trace}")
-        return JsonResponse({'error': str(e), 'trace': error_trace}, status=500)
+        logger.exception("Error in reject_purchase_intent")
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
 @login_required
@@ -499,75 +488,8 @@ def cancel_purchase_intent(request, intent_id):
             'message': 'Intention d\'achat annulée.'
         })
     except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        return JsonResponse({'error': str(e), 'trace': error_trace}, status=500)
-
-
-@login_required
-@require_POST
-def cancel_purchase_intent(request, intent_id):
-    """
-    Annule une intention d'achat (par l'acheteur ou le vendeur)
-    """
-    intent = get_object_or_404(PurchaseIntent, id=intent_id)
-    
-    # Vérifier que c'est l'acheteur ou le vendeur
-    if request.user not in [intent.buyer, intent.seller]:
-        return JsonResponse({'error': 'Vous n\'avez pas la permission d\'annuler cette intention d\'achat.'}, status=403)
-    
-    # Vérifier le statut - ne peut être annulé que si en attente ou en négociation
-    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]:
-        return JsonResponse({'error': 'Cette intention d\'achat ne peut plus être annulée.'}, status=400)
-    
-    try:
-        intent.status = PurchaseIntent.CANCELLED
-        intent.seller_notified = True  # Marquer comme notifié pour ne plus compter
-        intent.save()
-        
-        # Créer un message automatique dans la conversation si elle existe
-        from accounts.models import ProductConversation, ProductMessage
-        from django.db import connection as db_connection
-        
-        # Vérifier si la table existe
-        table_exists = False
-        try:
-            with db_connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-                table_exists = cursor.fetchone() is not None
-        except Exception:
-            table_exists = False
-        
-        if table_exists:
-            try:
-                conversation = ProductConversation.objects.get(
-                    product=intent.product,
-                    buyer=intent.buyer,
-                    seller=intent.seller
-                )
-                
-                canceller_name = request.user.get_full_name() or request.user.username
-                message_text = f"❌ {canceller_name} a annulé l'intention d'achat pour cet article."
-                
-                ProductMessage.objects.create(
-                    conversation=conversation,
-                    sender=request.user,
-                    message=message_text
-                )
-                
-                conversation.last_message_at = timezone.now()
-                conversation.save()
-            except ProductConversation.DoesNotExist:
-                pass  # Pas de conversation, pas de problème
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Intention d\'achat annulée.'
-        })
-    except Exception as e:
-        import traceback
-        error_trace = traceback.format_exc()
-        return JsonResponse({'error': str(e), 'trace': error_trace}, status=500)
+        logger.exception("Error in cancel_purchase_intent")
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
 
 
 @login_required
@@ -691,8 +613,6 @@ def init_c2c_payment(request, order_id):
             return redirect('c2c:order-detail', order_id=order_id)
         
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.exception(f"Erreur lors de l'initialisation du paiement C2C: {str(e)}")
         messages.error(request, f"Erreur lors de l'initialisation du paiement: {str(e)}")
         return redirect('c2c:order-detail', order_id=order_id)
@@ -821,7 +741,7 @@ def verify_seller_code(request, order_id):
                     can_review, _ = BuyerReview.can_review(order, order.seller)
                     if can_review:
                         review_url = reverse('c2c:create-review', args=[order.id])
-            except:
+            except Exception:
                 pass
             
             return JsonResponse({
@@ -843,8 +763,8 @@ def verify_seller_code(request, order_id):
 @require_POST
 def verify_buyer_code(request, order_id):
     """
-    Vérifie le code vendeur (V-CODE) saisi par l'acheteur
-    L'acheteur entre le code V-CODE pour confirmer qu'il a reçu l'article
+    Vérifie le code acheteur (B-CODE) — vérification côté acheteur.
+    L'acheteur saisit le code pour confirmer qu'il a reçu l'article.
     """
     order = get_object_or_404(C2COrder, id=order_id)
     
@@ -865,7 +785,7 @@ def verify_buyer_code(request, order_id):
                 can_review, _ = SellerReview.can_review(order, order.buyer)
                 if can_review:
                     review_url = reverse('c2c:create-review', args=[order.id])
-            except:
+            except Exception:
                 pass
             
             return JsonResponse({
@@ -951,8 +871,7 @@ def purchase_boost(request, product_id):
         })
         
     except Exception as e:
-        import traceback
-        logger.error(f"Erreur lors de l'achat du boost: {str(e)}\n{traceback.format_exc()}")
+        logger.exception("Erreur lors de l'achat du boost")
         return JsonResponse({'error': str(e)}, status=400)
 
 

@@ -1,0 +1,263 @@
+
+
+/* === Extracted inline styles === */
+
+.gm-s-8748cb {
+    padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);
+}
+
+.gm-s-75faf2 {
+    max-width: 1200px; margin: 0 auto; padding: 0 24px;
+}
+
+.gm-s-91e2ae {
+    margin-bottom: 32px;
+}
+
+.gm-s-6b667f {
+    font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; font-family: var(--font-primary);
+}
+
+.gm-s-7d59e2 {
+    font-size: 14px; color: #6B7280; margin: 0;
+}
+
+.gm-s-36fe26 {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;
+}
+
+.gm-s-12be3f {
+    background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;
+}
+
+.gm-s-28ad77 {
+    font-size: 14px; color: #6B7280; margin-bottom: 8px;
+}
+
+.gm-s-72029b {
+    font-size: 28px; font-weight: 700; color: #1F2937;
+}
+
+.gm-s-840dd0 {
+    font-size: 28px; font-weight: 700; color: #10B981;
+}
+
+.gm-s-464cff {
+    font-size: 28px; font-weight: 700; color: #F59E0B;
+}
+
+.gm-s-34d884 {
+    font-size: 28px; font-weight: 700; color: #EF4444;
+}
+
+.gm-s-c558ed {
+    background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6;
+}
+
+.gm-s-b56181 {
+    overflow-x: auto;
+}
+
+.gm-s-91f0da {
+    width: 100%; border-collapse: collapse;
+}
+
+.gm-s-320d02 {
+    border-bottom: 2px solid #F3F4F6;
+}
+
+.gm-s-0e6c2b {
+    padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6B7280; text-transform: uppercase;
+}
+
+.gm-s-093d93 {
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.gm-s-407d9a {
+    padding: 16px 12px;
+}
+
+.gm-s-e42565 {
+    font-size: 13px; font-weight: 600; color: #1F2937;
+}
+
+.gm-s-93a6e0 {
+    font-size: 11px; color: #9CA3AF;
+}
+
+.gm-s-bde8b3 {
+    font-size: 15px; font-weight: 700; color: var(--color-orange);
+}
+
+.gm-s-87c377 {
+    padding: 6px 12px; background: #D1FAE5; color: #059669; border-radius: 6px; font-size: 12px; font-weight: 600;
+}
+
+.gm-s-6b2dcd {
+    padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600;
+}
+
+.gm-s-10fd3b {
+    padding: 6px 12px; background: #FEE2E2; color: #DC2626; border-radius: 6px; font-size: 12px; font-weight: 600;
+}
+
+.gm-s-c77f7c {
+    padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 600;
+}
+
+.gm-s-d41658 {
+    font-size: 13px; color: #6B7280;
+}
+
+.gm-s-39b233 {
+    display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+.gm-s-a6d4a5 {
+    padding: 8px 16px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+}
+
+.gm-s-8190fa {
+    margin-right: 4px;
+}
+
+.gm-s-f550f2 {
+    padding: 8px 16px; background: #FEF3C7; color: #92400E; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+}
+
+.gm-s-705c7c {
+    padding: 8px 16px; background: #DBEAFE; color: #1E40AF; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+}
+
+.gm-s-7ee9bb {
+    text-align: center; padding: 60px 20px;
+}
+
+.gm-s-a59150 {
+    width: 80px; height: 80px; margin: 0 auto 24px; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+.gm-s-dd5b08 {
+    font-size: 40px; color: #9CA3AF;
+}
+
+.gm-s-73032e {
+    font-size: 20px; font-weight: 600; color: #1F2937; margin: 0 0 8px 0;
+}
+
+.gm-s-7d4818 {
+    font-size: 14px; color: #6B7280; margin: 0 0 24px 0;
+}
+
+.gm-s-ad044f {
+    display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border-radius: 10px; text-decoration: none; font-weight: 600;
+}
+
+.gm-s-7f4ee4 {
+    margin-right: 8px;
+}
+
+.gm-s-96de9c {
+    display: flex; align-items: start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #F3F4F6;
+}
+
+.gm-s-032ac9 {
+    width: 32px; height: 32px; border-radius: 50%; background: ${color}20; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.gm-s-d38737 {
+    color: ${color}; font-size: 16px;
+}
+
+.gm-s-1334a0 {
+    font-size: 14px; font-weight: 600; color: #1F2937; margin-bottom: 4px;
+}
+
+.gm-s-7f67b5 {
+    font-size: 12px; color: #6B7280;
+}
+
+.gm-s-6f67df {
+    font-size: 11px; color: #9CA3AF; margin-top: 4px;
+}
+
+.gm-s-102b7f {
+    text-align: left;
+}
+
+.gm-s-d32779 {
+    margin-bottom: 16px;
+}
+
+.gm-s-56020b {
+    font-size: 12px; color: #6B7280; margin-bottom: 4px;
+}
+
+.gm-s-5daf23 {
+    font-size: 20px; font-weight: 700; color: var(--color-orange);
+}
+
+.gm-s-3c73d3 {
+    font-size: 14px; font-weight: 600; color: #1F2937;
+}
+
+.gm-s-b2afe5 {
+    font-size: 14px; color: #1F2937;
+}
+
+.gm-s-7f383a {
+    margin-top: 24px; padding-top: 16px; border-top: 2px solid #F3F4F6;
+}
+
+.gm-s-d62b99 {
+    font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 12px; text-transform: uppercase;
+}
+
+.gm-s-797970 {
+    margin-bottom: 16px; color: #6B7280;
+}
+
+.gm-s-0e0a1c {
+    background: #FEF3C7; padding: 12px; border-radius: 8px; margin-bottom: 16px;
+}
+
+.gm-s-61e20a {
+    font-size: 12px; color: #92400E; margin-bottom: 4px;
+}
+
+.gm-s-0e16e2 {
+    font-size: 14px; font-weight: 600; color: #92400E;
+}
+
+.gm-s-0411d7 {
+    font-size: 16px; font-weight: 700; color: #92400E;
+}
+
+.gm-s-adbc72 {
+    display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 8px;
+}
+
+.gm-s-11c5ee {
+    width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;
+}
+
+.gm-s-7b2f69 {
+    background: #DBEAFE; padding: 12px; border-radius: 8px; margin-bottom: 16px;
+}
+
+.gm-s-6be4e5 {
+    font-size: 12px; color: #1E40AF; margin-bottom: 4px;
+}
+
+.gm-s-69926e {
+    font-size: 14px; font-weight: 600; color: #1E40AF;
+}
+
+.gm-s-e13a4d {
+    font-size: 16px; font-weight: 700; color: #1E40AF;
+}
+
+.gm-s-eec9af {
+    width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;
+}

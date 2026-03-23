@@ -2,60 +2,64 @@
 {% load static %}
 {% load cart_template_tags %}
 
-{%block body%}
-<main class="main pages order-detail-page" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(160deg, #F8FAFC 0%, #F1F5F9 50%, #FFF 100%);">
-    <div class="container order-detail-container" style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/order-archive.css' %}?v=1.0">
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages order-detail-page gm-s-e4a6f2" >
+    <div class="container order-detail-container gm-s-75faf2" >
         <!-- Breadcrumb -->
-        <nav class="order-detail-breadcrumb" style="margin-bottom: 28px; font-size: 14px; color: #64748B; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="order-detail-breadcrumb gm-s-8bd9c8" >
+            <a href="{% url 'home:index' %}" class="gm-s-7e35e1">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #CBD5E1;">/</span>
-            <a href="{% url 'accounts:dashboard_customer' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; transition: all 0.2s ease;">Mes commandes</a>
-            <span style="color: #CBD5E1;">/</span>
-            <span style="color: #334155; font-weight: 600;">Commande #{{order.id}}</span>
+            <span class="gm-s-293195">/</span>
+            <a href="{% url 'accounts:dashboard_customer' %}" class="gm-s-20a539">Mes commandes</a>
+            <span class="gm-s-293195">/</span>
+            <span class="gm-s-91c809">Commande #{{order.id}}</span>
         </nav>
 
         <!-- Header de la commande -->
-        <div class="order-detail-hero" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); border-radius: 20px; padding: 28px 32px; margin-bottom: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255,255,255,0.05) inset; position: relative; overflow: hidden; color: #ffffff;">
-            <div style="position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: radial-gradient(ellipse at 100% 0%, rgba(255, 123, 44, 0.12) 0%, transparent 60%); pointer-events: none;"></div>
+        <div class="order-detail-hero gm-s-15be27" >
+            <div class="gm-s-44a14c"></div>
             <!-- Header compact avec titre, date et statut -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
-                <div style="flex: 1; min-width: 200px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                        <i class="fi-rs-shopping-bag order-detail-hero-icon" style="font-size: 24px; color: #F97316;"></i>
-                        <h1 class="order-detail-hero-title" style="font-size: 24px; font-weight: 700; margin: 0;">Commande #{{order.id}}</h1>
+            <div class="gm-s-1eabfb">
+                <div class="gm-s-8ea199">
+                    <div class="gm-s-9bb79f">
+                        <i class="fi-rs-shopping-bag order-detail-hero-icon gm-s-2987bc" ></i>
+                        <h1 class="order-detail-hero-title gm-s-5e81b2" >Commande #{{order.id}}</h1>
                     </div>
-                    <p class="order-detail-hero-date" style="font-size: 13px; margin: 0; display: flex; align-items: center; gap: 6px;">
-                        <i class="fi-rs-calendar" style="font-size: 12px;"></i>
+                    <p class="order-detail-hero-date gm-s-f6927e" >
+                        <i class="fi-rs-calendar gm-s-345895" ></i>
                         {{order.order_date|date:"d F Y à H:i"}}
                     </p>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div class="gm-s-5afa63">
                     {% if order.status == 'PENDING' %}
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(254, 243, 199, 0.2); border: 1px solid rgba(254, 243, 199, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
-                        <i class="fi-rs-clock" style="color: #FCD34D; font-size: 14px;"></i>
+                    <span class="gm-s-85fb97">
+                        <i class="fi-rs-clock gm-s-779859" ></i>
                         <span>{{status_display}}</span>
                     </span>
                     {% elif order.status == 'Underway' %}
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(219, 234, 254, 0.2); border: 1px solid rgba(219, 234, 254, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
-                        <i class="fi-rs-truck" style="color: #60A5FA; font-size: 14px;"></i>
+                    <span class="gm-s-d2c7b0">
+                        <i class="fi-rs-truck gm-s-2cbd23" ></i>
                         <span>{{status_display}}</span>
                     </span>
                     {% elif order.status == 'COMPLETE' %}
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(209, 250, 229, 0.2); border: 1px solid rgba(209, 250, 229, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
-                        <i class="fi-rs-check" style="color: #34D399; font-size: 14px;"></i>
+                    <span class="gm-s-3c716a">
+                        <i class="fi-rs-check gm-s-7ccd74" ></i>
                         <span>{{status_display}}</span>
                     </span>
                     {% else %}
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(254, 226, 226, 0.2); border: 1px solid rgba(254, 226, 226, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px);">
-                        <i class="fi-rs-cross-circle" style="color: #F87171; font-size: 14px;"></i>
+                    <span class="gm-s-44fec2">
+                        <i class="fi-rs-cross-circle gm-s-6ca7b3" ></i>
                         <span>{{status_display}}</span>
                     </span>
                     {% endif %}
                     {% if transaction %}
-                    <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; font-weight: 600; font-size: 13px; color: white; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px); white-space: nowrap;">
-                        <i class="fi-rs-credit-card" style="font-size: 14px;"></i>
+                    <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" class="gm-s-7033cb">
+                        <i class="fi-rs-credit-card gm-s-267f6d" ></i>
                         <span>Paiement</span>
                     </button>
                     {% endif %}
@@ -63,54 +67,54 @@
             </div>
             
             <!-- Informations rapides - Layout compact -->
-            <div class="order-detail-hero-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-shopping-cart"></i></div>
+            <div class="order-detail-hero-stats gm-s-7008d0" >
+                <div class="gm-s-b512c9">
+                    <div class="order-detail-hero-stat-icon gm-s-008c39" ><i class="fi-rs-shopping-cart"></i></div>
                     <div style="min-width: 0;">
-                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Articles</div>
-                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap;">{{order_details.count}}</div>
+                        <div class="order-detail-hero-stat-label gm-s-a43b0a" >Articles</div>
+                        <div class="order-detail-hero-stat-value gm-s-584694" >{{order_details.count}}</div>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-money"></i></div>
+                <div class="gm-s-b512c9">
+                    <div class="order-detail-hero-stat-icon gm-s-008c39" ><i class="fi-rs-money"></i></div>
                     <div style="min-width: 0;">
-                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Total</div>
-                        <div class="order-detail-hero-stat-value order-detail-hero-total" style="font-size: 15px; font-weight: 700; white-space: nowrap;">{{order.amount|floatformat:0}} FCFA</div>
+                        <div class="order-detail-hero-stat-label gm-s-a43b0a" >Total</div>
+                        <div class="order-detail-hero-stat-value order-detail-hero-total gm-s-584694" >{{order.amount|floatformat:0}} FCFA</div>
                     </div>
                 </div>
                 {% if payment_info %}
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-credit-card"></i></div>
+                <div class="gm-s-b512c9">
+                    <div class="order-detail-hero-stat-icon gm-s-008c39" ><i class="fi-rs-credit-card"></i></div>
                     <div style="min-width: 0;">
-                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Paiement</div>
-                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{payment_info.payment_method|default:"Non spécifié"}}</div>
+                        <div class="order-detail-hero-stat-label gm-s-a43b0a" >Paiement</div>
+                        <div class="order-detail-hero-stat-value gm-s-0f51e2" >{{payment_info.payment_method|default:"Non spécifié"}}</div>
                     </div>
                 </div>
                 {% endif %}
                 {% if order.tracking_no %}
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div class="order-detail-hero-stat-icon" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;"><i class="fi-rs-truck"></i></div>
+                <div class="gm-s-b512c9">
+                    <div class="order-detail-hero-stat-icon gm-s-008c39" ><i class="fi-rs-truck"></i></div>
                     <div style="min-width: 0;">
-                        <div class="order-detail-hero-stat-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap;">Suivi</div>
-                        <div class="order-detail-hero-stat-value" style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{order.tracking_no}}</div>
+                        <div class="order-detail-hero-stat-label gm-s-a43b0a" >Suivi</div>
+                        <div class="order-detail-hero-stat-value gm-s-0f51e2" >{{order.tracking_no}}</div>
                     </div>
                 </div>
                 {% endif %}
             </div>
             <!-- Barre de progression du statut -->
-            <div class="order-status-stepper" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
-                    <div class="status-step {% if order.status == 'PENDING' or order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'PENDING' %}rgba(255, 123, 44, 0.25){% else %}rgba(16, 185, 129, 0.3){% endif %}; border: 2px solid {% if order.status == 'PENDING' %}var(--color-orange){% else %}#10B981{% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-{% if order.status == 'PENDING' %}clock{% else %}check{% endif %}" style="font-size: 14px; color: white;"></i></div>
-                        <span style="font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9);">Commandée</span>
+            <div class="order-status-stepper gm-s-d0dc00" >
+                <div class="gm-s-0a363a">
+                    <div class="status-step {% if order.status == 'PENDING' or order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %} gm-s-d1daef" >
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'PENDING' %}rgba(255, 123, 44, 0.25){% else %}rgba(16, 185, 129, 0.3){% endif %}; border: 2px solid {% if order.status == 'PENDING' %}var(--color-orange){% else %}#10B981{% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-{% if order.status == 'PENDING' %}clock{% else %}check{% endif %} gm-s-85d780" ></i></div>
+                        <span class="gm-s-dc98a2">Commandée</span>
                     </div>
                     <div style="flex: 0 0 24px; height: 2px; background: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.5){% else %}rgba(255,255,255,0.15){% endif %}; border-radius: 1px;"></div>
-                    <div class="status-step {% if order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <div class="status-step {% if order.status == 'Underway' or order.status == 'COMPLETE' %}done{% endif %} gm-s-d1daef" >
                         <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'Underway' %}rgba(255, 123, 44, 0.25){% elif order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.3){% else %}rgba(255,255,255,0.08){% endif %}; border: 2px solid {% if order.status == 'Underway' %}var(--color-orange){% elif order.status == 'COMPLETE' %}#10B981{% else %}rgba(255,255,255,0.2){% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-{% if order.status == 'COMPLETE' %}check{% else %}truck{% endif %}" style="font-size: 14px; color: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}white{% else %}rgba(255,255,255,0.4){% endif %};"></i></div>
                         <span style="font-size: 11px; font-weight: 600; color: {% if order.status == 'Underway' or order.status == 'COMPLETE' %}rgba(255,255,255,0.95){% else %}rgba(255,255,255,0.5){% endif %};">En cours</span>
                     </div>
                     <div style="flex: 0 0 24px; height: 2px; background: {% if order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.5){% else %}rgba(255,255,255,0.15){% endif %}; border-radius: 1px;"></div>
-                    <div class="status-step {% if order.status == 'COMPLETE' %}done{% endif %}" style="flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <div class="status-step {% if order.status == 'COMPLETE' %}done{% endif %} gm-s-d1daef" >
                         <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'COMPLETE' %}rgba(16, 185, 129, 0.3){% else %}rgba(255,255,255,0.08){% endif %}; border: 2px solid {% if order.status == 'COMPLETE' %}#10B981{% else %}rgba(255,255,255,0.2){% endif %}; display: flex; align-items: center; justify-content: center;"><i class="fi-rs-check" style="font-size: 14px; color: {% if order.status == 'COMPLETE' %}white{% else %}rgba(255,255,255,0.4){% endif %};"></i></div>
                         <span style="font-size: 11px; font-weight: 600; color: {% if order.status == 'COMPLETE' %}rgba(255,255,255,0.95){% else %}rgba(255,255,255,0.5){% endif %};">Terminée</span>
                     </div>
@@ -118,42 +122,42 @@
             </div>
         </div>
 
-        <div class="order-detail-grid" style="display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start;">
+        <div class="order-detail-grid gm-s-b65903" >
             <!-- Liste des articles -->
-            <div class="order-detail-products-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
-                <h2 style="font-size: 22px; font-weight: 700; color: #0F172A; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em;">
-                    <i class="fi-rs-shopping-bag" style="color: var(--color-orange); font-size: 24px;"></i>
+            <div class="order-detail-products-card gm-s-f235fd" >
+                <h2 class="gm-s-0662d5">
+                    <i class="fi-rs-shopping-bag gm-s-8a7e75" ></i>
                     Articles commandés ({{order_details.count}})
                 </h2>
                 
-                <div class="order-detail-products-list" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="order-detail-products-list gm-s-269ea7" >
                     {% for item in order_details %}
-                    <div class="order-item-card" style="display: flex; gap: 20px; padding: 20px; background: #F8FAFC; border-radius: 16px; border: 1px solid #E2E8F0; transition: all 0.25s ease;">
+                    <div class="order-item-card gm-s-50b1e9" >
                         <!-- Image du produit -->
-                        <div style="flex-shrink: 0;">
+                        <div class="gm-s-c99770">
                             {% if item.peer_product %}
-                                <img src="{{item.peer_product.product_image.url}}" alt="{{item.peer_product.product_name}}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                <img src="{{item.peer_product.product_image.url}}" alt="{{item.peer_product.product_name}}" class="gm-s-827f88">
                             {% elif item.product %}
                                 {% if item.product.product_image %}
-                                <img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                <img src="{{item.product.product_image.url}}" alt="{{item.product.product_name}}" class="gm-s-827f88">
                                 {% else %}
-                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" class="gm-s-827f88">
                                 {% endif %}
                             {% else %}
-                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #E5E7EB;">
+                                <img src="{% static 'assets/imgs/shop/product-1-1.jpg'%}" alt="Produit" class="gm-s-827f88">
                             {% endif %}
                         </div>
                         
                         <!-- Détails du produit -->
-                        <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="gm-s-9ae6c3">
                             <div>
-                                <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0;">
+                                <h3 class="gm-s-ebc9aa">
                                     {% if item.peer_product %}
-                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
+                                        <a href="{% url 'accounts:peer-product-details' item.peer_product.PRDSlug %}" class="gm-s-465cb6" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
                                             {{item.peer_product.product_name}}
                                         </a>
                                     {% elif item.product %}
-                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" style="color: #1F2937; text-decoration: none; transition: all 0.2s ease;" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
+                                        <a href="{% url 'products:product-details' item.product.PRDSlug %}" class="gm-s-465cb6" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#1F2937'">
                                             {{item.product.product_name}}
                                         </a>
                                     {% else %}
@@ -161,96 +165,96 @@
                                     {% endif %}
                                 </h3>
                                 
-                                <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 14px; color: #6B7280;">
+                                <div class="gm-s-596610">
                                     {% if item.size %}
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-scale" style="font-size: 14px; color: #6B7280;"></i>
+                                    <div class="gm-s-650e12">
+                                        <i class="fi-rs-scale gm-s-1e849f" ></i>
                                         <span>Taille: <strong>{{item.size}}</strong></span>
                                     </div>
                                     {% endif %}
                                     {% if item.weight %}
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-package" style="font-size: 14px; color: #6B7280;"></i>
+                                    <div class="gm-s-650e12">
+                                        <i class="fi-rs-package gm-s-1e849f" ></i>
                                         <span>Poids: <strong>{{item.weight}} kg</strong></span>
                                     </div>
                                     {% endif %}
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <i class="fi-rs-shopping-cart-add" style="font-size: 14px; color: #6B7280;"></i>
+                                    <div class="gm-s-650e12">
+                                        <i class="fi-rs-shopping-cart-add gm-s-1e849f" ></i>
                                         <span>Quantité: <strong>{{item.quantity}}</strong></span>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                            <div class="gm-s-431023">
                                 <div>
-                                    <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Prix unitaire</div>
-                                    <div style="font-size: 16px; font-weight: 600; color: #6B7280;">{{item.price|floatformat:0}} FCFA</div>
+                                    <div class="gm-s-56020b">Prix unitaire</div>
+                                    <div class="gm-s-0d053b">{{item.price|floatformat:0}} FCFA</div>
                                 </div>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px;">Sous-total</div>
-                                    <div style="font-size: 20px; font-weight: 700; color: var(--color-orange);">{% widthratio item.price 1 item.quantity %} FCFA</div>
+                                <div class="gm-s-7851db">
+                                    <div class="gm-s-56020b">Sous-total</div>
+                                    <div class="gm-s-5daf23">{% widthratio item.price 1 item.quantity %} FCFA</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% empty %}
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #CBD5E1; margin-bottom: 16px;"></i>
-                        <p style="font-size: 16px; color: #64748B;">Aucun article dans cette commande</p>
+                    <div class="gm-s-7ee9bb">
+                        <i class="fi-rs-shopping-bag gm-s-a1fcc8" ></i>
+                        <p class="gm-s-4b36f6">Aucun article dans cette commande</p>
                     </div>
                     {% endfor %}
                 </div>
             </div>
 
             <!-- Section résumé et informations (une colonne pour éviter les cartes imbriquées) -->
-            <div class="order-info-section order-detail-sidebar" style="display: flex; flex-direction: column; gap: 28px; align-items: stretch;">
-                <div class="order-detail-sidebar-inner" style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="order-info-section order-detail-sidebar gm-s-6b1302" >
+                <div class="order-detail-sidebar-inner gm-s-e9a4c3" >
                     <!-- Résumé de la commande -->
-                    <div class="order-summary-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
-                        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-receipt" style="color: var(--color-orange);"></i>
+                    <div class="order-summary-card gm-s-f235fd" >
+                        <h3 class="gm-s-e600a4">
+                            <i class="fi-rs-receipt gm-s-a77b0c" ></i>
                             Résumé de la commande
                         </h3>
                         
-                        <div style="display: flex; flex-direction: column; gap: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                                <span style="font-size: 14px; color: #6B7280;">Sous-total</span>
-                                <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.sub_total|default:total|floatformat:0}} FCFA</span>
+                        <div class="gm-s-269ea7">
+                            <div class="gm-s-2b2e1e">
+                                <span class="gm-s-1e849f">Sous-total</span>
+                                <span class="gm-s-fc44e4">{{order.sub_total|default:total|floatformat:0}} FCFA</span>
                             </div>
                             
                             {% if order.shipping %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                                <span style="font-size: 14px; color: #6B7280;">Livraison</span>
-                                <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{order.shipping}} FCFA</span>
+                            <div class="gm-s-2b2e1e">
+                                <span class="gm-s-1e849f">Livraison</span>
+                                <span class="gm-s-fc44e4">{{order.shipping}} FCFA</span>
                             </div>
                             {% endif %}
                             
                             {% if order.coupon %}
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
-                                <span style="font-size: 14px; color: #6B7280;">Réduction ({{order.coupon.code}})</span>
-                                <span style="font-size: 16px; font-weight: 600; color: #10B981;">-{{order.discount|default:"0"}} FCFA</span>
+                            <div class="gm-s-2b2e1e">
+                                <span class="gm-s-1e849f">Réduction ({{order.coupon.code}})</span>
+                                <span class="gm-s-05b926">-{{order.discount|default:"0"}} FCFA</span>
                             </div>
                             {% endif %}
                             
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 2px solid #E5E7EB; margin-top: 8px;">
-                                <span style="font-size: 18px; font-weight: 700; color: #1F2937;">Total</span>
-                                <span style="font-size: 24px; font-weight: 700; color: var(--color-orange);">{{order.amount|floatformat:0}} FCFA</span>
+                            <div class="gm-s-5b8b93">
+                                <span class="gm-s-7f5551">Total</span>
+                                <span class="gm-s-78ff43">{{order.amount|floatformat:0}} FCFA</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="order-actions-card" style="background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0;">
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <a href="{% url 'accounts:dashboard_customer' %}" class="order-action-btn order-action-back" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: #F1F5F9; color: #475569; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; border: 1px solid #E2E8F0;">
+                    <div class="order-actions-card gm-s-f235fd" >
+                        <div class="gm-s-578b24">
+                            <a href="{% url 'accounts:dashboard_customer' %}" class="order-action-btn order-action-back gm-s-e13f52" >
                                 <i class="fi-rs-arrow-left"></i>
                                 Retour aux commandes
                             </a>
-                            <a href="{% url 'orders:invoice-print' order.id %}" target="_blank" class="order-action-btn order-action-invoice" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(255, 123, 44, 0.35);">
+                            <a href="{% url 'orders:invoice-print' order.id %}" target="_blank" class="order-action-btn order-action-invoice gm-s-9ddc26" >
                                 <i class="fi-rs-print"></i>
                                 Voir la facture
                             </a>
-                            <a href="{% url 'orders:invoice-print' order.id %}?format=pdf" target="_blank" class="order-action-btn order-action-pdf" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 24px; background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);">
+                            <a href="{% url 'orders:invoice-print' order.id %}?format=pdf" target="_blank" class="order-action-btn order-action-pdf gm-s-b72b78" >
                                 <i class="fi-rs-document"></i>
                                 Télécharger PDF
                             </a>
@@ -259,34 +263,34 @@
                 </div>
 
                 <!-- Adresse de livraison et Informations de paiement -->
-                <div class="info-cards-container" style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="info-cards-container gm-s-e9a4c3" >
                     <!-- Informations de livraison -->
                     {% if payment_info %}
-                    <div class="order-info-card" style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0; flex: 1;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-marker" style="color: var(--color-orange); font-size: 20px;"></i>
+                    <div class="order-info-card gm-s-05cecf" >
+                        <h3 class="gm-s-e932bb">
+                            <i class="fi-rs-marker gm-s-0ffe3c" ></i>
                             Adresse de livraison
                         </h3>
                         
-                        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #374151; line-height: 1.5;">
-                            <div style="display: flex; align-items: start; gap: 8px;">
-                                <i class="fi-rs-user" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
+                        <div class="gm-s-3c2ce3">
+                            <div class="gm-s-665c83">
+                                <i class="fi-rs-user gm-s-e4efd0" ></i>
                                 <span><strong>{{payment_info.first_name}} {{payment_info.last_name}}</strong></span>
                             </div>
-                            <div style="display: flex; align-items: start; gap: 8px;">
-                                <i class="fi-rs-marker" style="color: #6B7280; margin-top: 2px; font-size: 14px; flex-shrink: 0;"></i>
+                            <div class="gm-s-665c83">
+                                <i class="fi-rs-marker gm-s-e4efd0" ></i>
                                 <span>{{payment_info.street_address}}<br>
                                 {% if payment_info.City %}{{payment_info.City}}{% endif %}
                                 {% if payment_info.state %}, {{payment_info.state}}{% endif %}
                                 {% if payment_info.post_code %}{{payment_info.post_code}}{% endif %}
                                 {% if payment_info.country %}, {{payment_info.country}}{% endif %}</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fi-rs-mobile" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
+                            <div class="gm-s-bd9db1">
+                                <i class="fi-rs-mobile gm-s-f991f2" ></i>
                                 <span>{{payment_info.phone}}</span>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fi-rs-envelope" style="color: #6B7280; font-size: 14px; flex-shrink: 0;"></i>
+                            <div class="gm-s-bd9db1">
+                                <i class="fi-rs-envelope gm-s-f991f2" ></i>
                                 <span>{{payment_info.Email_Address}}</span>
                             </div>
                         </div>
@@ -295,28 +299,28 @@
 
                     <!-- Informations de paiement -->
                     {% if transaction %}
-                    <div class="order-info-card" style="background: white; border-radius: 20px; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04); border: 1px solid #E2E8F0; flex: 1;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fi-rs-credit-card" style="color: var(--color-orange); font-size: 20px;"></i>
-                            <span style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Informations de paiement</span>
+                    <div class="order-info-card gm-s-05cecf" >
+                        <h3 class="gm-s-e932bb">
+                            <i class="fi-rs-credit-card gm-s-0ffe3c" ></i>
+                            <span class="gm-s-29aa69">Informations de paiement</span>
                         </h3>
                         
-                        <div style="display: flex; flex-direction: column; gap: 14px;">
-                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
-                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Méthode</div>
-                                <div style="font-size: 15px; font-weight: 600; color: #1F2937;">{{transaction.payment_method|default:"Non spécifié"}}</div>
+                        <div class="gm-s-f4b161">
+                            <div class="gm-s-47f57b">
+                                <div class="gm-s-431134">Méthode</div>
+                                <div class="gm-s-9554a9">{{transaction.payment_method|default:"Non spécifié"}}</div>
                             </div>
-                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
-                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Transaction ID</div>
-                                <div style="font-size: 12px; font-weight: 600; color: #1F2937; font-family: monospace; word-break: break-all;">{{transaction.transaction_id}}</div>
+                            <div class="gm-s-47f57b">
+                                <div class="gm-s-431134">Transaction ID</div>
+                                <div class="gm-s-3a5a82">{{transaction.transaction_id}}</div>
                             </div>
                             {% if transaction.paid_at %}
-                            <div style="padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
-                                <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">Date de paiement</div>
-                                <div style="font-size: 15px; font-weight: 600; color: #1F2937;">{{transaction.paid_at|date:"d/m/Y à H:i"}}</div>
+                            <div class="gm-s-47f57b">
+                                <div class="gm-s-431134">Date de paiement</div>
+                                <div class="gm-s-9554a9">{{transaction.paid_at|date:"d/m/Y à H:i"}}</div>
                             </div>
                             {% endif %}
-                            <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" style="width: 100%; padding: 12px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <button onclick="showTransactionDetails('{{transaction.transaction_id}}')" class="gm-s-33c3a8">
                                 <i class="fi-rs-eye"></i>
                                 Voir les étapes
                             </button>
@@ -330,347 +334,21 @@
 </main>
 
 <!-- Modal pour afficher les détails de transaction -->
-<div id="transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); position: relative;">
-        <button onclick="document.getElementById('transaction-modal').style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; border: none; color: #6B7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
-            <i class="fi-rs-cross" style="font-size: 18px;"></i>
+<div id="transaction-modal" class="gm-s-8c6cde">
+    <div class="gm-s-1304ae">
+        <button onclick="document.getElementById('transaction-modal').style.display='none'" class="gm-s-059d8e" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
+            <i class="fi-rs-cross gm-s-768e1f" ></i>
         </button>
-        <div id="transaction-steps" style="padding: 40px 24px 24px 24px;">
+        <div id="transaction-steps" class="gm-s-69609b">
             <!-- Le contenu sera chargé dynamiquement -->
         </div>
     </div>
 </div>
+{% endblock body %}
 
-<style>
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.order-detail-page .order-detail-container {
-    animation: fadeInUp 0.4s ease-out;
-}
-
-/* Bandeau hero : texte et icônes toujours clairs sur fond sombre */
-.order-detail-hero,
-.order-detail-hero .order-detail-hero-title,
-.order-detail-hero .order-detail-hero-date,
-.order-detail-hero .order-detail-hero-stat-label,
-.order-detail-hero .order-detail-hero-stat-value {
-    color: #ffffff !important;
-}
-.order-detail-hero .order-detail-hero-date,
-.order-detail-hero .order-detail-hero-stat-label {
-    color: rgba(255, 255, 255, 0.85) !important;
-}
-.order-detail-hero .order-detail-hero-total {
-    color: #F97316 !important;
-}
-.order-detail-hero .order-detail-hero-stat-icon i,
-.order-detail-hero .order-status-stepper span,
-.order-detail-hero [class*="status-step"] span {
-    color: inherit !important;
-}
-.order-detail-hero .order-detail-hero-stat-icon {
-    color: #ffffff !important;
-}
-.order-detail-hero i:not(.order-detail-hero-icon) {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-.order-detail-hero .order-detail-hero-icon {
-    color: #F97316 !important;
-}
-
-/* Grille principale : liste des articles à gauche, sidebar à droite sur desktop */
-@media (min-width: 1024px) {
-    .order-detail-grid {
-        grid-template-columns: 1fr 360px !important;
-        gap: 32px !important;
-    }
-    .order-detail-sidebar-inner {
-        position: sticky;
-        top: 100px;
-    }
-}
-
-/* Sidebar : une seule colonne (pas de cartes imbriquées) */
-.order-info-section {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 28px !important;
-    align-items: stretch !important;
-}
-
-.info-cards-container {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 24px !important;
-}
-
-.info-cards-container > div {
-    flex: 0 0 auto !important;
-    min-height: auto !important;
-}
-
-/* Cartes articles : hover */
-.order-item-card:hover {
-    border-color: rgba(255, 123, 44, 0.35) !important;
-    box-shadow: 0 8px 24px -4px rgba(255, 123, 44, 0.12) !important;
-}
-
-/* Boutons d'action */
-.order-action-back:hover {
-    background: #E2E8F0 !important;
-    color: #334155 !important;
-}
-.order-action-invoice:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 123, 44, 0.4) !important;
-}
-.order-action-pdf:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35) !important;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-    .order-info-section {
-        gap: 24px !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .order-detail-page.main.pages {
-        padding-top: 88px !important;
-        padding-bottom: 80px !important;
-    }
-    .order-detail-container {
-        padding: 0 16px !important;
-    }
-    .order-detail-hero {
-        padding: 22px 24px !important;
-    }
-    .order-status-stepper .status-step span {
-        font-size: 10px !important;
-    }
-    .info-cards-container {
-        flex-direction: column !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .order-detail-page.main.pages {
-        padding-top: 84px !important;
-        padding-bottom: 88px !important;
-    }
-    .order-detail-container {
-        padding: 0 14px !important;
-    }
-    .order-detail-hero {
-        padding: 20px 18px !important;
-        margin-bottom: 20px !important;
-    }
-    .order-detail-products-card {
-        padding: 20px 18px !important;
-    }
-    .order-detail-products-card h2 {
-        font-size: 20px !important;
-    }
-    .order-item-card {
-        flex-direction: column !important;
-        gap: 16px !important;
-        padding: 16px !important;
-    }
-    .order-item-card img[style*="width: 120px"] {
-        width: 100% !important;
-        max-width: 200px !important;
-        height: 180px !important;
-        margin: 0 auto;
-    }
-    .order-summary-card,
-    .order-actions-card,
-    .order-info-card {
-        padding: 22px 18px !important;
-    }
-    .order-status-stepper {
-        margin-top: 18px !important;
-        padding-top: 16px !important;
-    }
-    .order-status-stepper > div {
-        gap: 4px !important;
-    }
-    .order-status-stepper .status-step span {
-        font-size: 9px !important;
-    }
-    #transaction-modal > div {
-        max-width: 95% !important;
-        margin: 10px !important;
-        max-height: 85vh !important;
-    }
-}
-
-@media print {
-    .order-detail-page.main.pages {
-        background: white !important;
-        padding: 20px !important;
-    }
-    button[onclick*="showTransaction"],
-    .order-action-back,
-    .order-detail-breadcrumb a {
-        display: none !important;
-    }
-}
-</style>
-
-{%endblock body%}
-
-{%block script%}
+{% block script %}
 {{ block.super }}
 <script src="{% static 'assets/js/orders.js'%}"></script>
-<script>
-    // Fonction pour afficher les détails de transaction (surcharge si nécessaire)
-    if (typeof window.showTransactionDetails === 'undefined') {
-        window.showTransactionDetails = function(transactionId) {
-            const modal = document.getElementById('transaction-modal');
-            if (modal) {
-                modal.style.display = 'flex';
-                const stepsContainer = document.getElementById('transaction-steps');
-                if (stepsContainer) {
-                    stepsContainer.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="width: 40px; height: 40px; border: 4px solid #E5E7EB; border-top-color: var(--color-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 16px; color: #6B7280;">Chargement...</p></div>';
-                }
-            }
-            
-            fetch(`/payments/singpay/details/${transactionId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Utiliser la fonction de orders.js si disponible
-                        if (typeof displayTransactionSteps !== 'undefined') {
-                            displayTransactionSteps(data);
-                        } else {
-                            // Implémentation inline
-                            const stepsContainer = document.getElementById('transaction-steps');
-                            const transaction = data.transaction;
-                            const steps = data.steps;
-                            
-                            let stepsHTML = '<div style="padding: 24px;">';
-                            stepsHTML += `
-                                <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #E5E7EB;">
-                                    <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Détails de la transaction</h3>
-                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; font-size: 14px;">
-                                        <div>
-                                            <span style="color: #6B7280;">Transaction ID:</span>
-                                            <strong style="color: #1F2937; margin-left: 8px; font-family: monospace;">${transaction.transaction_id}</strong>
-                                        </div>
-                                        <div>
-                                            <span style="color: #6B7280;">Montant:</span>
-                                            <strong style="color: var(--color-orange); margin-left: 8px;">${parseFloat(transaction.amount).toLocaleString('fr-FR')} ${transaction.currency}</strong>
-                                        </div>
-                                        <div>
-                                            <span style="color: #6B7280;">Méthode:</span>
-                                            <strong style="color: #1F2937; margin-left: 8px;">${transaction.payment_method}</strong>
-                                        </div>
-                                        <div>
-                                            <span style="color: #6B7280;">Statut:</span>
-                                            <span style="padding: 4px 10px; background: ${transaction.status === 'success' ? '#D1FAE5' : transaction.status === 'pending' ? '#FEF3C7' : '#FEE2E2'}; color: ${transaction.status === 'success' ? '#065F46' : transaction.status === 'pending' ? '#92400E' : '#991B1B'}; border-radius: 6px; font-size: 12px; font-weight: 600; margin-left: 8px;">${transaction.status_display}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 20px 0;">Évolution de la transaction</h4>
-                            `;
-                            
-                            steps.forEach((step, index) => {
-                                const isLast = index === steps.length - 1;
-                                const stepStatus = step.status;
-                                const stepDate = step.date ? new Date(step.date).toLocaleString('fr-FR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }) : null;
-                                
-                                let statusIcon = step.icon || 'fi-rs-circle';
-                                let statusColor = '#9CA3AF';
-                                let statusBg = '#F3F4F6';
-                                
-                                if (stepStatus === 'completed') {
-                                    statusColor = '#10B981';
-                                    statusBg = '#D1FAE5';
-                                    statusIcon = 'fi-rs-check';
-                                } else if (stepStatus === 'active') {
-                                    statusColor = '#3B82F6';
-                                    statusBg = '#DBEAFE';
-                                    statusIcon = 'fi-rs-clock';
-                                } else if (stepStatus === 'failed') {
-                                    statusColor = '#EF4444';
-                                    statusBg = '#FEE2E2';
-                                    statusIcon = 'fi-rs-cross';
-                                }
-                                
-                                let lineColor = '#E5E7EB';
-                                if (stepStatus === 'completed' && !isLast) {
-                                    lineColor = '#10B981';
-                                } else if (stepStatus === 'active' && !isLast) {
-                                    lineColor = '#3B82F6';
-                                }
-                                
-                                stepsHTML += `
-                                    <div style="display: flex; gap: 16px; margin-bottom: ${isLast ? '0' : '24px'}; position: relative;">
-                                        ${!isLast ? `<div style="position: absolute; left: 24px; top: 48px; width: 2px; height: 40px; background: ${lineColor}; z-index: 0;"></div>` : ''}
-                                        <div style="width: 48px; height: 48px; border-radius: 50%; background: ${statusBg}; color: ${statusColor}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; border: 2px solid ${statusColor}; box-shadow: 0 4px 12px ${statusColor}40;">
-                                            <i class="${statusIcon}" style="font-size: 24px;"></i>
-                                        </div>
-                                        <div style="flex: 1; padding-top: 4px;">
-                                            <div style="font-size: 16px; font-weight: 700; color: #1F2937; margin-bottom: 6px;">${step.name}</div>
-                                            <div style="font-size: 14px; color: #6B7280; margin-bottom: 6px; line-height: 1.5;">${step.description}</div>
-                                            ${stepDate ? `<div style="font-size: 12px; color: #9CA3AF; display: flex; align-items: center; gap: 6px; margin-top: 4px;"><i class="fi-rs-calendar" style="font-size: 12px;"></i>${stepDate}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                            
-                            stepsHTML += '</div>';
-                            if (stepsContainer) {
-                                stepsContainer.innerHTML = stepsHTML;
-                            }
-                        }
-                    } else {
-                        if (typeof GMModal !== 'undefined') {
-                            GMModal.error('Erreur', 'Erreur lors du chargement des détails de la transaction');
-                        } else {
-                            alert('Erreur lors du chargement des détails de la transaction');
-                        }
-                        if (modal) modal.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    if (typeof GMModal !== 'undefined') {
-                        GMModal.error('Erreur', 'Erreur lors du chargement des détails de la transaction');
-                    } else {
-                        alert('Erreur lors du chargement des détails de la transaction');
-                    }
-                    if (modal) modal.style.display = 'none';
-                });
-        };
-    }
-    
-    // Fermer la modal en cliquant sur l'overlay
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('transaction-modal');
-        if (modal) {
-            modal.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.style.display = 'none';
-                }
-            });
-        }
-    });
-</script>
-<style>
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-</style>
-{%endblock script%}
+
+<script src="{% static 'gabomazone-client/js/pages/order-archive.js' %}?v=1.0"></script>
+{% endblock script %}

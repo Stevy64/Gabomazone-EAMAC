@@ -1,0 +1,448 @@
+/* ============================================
+   MOBILE-FIRST APPROACH - Styles par défaut pour mobile
+   ============================================ */
+
+/* Prévenir le débordement horizontal sur toute la page */
+body {
+    overflow-x: hidden;
+}
+
+/* Layout principal - Mobile par défaut */
+.main.pages {
+    padding-top: 80px;
+    padding-bottom: 40px;
+    overflow-x: hidden;
+}
+
+.container {
+    padding: 0 12px;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Row - Mobile: colonnes empilées */
+.row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Sidebar - Mobile: pleine largeur, en haut */
+.col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    margin-bottom: 16px;
+    order: 1;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.flavoriz-dashboard-menu {
+    position: relative;
+    top: 0;
+    padding: 16px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.flavoriz-dashboard-menu ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+}
+
+.flavoriz-dashboard-menu li a {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+}
+
+.flavoriz-dashboard-menu li a i {
+    font-size: 18px !important;
+    width: auto !important;
+}
+
+/* Main content - Mobile: pleine largeur */
+.col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    order: 2;
+    box-sizing: border-box;
+}
+
+.col-md-9 > div {
+    padding: 16px 12px;
+    border-radius: 16px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Breadcrumb - Mobile: simplifié */
+nav {
+    font-size: 12px !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    margin-bottom: 16px !important;
+}
+
+/* Masquer uniquement le texte du fil d'Ariane (pas la barre du bas) */
+main .container > nav a span {
+    display: none !important;
+}
+
+nav span:not(:last-child) {
+    display: none !important;
+}
+
+/* Header - Mobile */
+.main-content-header h1 {
+    font-size: 20px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+}
+
+.main-content-header h1 i {
+    font-size: 22px !important;
+}
+
+.main-content-header p {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+/* Conversations grid - Mobile: 1 colonne */
+.conversations-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.msg-card {
+    border-radius: 16px;
+}
+
+/* Cards de conversation - Mobile */
+.conversation-card {
+    padding: 12px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+
+/* Avatar - Mobile */
+.conversation-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+}
+
+/* Image produit - Mobile */
+.conversation-product-img {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+}
+
+/* Textes - Mobile */
+.conversation-user-name {
+    font-size: 15px;
+}
+
+.conversation-product-name {
+    font-size: 13px;
+}
+
+/* Prévenir le débordement du texte dans les cartes */
+.conversation-card p,
+.conversation-card div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.conversation-card strong {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Intentions d'achat grid - Mobile: 1 colonne */
+.purchase-intents-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+/* Cartes d'intentions - Mobile */
+.intent-card {
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* Boutons dans intentions - Mobile: 2 colonnes */
+.purchase-intents-grid > div > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+}
+
+.purchase-intents-grid > div > div:last-child > button,
+.purchase-intents-grid > div > div:last-child > span {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-width: calc(50% - 3px) !important;
+    font-size: 12px !important;
+    padding: 8px !important;
+}
+
+/* ============================================
+   DESKTOP - Styles pour écrans >= 769px
+   ============================================ */
+@media (min-width: 769px) {
+    .main.pages {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .container {
+        padding: 0 24px;
+        max-width: 1400px;
+    }
+
+    .row {
+        flex-direction: row;
+        gap: 24px;
+        align-items: flex-start;
+    }
+
+    .col-md-3 {
+        flex: 0 0 280px;
+        max-width: 280px;
+        width: 280px;
+        margin-bottom: 0;
+        order: 0;
+    }
+
+    .flavoriz-dashboard-menu {
+        padding: 24px;
+        border-radius: 20px;
+        position: sticky;
+        top: 120px;
+    }
+
+    .flavoriz-dashboard-menu ul {
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: none;
+        gap: 4px;
+    }
+
+    .flavoriz-dashboard-menu li a {
+        padding: 12px 16px;
+        font-size: 14px;
+        flex-direction: row;
+        text-align: left;
+        gap: 12px;
+    }
+
+    .flavoriz-dashboard-menu li a i {
+        font-size: 16px;
+        width: 20px;
+    }
+
+    .col-md-9 {
+        flex: 1;
+        min-width: 0;
+        order: 0;
+    }
+
+    .col-md-9 > div {
+        padding: 32px;
+        border-radius: 20px;
+    }
+
+    nav {
+        font-size: 13px !important;
+        margin-bottom: 20px !important;
+    }
+
+    main .container > nav a span {
+        display: inline !important;
+    }
+
+    main .container > nav span:not(:last-child) {
+        display: inline !important;
+    }
+
+    .main-content-header h1 {
+        font-size: 28px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        margin-bottom: 8px !important;
+    }
+
+    .main-content-header h1 i {
+        font-size: 32px !important;
+    }
+
+    .main-content-header p {
+        font-size: 15px !important;
+    }
+
+    .conversations-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+
+    .conversation-card {
+        padding: 20px;
+    }
+
+    .conversation-avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+
+    .conversation-product-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .conversation-user-name {
+        font-size: 16px;
+    }
+
+    .conversation-product-name {
+        font-size: 14px;
+    }
+
+    .purchase-intents-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+
+    .intent-card {
+        padding: 20px;
+    }
+
+    .purchase-intents-grid > div > div:last-child {
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+    }
+
+    .purchase-intents-grid > div > div:last-child > button,
+    .purchase-intents-grid > div > div:last-child > span {
+        flex: 1 !important;
+        min-width: auto !important;
+        font-size: 13px !important;
+        padding: 10px !important;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    word-wrap: break-word;
+}
+
+.message-sent {
+    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.message-received {
+    background: white;
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+/* Améliorer le scroll dans le chatbot */
+#activeConversation > div:first-child {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Historique de négociation avec scroll amélioré */
+#negotiationHistory {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 123, 44, 0.5) rgba(0, 0, 0, 0.1);
+}
+
+/* Style de la scrollbar pour webkit (Chrome, Safari) */
+#negotiationHistory::-webkit-scrollbar {
+    width: 6px;
+}
+
+#negotiationHistory::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+#negotiationHistory::-webkit-scrollbar-thumb {
+    background: rgba(255, 123, 44, 0.5);
+    border-radius: 3px;
+}
+
+#negotiationHistory::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 123, 44, 0.7);
+}
+
+/* S'assurer que le bouton vert est bien visible */
+#acceptFinalPriceBtn {
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    #chatbotPopup {
+        width: calc(100vw - 20px);
+        height: calc(100vh - 20px);
+        bottom: 10px;
+        right: 10px;
+        border-radius: 16px;
+    }
+
+    /* Réduire les paddings sur mobile pour plus d'espace */
+    #messagesContainer {
+        padding: 12px !important;
+    }
+
+    #negotiationSection {
+        padding: 12px !important;
+    }
+
+    #negotiationHistory {
+        max-height: 150px !important;
+    }
+}

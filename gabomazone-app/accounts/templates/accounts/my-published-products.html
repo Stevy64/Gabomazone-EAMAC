@@ -2,146 +2,49 @@
 {% load static %}
 {% load cart_template_tags %}
 
-{%block body%}
-<style>
-/* Styles responsive pour mobile */
-@media (max-width: 768px) {
-    .main.pages {
-        padding-top: 90px !important;
-        padding-bottom: 40px !important;
-    }
-    
-    .container {
-        padding: 0 16px !important;
-    }
-    
-    /* Sidebar - mettre en haut sur mobile */
-    .col-md-3 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        margin-bottom: 20px;
-        order: 1;
-    }
-    
-    .col-md-9 {
-        order: 2;
-    }
-    
-    .flavoriz-dashboard-menu {
-        position: relative !important;
-        top: 0 !important;
-        padding: 20px !important;
-        border-radius: 16px !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid li a {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
-        flex-direction: column !important;
-        gap: 6px !important;
-        text-align: center !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid li a i {
-        font-size: 18px !important;
-        width: auto !important;
-    }
-    
-    /* Main content - pleine largeur sur mobile */
-    .col-md-9 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-    
-    .main-content-wrapper {
-        padding: 20px 16px !important;
-        border-radius: 16px !important;
-    }
-    
-    /* Breadcrumb responsive */
-    nav {
-        font-size: 12px !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
-    }
-    
-    /* Masquer uniquement le texte du fil d'Ariane (pas la barre du bas) */
-    main .container > nav a span {
-        display: none !important;
-    }
-    
-    main .container > nav span:not(:last-child) {
-        display: none !important;
-    }
-    
-    /* Header */
-    .main-content-header h1 {
-        font-size: 22px !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 8px !important;
-    }
-    
-    .main-content-header h1 i {
-        font-size: 24px !important;
-    }
-    
-    .main-content-header p {
-        font-size: 13px !important;
-    }
-    
-    /* Grid responsive */
-    .user-products-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-    }
-}
-</style>
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/my-published-products.css' %}?v=1.0">
+{% endblock headextra %}
 
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+{% block body %}
+<main class="main pages gm-s-8748cb" >
+    <div class="container gm-s-b8c14a" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Mes articles publiés</span>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Mes articles publiés</span>
         </nav>
 
-        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+        <div class="row gm-s-7e81ca" >
             <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->
-            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+            <div class="col-md-3 gm-s-330b7b" >
                 {% include 'accounts/_mon_compte_card.html' with active_page='my-published-products' %}
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9" style="flex: 1; min-width: 0;">
-                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+            <div class="col-md-9 gm-s-ec2eba" >
+                <div class="gm-s-6dd04b">
                     <!-- Header -->
-                    <div class="main-content-header" style="margin-bottom: 32px;">
-                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
-                            <i class="fi-rs-list" style="color: var(--color-orange); font-size: 32px;"></i>
+                    <div class="main-content-header gm-s-91e2ae" >
+                        <h1 class="gm-s-ac7dd4">
+                            <i class="fi-rs-list gm-s-f9346a" ></i>
                             Mes articles publiés
                         </h1>
-                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
+                        <p class="gm-s-b15782">
                             Gérez tous vos articles publiés en occasion. Vous pouvez modifier, supprimer ou voir les détails de chaque article.
                         </p>
                     </div>
 
                     <!-- Messages -->
                     {% if messages %}
-                    <div style="margin-bottom: 24px;">
+                    <div class="gm-s-dc2cb2">
                         {% for message in messages %}
                         <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; {% if message.tags == 'success' %}background: #D1FAE5; color: #065F46; border: 1px solid #10B981;{% elif message.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444;{% else %}background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B;{% endif %}">
-                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %}" style="font-size: 20px;"></i>
-                            <span style="font-weight: 500;">{{message}}</span>
+                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %} gm-s-af18ea" ></i>
+                            <span class="gm-s-d2abfb">{{message}}</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -149,64 +52,64 @@
 
                     <!-- Liste des articles -->
                     {% if user_products %}
-                    <div class="user-products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <div class="user-products-grid gm-s-2e87f6" >
                         {% for product in user_products %}
-                        <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #E5E7EB; transition: all 0.3s; position: relative; display: flex; flex-direction: column;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
-                            <div style="margin-bottom: 12px; position: relative;">
-                                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 8px;">
+                        <div class="gm-s-f47ebf" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'">
+                            <div class="gm-s-85f001">
+                                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="gm-s-e9e5dd">
                                 {% if product.is_boosted %}
-                                <div style="position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1F2937; padding: 6px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(255, 165, 0, 0.4); z-index: 10; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <i class="fi-rs-rocket" style="font-size: 12px;"></i>
+                                <div class="gm-s-30a6ef">
+                                    <i class="fi-rs-rocket gm-s-345895" ></i>
                                     <span>Boosté</span>
                                 </div>
                                 {% endif %}
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0; line-height: 1.4; flex: 1;">{{ product.product_name|truncatechars:50 }}</h4>
+                            <div class="gm-s-6751f8">
+                                <h4 class="gm-s-29f88c">{{ product.product_name|truncatechars:50 }}</h4>
                             </div>
-                            <p style="font-size: 18px; font-weight: 700; color: var(--color-orange); margin: 0 0 12px 0;">{{ product.PRDPrice|format_price }} FCFA</p>
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <p class="gm-s-7d6804">{{ product.PRDPrice|format_price }} FCFA</p>
+                            <div class="gm-s-ede95f">
                                 {% if product.status == 'PENDING' %}
-                                <span style="padding: 6px 12px; background: #FEF3C7; color: #92400E; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fi-rs-clock" style="font-size: 12px;"></i> En attente
+                                <span class="gm-s-09b1b8">
+                                    <i class="fi-rs-clock gm-s-345895" ></i> En attente
                                 </span>
                                 {% elif product.status == 'APPROVED' %}
-                                <span style="padding: 6px 12px; background: #D1FAE5; color: #065F46; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fi-rs-check" style="font-size: 12px;"></i> Approuvé
+                                <span class="gm-s-c34c53">
+                                    <i class="fi-rs-check gm-s-345895" ></i> Approuvé
                                 </span>
                                 {% elif product.status == 'REJECTED' %}
-                                <span style="padding: 6px 12px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fi-rs-cross" style="font-size: 12px;"></i> Rejeté
+                                <span class="gm-s-d334a3">
+                                    <i class="fi-rs-cross gm-s-345895" ></i> Rejeté
                                 </span>
                                 {% elif product.status == 'SOLD' %}
-                                <span style="padding: 6px 12px; background: #DBEAFE; color: #1E40AF; border-radius: 6px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fi-rs-shopping-bag" style="font-size: 12px;"></i> Vendu
+                                <span class="gm-s-b49f53">
+                                    <i class="fi-rs-shopping-bag gm-s-345895" ></i> Vendu
                                 </span>
                                 {% endif %}
                                 {% if product.view_count > 0 %}
-                                <span style="padding: 6px 12px; background: #F3F4F6; color: #6B7280; border-radius: 6px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
-                                    <i class="fi-rs-eye" style="font-size: 12px;"></i> {{ product.view_count }}
+                                <span class="gm-s-763f5a">
+                                    <i class="fi-rs-eye gm-s-345895" ></i> {{ product.view_count }}
                                 </span>
                                 {% endif %}
                             </div>
-                            <p style="font-size: 12px; color: #6B7280; margin: 0 0 16px 0;">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
+                            <p class="gm-s-796a82">Publié le {{ product.date|date:"d/m/Y à H:i" }}</p>
                             
                             <!-- Actions CRUD -->
-                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #E5E7EB;">
+                            <div class="gm-s-74aa53">
                                 {% if product.status == 'APPROVED' %}
-                                <button type="button" onclick="openChatbot({{ product.id }}, '{{ product.product_name|escapejs }}')" title="Consulter l'historique des discussions liées à cet article" style="width: 100%; padding: 10px 16px; background: #F3F4F6; color: #1F2937; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='rgba(255, 123, 44, 0.1)'; this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'" onmouseout="this.style.background='#F3F4F6'; this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'">
-                                    <i class="fi-rs-comment" style="font-size: 14px;"></i> Historique des discussions
+                                <button type="button" onclick="openChatbot({{ product.id }}, '{{ product.product_name|escapejs }}')" title="Consulter l'historique des discussions liées à cet article" class="gm-s-6f4311" onmouseover="this.style.background='rgba(255, 123, 44, 0.1)'; this.style.borderColor='var(--color-orange)'; this.style.color='var(--color-orange)'" onmouseout="this.style.background='#F3F4F6'; this.style.borderColor='#E5E7EB'; this.style.color='#1F2937'">
+                                    <i class="fi-rs-comment gm-s-267f6d" ></i> Historique des discussions
                                 </button>
-                                <button type="button" onclick="openBoostModal({{ product.id }}, '{{ product.product_name|escapejs }}')" style="width: 100%; padding: 10px 16px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; border: none;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                    <i class="fi-rs-rocket" style="font-size: 14px;"></i> Booster cet article
+                                <button type="button" onclick="openBoostModal({{ product.id }}, '{{ product.product_name|escapejs }}')" class="gm-s-64085a" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <i class="fi-rs-rocket gm-s-267f6d" ></i> Booster cet article
                                 </button>
                                 {% endif %}
-                                <div style="display: flex; gap: 8px;">
-                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" style="flex: 1; padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                        <i class="fi-rs-edit" style="font-size: 14px;"></i> Modifier
+                                <div class="gm-s-13262f">
+                                    <a href="{% url 'accounts:edit-peer-product' product.id %}" class="gm-s-9d854c" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                        <i class="fi-rs-edit gm-s-267f6d" ></i> Modifier
                                     </a>
-                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" style="flex: 1; padding: 10px 16px; background: #FEE2E2; color: #DC2626; border: 2px solid #FEE2E2; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
-                                        <i class="fi-rs-trash" style="font-size: 14px;"></i> Supprimer
+                                    <button type="button" onclick="confirmDelete({{ product.id }}, '{{ product.product_name|escapejs }}')" class="gm-s-02915f" onmouseover="this.style.background='#DC2626'; this.style.color='white'; this.style.borderColor='#DC2626'" onmouseout="this.style.background='#FEE2E2'; this.style.color='#DC2626'; this.style.borderColor='#FEE2E2'">
+                                        <i class="fi-rs-trash gm-s-267f6d" ></i> Supprimer
                                     </button>
                                 </div>
                             </div>
@@ -214,11 +117,11 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div style="text-align: center; padding: 60px 20px;">
-                        <i class="fi-rs-inbox" style="font-size: 64px; color: #D1D5DB; margin-bottom: 20px;"></i>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucun article publié</h3>
-                        <p style="font-size: 15px; color: #9CA3AF; margin: 0 0 24px 0;">Vous n'avez pas encore publié d'article en occasion.</p>
-                        <a href="{% url 'accounts:sell-product' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.3s; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                    <div class="gm-s-7ee9bb">
+                        <i class="fi-rs-inbox gm-s-630a04" ></i>
+                        <h3 class="gm-s-3a86f4">Aucun article publié</h3>
+                        <p class="gm-s-c34a6b">Vous n'avez pas encore publié d'article en occasion.</p>
+                        <a href="{% url 'accounts:sell-product' %}" class="gm-s-fa94ef" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             <i class="fi-rs-shopping-cart-add"></i>
                             Publier mon premier article
                         </a>
@@ -231,350 +134,65 @@
 </main>
 
 <!-- Chatbot Popup -->
-<div id="chatbotPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); height: 600px; max-height: calc(100vh - 40px); background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; flex-direction: column; overflow: hidden;">
+<div id="chatbotPopup" class="gm-s-77018d">
     <!-- Chatbot Header -->
-    <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; border-radius: 20px 20px 0 0;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <i class="fi-rs-comment" style="font-size: 24px;"></i>
+    <div class="gm-s-39a7c8">
+        <div class="gm-s-1c20bb">
+            <i class="fi-rs-comment gm-s-1551e6" ></i>
             <div>
-                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Messages</h3>
-                <p id="chatbotProductName" style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;"></p>
+                <h3 class="gm-s-99ea3d">Messages</h3>
+                <p id="chatbotProductName" class="gm-s-9caeb1"></p>
             </div>
         </div>
-        <button onclick="closeChatbot()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
-            <i class="fi-rs-cross" style="font-size: 16px;"></i>
+        <button onclick="closeChatbot()" class="gm-s-7c76c2" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+            <i class="fi-rs-cross gm-s-beab58" ></i>
         </button>
     </div>
     
     <!-- Conversations List -->
-    <div id="conversationsList" style="flex: 1; overflow-y: auto; padding: 16px; background: #F9FAFB; display: flex; flex-direction: column;">
-        <div id="conversationsLoading" style="text-align: center; padding: 40px; color: #6B7280;">
-            <i class="fi-rs-spinner" style="font-size: 32px; animation: spin 1s linear infinite;"></i>
-            <p style="margin: 12px 0 0 0; font-size: 14px;">Chargement des conversations...</p>
+    <div id="conversationsList" class="gm-s-3683e8">
+        <div id="conversationsLoading" class="gm-s-4e1d61">
+            <i class="fi-rs-spinner gm-s-1a2f8a" ></i>
+            <p class="gm-s-0e64da">Chargement des conversations...</p>
         </div>
         <div id="conversationsContent" style="display: none;">
             <!-- Les conversations seront injectées ici -->
         </div>
-        <div id="noConversations" style="display: none; text-align: center; padding: 60px 20px; color: #9CA3AF;">
-            <i class="fi-rs-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
-            <p style="margin: 0; font-size: 14px;">Aucune conversation pour cet article</p>
+        <div id="noConversations" class="gm-s-eeed1f">
+            <i class="fi-rs-inbox gm-s-a2dd65" ></i>
+            <p class="gm-s-98891a">Aucune conversation pour cet article</p>
         </div>
     </div>
     
     <!-- Active Conversation View -->
-    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; min-height: 0; background: white;">
+    <div id="activeConversation" class="gm-s-07444b">
         <!-- Conversation Header -->
-        <div style="padding: 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB;">
-            <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;">
-                <i class="fi-rs-arrow-left" style="font-size: 18px;"></i>
+        <div class="gm-s-376418">
+            <button onclick="showConversationsList()" class="gm-s-51eb20">
+                <i class="fi-rs-arrow-left gm-s-768e1f" ></i>
             </button>
             <div style="flex: 1;">
-                <h4 id="activeConversationBuyer" style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937;"></h4>
-                <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">Acheteur</p>
+                <h4 id="activeConversationBuyer" class="gm-s-8cf507"></h4>
+                <p class="gm-s-edeb6f">Acheteur</p>
             </div>
         </div>
         
         <!-- Messages Container -->
-        <div id="messagesContainer" style="flex: 1; overflow-y: auto; padding: 16px; background: #F9FAFB;">
+        <div id="messagesContainer" class="gm-s-93fc4e">
             <!-- Les messages seront injectés ici -->
         </div>
         
         <!-- Message Input -->
-        <div style="padding: 16px; border-top: 1px solid #E5E7EB; background: white;">
-            <form id="messageForm" onsubmit="sendMessage(event)" style="display: flex; gap: 8px;">
-                <input type="text" id="messageInput" placeholder="Tapez votre message..." style="flex: 1; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
-                <button type="submit" style="padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <i class="fi-rs-paper-plane" style="font-size: 16px;"></i>
+        <div class="gm-s-798d29">
+            <form id="messageForm" onsubmit="sendMessage(event)" class="gm-s-13262f">
+                <input type="text" id="messageInput" placeholder="Tapez votre message..." class="gm-s-7034ce" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                <button type="submit" class="gm-s-f8ad91" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fi-rs-paper-plane gm-s-beab58" ></i>
                 </button>
             </form>
         </div>
     </div>
 </div>
-
-<style>
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.chatbot-trigger-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed !important;
-}
-
-.conversation-item {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid #E5E7EB;
-}
-
-.conversation-item:hover {
-    border-color: var(--color-orange);
-    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.15);
-    transform: translateY(-2px);
-}
-
-.message-bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    word-wrap: break-word;
-}
-
-.message-sent {
-    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
-    color: white;
-    margin-left: auto;
-    border-bottom-right-radius: 4px;
-}
-
-.message-received {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
-    margin-right: auto;
-    border-bottom-left-radius: 4px;
-}
-
-@media (max-width: 768px) {
-    #chatbotPopup {
-        width: calc(100vw - 20px);
-        height: calc(100vh - 20px);
-        bottom: 10px;
-        right: 10px;
-        border-radius: 16px;
-    }
-}
-</style>
-
-<script>
-let currentProductId = null;
-let currentConversationId = null;
-let conversationsData = [];
-
-function openChatbot(productId, productName) {
-    currentProductId = productId;
-    const popup = document.getElementById('chatbotPopup');
-    const nameEl = document.getElementById('chatbotProductName');
-    if (nameEl) nameEl.textContent = productName || '';
-    popup.style.display = 'flex';
-    
-    // Charger les conversations
-    loadConversations(productId);
-    
-    // Afficher la liste des conversations
-    showConversationsList();
-}
-
-function closeChatbot() {
-    const popup = document.getElementById('chatbotPopup');
-    popup.style.display = 'none';
-    currentProductId = null;
-    currentConversationId = null;
-    conversationsData = [];
-}
-
-function showConversationsList() {
-    document.getElementById('conversationsList').style.display = 'flex';
-    document.getElementById('activeConversation').style.display = 'none';
-    currentConversationId = null;
-}
-
-function showActiveConversation(conversationId) {
-    document.getElementById('conversationsList').style.display = 'none';
-    document.getElementById('activeConversation').style.display = 'flex';
-    
-    const conversation = conversationsData.find(c => c.id === conversationId);
-    if (!conversation) return;
-    
-    currentConversationId = conversationId;
-    document.getElementById('activeConversationBuyer').textContent = conversation.buyer_name;
-    
-    // Afficher les messages
-    displayMessages(conversation.messages);
-    
-    // Marquer comme lu
-    markConversationAsRead(conversationId);
-}
-
-function loadConversations(productId) {
-    const loadingDiv = document.getElementById('conversationsLoading');
-    const contentDiv = document.getElementById('conversationsContent');
-    const noConversationsDiv = document.getElementById('noConversations');
-    
-    loadingDiv.style.display = 'block';
-    contentDiv.style.display = 'none';
-    noConversationsDiv.style.display = 'none';
-    
-    fetch(`/product-conversations/${productId}/`)
-        .then(response => response.json())
-        .then(data => {
-            loadingDiv.style.display = 'none';
-            conversationsData = data.conversations || [];
-            
-            if (conversationsData.length === 0) {
-                noConversationsDiv.style.display = 'block';
-            } else {
-                contentDiv.style.display = 'block';
-                displayConversationsList(conversationsData);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading conversations:', error);
-            loadingDiv.style.display = 'none';
-            noConversationsDiv.style.display = 'block';
-        });
-}
-
-function displayConversationsList(conversations) {
-    const container = document.getElementById('conversationsContent');
-    container.innerHTML = '';
-    
-    conversations.forEach(conv => {
-        const item = document.createElement('div');
-        item.className = 'conversation-item';
-        item.onclick = () => showActiveConversation(conv.id);
-        
-        const unreadBadge = conv.unread_count > 0 
-            ? `<span style="background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700; margin-left: auto;">${conv.unread_count}</span>`
-            : '';
-        
-        const lastMessage = conv.messages.length > 0 
-            ? conv.messages[conv.messages.length - 1].message.substring(0, 50) + (conv.messages[conv.messages.length - 1].message.length > 50 ? '...' : '')
-            : 'Aucun message';
-        
-        item.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
-                    ${conv.buyer_name.charAt(0).toUpperCase()}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1F2937;">${conv.buyer_name}</h4>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        ${escapeHtml(lastMessage)}
-                    </p>
-                </div>
-                ${unreadBadge}
-            </div>
-        `;
-        
-        container.appendChild(item);
-    });
-}
-
-function displayMessages(messages) {
-    const container = document.getElementById('messagesContainer');
-    container.innerHTML = '';
-    
-    messages.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message-bubble ${msg.is_sender ? 'message-sent' : 'message-received'}`;
-        messageDiv.style.display = 'flex';
-        messageDiv.style.flexDirection = 'column';
-        
-        messageDiv.innerHTML = `
-            <div style="font-size: 14px; line-height: 1.5;">${escapeHtml(msg.message)}</div>
-            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px; text-align: ${msg.is_sender ? 'right' : 'left'};">
-                ${msg.created_at}
-            </div>
-        `;
-        
-        container.appendChild(messageDiv);
-    });
-    
-    // Scroll vers le bas
-    container.scrollTop = container.scrollHeight;
-}
-
-function sendMessage(event) {
-    event.preventDefault();
-    const input = document.getElementById('messageInput');
-    const message = input.value.trim();
-    
-    if (!message || !currentProductId || !currentConversationId) return;
-    
-    const conversation = conversationsData.find(c => c.id === currentConversationId);
-    if (!conversation) return;
-    
-    // Envoyer le message
-    fetch(`/send-product-message/${currentProductId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            conversation_id: currentConversationId,
-            buyer_id: conversation.buyer_id,
-            message: message
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            input.value = '';
-            // Recharger les conversations
-            loadConversations(currentProductId);
-            // Réafficher la conversation active
-            setTimeout(() => showActiveConversation(currentConversationId), 300);
-        }
-    })
-    .catch(error => {
-        console.error('Error sending message:', error);
-        if (typeof GMModal !== 'undefined') {
-            GMModal.error('Erreur', 'Erreur lors de l\'envoi du message');
-        } else {
-            alert('Erreur lors de l\'envoi du message');
-        }
-    });
-}
-
-function markConversationAsRead(conversationId) {
-    fetch(`/mark-conversation-read/${conversationId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Mettre à jour le badge
-            updateMessageBadges();
-        }
-    });
-}
-
-function updateMessageBadges() {
-    // Les badges de messages non lus ne sont plus affichés sur cette page ; pas de rechargement pour éviter de fermer le popup.
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-</script>
 
 <script>
 function confirmDelete(productId, productName) {
@@ -626,201 +244,37 @@ function confirmDelete(productId, productName) {
 }
 </script>
 
-
 <!-- Modal de Boost -->
-<div id="boostModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10001; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-            <h3 style="font-size: 24px; font-weight: 700; color: #1F2937; margin: 0; display: flex; align-items: center; gap: 10px;">
-                <i class="fi-rs-rocket" style="color: #10B981;"></i>
+<div id="boostModal" class="gm-s-106d0c">
+    <div class="gm-s-9203e3">
+        <div class="gm-s-ff2d75">
+            <h3 class="gm-s-27e711">
+                <i class="fi-rs-rocket gm-s-e06b70" ></i>
                 Booster votre article
             </h3>
-            <button onclick="closeBoostModal()" style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
+            <button onclick="closeBoostModal()" class="gm-s-e3e11a">&times;</button>
         </div>
         
-        <p id="boostProductName" style="font-size: 16px; color: #6B7280; margin: 0 0 24px 0; font-weight: 600;"></p>
+        <p id="boostProductName" class="gm-s-d7c989"></p>
         
-        <p style="font-size: 14px; color: #6B7280; margin: 0 0 20px 0; line-height: 1.6;">
+        <p class="gm-s-79b2af">
             Mettez votre article en avant pour augmenter sa visibilité et vos chances de vente !
         </p>
         
-        <div id="boostOptions" style="display: grid; gap: 12px; margin-bottom: 24px;">
+        <div id="boostOptions" class="gm-s-41f005">
             <!-- Les options seront injectées ici -->
         </div>
         
-        <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #E5E7EB;">
-            <button onclick="closeBoostModal()" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
-            <button id="confirmBoostBtn" onclick="confirmBoost()" disabled style="padding: 12px 24px; background: #D1D5DB; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: not-allowed; display: flex; align-items: center; gap: 8px;">
+        <div class="gm-s-9fc49c">
+            <button onclick="closeBoostModal()" class="gm-s-0318b9">Annuler</button>
+            <button id="confirmBoostBtn" onclick="confirmBoost()" disabled class="gm-s-2a041b">
                 <i class="fi-rs-credit-card"></i> Procéder au paiement
             </button>
         </div>
     </div>
 </div>
 
-<script>
-let selectedBoostDuration = null;
-let selectedBoostPrice = null;
-let currentBoostProductId = null;
-
-const BOOST_PRICES = {
-    '24h': 500,
-    '72h': 1200,
-    '7d': 2500
-};
-
-const BOOST_DURATIONS = {
-    '24h': '24 heures',
-    '72h': '72 heures',
-    '7d': '7 jours'
-};
-
-function openBoostModal(productId, productName) {
-    currentBoostProductId = productId;
-    const modal = document.getElementById('boostModal');
-    const productNameEl = document.getElementById('boostProductName');
-    const optionsContainer = document.getElementById('boostOptions');
-    
-    productNameEl.textContent = productName;
-    
-    // Générer les options de boost
-    let html = '';
-    for (const [duration, price] of Object.entries(BOOST_PRICES)) {
-        html += `
-            <div onclick="selectBoostDuration('${duration}', ${price})" id="boostOption_${duration}" style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s; background: white;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                    <div>
-                        <h4 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">${BOOST_DURATIONS[duration]}</h4>
-                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #6B7280;">Mise en avant pendant ${BOOST_DURATIONS[duration]}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 24px; font-weight: 700; color: var(--color-orange);">${price.toLocaleString()}</div>
-                        <div style="font-size: 12px; color: #6B7280;">FCFA</div>
-                    </div>
-                </div>
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #F3F4F6;">
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #10B981;">
-                        <i class="fi-rs-check"></i>
-                        <span>Visibilité maximale</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    optionsContainer.innerHTML = html;
-    
-    modal.style.display = 'flex';
-    selectedBoostDuration = null;
-    selectedBoostPrice = null;
-    updateBoostButton();
-}
-
-function closeBoostModal() {
-    document.getElementById('boostModal').style.display = 'none';
-    selectedBoostDuration = null;
-    selectedBoostPrice = null;
-    currentBoostProductId = null;
-}
-
-function selectBoostDuration(duration, price) {
-    selectedBoostDuration = duration;
-    selectedBoostPrice = price;
-    
-    // Mettre à jour l'apparence des options
-    document.querySelectorAll('[id^="boostOption_"]').forEach(el => {
-        el.style.borderColor = '#E5E7EB';
-        el.style.background = 'white';
-    });
-    
-    const selectedEl = document.getElementById(`boostOption_${duration}`);
-    if (selectedEl) {
-        selectedEl.style.borderColor = '#10B981';
-        selectedEl.style.background = '#F0FDF4';
-    }
-    
-    updateBoostButton();
-}
-
-function updateBoostButton() {
-    const btn = document.getElementById('confirmBoostBtn');
-    if (selectedBoostDuration && selectedBoostPrice) {
-        btn.disabled = false;
-        btn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
-        btn.style.cursor = 'pointer';
-        btn.innerHTML = `<i class="fi-rs-credit-card"></i> Payer ${selectedBoostPrice.toLocaleString()} FCFA`;
-    } else {
-        btn.disabled = true;
-        btn.style.background = '#D1D5DB';
-        btn.style.cursor = 'not-allowed';
-        btn.innerHTML = '<i class="fi-rs-credit-card"></i> Procéder au paiement';
-    }
-}
-
-async function confirmBoost() {
-    if (!selectedBoostDuration || !currentBoostProductId) {
-        GMModal.warning('Attention', 'Veuillez sélectionner une durée de boost');
-        return;
-    }
-    
-    GMModal.show({
-        type: 'confirm',
-        title: 'Confirmer le boost',
-        message: `Vous allez booster votre article pendant <strong>${BOOST_DURATIONS[selectedBoostDuration]}</strong> pour <strong>${selectedBoostPrice.toLocaleString()} FCFA</strong>.<br><br>Vous serez redirigé vers le paiement.`,
-        showCancel: true,
-        confirmText: 'Confirmer',
-        cancelText: 'Annuler',
-        onConfirm: async function() {
-            try {
-                // Désactiver le bouton pendant le traitement
-                const btn = document.getElementById('confirmBoostBtn');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fi-rs-spinner" style="animation: spin 1s linear infinite;"></i> Traitement...';
-                
-                const response = await fetch(`/c2c/boost/${currentBoostProductId}/purchase/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        duration: selectedBoostDuration
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Rediriger vers la page de paiement
-                    if (data.payment_url) {
-                        window.location.href = data.payment_url;
-                    } else {
-                        GMModal.success('Boost activé !', data.message || 'Votre boost a été activé avec succès !', () => {
-                            location.reload();
-                        });
-                    }
-                } else {
-                    btn.disabled = false;
-                    updateBoostButton();
-                    GMModal.error('Erreur', data.error || 'Erreur lors de l\'activation du boost');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                const btn = document.getElementById('confirmBoostBtn');
-                btn.disabled = false;
-                updateBoostButton();
-                GMModal.error('Erreur', 'Erreur lors de l\'activation du boost');
-            }
-        }
-    });
-}
-
-// Fermer la modal en cliquant en dehors
-document.getElementById('boostModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeBoostModal();
-    }
-});
-</script>
-
 {% endblock %}
 
+
+<script src="{% static 'gabomazone-client/js/pages/my-published-products.js' %}?v=1.0"></script>

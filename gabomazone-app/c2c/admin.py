@@ -306,7 +306,7 @@ class C2COrderAdmin(admin.ModelAdmin):
         """Affiche les détails de vérification avec les codes"""
         try:
             verification = obj.delivery_verification
-        except:
+        except Exception:
             return format_html('<p style="color: #999;">Aucune vérification de livraison</p>')
         
         html = '<div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">'

@@ -1,0 +1,23 @@
+<!-- ===== Mobile Bottom Navigation ===== -->
+<nav class="flavoriz-bottom-nav">
+    <a href="{% url 'home:index' %}" class="flavoriz-bottom-nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+        <i class="fi-rs-home"></i>
+        <span>Accueil</span>
+    </a>
+    <a href="{% url 'categories:category-list' %}" class="flavoriz-bottom-nav-item {% if 'category' in request.path %}active{% endif %}">
+        <i class="fi-rs-apps"></i>
+        <span>Catégories</span>
+    </a>
+    <a href="{% url 'accounts:sell-product' %}" class="flavoriz-bottom-nav-item flavoriz-bottom-nav-add-btn {% if 'sell-product' in request.path %}active{% endif %}">
+        <span class="add-btn-icon-wrap"><i class="fi-rs-plus"></i></span>
+        <span>Publier</span>
+    </a>
+    <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
+        <i class="fi-rs-comment"></i>
+        <span>Messagerie</span>
+    </a>
+    <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">
+        <i class="fi-rs-user"></i>
+        <span>Compte</span>
+    </a>
+</nav>

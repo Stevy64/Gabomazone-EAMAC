@@ -1,0 +1,284 @@
+/* ===== DESKTOP - Grille optimisée: ligne 1 = Histoire | Contact, ligne 2 = Valeurs, ligne 3 = Mission ===== */
+        @media (min-width: 1025px) {
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 120px !important;
+                padding-top: 10px !important;
+            }
+            .about-content-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 380px !important;
+                grid-template-rows: auto auto auto !important;
+                gap: var(--spacing-2xl) !important;
+            }
+            .about-card-history { grid-column: 1; grid-row: 1; }
+            .about-card-contact { grid-column: 2; grid-row: 1; align-self: start; position: sticky; top: 120px; }
+            .about-card-valeurs { grid-column: 1 / -1; grid-row: 2; }
+            .about-card-mission { grid-column: 1 / -1; grid-row: 3; }
+        }
+        
+        /* ===== TABLETTE (769px - 1024px) ===== */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 120px !important;
+            }
+            .about-content-grid {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                grid-template-rows: none !important;
+            }
+            .about-card-contact { position: static !important; }
+        }
+        
+        /* ===== MOBILE - Cartes épurées et professionnelles ===== */
+        @media (max-width: 768px) {
+            .flavoriz-section.about-page-section,
+            section.flavoriz-section.about-page-section {
+                margin-top: 100px !important;
+            }
+            .flavoriz-section > div:first-child {
+                padding: 32px 20px 28px !important;
+                border-radius: 0 0 24px 24px !important;
+            }
+            .flavoriz-section > div:first-child h1 {
+                font-size: 26px !important;
+                font-weight: 700 !important;
+                line-height: 1.25 !important;
+                margin-bottom: 8px !important;
+                letter-spacing: -0.02em !important;
+            }
+            .flavoriz-section > div:first-child p {
+                font-size: 15px !important;
+                line-height: 1.55 !important;
+                color: #6B7280 !important;
+            }
+            .about-main-content {
+                padding: 20px 16px 32px !important;
+            }
+            .about-content-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+            .about-content-grid .about-card {
+                margin-bottom: 0 !important;
+                border-radius: 20px !important;
+                padding: 24px 20px !important;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+            }
+            .about-card-history .about-card-header,
+            .about-card-valeurs .about-card-header {
+                margin-bottom: 20px !important;
+            }
+            .about-card-history .about-card-header h2,
+            .about-card-valeurs .about-card-header h2 {
+                font-size: 22px !important;
+                font-weight: 700 !important;
+            }
+            .about-card-history .about-card-header > div:first-child,
+            .about-card-valeurs .about-card-header > div:first-child {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+            }
+            .about-card-history .about-card-header > div:first-child i,
+            .about-card-valeurs .about-card-header > div:first-child i {
+                font-size: 22px !important;
+            }
+            .about-card-history .about-card-body {
+                font-size: 15px !important;
+                line-height: 1.75 !important;
+            }
+            .about-card-history .about-card-body p {
+                margin-bottom: 16px !important;
+            }
+            .about-card-contact { position: static !important; padding: 24px 20px !important; border-radius: 20px !important; }
+            .about-card-contact h3 { font-size: 20px !important; margin-bottom: 12px !important; }
+            .about-card-contact > p { font-size: 15px !important; margin-bottom: 20px !important; }
+            .about-card-mission { padding: 24px 20px !important; border-radius: 20px !important; }
+            .about-card-mission h2 { font-size: 22px !important; }
+            .about-card-mission .about-card-header > div:first-child { width: 44px !important; height: 44px !important; border-radius: 12px !important; }
+            .about-card-mission p { font-size: 16px !important; line-height: 1.7 !important; }
+            .valeurs-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+            .valeurs-grid > div {
+                border-radius: 16px !important;
+                padding: 18px 14px !important;
+                border: 1px solid rgba(255, 123, 44, 0.12) !important;
+                background: #FAFAFA !important;
+            }
+            .valeurs-grid > div > div:first-child {
+                width: 48px !important;
+                height: 48px !important;
+                border-radius: 12px !important;
+                margin: 0 auto 12px !important;
+            }
+            .valeurs-grid > div > div:first-child i { font-size: 24px !important; }
+            .valeurs-grid > div h3 { font-size: 15px !important; font-weight: 700 !important; margin-bottom: 6px !important; color: #1F2937 !important; }
+            .valeurs-grid > div p { font-size: 13px !important; line-height: 1.5 !important; color: #6B7280 !important; margin: 0 !important; }
+        }
+        @media (max-width: 480px) {
+            .valeurs-grid {
+                gap: 10px !important;
+            }
+            .valeurs-grid > div {
+                padding: 16px 12px !important;
+            }
+            .valeurs-grid > div h3 { font-size: 14px !important; }
+            .valeurs-grid > div p { font-size: 12px !important; }
+        }
+
+/* Desktop */
+        @media (max-width: 1200px) {
+            .page-main-content {
+                padding: var(--spacing-xl) var(--spacing-lg) !important;
+            }
+        }
+        
+        /* Tablette */
+        @media (max-width: 1024px) {
+            .page-content-grid {
+                grid-template-columns: 1fr !important;
+                gap: var(--spacing-xl) !important;
+            }
+            .page-sidebar {
+                position: static !important;
+            }
+        }
+        
+        /* Mobile - Cartes épurées Entreprise */
+        @media (max-width: 768px) {
+            .flavoriz-section:not(.about-page-section) {
+                margin-top: 100px !important;
+            }
+            .flavoriz-section:not(.about-page-section) > div:first-child {
+                padding: 32px 20px 28px !important;
+                border-radius: 0 0 24px 24px !important;
+            }
+            .flavoriz-section:not(.about-page-section) > div:first-child h1 {
+                font-size: 26px !important;
+                font-weight: 700 !important;
+                line-height: 1.25 !important;
+                margin-bottom: 8px !important;
+            }
+            .flavoriz-section:not(.about-page-section) > div:first-child p {
+                font-size: 15px !important;
+                line-height: 1.55 !important;
+                color: #6B7280 !important;
+            }
+            .page-main-content {
+                padding: 20px 10px 32px !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .page-content-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+                max-width: 100% !important;
+            }
+            .page-main-col {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+            }
+            .page-card {
+                border-radius: 20px !important;
+                padding: 24px 20px !important;
+                margin-bottom: 20px !important;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .page-card-main {
+                border: 1px solid #E5E7EB !important;
+                padding: 24px 18px !important;
+            }
+            .page-card-head {
+                margin-bottom: 20px !important;
+            }
+            .page-card-head h2 {
+                font-size: 22px !important;
+                font-weight: 700 !important;
+                color: #1F2937 !important;
+            }
+            .page-card-icon {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+            }
+            .page-card-icon svg.page-card-icon-svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            .page-card-icon i {
+                font-size: 22px !important;
+            }
+            .page-card-body {
+                font-size: 15px !important;
+                line-height: 1.75 !important;
+                color: #374151 !important;
+            }
+            .page-card-body h3 {
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                margin: 20px 0 8px !important;
+                color: #1F2937 !important;
+            }
+            .page-card-body p {
+                margin-bottom: 14px !important;
+            }
+            .page-card-help {
+                background: #FAFAFA !important;
+                border: 1px solid #E5E7EB !important;
+            }
+            .page-card-help h3 {
+                font-size: 18px !important;
+            }
+            .page-card-help p {
+                font-size: 14px !important;
+                color: #6B7280 !important;
+            }
+            .page-cta-btn {
+                padding: 12px 20px !important;
+                font-size: 14px !important;
+                border-radius: 10px !important;
+            }
+            .page-card-contact {
+                border-radius: 20px !important;
+                padding: 24px 20px !important;
+                margin-bottom: 0 !important;
+            }
+            .page-card-contact h3 {
+                font-size: 20px !important;
+                margin-bottom: 12px !important;
+            }
+            .page-card-contact p {
+                font-size: 15px !important;
+                margin-bottom: 18px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .page-main-content {
+                padding: 16px 8px 28px !important;
+            }
+            .page-card {
+                padding: 20px 14px !important;
+            }
+            .page-card-main {
+                padding: 20px 14px !important;
+            }
+            .page-card-head h2 {
+                font-size: 20px !important;
+            }
+            .page-card-body {
+                font-size: 14px !important;
+            }
+            .page-card-body h3 {
+                font-size: 17px !important;
+            }
+        }

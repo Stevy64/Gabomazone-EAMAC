@@ -1,0 +1,236 @@
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.flavoriz-orders-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: all 0.2s ease;
+}
+
+.flavoriz-orders-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.flavoriz-orders-table td {
+    padding: 20px 16px;
+    font-size: 14px;
+    color: #1F2937;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) {
+    position: relative;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover {
+    background: rgba(255, 123, 44, 0.08) !important;
+    color: var(--color-orange) !important;
+    transform: translateX(4px);
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) i {
+    transition: all 0.3s ease;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover i {
+    color: var(--color-orange) !important;
+    transform: scale(1.1);
+}
+
+@media (min-width: 1200px) {
+    .col-md-3 {
+        flex: 0 0 280px !important;
+        max-width: 280px !important;
+    }
+
+    .col-md-9 {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 993px) {
+    .col-md-3 {
+        flex: 0 0 calc(30% - 12px) !important;
+    }
+
+    .col-md-9 {
+        flex: 0 0 calc(70% - 12px) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 80px !important;
+    }
+
+    .col-md-3,
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+    }
+
+    .flavoriz-dashboard-menu {
+        position: static !important;
+        margin-bottom: 28px;
+    }
+
+    .flavoriz-dashboard-card {
+        padding: 32px !important;
+    }
+
+    .flavoriz-orders-table {
+        font-size: 13px;
+    }
+
+    .flavoriz-orders-table th,
+    .flavoriz-orders-table td {
+        padding: 12px 8px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .flavoriz-dashboard-card {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+        margin: 0 !important;
+    }
+
+    h2 {
+        font-size: 22px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .container {
+        padding: 0 12px !important;
+        max-width: 100% !important;
+    }
+
+    .row {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .flavoriz-dashboard-menu {
+        position: static !important;
+        margin-bottom: 16px !important;
+        padding: 20px !important;
+    }
+
+    .flavoriz-dashboard-menu .mon-compte-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .flavoriz-dashboard-menu .mon-compte-grid li a {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+
+    .flavoriz-dashboard-menu .mon-compte-grid li a i {
+        font-size: 18px !important;
+    }
+
+    /* Table responsive pour mobile */
+    .flavoriz-orders-table {
+        display: block;
+        width: 100%;
+    }
+
+    .flavoriz-orders-table thead {
+        display: none !important;
+    }
+
+    .flavoriz-orders-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .flavoriz-orders-table tbody tr {
+        display: block;
+        width: 100%;
+        margin-bottom: 16px;
+        border: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .flavoriz-orders-table tbody tr.mobile-order-card {
+        display: block !important;
+    }
+
+    .flavoriz-orders-table tbody tr:not(.mobile-order-card) {
+        display: none !important;
+    }
+
+    .flavoriz-orders-table tbody td {
+        display: block !important;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
+    }
+
+    .order-card-mobile {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .order-card-mobile button,
+    .order-card-mobile a {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(255, 123, 44, 0.2);
+        min-height: 44px; /* Taille minimale pour le tactile */
+    }
+
+    /* Empty state mobile */
+    #empty-box {
+        padding: 40px 20px !important;
+    }
+
+    #empty-box h3 {
+        font-size: 20px !important;
+    }
+
+    #empty-box p {
+        font-size: 14px !important;
+    }
+
+    /* Modal mobile */
+    #transaction-modal > div {
+        max-width: 95% !important;
+        margin: 10px !important;
+        max-height: 85vh !important;
+    }
+
+    #transaction-steps {
+        padding: 24px 16px !important;
+    }
+}

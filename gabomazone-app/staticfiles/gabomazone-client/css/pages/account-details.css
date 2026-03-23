@@ -1,0 +1,258 @@
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.flavoriz-input:focus {
+    outline: none;
+    border-color: var(--color-orange) !important;
+    box-shadow: 0 0 0 4px rgba(255, 123, 44, 0.12) !important;
+    background: white !important;
+    transform: translateY(-1px);
+}
+
+.flavoriz-dashboard-menu {
+    transition: all 0.3s ease;
+}
+
+.flavoriz-dashboard-menu:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) {
+    position: relative;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover {
+    background: rgba(255, 123, 44, 0.08) !important;
+    color: var(--color-orange) !important;
+    transform: translateX(4px);
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]) i {
+    transition: all 0.3s ease;
+}
+
+.flavoriz-dashboard-menu a:not([style*="background"]):hover i {
+    color: var(--color-orange) !important;
+    transform: scale(1.1);
+}
+
+.flavoriz-btn-primary:hover {
+    background: #E65A1F !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255, 123, 44, 0.45) !important;
+}
+
+.flavoriz-btn-primary:active {
+    transform: translateY(0) !important;
+}
+
+a[style*="background: #F3F4F6"]:hover {
+    background: #E5E7EB !important;
+    transform: translateY(-1px);
+}
+
+label[for="id_image"]:hover {
+    background: #E65A1F !important;
+    box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+#url-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(255, 123, 44, 0.3) !important;
+}
+
+select.flavoriz-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236B7280' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 45px !important;
+}
+
+select.flavoriz-input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23FF7B2C' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+}
+
+.form-section {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.form-section:nth-child(1) { animation-delay: 0.1s; }
+.form-section:nth-child(2) { animation-delay: 0.2s; }
+.form-section:nth-child(3) { animation-delay: 0.3s; }
+
+@media (min-width: 1200px) {
+    .col-md-3 {
+        flex: 0 0 280px !important;
+        max-width: 280px !important;
+    }
+    
+    .col-md-9 {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    
+    .flavoriz-dashboard-card {
+        padding: 24px !important;
+    }
+    
+    .flavoriz-dashboard-card h2 {
+        font-size: 24px !important;
+    }
+    
+    .flavoriz-dashboard-card p {
+        font-size: 13px !important;
+    }
+    
+    .form-section {
+        margin-bottom: 24px !important;
+    }
+    
+    .form-section h3 {
+        font-size: 18px !important;
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 993px) {
+    .col-md-3 {
+        flex: 0 0 calc(30% - 10px) !important;
+    }
+    
+    .col-md-9 {
+        flex: 0 0 calc(70% - 10px) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .main.pages {
+        padding-top: 80px !important;
+        padding-bottom: 80px !important;
+    }
+    
+    .col-md-3,
+    .col-md-9 {
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: static !important;
+        margin-bottom: 28px;
+    }
+    
+    .flavoriz-dashboard-card {
+        padding: 32px !important;
+    }
+    
+    .row[style*="grid-template-columns: repeat(2, 1fr)"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .flavoriz-dashboard-card {
+        padding: 24px !important;
+        border-radius: 16px !important;
+    }
+    
+    .form-section {
+        padding: 24px !important;
+    }
+    
+    h2 {
+        font-size: 24px !important;
+    }
+    
+    h3 {
+        font-size: 18px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    /* Menu Mon compte en grille sur mobile (géré par _mon_compte_card.html) */
+    .flavoriz-dashboard-menu .mon-compte-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu .mon-compte-grid li a {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu .mon-compte-grid li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+    
+    /* Assurer que les boutons restent côte à côte sur mobile */
+    .form-actions {
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        padding-top: 24px !important;
+    }
+    
+    .btn-cancel,
+    .btn-save {
+        flex: 1 !important;
+        min-width: 0 !important;
+        padding: 14px 16px !important;
+        font-size: 14px !important;
+        justify-content: center !important;
+    }
+    
+    .btn-save {
+        padding: 14px 12px !important;
+    }
+    
+    .btn-cancel i,
+    .btn-save i {
+        font-size: 14px !important;
+    }
+    
+    /* Masquer le texte desktop et afficher le texte mobile */
+    .btn-text-desktop {
+        display: none !important;
+    }
+    
+    .btn-text-mobile {
+        display: inline !important;
+    }
+}
+
+/* Sur desktop, afficher le texte complet et masquer le texte mobile */
+.btn-text-mobile {
+    display: none;
+}
+
+.btn-text-desktop {
+    display: inline;
+}

@@ -19,7 +19,7 @@ def get_admin_notification_model():
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_adminnotification'")
             if cursor.fetchone():
                 return AdminNotification
-    except:
+    except Exception:
         pass
     return None
 
@@ -33,7 +33,7 @@ def notify_admin_on_boost_request(sender, instance, created, **kwargs):
         if created and instance.status == ProductBoostRequest.PENDING:
             try:
                 related_url = reverse('admin:accounts_productboostrequest_change', args=[instance.id])
-            except:
+            except Exception:
                 related_url = f'/admin/accounts/productboostrequest/{instance.id}/change/'
             
             AdminNotification.objects.create(
@@ -60,7 +60,7 @@ def notify_admin_on_premium_subscription(sender, instance, created, **kwargs):
         if created and instance.status == PremiumSubscription.PENDING:
             try:
                 related_url = reverse('admin:accounts_premiumsubscription_change', args=[instance.id])
-            except:
+            except Exception:
                 related_url = f'/admin/accounts/premiumsubscription/{instance.id}/change/'
             
             AdminNotification.objects.create(
@@ -86,7 +86,7 @@ def notify_admin_on_contact_message(sender, instance, created, **kwargs):
         if created:
             try:
                 related_url = reverse('admin:contact_messageslist_change', args=[instance.id])
-            except:
+            except Exception:
                 related_url = f'/admin/contact/messageslist/{instance.id}/change/'
             
             AdminNotification.objects.create(

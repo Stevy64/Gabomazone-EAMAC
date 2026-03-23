@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{%block head%}
+{% block head %}
     <meta charset="utf-8" />
     <title>our Souq is now Void| Welcome to Void.ae in Egypt. Online Shopping for Electronics, Apparel, Beauty and Grooming, Grocery and more</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="{% static 'assets/css/plugins/slider-range.css'%}" />
     <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
 
-{%endblock head%}
+{% endblock head %}
 
-{%block body%}
+{% block body %}
     <main class="main">
         <div class="page-header mt-30 mb-50">
             <div class="container">
@@ -365,11 +365,11 @@
                                     </li>
                                   
                                     
-                                    {%endfor%}
+                                    {%endfor %}
                                 </ul>
                             
                         <div class="more_categories show"><span class="icon"></span> <span class="heading-sm-1">Show more...</span></div>
-                        {%endif%}
+                        {%endif %}
                     </div>
                     <!-- Fillter By Price -->
                     <div class="sidebar-widget price_range range mb-30">
@@ -466,9 +466,9 @@
             </div>
         </div>
     </main>
-{%endblock body%}
+{% endblock body %}
 
-{%block script%}
+{% block script %}
         <!-- Vendor JS-->
         <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
         <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
@@ -576,4 +576,4 @@
         </script>
   
 
-{%endblock script%}
+{% endblock script %}

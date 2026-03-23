@@ -474,7 +474,7 @@ class SingPayService:
                     transaction_type=SingPayTransaction.C2C_PAYMENT,
                     status=SingPayTransaction.PENDING
                 ).first()
-            except:
+            except Exception:
                 pass
         
         if existing_transaction:
@@ -719,7 +719,7 @@ class SingPayService:
             duration = singpay_transaction.internal_order_id.split('-')[-1]
             if duration not in ['24h', '72h', '7d']:
                 duration = '24h'  # Par défaut
-        except:
+        except Exception:
             duration = '24h'
         
         # Créer le boost

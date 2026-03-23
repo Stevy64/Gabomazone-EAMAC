@@ -1,25 +1,28 @@
 {% extends 'supplier-panel/supplier-base.html' %}
-{%load static%}
+{% load static %}
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/products-list.css' %}?v=1.0">
+{% endblock headextra %}
 
-{%block section %}
+{% block section %}
 
 <!-- Messages Django -->
 {% if messages %}
-<div class="messages-container" style="margin-bottom: 24px;">
+<div class="messages-container gm-s-dc2cb2" >
     {% for message in messages %}
-    <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+    <div class="alert alert-{{message.tags}} gm-s-a24055" >
         {% if message.tags == 'success' %}
-            <i class="material-icons" style="color: #059669;">check_circle</i>
-            <span style="color: #059669;">{{ message }}</span>
+            <i class="material-icons gm-s-12461c" >check_circle</i>
+            <span class="gm-s-12461c">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons" style="color: #DC2626;">error</i>
-            <span style="color: #DC2626;">{{ message }}</span>
+            <i class="material-icons gm-s-b9ac80" >error</i>
+            <span class="gm-s-b9ac80">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons" style="color: #D97706;">warning</i>
-            <span style="color: #D97706;">{{ message }}</span>
+            <i class="material-icons gm-s-1232eb" >warning</i>
+            <span class="gm-s-1232eb">{{ message }}</span>
         {% else %}
-            <i class="material-icons" style="color: #2563EB;">info</i>
-            <span style="color: #2563EB;">{{ message }}</span>
+            <i class="material-icons gm-s-2e637e" >info</i>
+            <span class="gm-s-2e637e">{{ message }}</span>
         {% endif %}
     </div>
     {% endfor %}
@@ -145,10 +148,10 @@
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
-    <div class="modal-container" style="max-width: 500px;">
+    <div class="modal-container gm-s-d99434" >
         <div class="modal-header">
             <h2>
-                <i class="material-icons" style="color: #DC2626;">warning</i>
+                <i class="material-icons gm-s-b9ac80" >warning</i>
                 Confirmer la suppression
             </h2>
             <button type="button" class="modal-close-btn" onclick="closeDeleteConfirmModal()">
@@ -156,21 +159,21 @@
             </button>
         </div>
         <div class="modal-body">
-            <div style="text-align: center; padding: 20px 0;">
-                <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="material-icons" style="font-size: 48px; color: #DC2626;">delete_outline</i>
+            <div class="gm-s-5ccdef">
+                <div class="gm-s-5d5427">
+                    <i class="material-icons gm-s-137574" >delete_outline</i>
                 </div>
-                <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;">Êtes-vous sûr ?</h3>
-                <p style="font-size: 15px; color: #6B7280; margin: 0 0 8px 0;">Vous êtes sur le point de supprimer le produit :</p>
-                <p id="deleteProductName" style="font-size: 16px; font-weight: 600; color: #6B46C1; margin: 0 0 24px 0;"></p>
-                <p style="font-size: 14px; color: #9CA3AF; margin: 0;">Cette action est irréversible.</p>
+                <h3 class="gm-s-86e044">Êtes-vous sûr ?</h3>
+                <p class="gm-s-62de7e">Vous êtes sur le point de supprimer le produit :</p>
+                <p id="deleteProductName" class="gm-s-2717d1"></p>
+                <p class="gm-s-f04455">Cette action est irréversible.</p>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn-cancel" onclick="closeDeleteConfirmModal()">Annuler</button>
-            <form id="deleteProductForm" method="post" style="display: inline;">
+            <form id="deleteProductForm" method="post" class="gm-s-3df0a3">
                 {% csrf_token %}
-                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);">
+                <button type="submit" class="btn-submit gm-s-3fe1e7" >
                     <i class="material-icons">delete</i>
                     Supprimer
                 </button>
@@ -178,162 +181,9 @@
         </div>
     </div>
 </div>
+{% endblock section %}
 
-<style>
-    /* Styles copiés depuis supplier-add-product.html pour cohérence du design */
-    .text-brand {
-        color: #FCD34D;
-        font-weight: 700;
-    }
-    
-    .products-count {
-        font-size: 16px;
-        margin: 0;
-        color: rgba(255, 255, 255, 0.95);
-    }
-    
-    /* Modal Overlay - Styles pour le modal de confirmation */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    .modal-container {
-        background: white;
-        border-radius: 20px;
-        width: 100%;
-        max-width: 500px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        animation: slideUp 0.3s ease;
-    }
-    
-    @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-    
-    .modal-header {
-        padding: 20px 24px;
-        border-bottom: 2px solid #F3F4F6;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
-        flex-shrink: 0;
-    }
-    
-    .modal-header h2 {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1F2937;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .modal-header h2 i {
-        color: #DC2626;
-    }
-    
-    .modal-close-btn {
-        width: 40px;
-        height: 40px;
-        border: none;
-        background: #F3F4F6;
-        border-radius: 10px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        font-size: 20px;
-        color: #6B7280;
-    }
-    
-    .modal-close-btn:hover {
-        background: #E5E7EB;
-        color: #1F2937;
-    }
-    
-    .modal-body {
-        padding: 24px;
-        overflow-y: auto;
-        flex: 1;
-    }
-    
-    .modal-footer {
-        padding: 16px 24px;
-        border-top: 2px solid #F3F4F6;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        background: #F9FAFB;
-        flex-shrink: 0;
-    }
-    
-    .btn-cancel,
-    .btn-submit {
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .btn-cancel {
-        background: #F3F4F6;
-        color: #6B7280;
-    }
-    
-    .btn-cancel:hover {
-        background: #E5E7EB;
-    }
-    
-    .btn-submit {
-        background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
-        color: white;
-    }
-    
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-</style>
-
-{%endblock section%}
-
-{%block script%}
+{% block script %}
 <script>
     // URLs pour les actions CRUD
     const urls = {
@@ -417,4 +267,4 @@
     });
 </script>
 <script src="{% static 'assets-supplier/js/products-list.js'%}" type="text/javascript"></script>
-{%endblock script%}
+{% endblock script %}

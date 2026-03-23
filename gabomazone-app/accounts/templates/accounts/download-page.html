@@ -2,36 +2,40 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{%block body%}
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/download-page.css' %}?v=1.0">
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages gm-s-8748cb" >
+    <div class="container gm-s-b8c14a" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Vendre un article</span>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Vendre un article</span>
         </nav>
 
-        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+        <div class="row gm-s-7e81ca" >
             <!-- Sidebar Menu (carte Mon compte, 6 liens sans Déconnexion) -->
-            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+            <div class="col-md-3 gm-s-330b7b" >
                 {% include 'accounts/_mon_compte_card.html' with active_page='sell-product' %}
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9" style="flex: 1; min-width: 0; padding: 0;">
-                <div class="flavoriz-dashboard-card" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); animation: fadeInUp 0.5s ease-out;">
+            <div class="col-md-9 gm-s-5c3ace" >
+                <div class="flavoriz-dashboard-card gm-s-5a7674" >
                     <!-- Header Section -->
-                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #F3F4F6;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div class="gm-s-3af8ea">
+                        <div class="gm-s-1017cf">
                             <div>
-                                <h2 style="font-size: 24px; font-weight: 700; color: var(--text-dark); margin: 0 0 4px 0; font-family: var(--font-primary); line-height: 1.2;">
+                                <h2 class="gm-s-4c3bd0">
                                     Mes téléchargements
                                 </h2>
-                                <p style="font-size: 13px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fi-rs-info" style="font-size: 12px;"></i>
+                                <p class="gm-s-bf0d7b">
+                                    <i class="fi-rs-info gm-s-345895" ></i>
                                     Téléchargez vos fichiers numériques achetés
                                 </p>
                             </div>
@@ -40,29 +44,29 @@
                     
                     <!-- Downloads Table -->
                     {% if files %}
-                    <div style="overflow-x: auto;">
-                        <table class="flavoriz-downloads-table" style="width: 100%; border-collapse: collapse;">
+                    <div class="gm-s-b56181">
+                        <table class="flavoriz-downloads-table gm-s-91f0da" >
                             <thead>
-                                <tr style="background: #F9FAFB; border-bottom: 2px solid #E5E7EB;">
-                                    <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">N° Commande</th>
-                                    <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Nom du fichier</th>
-                                    <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Action</th>
+                                <tr class="gm-s-130137">
+                                    <th class="gm-s-74463b">N° Commande</th>
+                                    <th class="gm-s-74463b">Nom du fichier</th>
+                                    <th class="gm-s-07553c">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for key, value in files.items %}
-                                <tr style="border-bottom: 1px solid #F3F4F6; transition: all 0.2s ease;">
-                                    <td style="padding: 16px 12px; font-size: 13px; color: #1F2937; font-weight: 600;">#{{ key }}</td>
-                                    <td style="padding: 16px 12px; font-size: 13px; color: #1F2937;">
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="fi-rs-file" style="font-size: 18px; color: var(--color-orange);"></i>
+                                <tr class="gm-s-5abcc8">
+                                    <td class="gm-s-b24c3a">#{{ key }}</td>
+                                    <td class="gm-s-3bdd45">
+                                        <div class="gm-s-b512c9">
+                                            <div class="gm-s-a33cc2">
+                                                <i class="fi-rs-file gm-s-ba07d9" ></i>
                                             </div>
-                                            <span style="font-weight: 500;">{{ value }}</span>
+                                            <span class="gm-s-d2abfb">{{ value }}</span>
                                         </div>
                                     </td>
-                                    <td style="padding: 16px 12px; text-align: center;">
-                                        <a href="{% url 'accounts:download-file' key value %}" style="display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; background: var(--color-orange); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">
+                                    <td class="gm-s-e04b79">
+                                        <a href="{% url 'accounts:download-file' key value %}" class="gm-s-d1c8c9">
                                             <i class="fi-rs-download"></i> Télécharger
                                         </a>
                                     </td>
@@ -73,13 +77,13 @@
                     </div>
                     {% else %}
                     <!-- Empty State -->
-                    <div style="text-align: center; padding: 40px 20px;">
-                        <div style="width: 100px; height: 100px; margin: 0 auto 20px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fi-rs-cloud-download" style="font-size: 40px; color: var(--color-orange);"></i>
+                    <div class="gm-s-7d1944">
+                        <div class="gm-s-3536bf">
+                            <i class="fi-rs-cloud-download gm-s-287793" ></i>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 700; color: var(--text-dark); margin: 0 0 10px 0; font-family: var(--font-primary);">Aucun téléchargement</h3>
-                        <p style="font-size: 14px; color: #6B7280; margin: 0 0 24px 0;">Vous n'avez pas encore acheté de fichiers numériques</p>
-                        <a href="{% url 'categories:shop' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: var(--color-orange); color: white; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.35);">
+                        <h3 class="gm-s-617344">Aucun téléchargement</h3>
+                        <p class="gm-s-7d4818">Vous n'avez pas encore acheté de fichiers numériques</p>
+                        <a href="{% url 'categories:shop' %}" class="gm-s-4b2f9f">
                             <i class="fi-rs-arrow-left"></i> Découvrir les produits
                         </a>
                     </div>
@@ -89,161 +93,8 @@
         </div>
     </div>
 </main>
+{% endblock body %}
 
-<style>
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.flavoriz-downloads-table tbody tr:hover {
-    background: #F9FAFB;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]) {
-    position: relative;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]):hover {
-    background: rgba(255, 123, 44, 0.08) !important;
-    color: var(--color-orange) !important;
-    transform: translateX(4px);
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]) i {
-    transition: all 0.3s ease;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]):hover i {
-    color: var(--color-orange) !important;
-    transform: scale(1.1);
-}
-
-a[style*="background: var(--color-orange)"]:hover {
-    background: #E65A1F !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.4) !important;
-}
-
-@media (min-width: 1200px) {
-    .col-md-3 {
-        flex: 0 0 280px !important;
-        max-width: 280px !important;
-    }
-    
-    .col-md-9 {
-        flex: 1 !important;
-        min-width: 0 !important;
-    }
-    
-    .flavoriz-dashboard-card {
-        padding: 24px !important;
-    }
-    
-    .flavoriz-dashboard-card h2 {
-        font-size: 24px !important;
-    }
-    
-    .flavoriz-dashboard-card p {
-        font-size: 13px !important;
-    }
-}
-
-@media (max-width: 1199px) and (min-width: 993px) {
-    .col-md-3 {
-        flex: 0 0 calc(30% - 12px) !important;
-    }
-    
-    .col-md-9 {
-        flex: 0 0 calc(70% - 12px) !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 80px !important;
-    }
-    
-    .col-md-3,
-    .col-md-9 {
-        flex: 0 0 100% !important;
-        min-width: 100% !important;
-    }
-    
-    .flavoriz-dashboard-menu {
-        position: static !important;
-        margin-bottom: 28px;
-    }
-    
-    .flavoriz-dashboard-card {
-        padding: 32px !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .flavoriz-dashboard-card {
-        padding: 24px !important;
-        border-radius: 16px !important;
-    }
-    
-    h2 {
-        font-size: 24px !important;
-    }
-    
-    .container {
-        padding: 0 16px !important;
-    }
-    
-    .flavoriz-downloads-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .flavoriz-downloads-table thead {
-        display: none;
-    }
-    
-    .flavoriz-downloads-table tbody tr {
-        display: block;
-        margin-bottom: 16px;
-        border: 1px solid #E5E7EB;
-        border-radius: 12px;
-        padding: 16px;
-        background: white;
-    }
-    
-    .flavoriz-downloads-table tbody td {
-        display: block;
-        padding: 12px 0 !important;
-        text-align: left !important;
-        border: none;
-    }
-    
-    .flavoriz-downloads-table tbody td:first-child {
-        font-weight: 700;
-        color: var(--color-orange);
-        padding-bottom: 8px !important;
-    }
-    
-    .flavoriz-downloads-table tbody td:last-child {
-        padding-top: 16px !important;
-    }
-    
-    .flavoriz-downloads-table tbody td:last-child a {
-        width: 100%;
-        justify-content: center;
-    }
-}
-</style>
-{%endblock body%}
-
-{%block script%}
+{% block script %}
 {{ block.super }}
-{%endblock script%}
+{% endblock script %}

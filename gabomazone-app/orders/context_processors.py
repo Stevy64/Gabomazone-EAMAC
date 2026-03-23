@@ -10,7 +10,7 @@ def orders_cart_obj(request):
             else:    
                 cart = None
             
-        except:
+        except Exception:
                 cart = None
                 
         if cart:

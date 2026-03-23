@@ -1,0 +1,178 @@
+.flavoriz-wishlist-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .flavoriz-wishlist-header {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .flavoriz-wishlist-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+    }
+    
+    .flavoriz-wishlist-count {
+        color: #6B7280;
+        font-size: 14px;
+    }
+    
+    .flavoriz-wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .flavoriz-wishlist-empty {
+        background: white;
+        border-radius: 16px;
+        padding: 60px 32px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .flavoriz-wishlist-empty i {
+        font-size: 64px;
+        color: #D1D5DB;
+        margin-bottom: 24px;
+    }
+    
+    .flavoriz-wishlist-empty h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .flavoriz-wishlist-empty p {
+        color: #6B7280;
+        font-size: 16px;
+        margin: 0 0 32px 0;
+    }
+    
+    .flavoriz-wishlist-empty a {
+        display: inline-block;
+        padding: 12px 24px;
+        background: var(--color-orange);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .flavoriz-wishlist-empty a:hover {
+        background: #E65A1F;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .flavoriz-wishlist-container {
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+        
+        .flavoriz-wishlist-header {
+            padding: 24px 20px;
+        }
+        
+        .flavoriz-wishlist-header h1 {
+            font-size: 24px;
+        }
+        
+        .flavoriz-wishlist-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .flavoriz-wishlist-empty {
+            padding: 40px 20px;
+        }
+    }
+
+
+/* === Extracted inline styles === */
+
+.gm-s-c74d5f {
+    background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 12px; padding: 16px; margin-bottom: 24px; color: #991B1B;
+}
+
+.gm-s-e381d7 {
+    cursor: pointer; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; display: flex; flex-direction: column; height: 100%;
+}
+
+.gm-s-f77169 {
+    position: relative; overflow: hidden; background: #FAFAFA; width: 100%; padding-top: 72%;
+}
+
+.gm-s-446654 {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; cursor: pointer;
+}
+
+.gm-s-da5dea {
+    position: absolute; top: 8px; right: 8px; background: rgba(254, 226, 226, 0.95); border: none; border-radius: 16px; padding: 6px 10px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #EF4444; font-weight: 600; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; z-index: 10;
+}
+
+.gm-s-3eb35f {
+    font-size: 12px; color: #EF4444;
+}
+
+.gm-s-9d65e1 {
+    position: absolute; bottom: 8px; left: 8px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 10;
+}
+
+.gm-s-6ec708 {
+    font-size: 11px;
+}
+
+.gm-s-8552df {
+    padding: 14px; flex: 1; display: flex; flex-direction: column;
+}
+
+.gm-s-63da28 {
+    font-size: 14px; font-weight: 600; color: #1F2937; margin: 0 0 10px 0; line-height: 1.4; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex-shrink: 0; cursor: pointer;
+}
+
+.gm-s-14d12e {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; flex-shrink: 0;
+}
+
+.gm-s-43b675 {
+    font-size: 18px; font-weight: 700; color: var(--color-orange);
+}
+
+.gm-s-47b7e7 {
+    font-size: 13px; color: #9CA3AF; text-decoration: line-through;
+}
+
+.gm-s-9e58e3 {
+    display: flex; gap: 8px; margin-top: auto;
+}
+
+.gm-s-606ada {
+    flex: 1; padding: 10px 16px; background: #1F2937; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gm-s-766745 {
+    font-size: 13px;
+}
+
+.gm-s-3eec59 {
+    padding: 10px 14px; background: white; color: #1F2937; border: 1px solid #1F2937; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); min-width: 48px;
+}
+
+.gm-s-499df8 {
+    font-size: 15px;
+}
+
+.gm-s-4d0410 {
+    position: absolute; top: 8px; left: 8px; z-index: 10;
+}

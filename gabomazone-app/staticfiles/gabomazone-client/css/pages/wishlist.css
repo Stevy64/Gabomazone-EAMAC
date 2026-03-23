@@ -1,0 +1,99 @@
+.flavoriz-wishlist-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .flavoriz-wishlist-header {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .flavoriz-wishlist-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0 0 8px 0;
+    }
+    
+    .flavoriz-wishlist-count {
+        color: #6B7280;
+        font-size: 14px;
+    }
+    
+    .flavoriz-wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .flavoriz-wishlist-empty {
+        background: white;
+        border-radius: 16px;
+        padding: 60px 32px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .flavoriz-wishlist-empty i {
+        font-size: 64px;
+        color: #D1D5DB;
+        margin-bottom: 24px;
+    }
+    
+    .flavoriz-wishlist-empty h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 12px 0;
+    }
+    
+    .flavoriz-wishlist-empty p {
+        color: #6B7280;
+        font-size: 16px;
+        margin: 0 0 32px 0;
+    }
+    
+    .flavoriz-wishlist-empty a {
+        display: inline-block;
+        padding: 12px 24px;
+        background: var(--color-orange);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .flavoriz-wishlist-empty a:hover {
+        background: #E65A1F;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .flavoriz-wishlist-container {
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+        
+        .flavoriz-wishlist-header {
+            padding: 24px 20px;
+        }
+        
+        .flavoriz-wishlist-header h1 {
+            font-size: 24px;
+        }
+        
+        .flavoriz-wishlist-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .flavoriz-wishlist-empty {
+            padding: 40px 20px;
+        }
+    }

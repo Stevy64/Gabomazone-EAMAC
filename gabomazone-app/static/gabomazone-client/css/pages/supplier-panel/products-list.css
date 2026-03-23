@@ -1,0 +1,216 @@
+/* Styles copiés depuis supplier-add-product.html pour cohérence du design */
+    .text-brand {
+        color: #FCD34D;
+        font-weight: 700;
+    }
+    
+    .products-count {
+        font-size: 16px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Modal Overlay - Styles pour le modal de confirmation */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #F3F4F6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 100%);
+        flex-shrink: 0;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .modal-header h2 i {
+        color: #DC2626;
+    }
+    
+    .modal-close-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: #F3F4F6;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 20px;
+        color: #6B7280;
+    }
+    
+    .modal-close-btn:hover {
+        background: #E5E7EB;
+        color: #1F2937;
+    }
+    
+    .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 2px solid #F3F4F6;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #F9FAFB;
+        flex-shrink: 0;
+    }
+    
+    .btn-cancel,
+    .btn-submit {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-cancel {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        color: white;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+
+/* === Extracted inline styles === */
+
+.gm-s-dc2cb2 {
+    margin-bottom: 24px;
+}
+
+.gm-s-a24055 {
+    padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gm-s-12461c {
+    color: #059669;
+}
+
+.gm-s-b9ac80 {
+    color: #DC2626;
+}
+
+.gm-s-1232eb {
+    color: #D97706;
+}
+
+.gm-s-2e637e {
+    color: #2563EB;
+}
+
+.gm-s-d99434 {
+    max-width: 500px;
+}
+
+.gm-s-5ccdef {
+    text-align: center; padding: 20px 0;
+}
+
+.gm-s-5d5427 {
+    width: 80px; height: 80px; margin: 0 auto 20px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+.gm-s-137574 {
+    font-size: 48px; color: #DC2626;
+}
+
+.gm-s-86e044 {
+    font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 12px 0;
+}
+
+.gm-s-62de7e {
+    font-size: 15px; color: #6B7280; margin: 0 0 8px 0;
+}
+
+.gm-s-2717d1 {
+    font-size: 16px; font-weight: 600; color: #6B46C1; margin: 0 0 24px 0;
+}
+
+.gm-s-f04455 {
+    font-size: 14px; color: #9CA3AF; margin: 0;
+}
+
+.gm-s-3df0a3 {
+    display: inline;
+}
+
+.gm-s-3fe1e7 {
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+}

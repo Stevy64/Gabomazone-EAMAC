@@ -1,0 +1,19 @@
+<!-- Toast alerts with auto-dismiss -->
+<div id="flavoriz-alerts-container" class="gm-alerts-container">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="flavoriz-alert-toast flavoriz-alert-{{message.tags}}" data-alert-id="{{ forloop.counter }}">
+            <div class="gm-alert-icon gm-alert-icon--{{message.tags}}">
+                <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% elif message.tags == 'warning' %}exclamation{% else %}info{% endif %}"></i>
+            </div>
+            <div class="gm-alert-body">
+                <p>{{ message }}</p>
+            </div>
+            <button type="button" class="flavoriz-alert-close" onclick="this.closest('.flavoriz-alert-toast').remove()">
+                <i class="fi-rs-cross"></i>
+            </button>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<div id="alert-container" class="not-visible"></div>

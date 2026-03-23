@@ -2,377 +2,21 @@
 {% load static %}
 {% load cart_template_tags %}
 
-{% block extra_css %}
+{% block headextra %}
 <link rel="stylesheet" href="{% static 'accounts/css/negotiation.css' %}">
-{% endblock %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/messages.css' %}?v=1.0" />
+{% endblock headextra %}
 
-{%block body%}
-<style>
-/* ============================================
-   MOBILE-FIRST APPROACH - Styles par défaut pour mobile
-   ============================================ */
-
-/* Prévenir le débordement horizontal sur toute la page */
-body {
-    overflow-x: hidden;
-}
-
-/* Layout principal - Mobile par défaut */
-.main.pages {
-    padding-top: 80px;
-    padding-bottom: 40px;
-    overflow-x: hidden;
-}
-
-.container {
-    padding: 0 12px;
-    max-width: 100%;
-    margin: 0 auto;
-    overflow-x: hidden;
-    box-sizing: border-box;
-}
-
-/* Row - Mobile: colonnes empilées */
-.row {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Sidebar - Mobile: pleine largeur, en haut */
-.col-md-3 {
-    flex: 0 0 100%;
-    max-width: 100%;
-    width: 100%;
-    margin-bottom: 16px;
-    order: 1;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.flavoriz-dashboard-menu {
-    position: relative;
-    top: 0;
-    padding: 16px;
-    border-radius: 12px;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.flavoriz-dashboard-menu ul {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
-}
-
-.flavoriz-dashboard-menu li a {
-    padding: 10px 12px !important;
-    font-size: 13px !important;
-    flex-direction: column !important;
-    gap: 6px !important;
-    text-align: center !important;
-}
-
-.flavoriz-dashboard-menu li a i {
-    font-size: 18px !important;
-    width: auto !important;
-}
-
-/* Main content - Mobile: pleine largeur */
-.col-md-9 {
-    flex: 0 0 100%;
-    max-width: 100%;
-    width: 100%;
-    order: 2;
-    box-sizing: border-box;
-}
-
-.col-md-9 > div {
-    padding: 16px 12px;
-    border-radius: 16px;
-    box-sizing: border-box;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* Breadcrumb - Mobile: simplifié */
-nav {
-    font-size: 12px !important;
-    flex-wrap: wrap !important;
-    gap: 4px !important;
-    margin-bottom: 16px !important;
-}
-
-/* Masquer uniquement le texte du fil d'Ariane (pas la barre du bas) */
-main .container > nav a span {
-    display: none !important;
-}
-
-nav span:not(:last-child) {
-    display: none !important;
-}
-
-/* Header - Mobile */
-.main-content-header h1 {
-    font-size: 20px !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-    margin-bottom: 12px !important;
-}
-
-.main-content-header h1 i {
-    font-size: 22px !important;
-}
-
-.main-content-header p {
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-}
-
-/* Conversations grid - Mobile: 1 colonne */
-.conversations-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    width: 100%;
-    box-sizing: border-box;
-}
-.msg-card {
-    border-radius: 16px;
-}
-
-/* Cards de conversation - Mobile */
-.conversation-card {
-    padding: 12px;
-    border-radius: 12px;
-    box-sizing: border-box;
-    width: 100%;
-    overflow: hidden;
-    word-wrap: break-word;
-}
-
-/* Avatar - Mobile */
-.conversation-avatar {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-}
-
-/* Image produit - Mobile */
-.conversation-product-img {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-}
-
-/* Textes - Mobile */
-.conversation-user-name {
-    font-size: 15px;
-}
-
-.conversation-product-name {
-    font-size: 13px;
-}
-
-/* Prévenir le débordement du texte dans les cartes */
-.conversation-card p,
-.conversation-card div {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-}
-
-.conversation-card strong {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-/* Intentions d'achat grid - Mobile: 1 colonne */
-.purchase-intents-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-/* Cartes d'intentions - Mobile */
-.intent-card {
-    padding: 16px;
-    border-radius: 12px;
-}
-
-/* Boutons dans intentions - Mobile: 2 colonnes */
-.purchase-intents-grid > div > div:last-child {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-}
-
-.purchase-intents-grid > div > div:last-child > button,
-.purchase-intents-grid > div > div:last-child > span {
-    flex: 1 1 calc(50% - 3px) !important;
-    min-width: calc(50% - 3px) !important;
-    font-size: 12px !important;
-    padding: 8px !important;
-}
-
-/* ============================================
-   DESKTOP - Styles pour écrans >= 769px
-   ============================================ */
-@media (min-width: 769px) {
-    .main.pages {
-        padding-top: 100px;
-        padding-bottom: 100px;
-    }
-    
-    .container {
-        padding: 0 24px;
-        max-width: 1400px;
-    }
-    
-    .row {
-        flex-direction: row;
-        gap: 24px;
-        align-items: flex-start;
-    }
-    
-    .col-md-3 {
-        flex: 0 0 280px;
-        max-width: 280px;
-        width: 280px;
-        margin-bottom: 0;
-        order: 0;
-    }
-    
-    .flavoriz-dashboard-menu {
-        padding: 24px;
-        border-radius: 20px;
-        position: sticky;
-        top: 120px;
-    }
-    
-    .flavoriz-dashboard-menu ul {
-        display: flex;
-        flex-direction: column;
-        grid-template-columns: none;
-        gap: 4px;
-    }
-    
-    .flavoriz-dashboard-menu li a {
-        padding: 12px 16px;
-        font-size: 14px;
-        flex-direction: row;
-        text-align: left;
-        gap: 12px;
-    }
-    
-    .flavoriz-dashboard-menu li a i {
-        font-size: 16px;
-        width: 20px;
-    }
-    
-    .col-md-9 {
-        flex: 1;
-        min-width: 0;
-        order: 0;
-    }
-    
-    .col-md-9 > div {
-        padding: 32px;
-        border-radius: 20px;
-    }
-    
-    nav {
-        font-size: 13px !important;
-        margin-bottom: 20px !important;
-    }
-    
-    main .container > nav a span {
-        display: inline !important;
-    }
-    
-    main .container > nav span:not(:last-child) {
-        display: inline !important;
-    }
-    
-    .main-content-header h1 {
-        font-size: 28px !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .main-content-header h1 i {
-        font-size: 32px !important;
-    }
-    
-    .main-content-header p {
-        font-size: 15px !important;
-    }
-    
-    .conversations-grid {
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 20px;
-    }
-    
-    .conversation-card {
-        padding: 20px;
-    }
-    
-    .conversation-avatar {
-        width: 56px;
-        height: 56px;
-        font-size: 20px;
-    }
-    
-    .conversation-product-img {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .conversation-user-name {
-        font-size: 16px;
-    }
-    
-    .conversation-product-name {
-        font-size: 14px;
-    }
-    
-    .purchase-intents-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px;
-    }
-    
-    .intent-card {
-        padding: 20px;
-    }
-    
-    .purchase-intents-grid > div > div:last-child {
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-    }
-    
-    .purchase-intents-grid > div > div:last-child > button,
-    .purchase-intents-grid > div > div:last-child > span {
-        flex: 1 !important;
-        min-width: auto !important;
-        font-size: 13px !important;
-        padding: 10px !important;
-    }
-}
-</style>
-
-<main class="main pages" style="min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+{% block body %}
+<main class="main pages gm-s-c09346" >
     <div class="container">
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Ma messagerie</span>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Ma messagerie</span>
         </nav>
 
         <div class="row">
@@ -383,30 +27,30 @@ nav span:not(:last-child) {
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <div style="background: white; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                <div class="gm-s-6dd04b">
                     <!-- Header -->
-                    <div class="main-content-header" style="margin-bottom: 32px;">
-                        <h1 style="font-size: 28px; font-weight: 700; color: #1F2937; margin: 0 0 8px 0; display: flex; align-items: center; gap: 12px;">
-                            <i class="fi-rs-comment" style="color: var(--color-orange); font-size: 32px;"></i>
+                    <div class="main-content-header gm-s-91e2ae" >
+                        <h1 class="gm-s-ac7dd4">
+                            <i class="fi-rs-comment gm-s-f9346a" ></i>
                             Ma messagerie
                             {% if total_unread > 0 %}
-                            <span style="background: #EF4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 16px; font-weight: 700; margin-left: 12px;">
+                            <span class="gm-s-5d8682">
                                 {{ total_unread }} non lu{{ total_unread|pluralize }}
                             </span>
                             {% endif %}
                         </h1>
-                        <p style="color: #6B7280; font-size: 15px; margin: 0; line-height: 1.6;">
+                        <p class="gm-s-b15782">
                             Gérez toutes vos conversations avec les vendeurs et acheteurs pour vos articles en occasion.
                         </p>
                     </div>
 
                     <!-- Messages -->
                     {% if messages %}
-                    <div style="margin-bottom: 24px;">
+                    <div class="gm-s-dc2cb2">
                         {% for message in messages %}
                         <div class="alert alert-{{message.tags}}" style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; {% if message.tags == 'success' %}background: #D1FAE5; color: #065F46; border: 1px solid #10B981;{% elif message.tags == 'error' %}background: #FEE2E2; color: #991B1B; border: 1px solid #EF4444;{% else %}background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B;{% endif %}">
-                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %}" style="font-size: 20px;"></i>
-                            <span style="font-weight: 500;">{{message}}</span>
+                            <i class="fi-rs-{% if message.tags == 'success' %}check{% elif message.tags == 'error' %}cross-circle{% else %}info{% endif %} gm-s-af18ea" ></i>
+                            <span class="gm-s-d2abfb">{{message}}</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -414,52 +58,52 @@ nav span:not(:last-child) {
 
                     <!-- Intentions d'achat (pour les vendeurs) -->
                     {% if purchase_intents and purchase_intents|length > 0 %}
-                    <div style="margin-bottom: 32px;">
-                        <h3 style="font-size: 18px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
-                            <i class="fi-rs-money" style="color: var(--color-orange);"></i>
+                    <div class="gm-s-91e2ae">
+                        <h3 class="gm-s-d5c63b">
+                            <i class="fi-rs-money gm-s-a77b0c" ></i>
                             Intentions d'achat
                             {% if purchase_intents_unread > 0 %}
-                            <span style="background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 700;">{{ purchase_intents_unread }}</span>
+                            <span class="gm-s-a885ba">{{ purchase_intents_unread }}</span>
                             {% endif %}
                         </h3>
                         <div class="purchase-intents-grid">
                             {% for intent in purchase_intents %}
                             <div class="intent-card" onclick="openConversationChatbot({{ intent.product.id }}, null)" style="background: {% if not intent.seller_notified %}#FFF9E6{% else %}white{% endif %}; border: 2px solid {% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}; transition: all 0.3s; cursor: pointer; position: relative;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='{% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                <div class="gm-s-d0094d">
                                     <div>
-                                        <h4 style="font-size: 16px; font-weight: 700; color: #1F2937; margin: 0 0 4px 0;">Intention #{{ intent.id }}</h4>
-                                        <p style="font-size: 12px; color: #6B7280; margin: 0;">{{ intent.created_at|date:"d/m/Y à H:i" }}</p>
+                                        <h4 class="gm-s-962484">Intention #{{ intent.id }}</h4>
+                                        <p class="gm-s-297460">{{ intent.created_at|date:"d/m/Y à H:i" }}</p>
                                     </div>
                                     {% if not intent.seller_notified %}
-                                    <span style="width: 12px; height: 12px; background: var(--color-orange); border-radius: 50%; display: block;"></span>
+                                    <span class="gm-s-cfee41"></span>
                                     {% endif %}
                                 </div>
-                                <p style="font-size: 14px; color: #374151; margin: 0 0 12px 0;">
+                                <p class="gm-s-b3cc98">
                                     <strong>{{ intent.buyer.get_full_name|default:intent.buyer.username }}</strong> souhaite négocier l'achat de <strong>{{ intent.product.product_name|truncatechars:30 }}</strong>
                                 </p>
-                                <div style="background: #F9FAFB; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                                    <p style="margin: 0; font-size: 13px; color: #6B7280;">Prix initial proposé :</p>
-                                    <p style="margin: 4px 0 0 0; font-size: 18px; font-weight: 700; color: var(--color-orange);">
+                                <div class="gm-s-12be41">
+                                    <p class="gm-s-30cd2a">Prix initial proposé :</p>
+                                    <p class="gm-s-00be1d">
                                         {{ intent.initial_price|floatformat:0 }} FCFA
                                     </p>
                                 </div>
-                                <div style="display: flex; gap: 8px;">
+                                <div class="gm-s-13262f">
                                     {% if intent.status == 'pending' or intent.status == 'negotiating' %}
-                                    <button onclick="event.stopPropagation(); acceptPurchaseIntent({{ intent.id }})" style="flex: 1; padding: 10px; background: #10B981; color: white; border: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                    <button onclick="event.stopPropagation(); acceptPurchaseIntent({{ intent.id }})" class="gm-s-001001" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
                                         <i class="fi-rs-check"></i> Accepter
                                     </button>
-                                    <button onclick="event.stopPropagation(); rejectPurchaseIntent({{ intent.id }})" style="flex: 1; padding: 10px; background: #EF4444; color: white; border: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
+                                    <button onclick="event.stopPropagation(); rejectPurchaseIntent({{ intent.id }})" class="gm-s-466b19" onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
                                         <i class="fi-rs-cross"></i> Refuser
                                     </button>
                                     {% elif intent.status == 'agreed' %}
-                                    <span style="flex: 1; padding: 10px; background: #D1FAE5; color: #065F46; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600;">
+                                    <span class="gm-s-3d86bc">
                                         <i class="fi-rs-check"></i> Prix accepté
                                     </span>
                                     {% elif intent.status == 'rejected' or intent.status == 'cancelled' %}
-                                    <span style="flex: 1; padding: 10px; background: #FEE2E2; color: #991B1B; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600;">
+                                    <span class="gm-s-bb05f4">
                                         <i class="fi-rs-cross"></i> {% if intent.status == 'rejected' %}Refusée{% else %}Annulée{% endif %}
                                     </span>
-                                    <button onclick="event.stopPropagation(); cancelPurchaseIntent({{ intent.id }})" style="flex: 1; padding: 10px; background: #6B7280; color: white; border: none; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='#4B5563'" onmouseout="this.style.background='#6B7280'" title="Supprimer cette intention">
+                                    <button onclick="event.stopPropagation(); cancelPurchaseIntent({{ intent.id }})" class="gm-s-cbc139" onmouseover="this.style.background='#4B5563'" onmouseout="this.style.background='#6B7280'" title="Supprimer cette intention">
                                         <i class="fi-rs-trash"></i> Supprimer
                                     </button>
                                     {% endif %}
@@ -474,10 +118,10 @@ nav span:not(:last-child) {
                     {% if conversations %}
                     <div class="conversations-grid">
                         {% for conversation in conversations %}
-                        <div class="conversation-card msg-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" style="background: white; border-radius: 16px; border: 1px solid #E5E7EB; transition: all 0.25s ease; cursor: pointer; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06);" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'">
+                        <div class="conversation-card msg-card" onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" class="gm-s-eda5c9" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'">
                             <!-- Actions : supprimer -->
-                            <button onclick="event.stopPropagation(); deleteConversation({{ conversation.id }}, '{{ conversation.other_user.get_full_name|default:conversation.other_user.username|escapejs }}')" title="Supprimer la conversation" style="position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); border: none; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,0.08);" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='rgba(255,255,255,0.95)'; this.style.color='#9CA3AF'">
-                                <i class="fi-rs-trash" style="font-size: 14px;"></i>
+                            <button onclick="event.stopPropagation(); deleteConversation({{ conversation.id }}, '{{ conversation.other_user.get_full_name|default:conversation.other_user.username|escapejs }}')" title="Supprimer la conversation" class="gm-s-9a002b" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='rgba(255,255,255,0.95)'; this.style.color='#9CA3AF'">
+                                <i class="fi-rs-trash gm-s-267f6d" ></i>
                             </button>
                             
                             <!-- Badge de statut C2C -->
@@ -494,7 +138,7 @@ nav span:not(:last-child) {
                                 {% else %}{{ conversation.c2c_order.status }}{% endif %}
                             </div>
                             {% elif conversation.purchase_intent %}
-                            <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; background: #FFF7ED; color: var(--color-orange); z-index: 10;">
+                            <div class="gm-s-28ae99">
                                 {% if conversation.purchase_intent.status == 'agreed' %}🤝 Accord
                                 {% elif conversation.purchase_intent.status == 'negotiating' %}💬 Négo
                                 {% else %}📩 Intent{% endif %}
@@ -503,32 +147,32 @@ nav span:not(:last-child) {
                             
                             <!-- En-tête de conversation -->
                             <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; margin-top: {% if conversation.c2c_order or conversation.purchase_intent %}32px{% else %}8px{% endif %}; padding-right: 36px;">
-                                <div class="conversation-avatar" style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; flex-shrink: 0;">
+                                <div class="conversation-avatar gm-s-72a79a" >
                                     {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
                                 </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <h4 class="conversation-user-name" style="margin: 0; font-weight: 700; font-size: 16px; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <div class="gm-s-ec2eba">
+                                    <h4 class="conversation-user-name gm-s-e3e3d9" >
                                         {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
                                     </h4>
-                                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">
+                                    <p class="gm-s-edeb6f">
                                         {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %} · {{ conversation.product.product_name|truncatechars:30 }}
                                     </p>
                                 </div>
                                 {% if conversation.unread_count > 0 %}
-                                <span style="background: #EF4444; color: white; border-radius: 10px; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; padding: 0 6px; flex-shrink: 0;">
+                                <span class="gm-s-596e77">
                                     {{ conversation.unread_count }}
                                 </span>
                                 {% endif %}
                             </div>
                             
                             <!-- Informations sur l'article -->
-                            <div style="background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; gap: 14px; align-items: center;">
-                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" style="width: 56px; height: 56px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">
-                                <div style="flex: 1; min-width: 0;">
-                                    <h5 class="conversation-product-name" style="margin: 0 0 4px 0; font-weight: 700; font-size: 14px; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <div class="gm-s-9480e5">
+                                <img class="conversation-product-img" src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" class="gm-s-e08855">
+                                <div class="gm-s-ec2eba">
+                                    <h5 class="conversation-product-name gm-s-443ac7" >
                                         {{ conversation.product.product_name|truncatechars:40 }}
                                     </h5>
-                                    <p style="margin: 0; font-size: 14px; font-weight: 700; color: var(--color-orange);">
+                                    <p class="gm-s-2c764a">
                                         {{ conversation.product.PRDPrice|format_price }} FCFA
                                     </p>
                                 </div>
@@ -536,17 +180,17 @@ nav span:not(:last-child) {
                             
                             <!-- Dernier message -->
                             {% if conversation.last_message %}
-                            <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid #F3F4F6;">
-                                <p style="margin: 0 0 4px 0; font-size: 13px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4;">
-                                    {% if conversation.last_message.sender == user %}<span style="color: var(--color-orange); font-weight: 600;">Vous :</span> {% endif %}{{ conversation.last_message.message|truncatechars:55 }}
+                            <div class="gm-s-414320">
+                                <p class="gm-s-1b5d4c">
+                                    {% if conversation.last_message.sender == user %}<span class="gm-s-eb8053">Vous :</span> {% endif %}{{ conversation.last_message.message|truncatechars:55 }}
                                 </p>
-                                <p style="margin: 0; font-size: 11px; color: #9CA3AF;">
+                                <p class="gm-s-979dc2">
                                     {{ conversation.last_message.created_at|date:"d/m/Y à H:i" }}
                                 </p>
                             </div>
                             {% else %}
-                            <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid #F3F4F6;">
-                                <p style="margin: 0; font-size: 13px; color: #9CA3AF; font-style: italic;">
+                            <div class="gm-s-414320">
+                                <p class="gm-s-c20781">
                                     Aucun message
                                 </p>
                             </div>
@@ -555,10 +199,10 @@ nav span:not(:last-child) {
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div style="text-align: center; padding: 64px 24px; border-radius: 16px; background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);">
-                        <i class="fi-rs-inbox" style="font-size: 56px; color: #D1D5DB; margin-bottom: 20px;"></i>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #6B7280; margin: 0 0 12px 0;">Aucune conversation</h3>
-                        <p style="font-size: 15px; color: #9CA3AF; margin: 0;">Vos échanges avec vendeurs et acheteurs apparaîtront ici.</p>
+                    <div class="gm-s-b1f2cb">
+                        <i class="fi-rs-inbox gm-s-360102" ></i>
+                        <h3 class="gm-s-3a86f4">Aucune conversation</h3>
+                        <p class="gm-s-b65fcc">Vos échanges avec vendeurs et acheteurs apparaîtront ici.</p>
                     </div>
                     {% endif %}
                 </div>
@@ -568,201 +212,109 @@ nav span:not(:last-child) {
 </main>
 
 <!-- Chatbot Popup -->
-<div id="chatbotPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 400px; max-width: calc(100vw - 40px); height: 600px; max-height: calc(100vh - 40px); background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); z-index: 10000; flex-direction: column; overflow: hidden;">
+<div id="chatbotPopup" class="gm-s-77018d">
     <!-- Chatbot Header -->
-    <div style="background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); padding: 20px; color: white; display: flex; align-items: center; justify-content: space-between; border-radius: 20px 20px 0 0;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <i class="fi-rs-comment" style="font-size: 24px;"></i>
+    <div class="gm-s-39a7c8">
+        <div class="gm-s-1c20bb">
+            <i class="fi-rs-comment gm-s-1551e6" ></i>
             <div>
-                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Messages</h3>
-                <p id="chatbotProductName" style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;"></p>
+                <h3 class="gm-s-99ea3d">Messages</h3>
+                <p id="chatbotProductName" class="gm-s-9caeb1"></p>
             </div>
         </div>
-        <button onclick="closeChatbot()" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
-            <i class="fi-rs-cross" style="font-size: 16px;"></i>
+        <button onclick="closeChatbot()" class="gm-s-7c76c2" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+            <i class="fi-rs-cross gm-s-beab58" ></i>
         </button>
     </div>
     
     <!-- Conversations List -->
-    <div id="conversationsList" style="flex: 1; overflow-y: auto; padding: 16px; background: #F9FAFB; display: flex; flex-direction: column;">
-        <div id="conversationsLoading" style="text-align: center; padding: 40px; color: #6B7280;">
-            <i class="fi-rs-spinner" style="font-size: 32px; animation: spin 1s linear infinite;"></i>
-            <p style="margin: 12px 0 0 0; font-size: 14px;">Chargement des conversations...</p>
+    <div id="conversationsList" class="gm-s-3683e8">
+        <div id="conversationsLoading" class="gm-s-4e1d61">
+            <i class="fi-rs-spinner gm-s-1a2f8a" ></i>
+            <p class="gm-s-0e64da">Chargement des conversations...</p>
         </div>
         <div id="conversationsContent" style="display: none;">
             <!-- Les conversations seront injectées ici -->
         </div>
-        <div id="noConversations" style="display: none; text-align: center; padding: 60px 20px; color: #9CA3AF;">
-            <i class="fi-rs-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
-            <p style="margin: 0; font-size: 14px;">Aucune conversation pour cet article</p>
+        <div id="noConversations" class="gm-s-eeed1f">
+            <i class="fi-rs-inbox gm-s-a2dd65" ></i>
+            <p class="gm-s-98891a">Aucune conversation pour cet article</p>
         </div>
     </div>
     
     <!-- Active Conversation View -->
-    <div id="activeConversation" style="display: none; flex: 1; flex-direction: column; background: white; min-height: 0; overflow: hidden;">
+    <div id="activeConversation" class="gm-s-9c47f7">
         <!-- Conversation Header -->
-        <div style="padding: 14px 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 12px; background: #F9FAFB; flex-shrink: 0;">
-            <button onclick="showConversationsList()" style="background: none; border: none; color: var(--color-orange); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 10px;" onmouseover="this.style.background='rgba(255,123,44,0.1)'" onmouseout="this.style.background='none'">
-                <i class="fi-rs-arrow-left" style="font-size: 18px;"></i>
+        <div class="gm-s-eb7cd3">
+            <button onclick="showConversationsList()" class="gm-s-50a060" onmouseover="this.style.background='rgba(255,123,44,0.1)'" onmouseout="this.style.background='none'">
+                <i class="fi-rs-arrow-left gm-s-768e1f" ></i>
             </button>
-            <div style="flex: 1; min-width: 0;">
-                <h4 id="activeConversationBuyer" style="margin: 0; font-size: 16px; font-weight: 700; color: #1F2937; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></h4>
-                <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280;">Acheteur</p>
+            <div class="gm-s-ec2eba">
+                <h4 id="activeConversationBuyer" class="gm-s-4a9d60"></h4>
+                <p class="gm-s-edeb6f">Acheteur</p>
             </div>
-            <button id="deleteConversationBtnInPopup" onclick="deleteConversationFromPopup()" title="Supprimer la conversation" style="background: none; border: none; color: #9CA3AF; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0;" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='none'; this.style.color='#9CA3AF'">
-                <i class="fi-rs-trash" style="font-size: 16px;"></i>
+            <button id="deleteConversationBtnInPopup" onclick="deleteConversationFromPopup()" title="Supprimer la conversation" class="gm-s-d6684b" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='none'; this.style.color='#9CA3AF'">
+                <i class="fi-rs-trash gm-s-beab58" ></i>
             </button>
         </div>
         
         <!-- Scrollable Content: Messages + Negotiation -->
-        <div style="flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column;">
+        <div class="gm-s-37b2ff">
             <!-- Messages Container -->
-            <div id="messagesContainer" style="padding: 16px; background: #F9FAFB; min-height: min-content;">
+            <div id="messagesContainer" class="gm-s-a2a171">
                 <!-- Les messages seront injectés ici -->
             </div>
         
             <!-- Negotiation Section (si intention d'achat active) -->
-            <div id="negotiationSection" style="display: none; padding: 16px; border-top: 1px solid #E5E7EB; background: #FFF9E6; flex-shrink: 0;">
-                <div style="margin-bottom: 12px;">
-                    <h5 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 6px;">
-                        <i class="fi-rs-money" style="color: var(--color-orange);"></i>
+            <div id="negotiationSection" class="gm-s-dc2d73">
+                <div class="gm-s-7b754e">
+                    <h5 class="gm-s-1b486f">
+                        <i class="fi-rs-money gm-s-a77b0c" ></i>
                         Négocier le prix
                     </h5>
-                    <p style="margin: 0; font-size: 12px; color: #6B7280;">Proposez un nouveau prix pour cet article</p>
+                    <p class="gm-s-3e99bc">Proposez un nouveau prix pour cet article</p>
                 </div>
                 
                 <!-- Historique des négociations -->
-                <div id="negotiationHistory" style="margin-bottom: 12px; max-height: 200px; overflow-y: auto;">
+                <div id="negotiationHistory" class="gm-s-75ccbb">
                     <!-- L'historique sera injecté ici -->
                 </div>
                 
                 <!-- Formulaire de proposition -->
-                <form id="negotiationForm" onsubmit="submitNegotiation(event)" style="display: flex; gap: 8px; align-items: end; margin-bottom: 12px;">
+                <form id="negotiationForm" onsubmit="submitNegotiation(event)" class="gm-s-a218d4">
                     <div style="flex: 1;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px;">Prix proposé (FCFA)</label>
-                        <input type="number" id="negotiationPrice" placeholder="Ex: 50000" min="1" step="1" required style="width: 100%; padding: 10px 12px; border: 2px solid #E5E7EB; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                        <label class="gm-s-2cab63">Prix proposé (FCFA)</label>
+                        <input type="number" id="negotiationPrice" placeholder="Ex: 50000" min="1" step="1" required class="gm-s-62f51c" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
                     </div>
-                    <button type="submit" style="padding: 10px 16px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <button type="submit" class="gm-s-b7939c" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                         <i class="fi-rs-check"></i> Proposer
                     </button>
                 </form>
                 
                 <!-- Bouton pour accepter le prix final -->
-                <button id="acceptFinalPriceBtn" style="display: none; width: 100%; padding: 12px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);" onmouseover="this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'; this.style.transform='translateY(0)'">
+                <button id="acceptFinalPriceBtn" class="gm-s-1dd1f6" onmouseover="this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'; this.style.transform='translateY(0)'">
                     <i class="fi-rs-check-circle"></i> Accepter le prix final et procéder au paiement
                 </button>
             </div>
         </div>
         
         <!-- Section Vérification de livraison (après paiement) -->
-        <div id="verificationSection" style="display: none; padding: 16px; border-top: 1px solid #E5E7EB; flex-shrink: 0;">
+        <div id="verificationSection" class="gm-s-38fa61">
             <!-- Contenu injecté par JavaScript -->
         </div>
         
         <!-- Message Input (fixe en bas) -->
-        <div style="padding: 16px; border-top: 1px solid #E5E7EB; background: white; flex-shrink: 0;">
-            <div id="chatHelper" style="display: none; margin-bottom: 8px; font-size: 12px; color: #F97316; font-weight: 600;">Pendant la négociation, proposez un prix dans la section jaune. Le chat libre sera disponible après accord.</div>
-            <form id="messageForm" onsubmit="sendMessage(event)" style="display: flex; gap: 8px;">
-                <input type="text" id="messageInput" placeholder="Tapez votre message..." style="flex: 1; padding: 12px 16px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.3s; box-sizing: border-box;" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
-                <button type="submit" style="padding: 12px 20px; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <i class="fi-rs-paper-plane" style="font-size: 16px;"></i>
+        <div class="gm-s-a7ea41">
+            <div id="chatHelper" class="gm-s-ad54cc">Pendant la négociation, proposez un prix dans la section jaune. Le chat libre sera disponible après accord.</div>
+            <form id="messageForm" onsubmit="sendMessage(event)" class="gm-s-13262f">
+                <input type="text" id="messageInput" placeholder="Tapez votre message..." class="gm-s-fa5034" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                <button type="submit" class="gm-s-f8ad91" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fi-rs-paper-plane gm-s-beab58" ></i>
                 </button>
             </form>
         </div>
     </div>
 </div>
-
-<style>
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.message-bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    word-wrap: break-word;
-}
-
-.message-sent {
-    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
-    color: white;
-    margin-left: auto;
-    border-bottom-right-radius: 4px;
-}
-
-.message-received {
-    background: white;
-    color: #1F2937;
-    border: 1px solid #E5E7EB;
-    margin-right: auto;
-    border-bottom-left-radius: 4px;
-}
-
-/* Améliorer le scroll dans le chatbot */
-#activeConversation > div:first-child {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Historique de négociation avec scroll amélioré */
-#negotiationHistory {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 123, 44, 0.5) rgba(0, 0, 0, 0.1);
-}
-
-/* Style de la scrollbar pour webkit (Chrome, Safari) */
-#negotiationHistory::-webkit-scrollbar {
-    width: 6px;
-}
-
-#negotiationHistory::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 3px;
-}
-
-#negotiationHistory::-webkit-scrollbar-thumb {
-    background: rgba(255, 123, 44, 0.5);
-    border-radius: 3px;
-}
-
-#negotiationHistory::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 123, 44, 0.7);
-}
-
-/* S'assurer que le bouton vert est bien visible */
-#acceptFinalPriceBtn {
-    position: relative;
-    z-index: 10;
-}
-
-@media (max-width: 768px) {
-    #chatbotPopup {
-        width: calc(100vw - 20px);
-        height: calc(100vh - 20px);
-        bottom: 10px;
-        right: 10px;
-        border-radius: 16px;
-    }
-    
-    /* Réduire les paddings sur mobile pour plus d'espace */
-    #messagesContainer {
-        padding: 12px !important;
-    }
-    
-    #negotiationSection {
-        padding: 12px !important;
-    }
-    
-    #negotiationHistory {
-        max-height: 150px !important;
-    }
-}
-</style>
 
 <script src="{% static 'accounts/js/negotiation.js' %}?v=3.7"></script>
 <script>
@@ -946,7 +498,7 @@ function displayConversationsList(conversations) {
         };
         
         const unreadBadge = conv.unread_count > 0 
-            ? `<span style="background: #EF4444; color: white; border-radius: 12px; padding: 2px 8px; font-size: 11px; font-weight: 700; margin-left: auto;">${conv.unread_count}</span>`
+            ? `<span class="gm-s-90a948">${conv.unread_count}</span>`
             : '';
         
         const lastMessage = conv.messages.length > 0 
@@ -954,13 +506,13 @@ function displayConversationsList(conversations) {
             : 'Aucun message';
         
         item.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
+            <div class="gm-s-1c20bb">
+                <div class="gm-s-c65e7b">
                     ${conv.buyer_name.charAt(0).toUpperCase()}
                 </div>
-                <div style="flex: 1; min-width: 0;">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1F2937;">${conv.buyer_name}</h4>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <div class="gm-s-ec2eba">
+                    <h4 class="gm-s-0eb60b">${conv.buyer_name}</h4>
+                    <p class="gm-s-61380d">
                         ${escapeHtml(lastMessage)}
                     </p>
                 </div>
@@ -977,7 +529,7 @@ function displayMessages(messages) {
     container.innerHTML = '';
     
     if (!messages || messages.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#9CA3AF;">Aucun message</p>';
+        container.innerHTML = '<p class="gm-s-a8b45d">Aucun message</p>';
         return;
     }
     
@@ -989,13 +541,13 @@ function displayMessages(messages) {
         msgDiv.style.alignItems = msg.is_sender ? 'flex-end' : 'flex-start';
         
         const deleteBtn = msg.is_sender
-            ? `<button type="button" onclick="event.stopPropagation(); deleteMessage(${msg.id})" title="Supprimer ce message" style="margin-top:8px; padding:4px 10px; background:rgba(255,255,255,0.25); border:none; border-radius:8px; color:white; font-size:11px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'"><i class="fi-rs-trash" style="font-size:11px;"></i> Supprimer</button>`
+            ? `<button type="button" onclick="event.stopPropagation(); deleteMessage(${msg.id})" title="Supprimer ce message" class="gm-s-86ed33" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'"><i class="fi-rs-trash gm-s-643a7c" ></i> Supprimer</button>`
             : '';
         msgDiv.innerHTML = `
-            <div style="font-size: 11px; opacity: 0.9; margin-bottom: 4px;">
+            <div class="gm-s-e07c4b">
                 ${msg.sender || ''} ${msg.created_at ? '· ' + msg.created_at : ''}
             </div>
-            <div style="font-size: 14px; line-height: 1.5; word-break: break-word;">${escapeHtml(msg.message)}</div>
+            <div class="gm-s-044981">${escapeHtml(msg.message)}</div>
             ${deleteBtn}
         `;
         
@@ -1407,4 +959,4 @@ function cancelPurchaseIntent(intentId) {
 // Plus besoin de JavaScript pour forcer les styles
 </script>
 
-{% endblock %}
+{% endblock body %}

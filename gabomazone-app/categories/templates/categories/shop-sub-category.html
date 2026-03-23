@@ -1,103 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{%block head%}
+{% block head %}
 {{ block.super }}
-<style>
-    /* Masquer le preloader immédiatement pour cette page */
-    #preloader-active {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* S'assurer qu'il n'y a qu'un seul header */
-    body > header.flavoriz-header:not(:first-of-type),
-    body > .flavoriz-header:not(:first-of-type),
-    .flavoriz-header ~ .flavoriz-header,
-    header.flavoriz-header + header.flavoriz-header {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        opacity: 0 !important;
-    }
-    
-    /* Forcer le header à rester visible et fixe */
-    .flavoriz-header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 9999 !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
-    
-    /* Correction affichage mobile - éviter que le contenu soit caché sous le header */
-    @media (max-width: 768px) {
-        .main.pages {
-            padding-top: 140px !important;
-        }
-    }
-</style>
-{%endblock head%}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/shop-sub-category.css' %}?v=1.0">
+{% endblock head %}
 
-{%block body%}
+{% block body %}
 <!-- ===== Sub Category Page FLAVORIZ Design ===== -->
-<main class="main pages shop-page-main" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container shop-page-container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px; box-sizing: border-box;">
+<main class="main pages shop-page-main gm-s-8748cb" >
+    <div class="container shop-page-container gm-s-8b8839" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{%url 'home:index'%}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-634746">
+            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <a href="{% url 'categories:shop' %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">Produits</a>
-            <span style="color: #9CA3AF;">/</span>
+            <span class="gm-s-ad3665">/</span>
+            <a href="{% url 'categories:shop' %}" class="gm-s-c95646">Produits</a>
+            <span class="gm-s-ad3665">/</span>
             {% if sub_category_obj.main_category %}
                 {% if sub_category_obj.main_category.super_category %}
-                <a href="{% url 'categories:super-category' sub_category_obj.main_category.super_category.slug %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">{{sub_category_obj.main_category.super_category.name}}</a>
-                <span style="color: #9CA3AF;">/</span>
+                <a href="{% url 'categories:super-category' sub_category_obj.main_category.super_category.slug %}" class="gm-s-c95646">{{sub_category_obj.main_category.super_category.name}}</a>
+                <span class="gm-s-ad3665">/</span>
                 {% endif %}
-                <a href="{% url 'categories:main-category' sub_category_obj.main_category.slug %}" style="color: #6B7280; text-decoration: none; transition: color 0.2s ease;">{{sub_category_obj.main_category.name}}</a>
-                <span style="color: #9CA3AF;">/</span>
+                <a href="{% url 'categories:main-category' sub_category_obj.main_category.slug %}" class="gm-s-c95646">{{sub_category_obj.main_category.name}}</a>
+                <span class="gm-s-ad3665">/</span>
             {% endif %}
-            <span style="color: #6B7280; font-weight: 500;">{{sub_category_obj.name}}</span>
+            <span class="gm-s-6bbb36">{{sub_category_obj.name}}</span>
         </nav>
 
         <!-- Page Header -->
-        <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div class="gm-s-d96aad">
             <div>
-                <h1 style="font-size: 32px; font-weight: 700; color: #1F2937; margin: 0 0 6px 0; font-family: var(--font-primary);">{{sub_category_obj.name}}</h1>
-                <p style="font-size: 14px; color: #6B7280; margin: 0;">Découvrez tous les produits de cette catégorie</p>
+                <h1 class="gm-s-aae6b7">{{sub_category_obj.name}}</h1>
+                <p class="gm-s-7d59e2">Découvrez tous les produits de cette catégorie</p>
             </div>
         </div>
         
         <!-- Section rétractable : Résultats + Tri + Mini-catégories (masquée par défaut) -->
-        <div class="shop-filters-collapsible collapsed" style="margin-bottom: 24px; background: white; border-radius: 14px; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06); border: 1px solid #F3F4F6; overflow: hidden;">
-            <div class="shop-filters-collapse-header" id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" style="padding: 16px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.03) 100%); border-bottom: 1px solid #F3F4F6;">
-                <span style="font-size: 16px; font-weight: 700; color: #1F2937; display: flex; align-items: center; gap: 10px;">
-                    <i class="fi-rs-filter" style="color: var(--color-orange); font-size: 20px;"></i>
+        <div class="shop-filters-collapsible collapsed gm-s-79d3ff" >
+            <div class="shop-filters-collapse-header" id="shop-filters-collapse-header" role="button" tabindex="0" aria-expanded="false" aria-controls="shop-filters-collapse-body" class="gm-s-4731a7">
+                <span class="gm-s-2aff0a">
+                    <i class="fi-rs-filter gm-s-0ffe3c" ></i>
                     Résultats et filtres
                 </span>
-                <i class="fi-rs-angle-small-down" id="shop-filters-toggle-icon" style="font-size: 20px; color: var(--color-orange); transition: transform 0.3s ease;"></i>
+                <i class="fi-rs-angle-small-down" id="shop-filters-toggle-icon" class="gm-s-84a429"></i>
             </div>
             <div class="shop-filters-collapse-body" id="shop-filters-collapse-body">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding: 18px 24px; background: #FAFAFA; border-bottom: 1px solid #F3F4F6;">
-                    <div id="product-num" style="font-size: 14px; color: #6B7280;">
-                        <p style="margin: 0; display: flex; align-items: center; gap: 6px;">
-                            <i class="fi-rs-box" style="color: var(--color-orange); font-size: 16px;"></i>
-                            <span>Nous avons trouvé <strong style="color: var(--color-orange); font-weight: 700;">0</strong> articles pour vous !</span>
+                <div class="gm-s-ac9b8c">
+                    <div id="product-num" class="gm-s-1e849f">
+                        <p class="gm-s-0e6032">
+                            <i class="fi-rs-box gm-s-0accb1" ></i>
+                            <span>Nous avons trouvé <strong class="gm-s-19c495">0</strong> articles pour vous !</span>
                         </p>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 13px; color: #6B7280; font-weight: 600;">Trier par:</span>
-                        <select class="sorting mySelect" id="mySelect" style="padding: 10px 16px; border: 2px solid #E5E7EB; border-radius: 10px; font-size: 13px; background: #FAFAFA; color: #1F2937; cursor: pointer; outline: none; font-family: var(--font-secondary); min-width: 200px;"
+                    <div class="gm-s-1c20bb">
+                        <span class="gm-s-e1e689">Trier par:</span>
+                        <select class="sorting mySelect" id="mySelect" class="gm-s-b04e44"
                                 hx-get="{% url 'categories:shop-htmx' %}"
                                 hx-target="#products-list"
                                 hx-swap="innerHTML"
@@ -114,53 +73,53 @@
                     </div>
                 </div>
                 <div class="flavoriz-filters-card" style="padding: 24px;">
-                    <h4 style="font-size: 16px; font-weight: 600; color: #1F2937; margin: 0 0 16px 0;">Mini-catégories</h4>
-                    <div class="category-filter-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                    <h4 class="gm-s-3c7554">Mini-catégories</h4>
+                    <div class="category-filter-grid gm-s-532f24" >
                         <!-- Option "Toutes les mini-catégories" -->
-                        <a href="#" class="category-filter-link active" data-cat-type="sub" data-cat-id="{{sub_category_obj.id}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 12px; border-radius: 12px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 13px; font-weight: 500; background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%); border: 2px solid rgba(255, 123, 44, 0.3); text-align: center; min-height: 100px;">
-                            <i class="fi-rs-apps" style="color: var(--color-orange); font-size: 24px;"></i>
-                            <span style="font-weight: 600; color: var(--color-orange); line-height: 1.3;">Toutes les mini-catégories</span>
+                        <a href="#" class="category-filter-link active" data-cat-type="sub" data-cat-id="{{sub_category_obj.id}}" class="gm-s-ddc734">
+                            <i class="fi-rs-apps gm-s-8a7e75" ></i>
+                            <span class="gm-s-13e38d">Toutes les mini-catégories</span>
                         </a>
                         {% for mini in mini_category_obj|slice:":10"%}
-                        <a href="#" class="category-filter-link" data-cat-type="mini" data-cat-id="{{mini.id}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 12px; border-radius: 12px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 13px; font-weight: 500; background: #FAFAFA; border: 2px solid #E5E7EB; text-align: center; min-height: 100px;">
-                            {%if mini.category_image%}
-                            <img src="{{mini.category_image.url}}" alt="{{mini.name}}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
-                            {%else%}
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{mini.name|first|upper}}</div>
-                            {%endif%}
-                            <span style="line-height: 1.3; text-align: center;">{{mini.name}}</span>
+                        <a href="#" class="category-filter-link" data-cat-type="mini" data-cat-id="{{mini.id}}" class="gm-s-75219b">
+                            {%if mini.category_image %}
+                            <img src="{{mini.category_image.url}}" alt="{{mini.name}}" class="gm-s-d6d197" />
+                            {%else %}
+                            <div class="gm-s-670253">{{mini.name|first|upper}}</div>
+                            {%endif %}
+                            <span class="gm-s-ed5f77">{{mini.name}}</span>
                         </a>
                         {% empty %}
-                        <div style="grid-column: 1 / -1; padding: 20px; color: #9CA3AF; font-size: 13px; text-align: center;">Aucune mini-catégorie disponible</div>
+                        <div class="gm-s-e09029">Aucune mini-catégorie disponible</div>
                         {% endfor %}
                     </div>
                     {%if mini_category_obj.count >= 11  %}
-                    <div class="more_categories" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #E5E7EB; cursor: pointer; color: var(--color-orange); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; justify-content: center;">
+                    <div class="more_categories gm-s-1da02a" >
                         <i class="fi-rs-angle-down"></i>
                         <span>Voir plus de catégories...</span>
                     </div>
-                    <div class="category-filter-grid more_slide_open" style="display: none; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 16px;">
+                    <div class="category-filter-grid more_slide_open gm-s-52f6a5" >
                         {%for mini in mini_category_obj|slice:"10:" %}
-                        <a href="#" class="category-filter-link" data-cat-type="mini" data-cat-id="{{mini.id}}" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px 12px; border-radius: 12px; text-decoration: none; color: #1F2937; transition: all 0.2s ease; font-size: 13px; font-weight: 500; background: #FAFAFA; border: 2px solid #E5E7EB; text-align: center; min-height: 100px;">
-                            {%if mini.category_image%}
-                            <img src="{{mini.category_image.url}}" alt="{{mini.name}}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #F3F4F6; flex-shrink: 0;" />
-                            {%else%}
-                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(255, 123, 44, 0.3);">{{mini.name|first|upper}}</div>
-                            {%endif%}
-                            <span style="line-height: 1.3; text-align: center;">{{mini.name}}</span>
+                        <a href="#" class="category-filter-link" data-cat-type="mini" data-cat-id="{{mini.id}}" class="gm-s-75219b">
+                            {%if mini.category_image %}
+                            <img src="{{mini.category_image.url}}" alt="{{mini.name}}" class="gm-s-d6d197" />
+                            {%else %}
+                            <div class="gm-s-670253">{{mini.name|first|upper}}</div>
+                            {%endif %}
+                            <span class="gm-s-ed5f77">{{mini.name}}</span>
                         </a>
-                        {%endfor%}
+                        {%endfor %}
                     </div>
-                    {%endif%}
+                    {%endif %}
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;">
+        <div class="gm-s-35855e">
             <!-- Products Grid -->
             <div>
-                <div id="products-list" class="flavoriz-product-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; margin-bottom: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 0 !important;"
+                <div id="products-list" class="flavoriz-product-grid gm-s-41e817" 
                      hx-get="{% url 'categories:shop-htmx' %}?page=1&order_by=-date&cat_type=sub&cat_id={{sub_category_obj.id}}"
                      hx-trigger="load"
                      hx-swap="innerHTML"
@@ -170,225 +129,29 @@
                 </div>
                 
                 <!-- Loading Spinner -->
-                <div id="spinner-box" class="not-visible" style="text-align: center; padding: 40px;">
-                    <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
-                    <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
+                <div id="spinner-box" class="not-visible gm-s-9fcb89" >
+                    <div class="flavoriz-spinner gm-s-accd61" ></div>
+                    <p class="gm-s-9f9cde">Chargement des produits...</p>
                 </div>
                 
                 <!-- Empty Box -->
-                <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
-                    <i class="fi-rs-shopping-bag" style="font-size: 64px; color: #D1D5DB; opacity: 0.5; margin-bottom: 16px;"></i>
-                    <p style="font-size: 16px; font-weight: 600; color: #6B7280; margin: 0;">Aucun produit disponible !</p>
+                <div id="empty-box" class="not-visible gm-s-55287b" >
+                    <i class="fi-rs-shopping-bag gm-s-7c83ae" ></i>
+                    <p class="gm-s-fcf372">Aucun produit disponible !</p>
                 </div>
 
                 <!-- Loading Indicator pour HTMX -->
-                <div id="loading-indicator" class="htmx-indicator" style="text-align: center; padding: 24px; display: none;">
-                    <div class="flavoriz-spinner" style="margin: 0 auto;"></div>
-                    <p style="margin-top: 16px; color: #6B7280; font-size: 14px;">Chargement des produits...</p>
+                <div id="loading-indicator" class="htmx-indicator gm-s-d43d70" >
+                    <div class="flavoriz-spinner gm-s-accd61" ></div>
+                    <p class="gm-s-9f9cde">Chargement des produits...</p>
                 </div>
             </div>
         </div>
     </div>
 </main>
+{% endblock body %}
 
-<style>
-.not-visible {
-    display: none !important;
-}
-
-.category-filter-link:hover {
-    background: linear-gradient(135deg, rgba(255, 123, 44, 0.15) 0%, rgba(255, 123, 44, 0.1) 100%) !important;
-    color: var(--color-orange) !important;
-    transform: translateY(-2px);
-    border-color: rgba(255, 123, 44, 0.4) !important;
-    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.15) !important;
-}
-
-.category-filter-link.active {
-    background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.08) 100%) !important;
-    border-color: rgba(255, 123, 44, 0.3) !important;
-}
-
-.flavoriz-filters-header:hover {
-    background: linear-gradient(135deg, rgba(255, 123, 44, 0.08) 0%, rgba(255, 123, 44, 0.04) 100%) !important;
-}
-
-#filters-toggle-icon.rotated {
-    transform: rotate(180deg) !important;
-}
-
-.shop-page-main .shop-page-container { padding-left: 24px !important; padding-right: 24px !important; box-sizing: border-box !important; }
-@media (max-width: 768px) { .shop-page-main .shop-page-container { padding-left: 16px !important; padding-right: 16px !important; } }
-.shop-filters-collapse-body { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
-.shop-filters-collapsible:not(.collapsed) .shop-filters-collapse-body { max-height: 2000px; opacity: 1; transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; }
-.shop-filters-collapsible.collapsed #shop-filters-toggle-icon { transform: rotate(-90deg); transition: transform 0.35s ease; }
-.shop-filters-collapsible:not(.collapsed) #shop-filters-toggle-icon { transform: rotate(180deg); transition: transform 0.35s ease; }
-.shop-filters-collapse-header:hover { background: linear-gradient(135deg, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0.05) 100%) !important; }
-
-.more_categories:hover {
-    color: #E65A1F !important;
-}
-
-select.mySelect:focus {
-    border-color: var(--color-orange) !important;
-    box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1) !important;
-    background: white !important;
-}
-
-/* Masquer automatiquement les filtres sur mobile au chargement initial */
-@media (max-width: 768px) {
-    .flavoriz-filters-header {
-        display: flex !important;
-    }
-    
-    .category-filter-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-    }
-    
-    .category-filter-link {
-        min-height: 90px !important;
-        padding: 12px 10px !important;
-        font-size: 12px !important;
-    }
-    
-    .category-filter-link img,
-    .category-filter-link > div {
-        width: 40px !important;
-        height: 40px !important;
-    }
-}
-
-@media (max-width: 1024px) {
-    .main.pages > div > div[style*="grid-template-columns: 280px 1fr"] {
-        grid-template-columns: 1fr !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
-    }
-    
-    h1 {
-        font-size: 24px !important;
-    }
-    
-    #products-list {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
-    }
-    
-    #products-list > * {
-        width: 100% !important;
-        min-width: 0 !important;
-    }
-    
-    /* Mobile : même style cartes que magasins (image carrée, padding 12px) */
-    .flavoriz-product-image-wrap {
-        aspect-ratio: 1 !important;
-        min-height: 0 !important;
-    }
-    .flavoriz-product-image-wrap .flavoriz-product-image {
-        height: 100% !important;
-        position: absolute !important;
-        top: 0; left: 0; width: 100%; object-fit: cover !important;
-    }
-    .flavoriz-product-body {
-        padding: 12px !important;
-    }
-    .flavoriz-product-title {
-        font-size: 13px !important;
-        min-height: 36px !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .flavoriz-product-card-btn {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-    }
-    
-    .flavoriz-add-cart-btn,
-    .flavoriz-propose-offer-btn {
-        padding: 8px 12px !important;
-        font-size: 12px !important;
-        min-width: 44px !important;
-    }
-    
-    .flavoriz-favorite-btn {
-        padding: 5px 8px !important;
-        font-size: 9px !important;
-    }
-    
-    .flavoriz-favorite-btn .favorite-count {
-        font-size: 9px !important;
-    }
-}
-
-/* Cartes produits : même style que les cartes magasins */
-.flavoriz-product-card {
-    background: white !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border: 1px solid #F3F4F6 !important;
-    cursor: pointer !important;
-    display: flex !important;
-    flex-direction: column !important;
-}
-.flavoriz-product-card:hover {
-    transform: translateY(-4px) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15) !important;
-    border-color: rgba(255, 123, 44, 0.25) !important;
-}
-.flavoriz-product-image-wrap {
-    width: 100% !important;
-    aspect-ratio: 1 !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-.flavoriz-product-image-wrap .flavoriz-product-image {
-    transition: transform 0.35s ease !important;
-}
-.flavoriz-product-card:hover .flavoriz-product-image-wrap .flavoriz-product-image {
-    transform: scale(1.06) !important;
-}
-.flavoriz-product-card-btn:hover {
-    background: var(--color-orange) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3) !important;
-}
-
-/* Styles de base pour la grille */
-#products-list,
-#products-list.flavoriz-product-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 20px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-@media (min-width: 1200px) {
-    #products-list {
-        grid-template-columns: repeat(4, 1fr) !important;
-    }
-}
-
-@media (max-width: 1199px) and (min-width: 769px) {
-    #products-list {
-        grid-template-columns: repeat(3, 1fr) !important;
-    }
-}
-</style>
-{%endblock body%}
-
-{%block script%}
+{% block script %}
 {{ block.super }}
 <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
 <script>
@@ -552,4 +315,4 @@ select.mySelect:focus {
         });
     });
 </script>
-{%endblock script%}
+{% endblock script %}

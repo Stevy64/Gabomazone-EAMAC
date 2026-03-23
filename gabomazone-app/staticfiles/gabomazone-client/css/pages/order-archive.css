@@ -1,0 +1,182 @@
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.order-detail-page .order-detail-container {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+/* Bandeau hero : texte et icônes toujours clairs sur fond sombre */
+.order-detail-hero,
+.order-detail-hero .order-detail-hero-title,
+.order-detail-hero .order-detail-hero-date,
+.order-detail-hero .order-detail-hero-stat-label,
+.order-detail-hero .order-detail-hero-stat-value {
+    color: #ffffff !important;
+}
+.order-detail-hero .order-detail-hero-date,
+.order-detail-hero .order-detail-hero-stat-label {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+.order-detail-hero .order-detail-hero-total {
+    color: #F97316 !important;
+}
+.order-detail-hero .order-detail-hero-stat-icon i,
+.order-detail-hero .order-status-stepper span,
+.order-detail-hero [class*="status-step"] span {
+    color: inherit !important;
+}
+.order-detail-hero .order-detail-hero-stat-icon {
+    color: #ffffff !important;
+}
+.order-detail-hero i:not(.order-detail-hero-icon) {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+.order-detail-hero .order-detail-hero-icon {
+    color: #F97316 !important;
+}
+
+/* Grille principale : liste des articles à gauche, sidebar à droite sur desktop */
+@media (min-width: 1024px) {
+    .order-detail-grid {
+        grid-template-columns: 1fr 360px !important;
+        gap: 32px !important;
+    }
+    .order-detail-sidebar-inner {
+        position: sticky;
+        top: 100px;
+    }
+}
+
+/* Sidebar : une seule colonne (pas de cartes imbriquées) */
+.order-info-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+    align-items: stretch !important;
+}
+
+.info-cards-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+}
+
+.info-cards-container > div {
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+}
+
+/* Cartes articles : hover */
+.order-item-card:hover {
+    border-color: rgba(255, 123, 44, 0.35) !important;
+    box-shadow: 0 8px 24px -4px rgba(255, 123, 44, 0.12) !important;
+}
+
+/* Boutons d'action */
+.order-action-back:hover {
+    background: #E2E8F0 !important;
+    color: #334155 !important;
+}
+.order-action-invoice:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 123, 44, 0.4) !important;
+}
+.order-action-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35) !important;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .order-info-section {
+        gap: 24px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .order-detail-page.main.pages {
+        padding-top: 88px !important;
+        padding-bottom: 80px !important;
+    }
+    .order-detail-container {
+        padding: 0 16px !important;
+    }
+    .order-detail-hero {
+        padding: 22px 24px !important;
+    }
+    .order-status-stepper .status-step span {
+        font-size: 10px !important;
+    }
+    .info-cards-container {
+        flex-direction: column !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-detail-page.main.pages {
+        padding-top: 84px !important;
+        padding-bottom: 88px !important;
+    }
+    .order-detail-container {
+        padding: 0 14px !important;
+    }
+    .order-detail-hero {
+        padding: 20px 18px !important;
+        margin-bottom: 20px !important;
+    }
+    .order-detail-products-card {
+        padding: 20px 18px !important;
+    }
+    .order-detail-products-card h2 {
+        font-size: 20px !important;
+    }
+    .order-item-card {
+        flex-direction: column !important;
+        gap: 16px !important;
+        padding: 16px !important;
+    }
+    .order-item-card img[style*="width: 120px"] {
+        width: 100% !important;
+        max-width: 200px !important;
+        height: 180px !important;
+        margin: 0 auto;
+    }
+    .order-summary-card,
+    .order-actions-card,
+    .order-info-card {
+        padding: 22px 18px !important;
+    }
+    .order-status-stepper {
+        margin-top: 18px !important;
+        padding-top: 16px !important;
+    }
+    .order-status-stepper > div {
+        gap: 4px !important;
+    }
+    .order-status-stepper .status-step span {
+        font-size: 9px !important;
+    }
+    #transaction-modal > div {
+        max-width: 95% !important;
+        margin: 10px !important;
+        max-height: 85vh !important;
+    }
+}
+
+@media print {
+    .order-detail-page.main.pages {
+        background: white !important;
+        padding: 20px !important;
+    }
+    button[onclick*="showTransaction"],
+    .order-action-back,
+    .order-detail-breadcrumb a {
+        display: none !important;
+    }
+}
+
+@keyframes spin {
+        to { transform: rotate(360deg); }
+    }

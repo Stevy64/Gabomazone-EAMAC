@@ -1,0 +1,222 @@
+.pi-page {
+    min-height: 100vh;
+    padding-top: 100px;
+    padding-bottom: 40px;
+    background: linear-gradient(180deg, rgba(255, 123, 44, 0.06) 0%, #FAFAFA 35%);
+}
+.pi-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.pi-hero {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.pi-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 123, 44, 0.12);
+    color: var(--color-orange);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+.pi-hero h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+.pi-hero p {
+    font-size: 15px;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.5;
+}
+.pi-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+.pi-product {
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+    align-items: center;
+}
+.pi-product-image-wrap {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #F3F4F6;
+}
+.pi-product-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.pi-product-body {
+    flex: 1;
+    min-width: 0;
+}
+.pi-product-body h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 6px 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pi-product-seller {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+.pi-product-price {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-orange);
+}
+.pi-steps {
+    padding: 0 24px 24px;
+}
+.pi-steps-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pi-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.pi-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: #4B5563;
+    line-height: 1.5;
+}
+.pi-step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.pi-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+.pi-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 24px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    border: none;
+    font-family: inherit;
+    width: 100%;
+}
+.pi-btn-primary {
+    background: linear-gradient(135deg, var(--color-orange) 0%, #FF8C42 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255, 123, 44, 0.4);
+}
+.pi-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255, 123, 44, 0.5);
+    color: white;
+}
+.pi-btn-primary:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+    transform: none;
+}
+.pi-btn-secondary {
+    background: #fff;
+    color: #6B7280;
+    border: 2px solid #E5E7EB;
+}
+.pi-btn-secondary:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+    color: #374151;
+}
+.pi-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #9CA3AF;
+    margin-top: 20px;
+}
+@media (max-width: 768px) {
+    .pi-page {
+        padding-top: 120px;
+        padding-bottom: 32px;
+    }
+    .pi-container {
+        padding: 0 16px;
+    }
+    .pi-hero h1 {
+        font-size: 22px;
+    }
+    .pi-product {
+        padding: 20px;
+        gap: 16px;
+    }
+    .pi-product-image-wrap {
+        width: 88px;
+        height: 88px;
+        border-radius: 12px;
+    }
+    .pi-product-body h2 {
+        font-size: 16px;
+    }
+    .pi-product-price {
+        font-size: 20px;
+    }
+    .pi-steps {
+        padding: 0 20px 20px;
+    }
+}
+
+@keyframes pi-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

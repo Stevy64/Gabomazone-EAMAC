@@ -2,79 +2,83 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-{%block body%}
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/account.css' %}?v=1.0" />
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages gm-s-8748cb" >
+    <div class="container gm-s-b8c14a" >
         <!-- Breadcrumb -->
-        <nav style="margin-bottom: 32px; font-size: 14px; color: #6B7280; display: flex; align-items: center; gap: 8px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+        <nav class="gm-s-21dce0">
+            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
                 <i class="fi-rs-home"></i> <span>Accueil</span>
             </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Mes commandes</span>
+            <span class="gm-s-ad3665">/</span>
+            <span class="gm-s-6bbb36">Mes commandes</span>
         </nav>
 
-        <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+        <div class="row gm-s-7e81ca" >
             <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->
-            <div class="col-md-3" style="flex: 0 0 280px; max-width: 280px; padding: 0;">
+            <div class="col-md-3 gm-s-330b7b" >
                 {% include 'accounts/_mon_compte_card.html' with active_page='dashboard_customer' %}
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9" style="flex: 1; min-width: 0; padding: 0;">
-                <div class="flavoriz-dashboard-card" style="background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); animation: fadeInUp 0.5s ease-out;">
+            <div class="col-md-9 gm-s-5c3ace" >
+                <div class="flavoriz-dashboard-card gm-s-37fbf5" >
                     <!-- Header Section -->
-                    <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #F3F4F6;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div class="gm-s-4efa20">
+                        <div class="gm-s-8ee24e">
                             <div>
-                                <h2 id="order-number" style="font-size: 28px; font-weight: 700; color: var(--text-dark); margin: 0 0 6px 0; font-family: var(--font-primary); line-height: 1.2;">
+                                <h2 id="order-number" class="gm-s-56a0ec">
                                     Mes commandes
                                 </h2>
-                                <p style="font-size: 14px; color: #6B7280; margin: 0; display: flex; align-items: center; gap: 6px;">
-                                    <i class="fi-rs-info" style="font-size: 14px;"></i>
-                                    Consultez l'historique de vos commandes
-                                            </p>
-                                        </div>
-                                    </div>
-                                        </div>
+                                    <p class="gm-s-8400fb">
+                                        <i class="fi-rs-info gm-s-267f6d" ></i>
+                                        Consultez l'historique de vos commandes
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     
                     <!-- Orders Table -->
-                    <div style="overflow-x: auto;">
-                        <table class="flavoriz-orders-table" style="width: 100%; border-collapse: collapse;">
+                    <div class="gm-s-b56181">
+                        <table class="flavoriz-orders-table gm-s-91f0da" >
                                                     <thead>
-                                <tr style="background: #F9FAFB; border-bottom: 2px solid #E5E7EB;">
-                                    <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">N° Commande</th>
-                                    <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Date</th>
-                                    <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
-                                    <th style="padding: 16px; text-align: left; font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Statut</th>
-                                    <th style="padding: 16px; text-align: center; font-size: 13px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">Actions</th>
+                                <tr class="gm-s-130137">
+                                    <th class="gm-s-5f77c1">N° Commande</th>
+                                    <th class="gm-s-5f77c1">Date</th>
+                                    <th class="gm-s-5f77c1">Total</th>
+                                    <th class="gm-s-5f77c1">Statut</th>
+                                    <th class="gm-s-482af5">Actions</th>
                                                         </tr>
                                                     </thead>
-                            <tbody id="orders-list" style="background: white;">
+                            <tbody id="orders-list" class="gm-s-e9c493">
                                 <!-- Les commandes seront chargées via AJAX -->
                                                     </tbody>
                                                 </table>
                         
                         <!-- Empty State -->
-                        <div id="empty-box" class="not-visible" style="text-align: center; padding: 60px 20px;">
-                            <div style="width: 120px; height: 120px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(255, 123, 44, 0.1) 0%, rgba(255, 123, 44, 0.05) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fi-rs-shopping-bag" style="font-size: 48px; color: var(--color-orange);"></i>
+                        <div id="empty-box" class="not-visible gm-s-7ee9bb" >
+                            <div class="gm-s-06b974">
+                                <i class="fi-rs-shopping-bag gm-s-607eaf" ></i>
                                                           </div>
-                            <h3 style="font-size: 24px; font-weight: 700; color: var(--text-dark); margin: 0 0 12px 0; font-family: var(--font-primary);">Aucune commande</h3>
-                            <p style="font-size: 15px; color: #6B7280; margin: 0 0 32px 0;">Vous n'avez pas encore passé de commande</p>
-                            <a href="{% url 'categories:shop' %}" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: var(--color-orange); color: white; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.35);">
+                            <h3 class="gm-s-bf0b64">Aucune commande</h3>
+                            <p class="gm-s-9b445d">Vous n'avez pas encore passé de commande</p>
+                            <a href="{% url 'categories:shop' %}" class="gm-s-b14b9b">
                                 <i class="fi-rs-arrow-left"></i> Continuer les achats
                             </a>
                                                           </div>
                             
                         <!-- Loading Spinner -->
-                        <div id="spinner-box" class="not-visible" style="text-align: center; padding: 40px;">
+                        <div id="spinner-box" class="not-visible gm-s-9fcb89" >
                             <div class="flavoriz-spinner"></div>
                                                 </div>
 
                         <!-- Load More Button -->
-                        <div id="loading-box" class="not-visible" style="text-align: center; padding: 32px 0;">
-                            <button id="load-btn" type="button" style="padding: 14px 32px; background: var(--color-orange); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255, 123, 44, 0.35);">
+                        <div id="loading-box" class="not-visible gm-s-024b40" >
+                            <button id="load-btn" type="button" class="gm-s-7b2a70">
                                 Charger plus
                             </button>
                         </div>
@@ -85,282 +89,20 @@
     </div>
 </main>
 
-<style>
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.flavoriz-orders-table tbody tr {
-    border-bottom: 1px solid #F3F4F6;
-    transition: all 0.2s ease;
-}
-
-.flavoriz-orders-table tbody tr:hover {
-    background: #F9FAFB;
-}
-
-.flavoriz-orders-table td {
-    padding: 20px 16px;
-    font-size: 14px;
-    color: #1F2937;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]) {
-    position: relative;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]):hover {
-    background: rgba(255, 123, 44, 0.08) !important;
-    color: var(--color-orange) !important;
-    transform: translateX(4px);
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]) i {
-    transition: all 0.3s ease;
-}
-
-.flavoriz-dashboard-menu a:not([style*="background"]):hover i {
-    color: var(--color-orange) !important;
-    transform: scale(1.1);
-}
-
-@media (min-width: 1200px) {
-    .col-md-3 {
-        flex: 0 0 280px !important;
-        max-width: 280px !important;
-    }
-    
-    .col-md-9 {
-        flex: 1 !important;
-        min-width: 0 !important;
-    }
-}
-
-@media (max-width: 1199px) and (min-width: 993px) {
-    .col-md-3 {
-        flex: 0 0 calc(30% - 12px) !important;
-    }
-    
-    .col-md-9 {
-        flex: 0 0 calc(70% - 12px) !important;
-    }
-}
-
-@media (max-width: 992px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 80px !important;
-    }
-    
-    .col-md-3,
-    .col-md-9 {
-        flex: 0 0 100% !important;
-        min-width: 100% !important;
-    }
-    
-    .flavoriz-dashboard-menu {
-        position: static !important;
-        margin-bottom: 28px;
-    }
-    
-    .flavoriz-dashboard-card {
-        padding: 32px !important;
-    }
-    
-    .flavoriz-orders-table {
-        font-size: 13px;
-    }
-    
-    .flavoriz-orders-table th,
-    .flavoriz-orders-table td {
-        padding: 12px 8px !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
-    }
-    
-    .flavoriz-dashboard-card {
-        padding: 20px 16px !important;
-        border-radius: 16px !important;
-        margin: 0 !important;
-    }
-    
-    h2 {
-        font-size: 22px !important;
-        margin-bottom: 12px !important;
-    }
-    
-    .container {
-        padding: 0 12px !important;
-        max-width: 100% !important;
-    }
-    
-    .row {
-        flex-direction: column !important;
-        gap: 16px !important;
-    }
-    
-    .col-md-3 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-    
-    .col-md-9 {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-    }
-    
-    .flavoriz-dashboard-menu {
-        position: static !important;
-        margin-bottom: 16px !important;
-        padding: 20px !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid li a {
-        padding: 12px 14px !important;
-        font-size: 13px !important;
-        flex-direction: column !important;
-        gap: 6px !important;
-        text-align: center !important;
-    }
-    
-    .flavoriz-dashboard-menu .mon-compte-grid li a i {
-        font-size: 18px !important;
-    }
-    
-    /* Table responsive pour mobile */
-    .flavoriz-orders-table {
-        display: block;
-        width: 100%;
-    }
-    
-    .flavoriz-orders-table thead {
-        display: none !important;
-    }
-    
-    .flavoriz-orders-table tbody {
-        display: block;
-        width: 100%;
-    }
-    
-    .flavoriz-orders-table tbody tr {
-        display: block;
-        width: 100%;
-        margin-bottom: 16px;
-        border: none !important;
-        padding: 0 !important;
-        background: transparent !important;
-    }
-    
-    .flavoriz-orders-table tbody tr.mobile-order-card {
-        display: block !important;
-    }
-    
-    .flavoriz-orders-table tbody tr:not(.mobile-order-card) {
-        display: none !important;
-    }
-    
-    .flavoriz-orders-table tbody td {
-        display: block !important;
-        padding: 0 !important;
-        border: none !important;
-        width: 100% !important;
-    }
-    
-    .order-card-mobile {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .order-card-mobile button,
-    .order-card-mobile a {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: rgba(255, 123, 44, 0.2);
-        min-height: 44px; /* Taille minimale pour le tactile */
-    }
-    
-    /* Empty state mobile */
-    #empty-box {
-        padding: 40px 20px !important;
-    }
-    
-    #empty-box h3 {
-        font-size: 20px !important;
-    }
-    
-    #empty-box p {
-        font-size: 14px !important;
-    }
-    
-    /* Modal mobile */
-    #transaction-modal > div {
-        max-width: 95% !important;
-        margin: 10px !important;
-        max-height: 85vh !important;
-    }
-    
-    #transaction-steps {
-        padding: 24px 16px !important;
-    }
-}
-</style>
-
 <!-- Modal pour afficher les détails de transaction -->
-<div id="transaction-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: white; border-radius: 20px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); position: relative;">
-        <button onclick="document.getElementById('transaction-modal').style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: #F3F4F6; border: none; color: #6B7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
-            <i class="fi-rs-cross" style="font-size: 18px;"></i>
+<div id="transaction-modal" class="gm-s-8c6cde">
+    <div class="gm-s-1304ae">
+        <button onclick="document.getElementById('transaction-modal').style.display='none'" class="gm-s-059d8e" onmouseover="this.style.background='#E5E7EB'; this.style.color='#1F2937'" onmouseout="this.style.background='#F3F4F6'; this.style.color='#6B7280'">
+            <i class="fi-rs-cross gm-s-768e1f" ></i>
         </button>
-        <div id="transaction-steps" style="padding: 40px 24px 24px 24px;">
+        <div id="transaction-steps" class="gm-s-69609b">
             <!-- Le contenu sera chargé dynamiquement -->
         </div>
     </div>
 </div>
-{%endblock body%}
+{% endblock body %}
 
-{%block script%}
+{% block script %}
 {{ block.super }}
-        <!-- Vendor JS-->
-        <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
-        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
-        <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js'%}"></script>
-        <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/slick.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/wow.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/perfect-scrollbar.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/magnific-popup.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/select2.min.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/waypoints.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/counterup.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.countdown.min.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/images-loaded.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/isotope.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/scrollup.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.vticker-min.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js'%}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js'%}"></script>
-        <!-- Template  JS -->
-        <script src="{% static 'assets/js/main.js'%}"></script>
-        <script src="{% static 'assets/js/shop.js'%}"></script>
-        <script src="{% static 'assets/js/orders.js'%}"></script>
-{%endblock script%}
+<script src="{% static 'assets/js/orders.js' %}"></script>
+{% endblock script %}

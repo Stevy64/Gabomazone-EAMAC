@@ -1,0 +1,540 @@
+/* ===== Vendor Details Page - Design épuré et moderne ===== */
+    .flavoriz-vendor-page {
+        padding: 0;
+        background: linear-gradient(180deg, #FDF8F3 0%, #FFFFFF 180px);
+        min-height: calc(100vh - 200px);
+    }
+    
+    .flavoriz-vendor-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+    
+    .flavoriz-vendor-breadcrumb {
+        padding: 20px 0 16px;
+        font-size: 13px;
+        color: #6B7280;
+        margin-bottom: 0;
+    }
+    
+    .flavoriz-vendor-breadcrumb a {
+        color: var(--color-orange);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .flavoriz-vendor-breadcrumb a:hover {
+        color: #E65A1F;
+    }
+    
+    /* Bannière magasin – design soigné */
+    .flavoriz-vendor-header {
+        background: linear-gradient(165deg, #FFFFFF 0%, #FFF9F6 45%, #FFF5EF 100%);
+        border-radius: 24px;
+        padding: 0;
+        margin-bottom: 32px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 123, 44, 0.06);
+        border: 1px solid rgba(255, 123, 44, 0.12);
+        position: relative;
+        overflow: hidden;
+    }
+    .flavoriz-vendor-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-orange) 0%, #FFB088 50%, var(--color-orange) 100%);
+        opacity: 0.9;
+    }
+    .flavoriz-vendor-header-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        align-items: flex-start;
+        padding: 36px 40px 40px;
+    }
+    .flavoriz-vendor-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+        background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%);
+        flex-shrink: 0;
+    }
+    .flavoriz-vendor-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .flavoriz-vendor-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .flavoriz-vendor-info-top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 20px;
+        margin-bottom: 14px;
+    }
+    .flavoriz-vendor-name {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+        color: #1F2937;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+    }
+    .flavoriz-vendor-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        background: rgba(255, 123, 44, 0.12);
+        color: var(--color-orange);
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .flavoriz-vendor-badge.premium {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: #1F2937;
+        box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+    }
+    .flavoriz-vendor-meta-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 20px 28px;
+        font-size: 14px;
+        color: #6B7280;
+        margin-bottom: 18px;
+    }
+    .flavoriz-vendor-meta-line span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .flavoriz-vendor-meta-line i {
+        color: var(--color-orange);
+        font-size: 15px;
+    }
+    .flavoriz-vendor-description {
+        font-size: 15px;
+        line-height: 1.65;
+        color: #4B5563;
+        margin: 0 0 20px 0;
+        max-width: 640px;
+    }
+    .flavoriz-vendor-details-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 0;
+    }
+    .flavoriz-vendor-detail-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #6B7280;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 123, 44, 0.15);
+    }
+    .flavoriz-vendor-detail-item i {
+        font-size: 16px;
+        color: var(--color-orange);
+        flex-shrink: 0;
+    }
+    .flavoriz-vendor-detail-item span {
+        line-height: 1.4;
+    }
+    .flavoriz-vendor-social {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255, 123, 44, 0.12);
+    }
+    .flavoriz-vendor-social-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6B7280;
+        margin-right: 4px;
+    }
+    .flavoriz-vendor-social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 123, 44, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6B7280;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+    .flavoriz-vendor-social-link:hover {
+        background: var(--color-orange);
+        color: white;
+        border-color: var(--color-orange);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+    }
+    
+    /* Section Produits */
+    .flavoriz-vendor-products-section {
+        background: white;
+        border-radius: 20px;
+        padding: 28px 32px 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid #F3F4F6;
+        margin-bottom: 32px;
+    }
+    
+    .flavoriz-vendor-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .flavoriz-vendor-section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1F2937;
+        margin: 0;
+    }
+    
+    .flavoriz-vendor-filter {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .flavoriz-vendor-filter select {
+        padding: 10px 16px;
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1F2937;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%236B7280' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 14px;
+        padding-right: 40px;
+    }
+    
+    .flavoriz-vendor-filter select:focus {
+        outline: none;
+        border-color: var(--color-orange);
+        box-shadow: 0 0 0 3px rgba(255, 123, 44, 0.1);
+    }
+    
+    .flavoriz-vendor-products-count {
+        font-size: 14px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+    
+    /* Grille produits : même style que page Produits (4 colonnes desktop) */
+    .flavoriz-vendor-products-grid.flavoriz-product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 24px;
+        padding: 0;
+    }
+    .flavoriz-vendor-products-grid.flavoriz-product-grid > * {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    /* Cartes produits : identiques à la page Produits */
+    .flavoriz-vendor-products-section .flavoriz-product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #F3F4F6;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(255, 123, 44, 0.15);
+        border-color: rgba(255, 123, 44, 0.25);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-image-wrap {
+        width: 100%;
+        aspect-ratio: 1;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #FDF8F3 0%, #FFE5D4 100%);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-image-wrap .flavoriz-product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card:hover .flavoriz-product-image-wrap .flavoriz-product-image {
+        transform: scale(1.06);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-body {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0 0 6px 0;
+        line-height: 1.35;
+        min-height: 36px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--color-orange);
+    }
+    .flavoriz-vendor-products-section .flavoriz-product-card-btn:hover {
+        background: var(--color-orange);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3);
+    }
+    
+    .flavoriz-vendor-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .flavoriz-vendor-sidebar:empty {
+        display: none;
+    }
+    
+    .flavoriz-vendor-sidebar-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid #F3F4F6;
+    }
+    
+    .flavoriz-vendor-ad-banner {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .flavoriz-vendor-ad-banner:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .flavoriz-vendor-ad-banner img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Loading States */
+    .flavoriz-vendor-loading {
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .flavoriz-vendor-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #F3F4F6;
+        border-top-color: var(--color-orange);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .not-visible {
+        display: none !important;
+    }
+    
+    #loading-indicator.htmx-request {
+        display: block !important;
+    }
+    
+    @media (max-width: 1024px) {
+        .flavoriz-vendor-main-content {
+            grid-template-columns: 1fr !important;
+        }
+        .flavoriz-vendor-sidebar {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .flavoriz-vendor-sidebar-card {
+            flex: 1 1 280px;
+            max-width: 100%;
+        }
+        .flavoriz-vendor-products-grid.flavoriz-product-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .flavoriz-vendor-container {
+            padding: 0 16px;
+        }
+        .flavoriz-vendor-header {
+            border-radius: 20px;
+        }
+        .flavoriz-vendor-header-content {
+            padding: 28px 20px 28px;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+        }
+        .flavoriz-vendor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            border-width: 3px;
+        }
+        .flavoriz-vendor-info {
+            width: 100%;
+        }
+        .flavoriz-vendor-info-top {
+            justify-content: center;
+        }
+        .flavoriz-vendor-name {
+            font-size: 22px;
+            width: 100%;
+        }
+        .flavoriz-vendor-meta-line {
+            justify-content: center;
+            gap: 16px;
+        }
+        .flavoriz-vendor-description {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .flavoriz-vendor-details-grid {
+            justify-content: center;
+        }
+        .flavoriz-vendor-social {
+            justify-content: center;
+        }
+        .flavoriz-vendor-products-section {
+            padding: 20px 16px;
+            border-radius: 16px;
+        }
+        .flavoriz-vendor-section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .flavoriz-vendor-section-title {
+            font-size: 20px;
+        }
+        .flavoriz-vendor-products-grid.flavoriz-product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-card {
+            min-width: 0;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-body {
+            padding: 12px;
+            min-width: 0;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-title {
+            font-size: 12px;
+            min-height: 32px;
+            -webkit-line-clamp: 2;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-price {
+            font-size: 14px;
+        }
+        .flavoriz-vendor-products-section .flavoriz-product-card-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+        .flavoriz-vendor-filter {
+            width: 100%;
+        }
+        .flavoriz-vendor-filter select {
+            width: 100%;
+        }
+    }
+
+
+/* === Extracted inline styles === */
+
+.gm-s-c4a112 {
+    width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-orange) 0%, #E65A1F 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 42px; font-weight: 700;
+}
+
+.gm-s-af81cc {
+    color: #F59E0B;
+}
+
+.gm-s-b32e61 {
+    color: #1F2937;
+}
+
+.gm-s-c07e2a {
+    color: #6B7280; margin: 0;
+}
+
+.gm-s-e6ee58 {
+    padding: 0; overflow: hidden;
+}

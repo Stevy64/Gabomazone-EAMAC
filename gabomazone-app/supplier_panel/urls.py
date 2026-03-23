@@ -1,9 +1,5 @@
-from unicodedata import name
 from django.urls import path
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import reverse_lazy
 
 
 app_name = 'supplier_dashboard'
@@ -18,10 +14,6 @@ urlpatterns = [
          name="supplier-add-product"),
     path('supplier-categories-ajax/', views.CategoriesJsonListView.as_view(),
          name="get-categories"),
-    # Page supplier-products-list supprimée - redirection vers supplier-add-product
-    # path('supplier-products-list/', views.supplier_products_list,
-    #      name="supplier-products-list"),
-
     path('supplier-products-list-ajax/', views.SupplierProductsJsonListView.as_view(),
          name="supplier-products-list-ajax"),
     path('supplier-products/remeve-product/<int:id>/',
@@ -30,31 +22,19 @@ urlpatterns = [
          name="supplier-edit-product"),
     path('supplier-orders-list/', views.supplier_orders_list,
          name="supplier-orders-list"),
-    #     path('supplier-orders-detail/', views.supplier_orders_detail,
-    #          name="supplier-orders-detail"),
-#     path('supplier-transactions/', views.supplier_transactions,
-#          name="supplier-transactions"),
-    path('supplier-reviews/', views.supplier_reviews,  name="supplier-reviews"),
-
-    # Paramètres du magasin (anciennement bank-info) - Gestion des informations du magasin et coordonnées bancaires
+    path('supplier-reviews/', views.supplier_reviews, name="supplier-reviews"),
     path('settings/store-settings/', views.store_settings, name="store-settings"),
-    # Abonnements et services premium - Gestion des abonnements, boosts de produits et badges
     path('settings/subscriptions/', views.subscriptions, name="subscriptions"),
     path('subscriptions/success/', views.subscription_success, name="subscription-success"),
     path('subscriptions/boost-success/<int:boost_request_id>/', views.boost_success, name="boost-success"),
     path('settings/delete-account/', views.delete_account, name="delete-account"),
-#     path('page_settings_2/', views.page_settings_2, name="page-settings-2"),
     path('supplier-orders-list-ajax/', views.SupplierOrdersJsonListView.as_view(),
          name="supplier-orders-list-ajax"),
     path('order-details/<int:id>/',
          views.supplier_orders_detail, name='order-details'),
-    path('payments/', views.payments, name="payments"), 
+    path('payments/', views.payments, name="payments"),
     path('request_payment/', views.request_payment, name="request-payment"),
     path('notifications/', views.get_notifications, name="notifications"),
     path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name="mark-notification-read"),
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name="mark-all-notifications-read"),
-
-
 ]
-# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

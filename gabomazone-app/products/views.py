@@ -13,14 +13,16 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from categories.models import SuperCategory
 import json
-# Create your views here.
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def product_details(request, slug):
-    print("DEFAULT_Currency: ", settings.DEFAULT_CURRENCY)
+    """Display B2B product detail page."""
+    logger.info("product_details slug=%s user=%s", slug, request.user)
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
-        print("SESSION_Currency: ", request.session['currency'])
 
     product_detail = get_object_or_404(Product, PRDSlug=slug, PRDISactive=True)
     
@@ -36,9 +38,6 @@ def product_details(request, slug):
         product_minicategor=related_products_minicategor, PRDISactive=True)
     supplier_Products = Product.objects.all().filter(product_vendor=product_detail.product_vendor,
                                                      product_minicategor=related_products_minicategor, PRDISactive=True)
-
-    # related = ProductAlternative.objects.all().filter(PALNProduct=product_detail)
-    # related_products = product_detail.alternative_products.all()
 
     product_feedback = ProductRating.objects.all().filter(
         PRDIProduct=product_detail, active=True)
@@ -71,7 +70,7 @@ def product_details(request, slug):
         start_4 = (start_4_sum / feedbak_number) * 100
         start_5 = (start_5_sum / feedbak_number) * 100
 
-    except:
+    except Exception:
         average_rating = 0
         start_1 = 0
         start_2 = 0
@@ -111,7 +110,7 @@ def product_details(request, slug):
                 if session_key:
                     is_favorited = ProductFavorite.objects.filter(product=product_detail, session_key=session_key).exists()
             like_count = ProductFavorite.objects.filter(product=product_detail).count()
-    except:
+    except Exception:
         pass
 
     context = {
@@ -136,6 +135,8 @@ def product_details(request, slug):
 
 
 def product_search(request):
+    """Search products by keyword, with category filtering."""
+    logger.info("product_search user=%s query=%s", request.user, request.POST.get('search-product', ''))
     context = {}
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
@@ -152,13 +153,13 @@ def product_search(request):
     if request.method == 'POST':
         try:
             word = request.POST['search-product']
-        except:
+        except Exception:
             word = ""
         request.session["search_product"] = word
 
         try:
             category_select = request.POST['category-select']
-        except:
+        except Exception:
             category_select = "All Categories"
         request.session["search_category_select"] = category_select
 
@@ -169,7 +170,7 @@ def product_search(request):
                 ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
-            except:
+            except Exception:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
                 ).select_related('product_vendor').order_by('-date').distinct()
@@ -181,7 +182,7 @@ def product_search(request):
                 ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
-            except:
+            except Exception:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
                     product_supercategory__name=category_select
@@ -208,7 +209,7 @@ def product_search(request):
                 ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
-            except:
+            except Exception:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True
                 ).select_related('product_vendor').order_by('-date').distinct()
@@ -220,7 +221,7 @@ def product_search(request):
                 ).select_related('product_vendor').annotate(
                     like_count=Count('favorites')
                 ).order_by('-date').distinct()
-            except:
+            except Exception:
                 queryset = Product.objects.filter(
                     product_name__icontains=word, PRDISDeleted=False, PRDISactive=True, 
                     product_supercategory__name=category_select
@@ -272,11 +273,11 @@ def product_search(request):
                 like_count = getattr(product, 'like_count', 0)
                 if like_count is None:
                     like_count = 0
-            except:
+            except Exception:
                 try:
                     from .models import ProductFavorite
                     like_count = ProductFavorite.objects.filter(product=product).count()
-                except:
+                except Exception:
                     like_count = 0
             
             products_data.append({
@@ -295,7 +296,7 @@ def product_search(request):
     if request.method == 'POST':
         try:
             search_query = request.POST.get('search-product', '').strip()
-        except:
+        except Exception:
             search_query = ""
     elif "search_product" in request.session.keys():
         search_query = request.session.get("search_product", "")
@@ -313,10 +314,10 @@ def product_search(request):
 
 
 def product_rating(request):
+    """Submit or update a product rating via AJAX."""
     if request.method == "POST" and request.user.is_authenticated and not request.user.is_anonymous:
         product_id = request.POST.get("product_id")
         product_rate = request.POST.get("product_rate")
-        # print(type(product_rate))
         message = request.POST.get("client_message")
         client = Profile.objects.get(user=request.user)
         if request.is_ajax():
@@ -326,7 +327,6 @@ def product_rating(request):
                 old_rating = ProductRating.objects.get(
                     PRDIProduct=product, client_name__user=request.user)
                 old_rating.vendor = product.product_vendor
-                # old_rating.rate = product_rate
                 old_rating.client_name = client
                 old_rating.client_comment = message
                 old_rating.save()
@@ -344,16 +344,9 @@ def product_rating(request):
                         product.feedbak_number = feedbak_number
                         product.save()
 
-                except:
+                except Exception:
                     pass
 
-                # send_mail(
-                #     "You received a message from {}".format(name),
-                #     f'{message}',
-                #     f'{settings.EMAIL_SENDGRID}',
-                #     [f'{email}'],
-                #     fail_silently=False,
-                # )
             else:
                 ProductRating.objects.create(
                     PRDIProduct=product,
@@ -377,17 +370,10 @@ def product_rating(request):
                         product.feedbak_number = feedbak_number
                         product.save()
 
-                except:
+                except Exception:
                     product.feedbak_average = int(product_rate) * 20
                     product.feedbak_number = 1
                     product.save()
-                # send_mail(
-                #     "You received a message from {}".format(name),
-                #     f'{message}',
-                #     f'{settings.EMAIL_SENDGRID}',
-                #     [f'{email}'],
-                #     fail_silently=False,
-                # )
             return JsonResponse({"succes": True, "product_id": product_id, "product_rate": product_rate, }, safe=False)
         return JsonResponse({"succes": False, }, safe=False)
 

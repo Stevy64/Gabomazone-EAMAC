@@ -718,7 +718,7 @@ class SellerReview(models.Model):
             verification = order.delivery_verification
             if not (verification.seller_code_verified and verification.buyer_code_verified):
                 return False, "Les deux codes de vérification doivent être validés avant de noter"
-        except:
+        except Exception:
             return False, "La vérification de livraison n'est pas complète"
         
         if user != order.buyer:
@@ -824,7 +824,7 @@ class BuyerReview(models.Model):
             verification = order.delivery_verification
             if not (verification.seller_code_verified and verification.buyer_code_verified):
                 return False, "Les deux codes de vérification doivent être validés avant de noter"
-        except:
+        except Exception:
             return False, "La vérification de livraison n'est pas complète"
         
         if user != order.seller:

@@ -1,0 +1,54 @@
+/* Styles responsive pour mobile */
+@media (max-width: 768px) {
+    .main.pages {
+        padding-top: 90px !important;
+        padding-bottom: 40px !important;
+    }
+    
+    .container {
+        padding: 0 16px !important;
+    }
+    
+    .col-md-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px;
+        order: 1;
+    }
+    
+    .col-md-9 {
+        order: 2;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .flavoriz-dashboard-menu {
+        position: relative !important;
+        top: 0 !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+    }
+    
+    .flavoriz-dashboard-menu .mon-compte-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .flavoriz-dashboard-menu .mon-compte-grid li a {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        text-align: center !important;
+    }
+    
+    .flavoriz-dashboard-menu .mon-compte-grid li a i {
+        font-size: 18px !important;
+        width: auto !important;
+    }
+    
+    .notifications-grid {
+        grid-template-columns: 1fr !important;
+    }
+}

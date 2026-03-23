@@ -1,4 +1,3 @@
-import imp
 from django.shortcuts import render
 from categories.models import SuperCategory, MainCategory
 from .models import (Carousel, HomeAdSidebar, HomeAdMiddlebar,
@@ -10,10 +9,14 @@ from settings.models import HomePageTheme
 from django.db.models import Count
 import random
 import json
-# Create your views here.
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def home_page(request):
+    """Render the marketplace homepage."""
+    logger.debug("home_page user=%s", request.user)
     if not request.session.has_key('currency'):
         request.session['currency'] = settings.DEFAULT_CURRENCY
     super_category = SuperCategory.objects.all().order_by("?")
@@ -63,7 +66,7 @@ def home_page(request):
         
         # Debug: afficher les produits C2C boostés trouvés
         if active_boosted_c2c_product_ids:
-            print(f"DEBUG: Produits C2C boostés trouvés: {active_boosted_c2c_product_ids}")
+            logger.debug("Produits C2C boostés trouvés: %s", active_boosted_c2c_product_ids)
         
         # Annoter avec le nombre de commandes (via OrderDetails)
         # Filtrer les OrderDetails avec des commandes terminées
@@ -147,17 +150,22 @@ def home_page(request):
         all_popular_products.sort(key=lambda x: (-x['is_boosted'], -x['view_count']))
         
         # Debug: afficher les produits triés
-        print(f"DEBUG: Nombre total de produits populaires: {len(all_popular_products)}")
+        logger.debug("Nombre total de produits populaires: %s", len(all_popular_products))
         for i, item in enumerate(all_popular_products[:5]):
-            print(f"  {i+1}. {item['product'].product_name} - Boosté: {item['is_boosted']}, Vues: {item['view_count']}, C2C: {item['is_peer_to_peer']}")
+            logger.debug(
+                "  %s. %s - Boosté: %s, Vues: %s, C2C: %s",
+                i + 1,
+                item["product"].product_name,
+                item["is_boosted"],
+                item["view_count"],
+                item["is_peer_to_peer"],
+            )
         
         # Limiter à 12 produits
         all_popular_products = all_popular_products[:12]
     except Exception as e:
         # Fallback en cas d'erreur
-        import traceback
-        print(f"Erreur dans la récupération des produits populaires: {e}")
-        print(traceback.format_exc())
+        logger.exception("Erreur dans la récupération des produits populaires: %s", e)
         all_popular_products = []
         try:
             from products.models import Product
@@ -172,7 +180,7 @@ def home_page(request):
                     'is_boosted': False,
                     'view_count': getattr(product, 'view_count', 0) or 0,
                 })
-        except:
+        except Exception:
             pass
     
     # Récupérer les nouveaux produits (par date)
@@ -241,7 +249,7 @@ def home_page(request):
                 if like_count == 0:
                     from products.models import ProductFavorite
                     like_count = ProductFavorite.objects.filter(product=product).count()
-        except:
+        except Exception:
             like_count = 0
         
         # Récupérer les statistiques du produit
@@ -293,7 +301,7 @@ def home_page(request):
         try:
             from products.models import ProductFavorite
             like_count = ProductFavorite.objects.filter(product=product).count()
-        except:
+        except Exception:
             like_count = 0
         
         # Récupérer les statistiques du produit
@@ -304,7 +312,7 @@ def home_page(request):
         try:
             from accounts.models import PeerToPeerProduct
             is_peer_to_peer = PeerToPeerProduct.objects.filter(id=product.id).exists()
-        except:
+        except Exception:
             pass
         
         new_products_data.append({
@@ -355,7 +363,7 @@ def home_page(request):
                 ).first()
                 if premium_sub and premium_sub.is_active():
                     is_premium = True
-            except:
+            except Exception:
                 pass
             
             total_views = vendor.total_views or 0
@@ -373,9 +381,7 @@ def home_page(request):
         top_vendors_data = vendors_list[:12]
         
     except Exception as e:
-        import traceback
-        print(f"Erreur dans la récupération des meilleurs magasins: {e}")
-        print(traceback.format_exc())
+        logger.exception("Erreur dans la récupération des meilleurs magasins: %s", e)
         top_vendors_data = []
     
     context = {
@@ -397,9 +403,10 @@ def home_page(request):
 
 
 def set_currency(request):
+    """Store the selected currency in the session and redirect to the referer."""
     lasturl = request.META.get("HTTP_REFERER")
     if request.method == "POST":
         request.session["currency"] = request.POST["currency"]
-        print(request.POST["currency"])
+        logger.debug("Currency set to %s", request.POST["currency"])
 
     return HttpResponseRedirect(lasturl)

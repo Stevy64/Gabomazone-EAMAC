@@ -1,5 +1,6 @@
-{%load static%}
+{% load static %}
 {% load crispy_forms_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -24,13 +25,14 @@
         <!-- Flaticon Icons -->
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <!-- Template CSS -->
-        <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets-supplier/css/main.css' %}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/login.css' %}?v=1.0">
     </head>
 
-    <body style="margin: 0; padding: 0; overflow-x: hidden;">
-        <main style="margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column;">
+    <body class="gm-s-112bc9">
+        <main class="gm-s-b169b9">
             <!-- Header -->
-            <header class="main-header style-2 navbar" style="flex-shrink: 0;">
+            <header class="main-header style-2 navbar gm-s-c99770" >
                 <div class="col-brand">
                     <a href="{% url 'home:index'%}" class="brand-wrap">
                         <img src="{{site_info.site_logo.url}}" class="logo" alt="GabomaZone Dashboard" />
@@ -53,7 +55,7 @@
                 </div>
             </header>
 
-            <section class="content-main supplier-login-section" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 80px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%); padding: var(--spacing-2xl) var(--spacing-lg); margin: 0; position: relative; overflow: hidden;">
+            <section class="content-main supplier-login-section gm-s-a1330d" >
                 <!-- Arrière-plan animé : formes géométriques -->
                 <div class="supplier-login-bg-shapes" aria-hidden="true">
                     <span class="shape shape-circle shape-1"></span>
@@ -67,24 +69,24 @@
                     <span class="shape shape-circle shape-9"></span>
                     <span class="shape shape-diamond shape-10"></span>
                 </div>
-                <div class="login-container" style="width: 100%; max-width: 480px; margin: 0 auto; position: relative; z-index: 1;">
-                    <div class="login-card" style="background: var(--color-white); border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); overflow: hidden; position: relative;">
+                <div class="login-container gm-s-dc6093" >
+                    <div class="login-card gm-s-5ddb9c" >
                         
                         <!-- Login Form Panel -->
-                        <div class="login-form-panel" id="login-panel" style="padding: var(--spacing-2xl); display: flex; flex-direction: column; background: var(--color-white); position: relative; transition: opacity 0.3s ease, transform 0.3s ease;">
+                        <div class="login-form-panel" id="login-panel" class="gm-s-f8a24f">
                             <!-- Logo & Welcome -->
-                            <div style="margin-bottom: var(--spacing-lg); text-align: center;">
-                                <a href="{% url 'home:index'%}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: var(--spacing-md); justify-content: center;">
-                                    <div style="width: 40px; height: 40px; background: var(--color-black); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                        <span style="color: white; font-size: 20px; font-weight: 800;">G</span>
+                            <div class="gm-s-6fdfb8">
+                                <a href="{% url 'home:index'%}" class="gm-s-02c759">
+                                    <div class="gm-s-782d7b">
+                                        <span class="gm-s-dfccc4">G</span>
                                     </div>
                                     <div>
-                                        <span style="font-size: 24px; font-weight: 800; color: var(--color-black);">Gaboma</span>
-                                        <span style="font-size: 24px; font-weight: 800; color: #FF7B2C;">Zone</span>
+                                        <span class="gm-s-061355">Gaboma</span>
+                                        <span class="gm-s-3bf9fa">Zone</span>
                                     </div>
                                 </a>
-                                <h1 style="font-size: 32px; font-weight: 800; color: var(--color-black); margin: var(--spacing-sm) 0 var(--spacing-xs) 0; line-height: 1.2;">Bienvenue !</h1>
-                                <p style="font-size: 15px; color: #6B7280; margin: 0;">Espace vendeur - Connectez-vous à votre compte</p>
+                                <h1 class="gm-s-3456ea">Bienvenue !</h1>
+                                <p class="gm-s-f57776">Espace vendeur - Connectez-vous à votre compte</p>
                             </div>
 
                         {% if messages %}
@@ -96,49 +98,49 @@
                     {% endif %}
 
                             <!-- Login Form -->
-                            <div id="login-form-container" class="form-container active" style="display: flex; flex-direction: column;">
-                                <form method="post" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                            <div id="login-form-container" class="form-container active gm-s-a4196e" >
+                                <form method="post" class="gm-s-0e1c9f">
                                     {% csrf_token %}
                                     
                                     <!-- Email/Username Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Email ou nom d'utilisateur</label>
-                                        <div style="position: relative;">
-                                            <input type="text" name="username" placeholder="Entrez votre email ou nom d'utilisateur" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-envelope" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Email ou nom d'utilisateur</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="text" name="username" placeholder="Entrez votre email ou nom d'utilisateur" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-envelope gm-s-9923d4" ></i>
                     </div> 
                 </div>
 
                                     <!-- Password Field -->
-                                    <div style="position: relative;">
-                                        <label style="display: block; font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px;">Mot de passe</label>
-                                        <div style="position: relative;">
-                                            <input type="password" name="password" placeholder="Entrez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: inherit;" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
-                                            <i class="fi-rs-lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6B7280; font-size: 16px; pointer-events: none;"></i>
-                                            <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6B7280; cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s ease;" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
+                                    <div class="gm-s-d85c4e">
+                                        <label class="gm-s-925bcc">Mot de passe</label>
+                                        <div class="gm-s-d85c4e">
+                                            <input type="password" name="password" placeholder="Entrez votre mot de passe" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
+                                            <i class="fi-rs-lock gm-s-9923d4" ></i>
+                                            <button type="button" onclick="togglePassword()" class="gm-s-330ef3" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle"></i>
                                             </button>
                             </div>
                             </div>
 
                                     <!-- Remember Me & Forgot Password -->
-                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #1F2937; cursor: pointer;">
-                                            <input type="checkbox" name="checkbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: #FF7B2C;" />
+                                    <div class="gm-s-3370da">
+                                        <label class="gm-s-8b666e">
+                                            <input type="checkbox" name="checkbox" class="gm-s-f94d78" />
                                             <span>Se souvenir de moi</span>
                                 </label>
-                                        <a href="{% url 'accounts:password_reset' %}" style="color: #FF7B2C; text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s ease; white-space: nowrap;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Mot de passe oublié ?</a>
+                                        <a href="{% url 'accounts:password_reset' %}" class="gm-s-fa98ea" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">Mot de passe oublié ?</a>
                             </div>
 
                                     <!-- Login Button -->
-                                    <button type="submit" name="login" style="width: 100%; padding: 14px; background: #FF7B2C; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); font-family: inherit; margin-top: var(--spacing-xs);" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                                    <button type="submit" name="login" class="gm-s-2b5e0b" onmouseover="this.style.background='#E65A1F'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='#FF7B2C'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                                         Se connecter
                                     </button>
                         </form>
 
                                 <!-- Sign Up Link -->
-                                <p style="text-align: center; margin-top: var(--spacing-lg); font-size: 14px; color: #6B7280;">
-                                    Pas encore de compte ? <a href="{% url 'supplier_dashboard:supplier-register'%}" style="color: #FF7B2C; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">S'inscrire</a>
+                                <p class="gm-s-8a8403">
+                                    Pas encore de compte ? <a href="{% url 'supplier_dashboard:supplier-register'%}" class="gm-s-16f518" onmouseover="this.style.color='#E65A1F'" onmouseout="this.style.color='#FF7B2C'">S'inscrire</a>
                                 </p>
                             </div>
                         </div>
@@ -146,191 +148,10 @@
                 </div>
             </section>
             
-            <script>
-                function togglePassword() {
-                    const passwordInput = document.getElementById('password-input');
-                    const passwordToggle = document.getElementById('password-toggle');
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                        passwordToggle.classList.remove('fi-rs-eye');
-                        passwordToggle.classList.add('fi-rs-eye-crossed');
-                    } else {
-                        passwordInput.type = 'password';
-                        passwordToggle.classList.remove('fi-rs-eye-crossed');
-                        passwordToggle.classList.add('fi-rs-eye');
-                    }
-                }
-            </script>
             
-            <style>
-                /* Variables CSS pour cohérence */
-                :root {
-                    --spacing-xs: 8px;
-                    --spacing-sm: 12px;
-                    --spacing-md: 16px;
-                    --spacing-lg: 24px;
-                    --spacing-xl: 32px;
-                    --spacing-2xl: 48px;
-                    --color-white: #FFFFFF;
-                    --color-black: #1F2937;
-                }
-                
-                /* Formes géométriques animées en arrière-plan */
-                .supplier-login-bg-shapes {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                    z-index: 0;
-                }
-                .supplier-login-bg-shapes .shape {
-                    position: absolute;
-                    border-radius: 4px;
-                    opacity: 0.35;
-                }
-                .supplier-login-bg-shapes .shape-circle {
-                    border-radius: 50%;
-                    background: rgba(255, 123, 44, 0.12);
-                }
-                .supplier-login-bg-shapes .shape-square {
-                    background: rgba(31, 41, 55, 0.06);
-                    transform: rotate(45deg);
-                }
-                .supplier-login-bg-shapes .shape-diamond {
-                    width: 20px;
-                    height: 20px;
-                    background: rgba(255, 123, 44, 0.1);
-                    transform: rotate(45deg);
-                }
-                /* Positions et tailles (desktop) */
-                .supplier-login-bg-shapes .shape-1 { width: 120px; height: 120px; top: 8%; left: 5%; animation: floatShape 14s ease-in-out infinite; }
-                .supplier-login-bg-shapes .shape-2 { width: 60px; height: 60px; top: 25%; right: 12%; animation: floatShape 10s ease-in-out infinite 1s; }
-                .supplier-login-bg-shapes .shape-3 { width: 90px; height: 90px; bottom: 20%; left: 8%; animation: floatShape 12s ease-in-out infinite 2s; }
-                .supplier-login-bg-shapes .shape-4 { width: 40px; height: 40px; top: 15%; right: 25%; animation: floatShape 11s ease-in-out infinite 0.5s; }
-                .supplier-login-bg-shapes .shape-5 { width: 55px; height: 55px; bottom: 35%; right: 8%; animation: floatShape 13s ease-in-out infinite 1.5s; }
-                .supplier-login-bg-shapes .shape-6 { top: 45%; left: 3%; animation: floatShape 9s ease-in-out infinite 2.5s; }
-                .supplier-login-bg-shapes .shape-7 { width: 70px; height: 70px; bottom: 10%; right: 20%; animation: floatShape 15s ease-in-out infinite; }
-                .supplier-login-bg-shapes .shape-8 { width: 30px; height: 30px; top: 60%; left: 15%; animation: floatShape 10s ease-in-out infinite 3s; }
-                .supplier-login-bg-shapes .shape-9 { width: 45px; height: 45px; top: 70%; right: 28%; animation: floatShape 12s ease-in-out infinite 0.8s; }
-                .supplier-login-bg-shapes .shape-10 { top: 12%; left: 22%; animation: floatShape 11s ease-in-out infinite 1.2s; }
-                @keyframes floatShape {
-                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
-                    25% { transform: translate(8px, -12px) scale(1.02); opacity: 0.45; }
-                    50% { transform: translate(-6px, 8px) scale(0.98); opacity: 0.3; }
-                    75% { transform: translate(10px, 6px) scale(1.01); opacity: 0.4; }
-                }
-                .supplier-login-bg-shapes .shape-square,
-                .supplier-login-bg-shapes .shape-diamond {
-                    animation: floatShapeRotate 16s ease-in-out infinite;
-                }
-                @keyframes floatShapeRotate {
-                    0%, 100% { transform: translate(0, 0) rotate(45deg); opacity: 0.35; }
-                    33% { transform: translate(6px, -8px) rotate(60deg); opacity: 0.42; }
-                    66% { transform: translate(-8px, 4px) rotate(30deg); opacity: 0.38; }
-                }
-                
-                 /* Responsive Mobile : visibilité optimisée des formes */
-                 @media (max-width: 767px) {
-                     .supplier-login-bg-shapes .shape {
-                         opacity: 0.4;
-                     }
-                     .supplier-login-bg-shapes .shape-circle {
-                         background: rgba(255, 123, 44, 0.15);
-                     }
-                     .supplier-login-bg-shapes .shape-square {
-                         background: rgba(31, 41, 55, 0.08);
-                     }
-                     .supplier-login-bg-shapes .shape-diamond {
-                         background: rgba(255, 123, 44, 0.12);
-                     }
-                     /* Tailles légèrement réduites et positions recentrées pour éviter les bords */
-                     .supplier-login-bg-shapes .shape-1 { width: 80px; height: 80px; top: 5%; left: 2%; }
-                     .supplier-login-bg-shapes .shape-2 { width: 45px; height: 45px; top: 18%; right: 5%; }
-                     .supplier-login-bg-shapes .shape-3 { width: 65px; height: 65px; bottom: 15%; left: 2%; }
-                     .supplier-login-bg-shapes .shape-4 { width: 28px; height: 28px; top: 12%; right: 15%; }
-                     .supplier-login-bg-shapes .shape-5 { width: 38px; height: 38px; bottom: 28%; right: 3%; }
-                     .supplier-login-bg-shapes .shape-6 { width: 16px; height: 16px; top: 40%; left: 2%; }
-                     .supplier-login-bg-shapes .shape-7 { width: 50px; height: 50px; bottom: 8%; right: 12%; }
-                     .supplier-login-bg-shapes .shape-8 { width: 22px; height: 22px; top: 55%; left: 8%; }
-                     .supplier-login-bg-shapes .shape-9 { width: 32px; height: 32px; top: 65%; right: 18%; }
-                     .supplier-login-bg-shapes .shape-10 { width: 16px; height: 16px; top: 10%; left: 18%; }
-                 
-                     .content-main {
-                         padding: var(--spacing-lg) var(--spacing-md) !important;
-                         min-height: calc(100vh - 80px) !important;
-                     }
+<footer class="main-footer text-center gm-s-8a0a60" >
+                 <p class="font-xs gm-s-30cd2a" >
                     
-                    .login-container {
-                        max-width: 100% !important;
-                        padding: 0 !important;
-                    }
-                    
-                    .login-card {
-                        border-radius: 20px !important;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-                    }
-                    
-                    .login-form-panel {
-                        padding: var(--spacing-lg) var(--spacing-md) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child {
-                        margin-bottom: var(--spacing-md) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a {
-                        margin-bottom: var(--spacing-sm) !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:first-child {
-                        width: 36px !important;
-                        height: 36px !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:first-child span {
-                        font-size: 18px !important;
-                    }
-                    
-                    .login-form-panel > div:first-child a > div:last-child span {
-                        font-size: 20px !important;
-                    }
-                    
-                    .login-form-panel h1 {
-                        font-size: 28px !important;
-                        margin: var(--spacing-xs) 0 !important;
-                    }
-                    
-                    .login-form-panel > div:first-child p {
-                        font-size: 14px !important;
-                    }
-                    
-                    .form-container {
-                        gap: var(--spacing-sm) !important;
-                    }
-                    
-                    .form-container label {
-                        font-size: 12px !important;
-                        margin-bottom: 4px !important;
-                    }
-                    
-                    .form-container input {
-                        padding: 10px 12px 10px 40px !important;
-                        font-size: 14px !important;
-                    }
-                    
-                    .form-container button[type="submit"] {
-                        padding: 12px !important;
-                        font-size: 14px !important;
-                    }
-                }
-             </style>
-             <footer class="main-footer text-center" style="flex-shrink: 0; margin-top: auto; padding: var(--spacing-md) 0;">
-                 <p class="font-xs" style="margin: 0; font-size: 13px; color: #6B7280;">
-                    <script>
-                        document.write(new Date().getFullYear());
-                    </script>
                      &copy; {{site_info.site_name}} - Tous droits réservés.
                 </p>
             </footer>
@@ -342,46 +163,8 @@
         <script src="{% static 'assets-supplier/js/main.js'%}" type="text/javascript"></script>
         <!-- GTranslate: https://gtranslate.io/ -->
 
-<script type="text/javascript">
-    function googleTranslateElementInit2() {
-        new google.translate.TranslateElement({ pageLanguage: "en", autoDisplay: true }, "google_translate_element2");
-    }
-</script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
 
-<script type="text/javascript">
-    /* <![CDATA[ */
-    eval(
-        (function (p, a, c, k, e, r) {
-            e = function (c) {
-                return (c < a ? "" : e(parseInt(c / a))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36));
-            };
-            if (!"".replace(/^/, String)) {
-                while (c--) r[e(c)] = k[c] || e(c);
-                k = [
-                    function (e) {
-                        return r[e];
-                    },
-                ];
-                e = function () {
-                    return "\\w+";
-                };
-                c = 1;
-            }
-            while (c--) if (k[c]) p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c]);
-            return p;
-        })(
-            "6 7(a,b){n{4(2.9){3 c=2.9(\"o\");c.p(b,f,f);a.q(c)}g{3 c=2.r();a.s('t'+b,c)}}u(e){}}6 h(a){4(a.8)a=a.8;4(a=='')v;3 b=a.w('|')[1];3 c;3 d=2.x('y');z(3 i=0;i<d.5;i++)4(d[i].A=='B-C-D')c=d[i];4(2.j('k')==E||2.j('k').l.5==0||c.5==0||c.l.5==0){F(6(){h(a)},G)}g{c.8=b;7(c,'m');7(c,'m')}}",
-            43,
-            43,
-            "||document|var|if|length|function|GTranslateFireEvent|value|createEvent||||||true|else|doGTranslate||getElementById|google_translate_element2|innerHTML|change|try|HTMLEvents|initEvent|dispatchEvent|createEventObject|fireEvent|on|catch|return|split|getElementsByTagName|select|for|className|goog|te|combo|null|setTimeout|500".split(
-                "|"
-            ),
-            0,
-            {}
-        )
-    );
-    /* ]]> */
-</script>
-    </body>
+    <script src="{% static 'gabomazone-client/js/pages/supplier-panel/login.js' %}?v=1.0"></script>
+</body>
 </html>

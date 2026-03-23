@@ -1,0 +1,162 @@
+/* Variables CSS pour cohérence */
+                :root {
+                    --spacing-xs: 8px;
+                    --spacing-sm: 12px;
+                    --spacing-md: 16px;
+                    --spacing-lg: 24px;
+                    --spacing-xl: 32px;
+                    --spacing-2xl: 48px;
+                    --color-white: #FFFFFF;
+                    --color-black: #1F2937;
+                }
+                
+                /* Formes géométriques animées en arrière-plan */
+                .supplier-login-bg-shapes {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 0;
+                }
+                .supplier-login-bg-shapes .shape {
+                    position: absolute;
+                    border-radius: 4px;
+                    opacity: 0.35;
+                }
+                .supplier-login-bg-shapes .shape-circle {
+                    border-radius: 50%;
+                    background: rgba(255, 123, 44, 0.12);
+                }
+                .supplier-login-bg-shapes .shape-square {
+                    background: rgba(31, 41, 55, 0.06);
+                    transform: rotate(45deg);
+                }
+                .supplier-login-bg-shapes .shape-diamond {
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 123, 44, 0.1);
+                    transform: rotate(45deg);
+                }
+                /* Positions et tailles (desktop) */
+                .supplier-login-bg-shapes .shape-1 { width: 120px; height: 120px; top: 8%; left: 5%; animation: floatShape 14s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-2 { width: 60px; height: 60px; top: 25%; right: 12%; animation: floatShape 10s ease-in-out infinite 1s; }
+                .supplier-login-bg-shapes .shape-3 { width: 90px; height: 90px; bottom: 20%; left: 8%; animation: floatShape 12s ease-in-out infinite 2s; }
+                .supplier-login-bg-shapes .shape-4 { width: 40px; height: 40px; top: 15%; right: 25%; animation: floatShape 11s ease-in-out infinite 0.5s; }
+                .supplier-login-bg-shapes .shape-5 { width: 55px; height: 55px; bottom: 35%; right: 8%; animation: floatShape 13s ease-in-out infinite 1.5s; }
+                .supplier-login-bg-shapes .shape-6 { top: 45%; left: 3%; animation: floatShape 9s ease-in-out infinite 2.5s; }
+                .supplier-login-bg-shapes .shape-7 { width: 70px; height: 70px; bottom: 10%; right: 20%; animation: floatShape 15s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-8 { width: 30px; height: 30px; top: 60%; left: 15%; animation: floatShape 10s ease-in-out infinite 3s; }
+                .supplier-login-bg-shapes .shape-9 { width: 45px; height: 45px; top: 70%; right: 28%; animation: floatShape 12s ease-in-out infinite 0.8s; }
+                .supplier-login-bg-shapes .shape-10 { top: 12%; left: 22%; animation: floatShape 11s ease-in-out infinite 1.2s; }
+                @keyframes floatShape {
+                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+                    25% { transform: translate(8px, -12px) scale(1.02); opacity: 0.45; }
+                    50% { transform: translate(-6px, 8px) scale(0.98); opacity: 0.3; }
+                    75% { transform: translate(10px, 6px) scale(1.01); opacity: 0.4; }
+                }
+                .supplier-login-bg-shapes .shape-square,
+                .supplier-login-bg-shapes .shape-diamond {
+                    animation: floatShapeRotate 16s ease-in-out infinite;
+                }
+                @keyframes floatShapeRotate {
+                    0%, 100% { transform: translate(0, 0) rotate(45deg); opacity: 0.35; }
+                    33% { transform: translate(6px, -8px) rotate(60deg); opacity: 0.42; }
+                    66% { transform: translate(-8px, 4px) rotate(30deg); opacity: 0.38; }
+                }
+                
+                 /* Responsive Mobile : visibilité optimisée des formes */
+                 @media (max-width: 767px) {
+                     .supplier-login-bg-shapes .shape {
+                         opacity: 0.4;
+                     }
+                     .supplier-login-bg-shapes .shape-circle {
+                         background: rgba(255, 123, 44, 0.15);
+                     }
+                     .supplier-login-bg-shapes .shape-square {
+                         background: rgba(31, 41, 55, 0.08);
+                     }
+                     .supplier-login-bg-shapes .shape-diamond {
+                         background: rgba(255, 123, 44, 0.12);
+                     }
+                     /* Tailles légèrement réduites et positions recentrées pour éviter les bords */
+                     .supplier-login-bg-shapes .shape-1 { width: 80px; height: 80px; top: 5%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-2 { width: 45px; height: 45px; top: 18%; right: 5%; }
+                     .supplier-login-bg-shapes .shape-3 { width: 65px; height: 65px; bottom: 15%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-4 { width: 28px; height: 28px; top: 12%; right: 15%; }
+                     .supplier-login-bg-shapes .shape-5 { width: 38px; height: 38px; bottom: 28%; right: 3%; }
+                     .supplier-login-bg-shapes .shape-6 { width: 16px; height: 16px; top: 40%; left: 2%; }
+                     .supplier-login-bg-shapes .shape-7 { width: 50px; height: 50px; bottom: 8%; right: 12%; }
+                     .supplier-login-bg-shapes .shape-8 { width: 22px; height: 22px; top: 55%; left: 8%; }
+                     .supplier-login-bg-shapes .shape-9 { width: 32px; height: 32px; top: 65%; right: 18%; }
+                     .supplier-login-bg-shapes .shape-10 { width: 16px; height: 16px; top: 10%; left: 18%; }
+                 
+                     .content-main {
+                         padding: var(--spacing-lg) var(--spacing-md) !important;
+                         min-height: calc(100vh - 80px) !important;
+                     }
+                    
+                    .login-container {
+                        max-width: 100% !important;
+                        padding: 0 !important;
+                    }
+                    
+                    .login-card {
+                        border-radius: 20px !important;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                    }
+                    
+                    .login-form-panel {
+                        padding: var(--spacing-lg) var(--spacing-md) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child {
+                        margin-bottom: var(--spacing-md) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a {
+                        margin-bottom: var(--spacing-sm) !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:first-child {
+                        width: 36px !important;
+                        height: 36px !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:first-child span {
+                        font-size: 18px !important;
+                    }
+                    
+                    .login-form-panel > div:first-child a > div:last-child span {
+                        font-size: 20px !important;
+                    }
+                    
+                    .login-form-panel h1 {
+                        font-size: 28px !important;
+                        margin: var(--spacing-xs) 0 !important;
+                    }
+                    
+                    .login-form-panel > div:first-child p {
+                        font-size: 14px !important;
+                    }
+                    
+                    .form-container {
+                        gap: var(--spacing-sm) !important;
+                    }
+                    
+                    .form-container label {
+                        font-size: 12px !important;
+                        margin-bottom: 4px !important;
+                    }
+                    
+                    .form-container input {
+                        padding: 10px 12px 10px 40px !important;
+                        font-size: 14px !important;
+                    }
+                    
+                    .form-container button[type="submit"] {
+                        padding: 12px !important;
+                        font-size: 14px !important;
+                    }
+                }

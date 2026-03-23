@@ -24,26 +24,33 @@ import mimetypes
 import os
 # Import HttpResponse module
 from django.http.response import HttpResponse
+import logging
 
-# Create your views here.
+logger = logging.getLogger(__name__)
+
+
+def _table_exists(table_name):
+    """Check if a database table exists (SQLite compatibility)."""
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=%s",
+            [table_name]
+        )
+        return cursor.fetchone() is not None
 
 
 def register(request):
+    """User registration view."""
+    logger.info("register method=%s", request.method)
     form = UserCreationForm()
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
-        # profile_id = request.session.get('ref_profile')
         if form.is_valid():
             new_user = form.save(commit=False)
-            # username = form.cleaned_data['username']
-            # email = form.cleaned_data['email']
             new_user.set_password(form.cleaned_data['password1'])
             new_user.save()
             username = form.cleaned_data['username']
-            # profile_obj = Profile.objects.get(user__username=username)
-            # profile_obj.status = 'vendor'
-            # profile_obj.save()
-            # messages.success(request, f'Congratulations {username}, your account has been created')
             messages.success(
                 request, 'Félicitations {}, votre compte a été créé avec succès.'.format(new_user))
             return redirect('accounts:login')
@@ -73,16 +80,17 @@ def register(request):
 
 
 def login_user(request):
+    """User login view."""
     if request.method == 'POST':
         form = LoginForm()
         username = request.POST['username']
         password = request.POST['password']
-        print(password)
+        logger.info("login_user attempt username=%s", username)
         try:
             user = authenticate(request, username=User.objects.get(
                 email=username), password=password)
 
-        except:
+        except Exception:
             user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -108,15 +116,18 @@ def login_user(request):
 
 
 def logout_user(request):
+    """Log the user out and redirect to login."""
+    logger.info("logout_user user=%s", request.user)
     logout(request)
-    messages.success(
-        request, 'Your Now Logout !')
+    messages.success(request, 'Your Now Logout !')
     return redirect('accounts:login')
 
 
 def dashboard_customer(request):
+    """Customer dashboard — profile update and order history."""
     if not request.user.is_authenticated and request.user.is_anonymous:
         return redirect('accounts:login')
+    logger.info("dashboard_customer user=%s", request.user)
     context = None
     if request.method == 'POST':
         first_name = request.POST['first_name']
@@ -137,7 +148,7 @@ def dashboard_customer(request):
         try:
             image = request.FILES["image"]
 
-        except:
+        except Exception:
             image = None
 
         if image:
@@ -158,7 +169,7 @@ def dashboard_customer(request):
     else:
         profile = Profile.objects.get(
             user=request.user)
-        print(profile)
+        logger.debug("profile updated: %s", profile)
         context = {
             "profile": profile,
         }
@@ -166,6 +177,7 @@ def dashboard_customer(request):
 
 
 def dashboard_account_details(request):
+    """Account details view — display and update user profile information."""
     if not request.user.is_authenticated and request.user.is_anonymous:
         return redirect('accounts:login')
     context = None
@@ -188,7 +200,7 @@ def dashboard_account_details(request):
         try:
             image = request.FILES.get("image")
 
-        except:
+        except Exception:
             image = None
 
         if image:
@@ -198,7 +210,7 @@ def dashboard_account_details(request):
             try:
                 Image.open(image)
 
-            except:
+            except Exception:
                 messages.warning(request, 'Désolé, votre image est invalide')
                 return redirect("accounts:account_details")
         profile.display_name = display_name
@@ -217,7 +229,7 @@ def dashboard_account_details(request):
     else:
         profile = Profile.objects.get(
             user=request.user)
-        print(profile)
+        logger.debug("account details profile: %s", profile)
         context = {
             "profile": profile,
         }
@@ -225,12 +237,13 @@ def dashboard_account_details(request):
 
 
 def order_tracking(request):
-
+    """Render the order tracking page."""
     return render(request, 'accounts/order-tracking.html')
 
 
 @login_required(login_url='accounts:login')
 def change_password(request):
+    """Allow an authenticated user to change their password."""
     if request.method == 'POST':
         form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -253,19 +266,16 @@ def change_password(request):
 
 
 class MyOrdersJsonListView(LoginRequiredMixin, View):
+    """JSON endpoint returning the authenticated user's finished orders."""
+
     def get(self, *args, **kwargs):
-        # Filtrer uniquement les commandes terminées pour l'affichage
+        """Return paginated finished orders as JSON."""
         num_products = self.request.GET.get("num_products", "10")
         try:
             upper = int(num_products)
         except (ValueError, TypeError):
             upper = 10
         lower = upper - 10
-        
-        # Filtrer les commandes finies uniquement
-        # Inclure aussi les commandes avec email_client correspondant si user est None
-        import logging
-        logger = logging.getLogger(__name__)
         
         # Debug: vérifier toutes les commandes
         all_orders = Order.objects.filter(is_finished=True)
@@ -298,7 +308,7 @@ class MyOrdersJsonListView(LoginRequiredMixin, View):
             transaction = None
             try:
                 transaction = SingPayTransaction.objects.filter(order=order).first()
-            except:
+            except Exception:
                 pass
             
             # Obtenir le statut de la commande avec traduction
@@ -346,6 +356,7 @@ class MyOrdersJsonListView(LoginRequiredMixin, View):
 
 
 def order(request, order_id):
+    """Display a single finished order with its details and payment info."""
     if not request.user.is_authenticated and request.user.is_anonymous:
         return redirect('accounts:login')
     context = None
@@ -358,7 +369,7 @@ def order(request, order_id):
                 id=order_id,
                 is_finished=True
             ).first()
-        except:
+        except Exception:
             pass
         
         if order:
@@ -372,7 +383,7 @@ def order(request, order_id):
             try:
                 from orders.models import Payment as OrderPayment
                 payment_info = OrderPayment.objects.filter(order=order).first()
-            except:
+            except Exception:
                 pass
             
             # Récupérer la transaction SingPay si elle existe
@@ -380,7 +391,7 @@ def order(request, order_id):
             try:
                 from payments.models import SingPayTransaction
                 transaction = SingPayTransaction.objects.filter(order=order).first()
-            except:
+            except Exception:
                 pass
             
             # Traduire le statut
@@ -411,16 +422,13 @@ def order(request, order_id):
 
 @login_required(login_url='accounts:login')
 def sell_product(request):
-    """
-    Vue pour ajouter un article C2C.
-    Remplace l'ancienne page de téléchargement.
-    """
+    """Add a C2C product listing. Replaces the legacy download page."""
+    logger.info("sell_product user=%s method=%s", request.user, request.method)
     from categories.models import SuperCategory, MainCategory, SubCategory
     from django.utils.text import slugify
     import random
     import string
     from datetime import datetime, timedelta
-    from django.db import connection
     
     # Récupérer les catégories pour le formulaire
     super_categories = SuperCategory.objects.all()
@@ -431,9 +439,7 @@ def sell_product(request):
     user_products = []
     try:
         # Vérifier si la table existe
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_peertopeerproduct'")
-            table_exists = cursor.fetchone() is not None
+        table_exists = _table_exists('accounts_peertopeerproduct')
         
         if table_exists:
             user_products = PeerToPeerProduct.objects.filter(seller=request.user).exclude(status=PeerToPeerProduct.SOLD).order_by('-date')
@@ -450,7 +456,7 @@ def sell_product(request):
                         end_date__gte=now
                     ).first()
                     product.is_boosted = active_boost is not None
-                except:
+                except Exception:
                     product.is_boosted = False
     except Exception as e:
         # Si la table n'existe pas encore (migrations non appliquées)
@@ -531,11 +537,8 @@ def sell_product(request):
             counter += 1
         
         # Vérifier si la table existe avant de créer l'article
-        from django.db import connection
         try:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_peertopeerproduct'")
-                table_exists = cursor.fetchone() is not None
+            table_exists = _table_exists('accounts_peertopeerproduct')
             
             if not table_exists:
                 messages.error(request, 'Les migrations n\'ont pas encore été appliquées. Veuillez exécuter: python manage.py makemigrations accounts && python manage.py migrate')
@@ -787,10 +790,7 @@ def my_published_products(request):
     Vue pour afficher tous les articles publiés par l'utilisateur.
     """
     try:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_peertopeerproduct'")
-            table_exists = cursor.fetchone() is not None
+        table_exists = _table_exists('accounts_peertopeerproduct')
         
         if table_exists:
             user_products = PeerToPeerProduct.objects.filter(seller=request.user).exclude(status=PeerToPeerProduct.SOLD).order_by('-date')
@@ -807,7 +807,7 @@ def my_published_products(request):
                     for conv in conversations:
                         unread_count += conv.get_unread_count_for_seller()
                     product.unread_messages_count = unread_count
-                except:
+                except Exception:
                     product.unread_messages_count = 0
                 
                 # Vérifier si le produit a un boost actif
@@ -821,7 +821,7 @@ def my_published_products(request):
                     product.is_boosted = active_boost is not None
                     if active_boost:
                         product.boost_end_date = active_boost.end_date
-                except:
+                except Exception:
                     product.is_boosted = False
         else:
             user_products = []
@@ -844,7 +844,6 @@ def get_product_conversations(request, product_id):
     from .models import ProductConversation, ProductMessage
     from django.utils import timezone
     from django.contrib.auth.models import User
-    from django.db import connection as db_connection
     import json
     
     try:
@@ -860,9 +859,7 @@ def get_product_conversations(request, product_id):
             # Vérifier si la table ProductConversation existe
             conv_table_exists = False
             try:
-                with db_connection.cursor() as cursor:
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-                    conv_table_exists = cursor.fetchone() is not None
+                conv_table_exists = _table_exists('accounts_productconversation')
             except Exception:
                 conv_table_exists = False
             
@@ -872,9 +869,7 @@ def get_product_conversations(request, product_id):
             # Vérifier si la table PurchaseIntent existe
             c2c_table_exists = False
             try:
-                with db_connection.cursor() as cursor:
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='c2c_purchaseintent'")
-                    c2c_table_exists = cursor.fetchone() is not None
+                c2c_table_exists = _table_exists('c2c_purchaseintent')
             except Exception:
                 c2c_table_exists = False
             
@@ -909,9 +904,7 @@ def get_product_conversations(request, product_id):
     # Vérifier si la table ProductConversation existe avant de l'utiliser
     conv_table_exists = False
     try:
-        with db_connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-            conv_table_exists = cursor.fetchone() is not None
+        conv_table_exists = _table_exists('accounts_productconversation')
     except Exception:
         conv_table_exists = False
     
@@ -1210,7 +1203,6 @@ def my_messages(request):
     Vue pour afficher toutes les conversations de l'utilisateur (en tant que vendeur et acheteur)
     """
     from .models import ProductConversation, ProductMessage, PeerToPeerOrderNotification, PeerToPeerProduct
-    from django.db import connection
     from django.utils import timezone
     
     all_conversations = []
@@ -1223,9 +1215,7 @@ def my_messages(request):
     # Vérifier d'abord si la table existe avant d'essayer de créer une conversation
     table_exists = False
     try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-            table_exists = cursor.fetchone() is not None
+        table_exists = _table_exists('accounts_productconversation')
     except Exception:
         table_exists = False
     
@@ -1287,12 +1277,9 @@ def my_messages(request):
         # Marquer les intentions d'achat comme notifiées quand le vendeur visite la page
         try:
             from c2c.models import PurchaseIntent
-            from django.db import connection as db_connection
             c2c_table_exists = False
             try:
-                with db_connection.cursor() as cursor:
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='c2c_purchaseintent'")
-                    c2c_table_exists = cursor.fetchone() is not None
+                c2c_table_exists = _table_exists('c2c_purchaseintent')
             except Exception:
                 c2c_table_exists = False
             
@@ -1363,13 +1350,10 @@ def my_messages(request):
         # Récupérer les intentions d'achat C2C pour le vendeur
         try:
             from c2c.models import PurchaseIntent
-            from django.db import connection as db_connection
             # Vérifier si la table existe
             c2c_table_exists = False
             try:
-                with db_connection.cursor() as cursor:
-                    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='c2c_purchaseintent'")
-                    c2c_table_exists = cursor.fetchone() is not None
+                c2c_table_exists = _table_exists('c2c_purchaseintent')
             except Exception:
                 c2c_table_exists = False
             
@@ -1441,7 +1425,7 @@ def peer_product_details(request, slug):
                 product_maincategory=peer_product.product_maincategory,
                 status=PeerToPeerProduct.APPROVED
             ).exclude(id=peer_product.id)[:8]
-    except:
+    except Exception:
         pass
     
     # Récupérer les statistiques du vendeur (avec gestion d'erreur si la table n'existe pas)
@@ -1614,17 +1598,12 @@ def mark_notification_read(request, notification_id):
 
 @login_required(login_url='accounts:login')
 def download_file(request, order_id, filename):
+    """Serve a purchased file for download."""
     if request.user.is_authenticated and not request.user.is_anonymous:
         if Order.objects.all().filter(id=order_id, user=request.user, is_finished=True):
-            # Define Django project base directory
-            # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             BASE_DIR = settings.MEDIA_ROOT
-            # Define the full file path
             filepath = BASE_DIR + '/products/files/' + filename
-            # filepath = os.path.join(settings.MEDIA_ROOT, filename)
-            print(filepath)
-            # Open the file for reading content
-            # path = open(filepath, 'rb')
+            logger.debug("download filepath: %s", filepath)
             path = FileWrapper(open(filepath, 'rb'))
             # Set the mime type
             mime_type, _ = mimetypes.guess_type(filepath)

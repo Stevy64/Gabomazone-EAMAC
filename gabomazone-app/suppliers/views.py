@@ -1,15 +1,16 @@
-# from msilib.schema import Class
-from django import views
+import logging
+
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.http import HttpResponseRedirect
 from django.db.models import Q, Count, Avg
 from django.utils import timezone
-from accounts.models import Profile ,SocialLink
 from django.views.generic import View
+
+from accounts.models import Profile
 from products.models import Product, ProductRating
 from categories.models import SuperCategory
-# Create your views here.
+
+logger = logging.getLogger(__name__)
 
 
 def _since_text(dt):
@@ -36,6 +37,7 @@ def _since_text(dt):
 
 
 def supplier_list(request):
+    """Liste des vendeurs avec filtres par catégorie."""
     categories = SuperCategory.objects.all().order_by("name")
     context = {"super_categories": categories}
     return render(request, "suppliers/vendors-grid.html", context)
@@ -63,6 +65,8 @@ def _serialize_vendor(v, rating_stats=None):
 
 
 class VendorsJsonListView(View):
+    """API JSON paginée pour la liste des vendeurs (scroll infini)."""
+
     def get(self, *args, **kwargs):
         upper = int(self.request.GET.get("num_vendors", 12))
         lower = upper - 12
@@ -113,8 +117,8 @@ class VendorsJsonListView(View):
 
 
 def vendor_details(request, slug):
+    """Page détail d'un vendeur avec ses produits, notes et publicités."""
     from home.models import HomeAdDealTime, VendorDetailsAdImage, ShopAdSidebar
-    from django.db.models import Count
     
     vendor_detail = Profile.objects.filter(slug=slug, status="vendor", admission=True).first()
     
@@ -127,7 +131,7 @@ def vendor_details(request, slug):
     try:
         from accounts.models import SocialLink
         vendor_social_links = SocialLink.objects.filter(vendor_profile=vendor_detail).first()
-    except:
+    except Exception:
         pass
     
     # Vérifier si le vendeur a un abonnement premium actif
@@ -137,7 +141,7 @@ def vendor_details(request, slug):
         premium_sub = PremiumSubscription.objects.filter(vendor=vendor_detail).first()
         if premium_sub and premium_sub.is_active():
             is_premium = True
-    except:
+    except Exception:
         pass
     
     # Récupérer les produits du vendeur
@@ -147,9 +151,6 @@ def vendor_details(request, slug):
         PRDISactive=True
     ).order_by('-date')[:8]
     
-    # Calculer la note moyenne du vendeur basée sur les ratings de ses produits
-    from products.models import ProductRating
-    from django.db.models import Avg, Count
     vendor_ratings = ProductRating.objects.filter(
         vendor=vendor_detail,
         active=True
@@ -170,17 +171,17 @@ def vendor_details(request, slug):
     # Récupérer les publicités
     try:
         home_ads_deal_time_obj = HomeAdDealTime.objects.filter(supplier=vendor_detail).order_by("?")[:4]
-    except:
+    except Exception:
         home_ads_deal_time_obj = []
     
     try:
         vendor_page_ad_image = VendorDetailsAdImage.objects.all().order_by("?")[:1]
-    except:
+    except Exception:
         vendor_page_ad_image = []
     
     try:
         shop_page_ad = ShopAdSidebar.objects.filter(supplier=vendor_detail).order_by("?")[:1]
-    except:
+    except Exception:
         shop_page_ad = []
     
     has_sidebar_ads = bool(vendor_page_ad_image) or bool(shop_page_ad)
@@ -202,6 +203,8 @@ def vendor_details(request, slug):
 
 
 class VendorDetailsJsonListView(View):
+    """API JSON paginée pour les produits d'un vendeur."""
+
     def get(self, *args, **kwargs):
 
         upper = int(self.request.GET.get("num_products"))

@@ -1,0 +1,142 @@
+/* ========== GABOMAZONE MODAL SYSTEM ========== */
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes modalSlideOut {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to { opacity: 0; transform: scale(0.9) translateY(-20px); }
+}
+
+.gm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.gm-modal-overlay.closing {
+    animation: modalFadeIn 0.2s ease-out reverse;
+}
+
+.gm-modal {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    max-width: 420px;
+    width: 100%;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.gm-modal.closing {
+    animation: modalSlideOut 0.2s ease-in;
+}
+
+.gm-modal-header {
+    padding: 28px 28px 20px;
+    text-align: center;
+}
+
+.gm-modal-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+}
+
+.gm-modal-icon.success { background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); color: #059669; }
+.gm-modal-icon.error   { background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); color: #DC2626; }
+.gm-modal-icon.warning { background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); color: #D97706; }
+.gm-modal-icon.info    { background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%); color: #2563EB; }
+.gm-modal-icon.confirm { background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%); color: var(--color-orange); }
+
+.gm-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 8px;
+}
+
+.gm-modal-body {
+    padding: 0 28px 24px;
+    text-align: center;
+}
+
+.gm-modal-message {
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.gm-modal-message strong { color: #1F2937; font-weight: 600; }
+.gm-modal-message br { display: block; margin: 8px 0; }
+
+.gm-modal-footer {
+    padding: 20px 28px 28px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    border-top: 1px solid #F3F4F6;
+}
+
+.gm-modal-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    min-width: 110px;
+    position: relative;
+    overflow: hidden;
+}
+
+.gm-modal-btn:hover  { transform: translateY(-2px); }
+.gm-modal-btn:active { transform: translateY(0); }
+
+.gm-modal-btn.primary   { background: linear-gradient(135deg, var(--color-orange) 0%, #FF9A5C 100%); color: white; box-shadow: 0 4px 12px rgba(255, 123, 44, 0.3); }
+.gm-modal-btn.primary:hover { box-shadow: 0 6px 16px rgba(255, 123, 44, 0.4); }
+
+.gm-modal-btn.success   { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+.gm-modal-btn.success:hover { box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
+
+.gm-modal-btn.danger    { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+.gm-modal-btn.danger:hover { box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4); }
+
+.gm-modal-btn.secondary { background: #F3F4F6; color: #6B7280; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+.gm-modal-btn.secondary:hover { background: #E5E7EB; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+
+@media (max-width: 480px) {
+    .gm-modal { max-width: calc(100% - 32px); border-radius: 16px; }
+    .gm-modal-header { padding: 20px 20px 12px; }
+    .gm-modal-icon { width: 56px; height: 56px; font-size: 24px; }
+    .gm-modal-title { font-size: 18px; }
+    .gm-modal-body { padding: 0 20px 20px; }
+    .gm-modal-footer { padding: 12px 20px 20px; flex-direction: column; }
+    .gm-modal-btn { width: 100%; }
+}

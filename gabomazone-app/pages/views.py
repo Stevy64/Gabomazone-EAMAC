@@ -1,6 +1,10 @@
+import logging
+
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from django.db.models import Q
+
+logger = logging.getLogger(__name__)
 
 
 def faq(request):
@@ -59,6 +63,7 @@ def _placeholder_page(slug):
 
 
 def pages(request, slug):
+    """Affiche une page CMS par slug avec résolution d'alias et fallback placeholder."""
     from .models import PagesList
     slugs_to_try = [slug]
     if slug in SLUG_ALIASES:
