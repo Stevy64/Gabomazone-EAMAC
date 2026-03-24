@@ -879,6 +879,15 @@ function openImagePreview(images, startIndex, imageAlt) {
         };
     }
     
+    // Décompte "n / total" — toujours affiché (y compris 1/1), ancré en haut du conteneur (évite top:max() mal parsé en inline style)
+    const counterLabel = document.createElement('div');
+    counterLabel.className = 'preview-image-counter';
+    counterLabel.setAttribute('aria-live', 'polite');
+    counterLabel.setAttribute('aria-atomic', 'true');
+    counterLabel.textContent = (currentIndex + 1) + ' / ' + images.length;
+    // Styles de secours (flavoriz-design.css renforce avec !important)
+    counterLabel.style.cssText = 'position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:10050;background:rgba(0,0,0,0.6);color:#fff;padding:8px 18px;border-radius:999px;font-size:15px;font-weight:600;pointer-events:none;min-width:64px;text-align:center;border:1px solid rgba(255,255,255,0.25);';
+
     // Créer les indicateurs de pagination (si plusieurs images)
     let indicatorsContainer = null;
     if (images.length > 1) {
@@ -931,6 +940,8 @@ function openImagePreview(images, startIndex, imageAlt) {
             nextBtn.style.opacity = currentIndex === images.length - 1 ? '0.5' : '1';
             nextBtn.style.pointerEvents = currentIndex === images.length - 1 ? 'none' : 'auto';
         }
+
+        counterLabel.textContent = (currentIndex + 1) + ' / ' + images.length;
     }
     
     // Créer le bouton de fermeture
@@ -984,8 +995,9 @@ function openImagePreview(images, startIndex, imageAlt) {
     };
     document.addEventListener('keydown', handleKeyboard);
     
-    // Ajouter les éléments à la popup
+    // Ajouter les éléments à la popup (compteur dans le conteneur pour rester au-dessus de l’image)
     imageContainer.appendChild(img);
+    imageContainer.appendChild(counterLabel);
     if (prevBtn) imageContainer.appendChild(prevBtn);
     if (nextBtn) imageContainer.appendChild(nextBtn);
     if (indicatorsContainer) imageContainer.appendChild(indicatorsContainer);

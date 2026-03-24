@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/cart.css' %}?v=2.0" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/cart.css' %}?v=2.7" />
 {% endblock head %}
 
 {% block body %}
@@ -12,30 +12,25 @@
 <!-- ===== Modern Cart Page FLAVORIZ Design ===== -->
 <main class="main pages shop-cart-page gm-s-ac713d" >
     <div class="container gm-s-b8c14a" >
-        <!-- Breadcrumb -->
-        <nav class="gm-s-634746">
-            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
+        <!-- En-tête type Paiement / Catégories : retour + titre centré -->
+        <div class="category-header cart-page-nav gm-s-deddd2">
+            <a href="{% url 'home:index' %}" class="gm-s-aa4479" aria-label="Retour à l'accueil">
+                <i class="fi-rs-arrow-left"></i>
             </a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-6bbb36">Panier</span>
-        </nav>
-
-        <!-- Page Header -->
-        <div class="gm-s-d96aad">
-            <div>
-                <h1 class="gm-s-aae6b7">Votre panier</h1>
-                <p class="gm-s-7d59e2">Il y a <strong class="gm-s-a77b0c">{{order_details.count}}</strong> article(s) dans votre panier</p>
-            </div>
+            <h1 class="gm-s-6d05a4">Votre panier</h1>
+            <div class="cart-page-nav-spacer" aria-hidden="true"></div>
+        </div>
+        <p class="cart-page-intro gm-s-7d59e2">Il y a <strong class="gm-s-a77b0c">{{ order_details.count }}</strong> article(s) dans votre panier</p>
+        <p class="cart-page-continue cart-page-continue-secondary">
             <a href="{% url 'categories:shop' %}" class="gm-s-a98e00">
                 <i class="fi-rs-arrow-left"></i>
                 <span>Continuer les achats</span>
             </a>
-        </div>
+        </p>
 
-        <div class="gm-s-e8bde8">
+        <div class="gm-s-e8bde8 cart-page-grid">
             <!-- Cart Items -->
-            <div>
+            <div class="cart-page-main-column">
                 <!-- Cart Items Cards -->
                 <div class="gm-s-2f3360">
                     {% for item in order_details %}
@@ -96,45 +91,46 @@
                     {% endfor %}
                                         </div>
 
-                <!-- Coupon Code Card -->
-                <div class="gm-s-2df32c">
-                    <div class="gm-s-70ef2e">
-                        <div class="gm-s-8ea199">
-                            <h4 class="gm-s-c3ec6c">
-                                <i class="fi-rs-ticket gm-s-af18ea" ></i> Code promo
-                                {% if has_peer_products %}
-                                <i class="fi-rs-lock gm-s-16e967"  title="Code promo non disponible pour les articles d'occasion"></i>
-                                {% endif %}
-                            </h4>
-                            <p class="gm-s-a846bf">
-                                {% if has_peer_products %}
-                                Le code promo n'est disponible que pour les articles des vendeurs professionnels
-                                {% else %}
-                                Entrez votre code pour bénéficier d'une réduction
-                                {% endif %}
-                            </p>
-                </div>
-                        <form method="post" style="display: flex; gap: 8px; flex: 1; max-width: 350px; min-width: 200px; {% if has_peer_products %}opacity: 0.6;{% endif %}">
+                <!-- Code promo (replié par défaut = moins de scroll, 1 clic si besoin) -->
+                <details class="cart-coupon-details gm-s-2df32c">
+                    <summary class="cart-coupon-summary">
+                        <span class="cart-coupon-summary-title">
+                            <i class="fi-rs-ticket"></i> Code promo <span class="cart-coupon-optional">(optionnel)</span>
+                            {% if has_peer_products %}
+                            <i class="fi-rs-lock gm-s-16e967" title="Code promo non disponible pour les articles d'occasion"></i>
+                            {% endif %}
+                        </span>
+                        <i class="fi-rs-angle-small-down cart-coupon-chevron" aria-hidden="true"></i>
+                    </summary>
+                    <div class="cart-coupon-body">
+                        <p class="gm-s-a846bf cart-coupon-hint">
+                            {% if has_peer_products %}
+                            Le code promo n'est disponible que pour les articles des vendeurs professionnels
+                            {% else %}
+                            Entrez votre code pour bénéficier d'une réduction
+                            {% endif %}
+                        </p>
+                        <form method="post" class="cart-coupon-form" style="display: flex; gap: 8px; flex-wrap: wrap; {% if has_peer_products %}opacity: 0.6;{% endif %}">
                             {% csrf_token %}
-                            <input name="code" type="text" placeholder="Code promo..." {% if has_peer_products %}disabled{% else %}required{% endif %} style="flex: 1; padding: 11px 14px; border: none; border-radius: 8px; font-size: 13px; outline: none; background: {% if has_peer_products %}#E5E7EB{% else %}white{% endif %}; font-family: var(--font-secondary); min-width: 0; {% if has_peer_products %}cursor: not-allowed;{% endif %};" />
+                            <input name="code" type="text" placeholder="Votre code" {% if has_peer_products %}disabled{% endif %} style="flex: 1; min-width: 160px; padding: 11px 14px; border: none; border-radius: 8px; font-size: 13px; outline: none; background: {% if has_peer_products %}#E5E7EB{% else %}white{% endif %}; font-family: var(--font-secondary); {% if has_peer_products %}cursor: not-allowed;{% endif %};" />
                             <button type="submit" {% if has_peer_products %}disabled{% endif %} style="padding: 11px 20px; background: {% if has_peer_products %}#9CA3AF{% else %}#1F2937{% endif %}; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: {% if has_peer_products %}not-allowed{% else %}pointer{% endif %}; transition: all 0.2s ease; white-space: nowrap; font-family: var(--font-primary);">
                                 Appliquer
                             </button>
                         </form>
                     </div>
-                </div>
+                </details>
                 
-                <!-- Delivery Form Card (section rétractable) -->
+                <!-- Livraison : ouvert par défaut (parcours court vers le paiement) -->
                 <div id="cart-delivery-card" class="cart-delivery-card gm-s-1d4817">
                     <button type="button" id="cart-delivery-toggle" aria-expanded="true" aria-controls="cart-delivery-body" class="cart-delivery-toggle gm-s-be71e7">
                         <div class="gm-s-9f47b8">
                             <i class="fi-rs-package gm-s-be90db" ></i>
                         </div>
                         <div class="gm-s-ec2eba">
-                            <h4 class="gm-s-228465">Détails de livraison</h4>
-                            <p class="cart-delivery-toggle-hint gm-s-d791bf" >Cliquez pour afficher ou masquer le formulaire</p>
+                            <h4 class="gm-s-228465">Livraison</h4>
+                            <p class="cart-delivery-toggle-hint gm-s-d791bf">Vérifiez vos infos — puis validez pour payer</p>
                         </div>
-                        <span class="cart-delivery-toggle-label gm-s-e28ddd" >Masquer</span>
+                        <span class="cart-delivery-toggle-label gm-s-e28ddd">Masquer</span>
                         <i class="fi-rs-angle-small-down cart-delivery-chevron gm-s-c78b5b" ></i>
                     </button>
                     <form method="post" action="{% url 'orders:payment' %}" id="cart-delivery-form">
@@ -143,11 +139,11 @@
                         <div class="gm-s-72dbb5">
                             <div>
                                 <label class="gm-s-ed2bb0">Prénom *</label>
-                                <input type="text" required name="first_name" value="{% if profile %}{{ profile.user.first_name }}{% endif %}" placeholder="Votre prénom" class="flavoriz-input gm-s-7d7315"  />
+                                <input type="text" required name="first_name" value="{% if profile %}{{ profile.user.first_name|default:user.first_name }}{% else %}{{ user.first_name }}{% endif %}" placeholder="Votre prénom" class="flavoriz-input gm-s-7d7315"  />
                             </div>
                             <div>
                                 <label class="gm-s-ed2bb0">Nom *</label>
-                                <input type="text" required name="last_name" value="{% if profile %}{{ profile.user.last_name }}{% endif %}" placeholder="Votre nom" class="flavoriz-input gm-s-7d7315"  />
+                                <input type="text" required name="last_name" value="{% if profile %}{{ profile.user.last_name|default:user.last_name }}{% else %}{{ user.last_name }}{% endif %}" placeholder="Votre nom" class="flavoriz-input gm-s-7d7315"  />
                             </div>
                         </div>
                         <div class="gm-s-3580d2">
@@ -160,54 +156,109 @@
                                 <label class="gm-s-ed2bb0">Province *</label>
                                 <select id="province" name="province" required class="flavoriz-input flavoriz-select gm-s-316e25" >
                                     <option value="">Sélectionnez une province</option>
-                                    <option value="Estuaire" {% if profile and profile.state == "Estuaire" %}selected{% endif %}>Estuaire</option>
-                                    <option value="Haut-Ogooué" {% if profile and profile.state == "Haut-Ogooué" %}selected{% endif %}>Haut-Ogooué</option>
-                                    <option value="Moyen-Ogooué" {% if profile and profile.state == "Moyen-Ogooué" %}selected{% endif %}>Moyen-Ogooué</option>
-                                    <option value="Ngounié" {% if profile and profile.state == "Ngounié" %}selected{% endif %}>Ngounié</option>
-                                    <option value="Nyanga" {% if profile and profile.state == "Nyanga" %}selected{% endif %}>Nyanga</option>
-                                    <option value="Ogooué-Ivindo" {% if profile and profile.state == "Ogooué-Ivindo" %}selected{% endif %}>Ogooué-Ivindo</option>
-                                    <option value="Ogooué-Lolo" {% if profile and profile.state == "Ogooué-Lolo" %}selected{% endif %}>Ogooué-Lolo</option>
-                                    <option value="Ogooué-Maritime" {% if profile and profile.state == "Ogooué-Maritime" %}selected{% endif %}>Ogooué-Maritime</option>
-                                    <option value="Woleu-Ntem" {% if profile and profile.state == "Woleu-Ntem" %}selected{% endif %}>Woleu-Ntem</option>
+                                    <option value="Estuaire" {% if selected_province == "Estuaire" %}selected{% endif %}>Estuaire</option>
+                                    <option value="Haut-Ogooué" {% if selected_province == "Haut-Ogooué" %}selected{% endif %}>Haut-Ogooué</option>
+                                    <option value="Moyen-Ogooué" {% if selected_province == "Moyen-Ogooué" %}selected{% endif %}>Moyen-Ogooué</option>
+                                    <option value="Ngounié" {% if selected_province == "Ngounié" %}selected{% endif %}>Ngounié</option>
+                                    <option value="Nyanga" {% if selected_province == "Nyanga" %}selected{% endif %}>Nyanga</option>
+                                    <option value="Ogooué-Ivindo" {% if selected_province == "Ogooué-Ivindo" %}selected{% endif %}>Ogooué-Ivindo</option>
+                                    <option value="Ogooué-Lolo" {% if selected_province == "Ogooué-Lolo" %}selected{% endif %}>Ogooué-Lolo</option>
+                                    <option value="Ogooué-Maritime" {% if selected_province == "Ogooué-Maritime" %}selected{% endif %}>Ogooué-Maritime</option>
+                                    <option value="Woleu-Ntem" {% if selected_province == "Woleu-Ntem" %}selected{% endif %}>Woleu-Ntem</option>
                                     </select>
                                 </div>
                             </div>
                         <div class="gm-s-3580d2">
                             <div>
                                 <label class="gm-s-ed2bb0">Ville *</label>
-                                <input type="text" id="city" name="state" required placeholder="Votre ville" class="flavoriz-input gm-s-7d7315"  value="{% if profile %}{{ profile.city }}{% endif %}" />
+                                <input type="text" id="city" name="state" required placeholder="Votre ville" class="flavoriz-input gm-s-7d7315"  value="{% if profile %}{{ profile.city|default:'' }}{% endif %}" />
                             </div>
                             <div>
                                 <label class="gm-s-ed2bb0">Quartier *</label>
-                                <input required type="text" name="city" value="{% if profile %}{{ profile.post_code }}{% endif %}" placeholder="Votre quartier" class="flavoriz-input gm-s-7d7315"  />
+                                <input required type="text" name="city" value="{% if profile %}{{ profile.post_code|default:'' }}{% endif %}" placeholder="Votre quartier" class="flavoriz-input gm-s-7d7315"  />
                             </div>
                         </div>
                         <div class="gm-s-149a0c">
                             <div>
                                 <label class="gm-s-ed2bb0">Adresse *</label>
-                                <input type="text" name="street" required value="{% if profile %}{{ profile.address }}{% endif %}" placeholder="Adresse complète" class="flavoriz-input gm-s-7d7315"  />
+                                <input type="text" name="street" required value="{% if profile %}{{ profile.address|default:'' }}{% endif %}" placeholder="Adresse complète" class="flavoriz-input gm-s-7d7315"  />
                             </div>
                             <div>
                                 <label class="gm-s-ed2bb0">Téléphone *</label>
-                                <input required type="text" name="phone" value="{% if profile %}{{ profile.mobile_number }}{% endif %}" placeholder="Votre téléphone" class="flavoriz-input gm-s-7d7315"  />
+                                <input required type="text" name="phone" value="{% if profile %}{{ profile.mobile_number|default:'' }}{% endif %}" placeholder="Votre téléphone" class="flavoriz-input gm-s-7d7315"  />
                             </div>
                             <div>
                                 <label class="gm-s-ed2bb0">Email</label>
-                                <input type="email" name="email_address" value="{% if profile %}{{ profile.user.email }}{% endif %}" placeholder="Votre email" class="flavoriz-input gm-s-7d7315"  />
+                                <input type="email" name="email_address" value="{% if profile %}{{ profile.user.email|default:user.email }}{% else %}{{ user.email }}{% endif %}" placeholder="Votre email" class="flavoriz-input gm-s-7d7315"  />
                         </div>
                                 </div>
                         </div>
-                        <!-- Bouton toujours visible (hors zone rétractable) -->
-                        <button type="submit" class="gm-s-e476c0">
+                        <!-- CTA principal formulaire -->
+                        <button type="submit" class="gm-s-e476c0 cart-checkout-submit" id="cart-checkout-submit">
                             <span>Procéder au paiement</span>
                             <i class="fi-rs-arrow-right"></i>
                         </button>
                     </form>
                             </div>
+                {# Toggle livraison : script inline pour garantir le binding (avant les scripts de fin de page) #}
+                <script>
+                (function () {
+                    var key = 'cart-delivery-collapsed-v2';
+                    function setLabelAndHint(labelEl, hintEl, isCollapsed) {
+                        if (labelEl) labelEl.textContent = isCollapsed ? 'Afficher' : 'Masquer';
+                        if (hintEl) hintEl.textContent = isCollapsed ? 'Ouvrez pour compléter la livraison' : 'Vérifiez vos infos — puis validez pour payer';
+                    }
+                    function applySessionState(card, toggle, labelEl, hintEl) {
+                        /* Par défaut : ouvert (0 clic). Replié seulement si l'utilisateur l'a choisi. */
+                        var isCollapsed = sessionStorage.getItem(key) === '1';
+                        if (window.location.search.indexOf('expand_delivery=1') !== -1) isCollapsed = false;
+                        if (isCollapsed) {
+                            card.classList.add('collapsed');
+                            toggle.setAttribute('aria-expanded', 'false');
+                            setLabelAndHint(labelEl, hintEl, true);
+                        } else {
+                            card.classList.remove('collapsed');
+                            toggle.setAttribute('aria-expanded', 'true');
+                            setLabelAndHint(labelEl, hintEl, false);
+                        }
+                    }
+                    window.expandCartDeliverySection = function () {
+                        var card = document.getElementById('cart-delivery-card');
+                        var toggle = document.getElementById('cart-delivery-toggle');
+                        if (!card || !toggle || !card.classList.contains('collapsed')) return;
+                        card.classList.remove('collapsed');
+                        toggle.setAttribute('aria-expanded', 'true');
+                        try { sessionStorage.setItem(key, '0'); } catch (e) {}
+                        var labelEl = card.querySelector('.cart-delivery-toggle-label');
+                        var hintEl = card.querySelector('.cart-delivery-toggle-hint');
+                        setLabelAndHint(labelEl, hintEl, false);
+                    };
+                    var card = document.getElementById('cart-delivery-card');
+                    var toggle = document.getElementById('cart-delivery-toggle');
+                    if (!card || !toggle) return;
+                    var labelEl = card.querySelector('.cart-delivery-toggle-label');
+                    var hintEl = card.querySelector('.cart-delivery-toggle-hint');
+                    applySessionState(card, toggle, labelEl, hintEl);
+                    toggle.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var nowCollapsed;
+                        if (card.classList.contains('collapsed')) {
+                            card.classList.remove('collapsed');
+                            nowCollapsed = false;
+                        } else {
+                            card.classList.add('collapsed');
+                            nowCollapsed = true;
+                        }
+                        toggle.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+                        try { sessionStorage.setItem(key, nowCollapsed ? '1' : '0'); } catch (err) {}
+                        setLabelAndHint(labelEl, hintEl, nowCollapsed);
+                    });
+                })();
+                </script>
                         </div>
 
             <!-- Cart Summary -->
-            <div class="gm-s-2840d0">
+            <div class="gm-s-2840d0 cart-page-summary">
                 <div class="gm-s-e443aa">
                     <h3 class="gm-s-0cc20c">
                         <i class="fi-rs-receipt gm-s-c12be1" ></i>
@@ -239,6 +290,10 @@
                             <strong class="gm-s-181d7e">{{total|format_price}} FCFA</strong>
                             </div>
                         </div>
+                    <button type="button" class="cart-summary-checkout-btn" id="cart-summary-checkout-btn" aria-label="Procéder au paiement">
+                        <span>Procéder au paiement</span>
+                        <i class="fi-rs-arrow-right"></i>
+                    </button>
                     <div class="gm-s-13c69e">
                         <div class="gm-s-923b9e">
                             <i class="fi-rs-shield-check gm-s-b6ba84" ></i>
@@ -252,6 +307,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Barre d'action mobile : total + paiement en 1 tap (au-dessus de la bottom nav) -->
+    <div class="cart-mobile-sticky-cta" id="cart-mobile-sticky-cta" role="region" aria-label="Paiement">
+        <div class="cart-mobile-sticky-cta-inner">
+            <div class="cart-mobile-sticky-total">
+                <span class="cart-mobile-sticky-label">Total</span>
+                <strong class="cart-mobile-sticky-amount">{{ total|format_price }} FCFA</strong>
+            </div>
+            <button type="button" class="cart-mobile-sticky-btn" id="cart-mobile-checkout-btn">
+                Payer
+            </button>
+        </div>
+    </div>
 </main>
 {% else %}
 {% include "orders/cart-empty.html" %}
@@ -260,5 +328,5 @@
 
 {% block script %}
 {{ block.super }}
-<script src="{% static 'gabomazone-client/js/pages/cart.js' %}?v=2.0"></script>
+<script src="{% static 'gabomazone-client/js/pages/cart.js' %}?v=2.4"></script>
 {% endblock script %}

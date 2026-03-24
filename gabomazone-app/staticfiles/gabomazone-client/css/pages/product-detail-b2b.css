@@ -613,13 +613,42 @@
         gap: 12px;
     }
     
-    .flavoriz-qty-wrapper {
+    /* Ligne quantité + cœur : ne pas étirer le sélecteur sur toute la largeur */
+    .gm-detail-qty-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 10px;
         width: 100%;
-        justify-content: space-between;
+        box-sizing: border-box;
+    }
+    
+    .gm-detail-qty-row .flavoriz-qty-wrapper {
+        width: auto;
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: calc(100% - 58px);
+        justify-content: flex-start;
+    }
+    
+    .gm-detail-qty-row .flavoriz-qty-selector {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 200px;
+    }
+    
+    .gm-detail-qty-row #detail-favorite-btn,
+    .gm-detail-qty-row .flavoriz-favorite-btn-large {
+        flex-shrink: 0;
+    }
+    
+    .flavoriz-qty-wrapper {
+        width: auto;
+        justify-content: flex-start;
     }
     
     .flavoriz-qty-selector {
-        flex: 1;
+        flex: 0 0 auto;
     }
     
     .flavoriz-favorite-btn-mobile {

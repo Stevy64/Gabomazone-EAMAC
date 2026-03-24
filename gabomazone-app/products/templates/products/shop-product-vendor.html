@@ -3,7 +3,7 @@
 {% load cart_template_tags %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-b2b.css' %}?v=2.0" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-b2b.css' %}?v=2.1" />
 {% endblock headextra %}
 
 {% block body %}
@@ -126,7 +126,7 @@
                             </button>
                         </div>
                         
-                        <div class="gm-s-f6a689">
+                        <div class="gm-s-f6a689 gm-detail-qty-row">
                             <div class="flavoriz-qty-wrapper gm-s-fcb7d5" >
                                 <div class="flavoriz-qty-selector">
                                     <button class="flavoriz-qty-btn" onclick="decreaseQty()">−</button>
@@ -821,5 +821,5 @@
         };
             }
           </script>  
-<script src="{% static 'assets/js/filter.js' %}"></script>
+<script src="{% static 'assets/js/filter.js' %}?v=2.3"></script>
 {% endblock script %}

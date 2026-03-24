@@ -93,23 +93,26 @@
     text-align: center;
     padding: 36px 20px 28px;
 }
+/* !important : flavoriz-design.css force h1 { color: var(--text-dark) } sur tous les titres */
+.gm-hero .gm-hero-title,
 .gm-hero-title {
     font-size: 30px;
-    font-weight: 800;
-    color: #FFFFFF;
-    margin: 0 0 24px;
+    font-weight: 800 !important;
+    color: #F8FAFC !important;
+    margin: 0 0 40px;
     line-height: 1.25;
     letter-spacing: -0.02em;
-    text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.45);
 }
+.gm-hero .gm-hero-title span,
 .gm-hero-title span {
-    color: var(--color-orange);
+    color: var(--color-orange) !important;
 }
 .gm-hero-subtitle {
     display: none;
 }
 
-/* Hero search */
+/* Hero search (espacement sous le titre géré par .gm-hero-title margin-bottom) */
 .gm-hero-search {
     max-width: 520px;
     margin: 0 auto 20px;
@@ -862,6 +865,7 @@
     }
     .gm-hero-title {
         font-size: 38px;
+        margin-bottom: 44px !important;
     }
     .gm-hero-subtitle {
         font-size: 15px;
@@ -923,6 +927,7 @@
     }
     .gm-hero-title {
         font-size: 40px;
+        margin-bottom: 48px !important;
     }
     .gm-product-grid {
         grid-template-columns: repeat(4, 1fr);

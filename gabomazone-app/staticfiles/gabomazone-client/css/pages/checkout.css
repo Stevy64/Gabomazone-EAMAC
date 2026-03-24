@@ -36,6 +36,184 @@ header.flavoriz-header + header.flavoriz-header {
     display: none !important;
 }
 
+/* Éviter le double espacement : layout (margin-top header) + gm-s-8748cb (100px) + ancien padding mobile */
+.shop-checkout-page.gm-s-8748cb {
+    padding-top: 0 !important;
+    padding-bottom: 48px !important;
+    min-height: auto !important;
+}
+
+/* Mobile : header fixé par JS (smart-header) → dégagement sous le header */
+@media (max-width: 768px) {
+    body:has(.shop-checkout-page) {
+        padding-top: 0 !important;
+    }
+
+    main.main.pages.shop-checkout-page {
+        margin-top: 0 !important;
+        padding-top: calc(118px + env(safe-area-inset-top, 0px)) !important;
+    }
+}
+
+/* En-tête type page Catégories (flèche retour + titre centré) */
+.shop-checkout-page .checkout-page-nav {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 768px) {
+    .shop-checkout-page .checkout-page-nav {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+    }
+}
+
+.checkout-page-nav-spacer {
+    width: 40px;
+    flex-shrink: 0;
+}
+
+.checkout-page-intro {
+    margin: 0 0 20px 0;
+    padding: 4px 0 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+.shop-checkout-page .checkout-page-nav .gm-s-aa4479 {
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.shop-checkout-page .checkout-page-nav .gm-s-aa4479:hover {
+    background: #f3f4f6;
+}
+
+/* Détails de facturation (repliable, comme le panier) */
+.checkout-page-billing-column {
+    min-width: 0;
+    align-self: start;
+}
+
+.checkout-billing-card:not(.collapsed) .checkout-billing-body {
+    max-height: 2000px !important;
+    opacity: 1 !important;
+    padding: 0 24px 24px 24px !important;
+    box-sizing: border-box;
+}
+
+.checkout-billing-card .checkout-billing-body {
+    max-height: 2000px;
+    opacity: 1;
+    padding: 0 24px 24px 24px;
+    box-sizing: border-box;
+}
+
+.checkout-billing-card.collapsed .checkout-billing-body {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden !important;
+}
+
+.checkout-billing-card .checkout-billing-chevron {
+    transform: rotate(0deg);
+    transition: transform 0.25s ease;
+}
+
+.checkout-billing-card.collapsed .checkout-billing-chevron {
+    transform: rotate(-90deg);
+}
+
+.checkout-billing-toggle:hover,
+.checkout-billing-toggle:focus {
+    background: #F3F4F6 !important;
+    outline: none;
+}
+
+.checkout-billing-toggle:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 123, 44, 0.4);
+}
+
+/* Votre commande (repliable) — même logique que la facturation, masquée par défaut */
+.shop-checkout-page .checkout-column-primary {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.checkout-payment-card {
+    order: 1;
+}
+
+.checkout-order-card {
+    order: 2;
+}
+
+.checkout-order-card:not(.collapsed) .checkout-order-body {
+    max-height: 2000px !important;
+    opacity: 1 !important;
+    padding: 0 0 4px 0 !important;
+    box-sizing: border-box;
+}
+
+.checkout-order-card .checkout-order-body {
+    max-height: 2000px;
+    opacity: 1;
+    padding: 0 0 4px 0;
+    box-sizing: border-box;
+}
+
+.checkout-order-card.collapsed .checkout-order-body {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    overflow: hidden !important;
+}
+
+.checkout-order-card .checkout-order-chevron {
+    transform: rotate(0deg);
+    transition: transform 0.25s ease;
+}
+
+.checkout-order-card.collapsed .checkout-order-chevron {
+    transform: rotate(-90deg);
+}
+
+.checkout-order-card:not(.collapsed) .checkout-order-chevron {
+    transform: rotate(180deg);
+}
+
+.checkout-order-toggle:hover,
+.checkout-order-toggle:focus {
+    background: #f3f4f6 !important;
+    outline: none;
+}
+
+.checkout-order-toggle:focus-visible {
+    box-shadow: 0 0 0 2px rgba(255, 123, 44, 0.4);
+}
+
+.checkout-order-summary-inner {
+    margin-top: 0;
+}
+
+@media (min-width: 1025px) {
+    .shop-checkout-page .checkout-page-billing-column {
+        position: sticky;
+        top: 100px;
+    }
+}
+
 /* Styles pour les radio buttons sélectionnés */
 input[type="radio"]:checked + div + label,
 input[type="radio"]:checked ~ label {
@@ -43,7 +221,11 @@ input[type="radio"]:checked ~ label {
     border-color: var(--color-orange) !important;
 }
 
-/* Responsive */
+/* --------------------------------------------------------------------------
+   Responsive — grilles définies dans gm-extracted (classes .gm-s-d579d1, etc.)
+   Les sélecteurs [style*="grid-template-columns"] ne matchent pas ces classes.
+   -------------------------------------------------------------------------- */
+
 @media (max-width: 1024px) {
     .main.pages > div > div[style*="grid-template-columns: 1fr 480px"] {
         grid-template-columns: 1fr !important;
@@ -52,27 +234,98 @@ input[type="radio"]:checked ~ label {
     div[style*="position: sticky"] {
         position: static !important;
     }
+
+    .shop-checkout-page .checkout-page-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .shop-checkout-page .checkout-page-grid > * {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .shop-checkout-page .checkout-page-summary {
+        position: static !important;
+        top: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .shop-checkout-page .checkout-page-billing-column {
+        position: static !important;
+    }
 }
 
 @media (max-width: 768px) {
-    .main.pages {
-        padding-top: 80px !important;
-        padding-bottom: 60px !important;
+    .main.pages.shop-checkout-page {
+        padding-top: 0 !important;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+    }
+
+    .shop-checkout-page .container,
+    .shop-checkout-page .gm-s-b8c14a {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
     }
 
     h1 {
         font-size: 24px !important;
     }
 
-    /* Billing Details Grid */
-    div[style*="grid-template-columns: repeat(2, 1fr)"] {
+    /* Grille champs facturation : 2 colonnes → 1 (classe .gm-s-60f588) */
+    .shop-checkout-page .gm-s-60f588 {
         grid-template-columns: 1fr !important;
         gap: 16px !important;
     }
 
-    /* Order Items Scroll */
-    div[style*="max-height: 300px"] {
-        max-height: 200px !important;
+    /* Lignes article : éviter débordement */
+    .shop-checkout-page .gm-s-63dc8f {
+        flex-wrap: wrap !important;
+        max-width: 100% !important;
+    }
+
+    .shop-checkout-page .gm-s-c99770 {
+        flex-shrink: 0 !important;
+    }
+
+    .shop-checkout-page .gm-s-ec2eba {
+        min-width: 0 !important;
+        flex: 1 1 160px !important;
+    }
+
+    /* Liste commande scrollable */
+    .shop-checkout-page .gm-s-a4f7ae {
+        max-height: 220px !important;
+    }
+
+    /* Méthodes de paiement : cartes empilées si besoin */
+    .shop-checkout-page .gm-s-f87e4e {
+        max-width: 100% !important;
+    }
+
+    .shop-checkout-page .gm-s-d96aad {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .shop-checkout-page .gm-s-191cad {
+        flex-wrap: wrap !important;
     }
 }
 

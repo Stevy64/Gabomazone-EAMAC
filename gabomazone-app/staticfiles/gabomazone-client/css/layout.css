@@ -139,10 +139,12 @@ main.main.pages {
 /* ========== BOTTOM NAV (mobile) ========== */
 
 .flavoriz-bottom-nav {
-    background: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
-    border-top: 1px solid rgba(229, 231, 235, 0.5) !important;
-    color: #1F2937 !important;
+    background: rgba(8, 8, 10, 0.82) !important;
+    backdrop-filter: blur(18px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
     position: fixed !important;
     z-index: 9999 !important;
     margin: 0 !important;

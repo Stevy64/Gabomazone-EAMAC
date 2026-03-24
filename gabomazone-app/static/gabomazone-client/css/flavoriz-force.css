@@ -327,29 +327,34 @@ main.main.pages .col-12 {
     border-color: transparent !important;
 }
 
-/* Supprimer toute couleur verte entre footer et bottom nav */
-.flavoriz-footer + *,
-.flavoriz-footer ~ *,
-.flavoriz-footer + nav,
-.flavoriz-footer ~ nav {
+/* Supprimer toute couleur verte entre footer et éléments suivants (sauf la bottom nav) */
+.flavoriz-footer + *:not(.flavoriz-bottom-nav),
+.flavoriz-footer ~ *:not(.flavoriz-bottom-nav),
+.flavoriz-footer + nav:not(.flavoriz-bottom-nav),
+.flavoriz-footer ~ nav:not(.flavoriz-bottom-nav) {
     background: transparent !important;
     background-color: transparent !important;
 }
 
-/* Forcer la bottom nav visible sur mobile */
+/* Forcer la bottom nav visible sur mobile — fond noir vitré + flou */
 @media (max-width: 768px) {
     .flavoriz-bottom-nav {
         display: flex !important;
         visibility: visible !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        background-color: rgba(255, 255, 255, 0.95) !important;
+        background: rgba(8, 8, 10, 0.82) !important;
+        background-color: rgba(8, 8, 10, 0.82) !important;
+        backdrop-filter: blur(18px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45) !important;
+        color: rgba(255, 255, 255, 0.92) !important;
     }
     
-    /* Supprimer toute couleur verte sur mobile */
-    .flavoriz-footer + nav,
-    .flavoriz-footer ~ nav,
-    .flavoriz-footer + *,
-    .flavoriz-footer ~ * {
+    /* Ne pas retirer le fond de la bottom nav (premier sibling après footer = nav) */
+    .flavoriz-footer + nav:not(.flavoriz-bottom-nav),
+    .flavoriz-footer ~ nav:not(.flavoriz-bottom-nav),
+    .flavoriz-footer + *:not(.flavoriz-bottom-nav),
+    .flavoriz-footer ~ *:not(.flavoriz-bottom-nav) {
         background: transparent !important;
         background-color: transparent !important;
     }
@@ -383,6 +388,55 @@ main.main.pages .col-12 {
         margin-bottom: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+    }
+}
+
+/*
+ * Mobile : le header est en position relative (règle @media plus haut), il occupe la hauteur en flux.
+ * Les règles main { margin-top: 140px } ci-dessus créent un vide énorme sous le header sur TOUT le site.
+ */
+@media (max-width: 768px) {
+    main.main,
+    main.main.pages,
+    main.main:not(.pages) {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+}
+
+/*
+ * Grille gm-extracted (1fr + 400px / 480px) : une colonne sur tablette / mobile pour éviter le scroll horizontal.
+ */
+
+@media (max-width: 1024px) {
+    main.main.pages.shop-cart-page .gm-s-e8bde8.cart-page-grid,
+    main.main.pages.shop-cart-page .cart-page-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    main.main.pages.shop-cart-page .cart-page-grid > *,
+    main.main.pages.shop-checkout-page .checkout-page-grid > *,
+    main.main.pages.shop-checkout-page .gm-s-d579d1.checkout-page-grid > * {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    main.main.pages.shop-checkout-page .gm-s-d579d1.checkout-page-grid,
+    main.main.pages.shop-checkout-page .checkout-page-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
     }
 }
 

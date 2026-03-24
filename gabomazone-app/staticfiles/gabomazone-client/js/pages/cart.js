@@ -33,59 +33,36 @@
     });
 })();
 
+/* Toggle « Détails de livraison » : défini dans shop-cart.html (script inline) pour fiabilité.
+   Ici : seulement ouvrir la section si le formulaire est invalide à la soumission. */
 (function() {
-    var toggle = document.getElementById('cart-delivery-toggle');
-    var card = document.getElementById('cart-delivery-card');
-    var body = document.getElementById('cart-delivery-body');
-    var form = document.getElementById('cart-delivery-form');
-    var labelEl = card && card.querySelector('.cart-delivery-toggle-label');
-    var hintEl = card && card.querySelector('.cart-delivery-toggle-hint');
-    var key = 'cart-delivery-collapsed';
-
-    function setLabelAndHint(collapsed) {
-        if (labelEl) labelEl.textContent = collapsed ? 'Afficher' : 'Masquer';
-        if (hintEl) hintEl.textContent = collapsed ? 'Cliquez pour afficher le formulaire de livraison' : 'Cliquez pour afficher ou masquer le formulaire';
-    }
-    function expandSection() {
-        if (card && card.classList.contains('collapsed')) {
-            card.classList.remove('collapsed');
-            if (toggle) toggle.setAttribute('aria-expanded', 'true');
-            sessionStorage.setItem(key, '0');
-            setLabelAndHint(false);
-        }
-    }
-    if (toggle && card && body) {
-        var collapsed = sessionStorage.getItem(key) === '1';
-        if (window.location.search.indexOf('expand_delivery=1') !== -1) collapsed = false;
-        if (collapsed) {
-            card.classList.add('collapsed');
-            toggle.setAttribute('aria-expanded', 'false');
-            setLabelAndHint(true);
-        } else {
-            setLabelAndHint(false);
-        }
-        toggle.addEventListener('click', function() {
-            collapsed = card.classList.toggle('collapsed');
-            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-            sessionStorage.setItem(key, collapsed ? '1' : '0');
-            setLabelAndHint(collapsed);
-        });
-    }
-    if (form && card) {
+    function bindDeliveryForm() {
+        var form = document.getElementById('cart-delivery-form');
+        if (!form || form.getAttribute('data-cart-submit-bound') === '1') return;
+        form.setAttribute('data-cart-submit-bound', '1');
         form.addEventListener('submit', function(e) {
             var deliveryBody = document.getElementById('cart-delivery-body');
             if (!deliveryBody) return;
             if (!form.checkValidity()) {
                 e.preventDefault();
-                expandSection();
+                if (typeof window.expandCartDeliverySection === 'function') {
+                    window.expandCartDeliverySection();
+                }
                 form.reportValidity();
                 var firstInvalid = deliveryBody.querySelector('input:invalid, select:invalid');
                 if (firstInvalid) {
                     firstInvalid.focus();
-                    setTimeout(function() { firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                    setTimeout(function() {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
                 }
             }
         });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindDeliveryForm);
+    } else {
+        bindDeliveryForm();
     }
 })();
 
@@ -122,8 +99,12 @@
         provinceSelect.addEventListener('change', function() {
             updateCityFromProvince(this.value.trim());
         });
+        /* Ne pas écraser la ville préremplie depuis le profil */
         if (provinceSelect.value && provinceCities[provinceSelect.value.trim()]) {
-            cityInput.value = provinceCities[provinceSelect.value.trim()];
+            var existingCity = (cityInput.value || '').trim();
+            if (!existingCity) {
+                cityInput.value = provinceCities[provinceSelect.value.trim()];
+            }
         }
     }
 
@@ -157,7 +138,39 @@
         }
 
         if (provinceSelect && cityInput && provinceSelect.value && provinceCities[provinceSelect.value]) {
-            cityInput.value = provinceCities[provinceSelect.value];
+            var existing = (cityInput.value || '').trim();
+            if (!existing) {
+                cityInput.value = provinceCities[provinceSelect.value];
+            }
         }
     });
+})();
+
+/* CTA résumé + barre mobile : même action que le bouton du formulaire (validation HTML5) */
+(function() {
+    function triggerCartCheckout() {
+        var form = document.getElementById('cart-delivery-form');
+        if (!form) return;
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            form.submit();
+        }
+    }
+    function bind(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', function() {
+            triggerCartCheckout();
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            bind('cart-mobile-checkout-btn');
+            bind('cart-summary-checkout-btn');
+        });
+    } else {
+        bind('cart-mobile-checkout-btn');
+        bind('cart-summary-checkout-btn');
+    }
 })();

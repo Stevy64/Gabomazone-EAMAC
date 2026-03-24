@@ -23,6 +23,31 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Provinces Gabon (valeurs du <select> livraison panier / checkout)
+_GABON_PROVINCE_OPTIONS = (
+    "Estuaire",
+    "Haut-Ogooué",
+    "Moyen-Ogooué",
+    "Ngounié",
+    "Nyanga",
+    "Ogooué-Ivindo",
+    "Ogooué-Lolo",
+    "Ogooué-Maritime",
+    "Woleu-Ntem",
+)
+
+
+def resolve_cart_province_selection(state):
+    """Aligne Profile.state sur une valeur d'option du formulaire (insensible à la casse)."""
+    if not state:
+        return ""
+    s = str(state).strip()
+    for p in _GABON_PROVINCE_OPTIONS:
+        if s.lower() == p.lower():
+            return p
+    return s
+
+
 ts = datetime.datetime.now().timestamp()
 time = round(ts * 1000)
 
@@ -803,6 +828,9 @@ def cart(request):
             except Profile.DoesNotExist:
                 profile = None
 
+        selected_province = resolve_cart_province_selection(
+            profile.state if profile else None)
+
         context = {
             "order": order,
             "order_details": order_details,
@@ -815,6 +843,7 @@ def cart(request):
             "provinces": provinces,
             "weight": weight,
             "profile": profile,
+            "selected_province": selected_province,
             "has_peer_products": has_peer_products,
         }
     else:
@@ -825,11 +854,15 @@ def cart(request):
             profile = Profile.objects.get(user=request.user)
         except Profile.DoesNotExist:
             profile = None
-        
+
+        selected_province = resolve_cart_province_selection(
+            profile.state if profile else None)
+
         context = {
             "order_details": None,
             "provinces": provinces,
             "profile": profile,
+            "selected_province": selected_province,
             "has_peer_products": False,
         }
     return render(request, "orders/shop-cart.html", context)

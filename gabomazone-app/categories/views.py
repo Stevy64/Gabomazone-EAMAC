@@ -456,8 +456,31 @@ class ProductListHTMXView(View):
                 not (getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False),
                 getattr(x, 'PRDPrice', 0)
             ))
+        elif order_by == 'date':
+            # Plus anciens en premier (date croissante), sans priorité boost
+
+            def _date_sort_key(x):
+                d = getattr(x, 'date', None)
+                if d is None and getattr(x, '_peer_product', None):
+                    d = getattr(x._peer_product, 'date', None)
+                if d is None:
+                    return float('inf')  # sans date en dernier
+                try:
+                    return d.timestamp()
+                except (AttributeError, OSError, ValueError, TypeError):
+                    return float('inf')
+
+            all_products.sort(key=_date_sort_key, reverse=False)
+        elif order_by == '-like_count':
+            all_products.sort(
+                key=lambda x: (
+                    getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False,
+                    getattr(x, 'like_count', 0),
+                ),
+                reverse=True,
+            )
         else:
-            # Par défaut, trier par boost puis par date
+            # Par défaut, trier par boost puis par date (récent en premier)
             all_products.sort(key=lambda x: (
                 getattr(x, 'id', 0) in boosted_ids if not getattr(x, 'is_peer_to_peer', False) else False,
                 getattr(x, 'date', getattr(x, '_peer_product', None) and getattr(x._peer_product, 'date', None) or None)

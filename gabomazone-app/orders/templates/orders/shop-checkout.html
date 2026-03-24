@@ -4,132 +4,87 @@
 
 {% block headextra %}
     <!-- Modals homogènes via GMModal (base.html) -->
-    <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/checkout.css' %}?v=2.0" />
+    <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/checkout.css' %}?v=3.0" />
 {% endblock headextra %}
 
 {% block body %}
 <!-- ===== Payment Page FLAVORIZ Design ===== -->
-<main class="main pages gm-s-8748cb" >
+<main class="main pages shop-checkout-page gm-s-8748cb" >
     <div class="container gm-s-b8c14a" >
-        <!-- Breadcrumb -->
-        <nav class="gm-s-634746">
-            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
+        <!-- En-tête type page Catégories : retour + titre centré -->
+        <div class="category-header checkout-page-nav gm-s-deddd2">
+            <a href="{% url 'orders:cart' %}" class="gm-s-aa4479" aria-label="Retour au panier">
+                <i class="fi-rs-arrow-left"></i>
             </a>
-            <span class="gm-s-ad3665">/</span>
-            <a href="{% url 'orders:cart' %}" class="gm-s-c95646">Panier</a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-6bbb36">Paiement</span>
-        </nav>
-
-        <!-- Page Header -->
-        <div class="gm-s-d96aad">
-            <div>
-                <h1 class="gm-s-aae6b7">Paiement</h1>
-                <p class="gm-s-7d59e2">Finalisez votre commande en toute sécurité</p>
-            </div>
+            <h1 class="gm-s-6d05a4">Paiement</h1>
+            <div class="checkout-page-nav-spacer" aria-hidden="true"></div>
         </div>
+        <p class="checkout-page-intro gm-s-7d59e2">Choisissez un mode de paiement, puis validez. Le détail de votre commande est disponible ci-dessous (repliable).</p>
 
-        <!-- Notification verte supprimée : seule la notification blanche (toast avec flèche) de base.html est conservée -->
-
-        <!-- Main Content -->
-        <div class="gm-s-d579d1">
-            <!-- Left Column: Billing Details -->
-            <div>
-                <!-- Billing Details Card -->
-                <div class="gm-s-fa1099">
+        <!-- Grille : 1) paiement + commande (repliable)  2) facturation (repliable) — mobile first -->
+        <div class="gm-s-d579d1 checkout-page-grid">
+            <div class="gm-s-f323e0 checkout-page-summary checkout-column-primary">
+                <!-- 1) Méthode de paiement (affichée en premier) -->
+                <div class="gm-s-c558ed checkout-payment-card">
                     <div class="gm-s-68975c">
                         <div class="gm-s-3666f5">
-                            <i class="fi-rs-user"></i>
-                </div>
-                        <div>
-                            <h3 class="gm-s-9a3428">Détails de facturation</h3>
-                            <p class="gm-s-1f6e71">Informations de livraison</p>
-            </div>
-        </div>
-
-                    <div class="gm-s-60f588">
-                        <!-- Full Name -->
-                        <div>
-                            <label class="gm-s-951632">Nom complet</label>
-                            <div class="gm-s-726bda">
-                                {{payment_info.last_name}} {{payment_info.first_name}}
+                            <i class="fi-rs-credit-card"></i>
                         </div>
-                                    </div>
-
-                        <!-- Email -->
                         <div>
-                            <label class="gm-s-951632">Email</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.Email_Address}}
-                                            </div>
-                                        </div>
-
-                        <!-- Phone -->
-                        <div>
-                            <label class="gm-s-951632">Téléphone</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.phone}}
-                            </div>
+                            <h3 class="gm-s-9a3428">Méthode de paiement</h3>
+                            <p class="gm-s-1f6e71">Choisissez votre mode de paiement</p>
                         </div>
-
-                        <!-- Country -->
-                        <div>
-                            <label class="gm-s-951632">Pays</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.country}}
-                    </div>
-                    </div>
-                                    
-                                    <!-- Province -->
-                        <div>
-                            <label class="gm-s-951632">Province</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.province}}
-                            </div>
-                        </div>
-
-                        <!-- City -->
-                        <div>
-                            <label class="gm-s-951632">Ville</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.state}}
-                            </div>
-                        </div>
-
-                        <!-- Address (Full Width) -->
-                        <div class="gm-s-e86cdd">
-                            <label class="gm-s-951632">Adresse complète</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.street_address}}
-                            </div>
                         </div>
                        
-                        <!-- Neighborhood (Full Width) -->
-                        <div class="gm-s-e86cdd">
-                            <label class="gm-s-951632">Quartier</label>
-                            <div class="gm-s-3d8347">
-                                {{payment_info.City}}
-                            </div>
+                    <form action="#">
+                        {% csrf_token %}
+                        <div class="gm-s-f87e4e">
+                            <!-- SingPay Mobile Money (affiché en premier, sélectionné par défaut) -->
+                            <label class="gm-s-191cad" id="singpay-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-singpay').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" checked class="form-check-input gm-s-1bf515">
+                                <div style="flex: 1;">
+                                    <div class="gm-s-e06969">Mobile Money via SingPay</div>
+                                    <div class="gm-s-d41658">AirtelMoney, MoovMoney et autres</div>
+                                </div>
+                                <div class="gm-s-527fb6">
+                                    <img src="{% static 'assets/imgs/theme/icons/airtel-logo.png' %}" alt="Airtel Money" class="gm-s-5bace9" />
+                                    <img src="{% static 'assets/imgs/theme/icons/moov-logo.png' %}" alt="Moov Money" class="gm-s-5bace9" />
+                                </div>
+                            </label>
+
+                            <!-- Paiement à la livraison -->
+                            <label class="gm-s-191cad" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-cash').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
+                                <input required="" type="radio" name="payment_option" id="payment-cash" value="cash" class="form-check-input gm-s-1bf515">
+                                <div style="flex: 1;">
+                                    <div class="gm-s-e06969">Paiement à la livraison</div>
+                                    <div class="gm-s-d41658">Payez en espèces à la réception de votre commande</div>
+                                </div>
+                                <i class="fi-rs-package gm-s-37e102" ></i>
+                            </label>
                         </div>
-                    </div>
+
+                        <button id="checkout-button" type="button" class="gm-s-201043" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
+                            <span>Passer la commande</span>
+                            <i class="fi-rs-arrow-right gm-s-768e1f" ></i>
+                        </button>
+            </form>
                 </div>
-            </div>
 
-            <!-- Right Column: Order Summary & Payment -->
-            <div class="gm-s-f323e0">
-                <!-- Order Summary Card -->
-                <div class="gm-s-fa1099">
-                    <div class="gm-s-68975c">
-                        <div class="gm-s-3666f5">
-                            <i class="fi-rs-shopping-bag"></i>
-                    </div>
-                        <div>
-                            <h3 class="gm-s-9a3428">Votre commande</h3>
-                            <p class="gm-s-1f6e71">{{order_details.count}} article(s)</p>
-                                                </div>
-                                            </div>
-
+                <!-- 2) Votre commande — repliable, masquée par défaut (comme la facturation) -->
+                <div id="checkout-order-card" class="checkout-order-card gm-s-1d4817 collapsed">
+                    <button type="button" id="checkout-order-toggle" aria-expanded="false" aria-controls="checkout-order-body" class="checkout-order-toggle gm-s-be71e7">
+                        <div class="gm-s-9f47b8">
+                            <i class="fi-rs-shopping-bag gm-s-be90db"></i>
+                        </div>
+                        <div class="gm-s-ec2eba">
+                            <h4 class="gm-s-228465">Votre commande</h4>
+                            <p class="checkout-order-toggle-hint gm-s-d791bf">{{ order_details.count }} article(s) — Total {{ order.amount|format_price }} FCFA</p>
+                        </div>
+                        <span class="checkout-order-toggle-label gm-s-e28ddd">Afficher</span>
+                        <i class="fi-rs-angle-small-down checkout-order-chevron gm-s-c78b5b"></i>
+                    </button>
+                    <div id="checkout-order-body" class="checkout-order-body gm-s-a14bdb">
+                <div class="gm-s-fa1099 checkout-order-summary-inner">
                     <!-- Order Items -->
                     <div class="gm-s-a4f7ae">
                         {% for item in order_details %}
@@ -195,54 +150,158 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Payment Methods Card -->
-                <div class="gm-s-c558ed">
-                    <div class="gm-s-68975c">
-                        <div class="gm-s-3666f5">
-                            <i class="fi-rs-credit-card"></i>
-                        </div>
-                        <div>
-                            <h3 class="gm-s-9a3428">Méthode de paiement</h3>
-                            <p class="gm-s-1f6e71">Choisissez votre mode de paiement</p>
-                        </div>
-                        </div>
-                       
-                    <form action="#">
-                        {% csrf_token %}
-                        <div class="gm-s-f87e4e">
-                            <!-- Cash on Delivery -->
-                            <label class="gm-s-191cad" id="cash-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-cash').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input required="" type="radio" name="payment_option" id="payment-cash" value="cash" checked class="form-check-input gm-s-1bf515">
-                                <div style="flex: 1;">
-                                    <div class="gm-s-e06969">Paiement à la livraison</div>
-                                    <div class="gm-s-d41658">Payez en espèces à la réception de votre commande</div>
-                                </div>
-                                <i class="fi-rs-package gm-s-37e102" ></i>
-                            </label>
-
-                            <!-- SingPay Mobile Money -->
-                            <label class="gm-s-191cad" id="singpay-label" onmouseover="this.style.background='#F9FAFB'; this.style.borderColor='var(--color-orange)'" onmouseout="if(!document.getElementById('payment-singpay').checked) {this.style.background='#FAFAFA'; this.style.borderColor='#E5E7EB'}">
-                                <input required="" type="radio" name="payment_option" id="payment-singpay" value="singpay" class="form-check-input gm-s-1bf515">
-                                <div style="flex: 1;">
-                                    <div class="gm-s-e06969">Mobile Money via SingPay</div>
-                                    <div class="gm-s-d41658">AirtelMoney, MoovMoney et autres</div>
-                                </div>
-                                <div class="gm-s-527fb6">
-                                    <img src="{% static 'assets/imgs/theme/icons/airtel-logo.png' %}" alt="Airtel Money" class="gm-s-5bace9" />
-                                    <img src="{% static 'assets/imgs/theme/icons/moov-logo.png' %}" alt="Moov Money" class="gm-s-5bace9" />
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- Place Order Button -->
-                        <button id="checkout-button" type="button" class="gm-s-201043" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
-                            <span>Passer la commande</span>
-                            <i class="fi-rs-arrow-right gm-s-768e1f" ></i>
-                        </button>
-            </form>
+                    </div>
                 </div>
+                <script>
+                (function () {
+                    var key = 'checkout-order-collapsed';
+                    var countArticles = {{ order_details.count }};
+                    var totalFmt = '{{ order.amount|format_price }} FCFA';
+                    function setLabelAndHint(labelEl, hintEl, isCollapsed) {
+                        if (labelEl) labelEl.textContent = isCollapsed ? 'Afficher' : 'Masquer';
+                        if (hintEl) {
+                            hintEl.textContent = isCollapsed
+                                ? (countArticles + ' article(s) — Total ' + totalFmt)
+                                : 'Détail des articles et montants';
+                        }
+                    }
+                    function applySessionState(card, toggle, labelEl, hintEl) {
+                        var isCollapsed = sessionStorage.getItem(key) !== '0';
+                        if (window.location.search.indexOf('expand_order=1') !== -1) isCollapsed = false;
+                        if (isCollapsed) {
+                            card.classList.add('collapsed');
+                            toggle.setAttribute('aria-expanded', 'false');
+                            setLabelAndHint(labelEl, hintEl, true);
+                        } else {
+                            card.classList.remove('collapsed');
+                            toggle.setAttribute('aria-expanded', 'true');
+                            setLabelAndHint(labelEl, hintEl, false);
+                        }
+                    }
+                    var card = document.getElementById('checkout-order-card');
+                    var toggle = document.getElementById('checkout-order-toggle');
+                    if (!card || !toggle) return;
+                    var labelEl = card.querySelector('.checkout-order-toggle-label');
+                    var hintEl = card.querySelector('.checkout-order-toggle-hint');
+                    applySessionState(card, toggle, labelEl, hintEl);
+                    toggle.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var nowCollapsed;
+                        if (card.classList.contains('collapsed')) {
+                            card.classList.remove('collapsed');
+                            nowCollapsed = false;
+                        } else {
+                            card.classList.add('collapsed');
+                            nowCollapsed = true;
+                        }
+                        toggle.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+                        try { sessionStorage.setItem(key, nowCollapsed ? '1' : '0'); } catch (err) {}
+                        setLabelAndHint(labelEl, hintEl, nowCollapsed);
+                    });
+                })();
+                </script>
             </div>
+
+            {% if payment_info %}
+            <!-- Colonne facturation : masquée par défaut, bouton « Vérifier » -->
+            <div class="checkout-page-billing-column">
+                <div id="checkout-billing-card" class="checkout-billing-card gm-s-1d4817 collapsed">
+                    <button type="button" id="checkout-billing-toggle" aria-expanded="false" aria-controls="checkout-billing-body" class="checkout-billing-toggle gm-s-be71e7">
+                        <div class="gm-s-9f47b8">
+                            <i class="fi-rs-user gm-s-be90db"></i>
+                        </div>
+                        <div class="gm-s-ec2eba">
+                            <h4 class="gm-s-228465">Détails de facturation</h4>
+                            <p class="checkout-billing-toggle-hint gm-s-d791bf">Cliquez sur « Vérifier » pour afficher vos informations</p>
+                        </div>
+                        <span class="checkout-billing-toggle-label gm-s-e28ddd">Vérifier</span>
+                        <i class="fi-rs-angle-small-down checkout-billing-chevron gm-s-c78b5b"></i>
+                    </button>
+                    <div id="checkout-billing-body" class="checkout-billing-body gm-s-a14bdb">
+                        <p class="gm-s-1f6e71" style="margin: 0 0 16px 0;">Informations de livraison</p>
+                        <div class="gm-s-60f588">
+                            <div>
+                                <label class="gm-s-951632">Nom complet</label>
+                                <div class="gm-s-726bda">{{ payment_info.last_name }} {{ payment_info.first_name }}</div>
+                            </div>
+                            <div>
+                                <label class="gm-s-951632">Email</label>
+                                <div class="gm-s-3d8347">{{ payment_info.Email_Address|default:"—" }}</div>
+                            </div>
+                            <div>
+                                <label class="gm-s-951632">Téléphone</label>
+                                <div class="gm-s-3d8347">{{ payment_info.phone|default:"—" }}</div>
+                            </div>
+                            <div>
+                                <label class="gm-s-951632">Pays</label>
+                                <div class="gm-s-3d8347">{{ payment_info.country|default:"—" }}</div>
+                            </div>
+                            <div>
+                                <label class="gm-s-951632">Province</label>
+                                <div class="gm-s-3d8347">{{ payment_info.province|default:"—" }}</div>
+                            </div>
+                            <div>
+                                <label class="gm-s-951632">Ville</label>
+                                <div class="gm-s-3d8347">{{ payment_info.state|default:"—" }}</div>
+                            </div>
+                            <div class="gm-s-e86cdd">
+                                <label class="gm-s-951632">Adresse complète</label>
+                                <div class="gm-s-3d8347">{{ payment_info.street_address|default:"—" }}</div>
+                            </div>
+                            <div class="gm-s-e86cdd">
+                                <label class="gm-s-951632">Quartier</label>
+                                <div class="gm-s-3d8347">{{ payment_info.City|default:"—" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                (function () {
+                    var key = 'checkout-billing-collapsed';
+                    function setLabelAndHint(labelEl, hintEl, isCollapsed) {
+                        if (labelEl) labelEl.textContent = isCollapsed ? 'Vérifier' : 'Masquer';
+                        if (hintEl) hintEl.textContent = isCollapsed
+                            ? 'Cliquez sur « Vérifier » pour afficher vos informations'
+                            : 'Cliquez pour masquer les détails de facturation';
+                    }
+                    function applySessionState(card, toggle, labelEl, hintEl) {
+                        var isCollapsed = sessionStorage.getItem(key) !== '0';
+                        if (window.location.search.indexOf('expand_billing=1') !== -1) isCollapsed = false;
+                        if (isCollapsed) {
+                            card.classList.add('collapsed');
+                            toggle.setAttribute('aria-expanded', 'false');
+                            setLabelAndHint(labelEl, hintEl, true);
+                        } else {
+                            card.classList.remove('collapsed');
+                            toggle.setAttribute('aria-expanded', 'true');
+                            setLabelAndHint(labelEl, hintEl, false);
+                        }
+                    }
+                    var card = document.getElementById('checkout-billing-card');
+                    var toggle = document.getElementById('checkout-billing-toggle');
+                    if (!card || !toggle) return;
+                    var labelEl = card.querySelector('.checkout-billing-toggle-label');
+                    var hintEl = card.querySelector('.checkout-billing-toggle-hint');
+                    applySessionState(card, toggle, labelEl, hintEl);
+                    toggle.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var nowCollapsed;
+                        if (card.classList.contains('collapsed')) {
+                            card.classList.remove('collapsed');
+                            nowCollapsed = false;
+                        } else {
+                            card.classList.add('collapsed');
+                            nowCollapsed = true;
+                        }
+                        toggle.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+                        try { sessionStorage.setItem(key, nowCollapsed ? '1' : '0'); } catch (err) {}
+                        setLabelAndHint(labelEl, hintEl, nowCollapsed);
+                    });
+                })();
+                </script>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </main>
