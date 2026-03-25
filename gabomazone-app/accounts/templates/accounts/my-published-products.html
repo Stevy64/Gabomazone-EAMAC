@@ -9,14 +9,7 @@
 {% block body %}
 <main class="main pages gm-s-8748cb" >
     <div class="container gm-s-b8c14a" >
-        <!-- Breadcrumb -->
-        <nav class="gm-s-634746">
-            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-6bbb36">Mes articles publiés</span>
-        </nav>
+        {% include 'components/gm-page-back-header.html' with page_title="Mes articles publiés" %}
 
         <div class="row gm-s-7e81ca" >
             <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->

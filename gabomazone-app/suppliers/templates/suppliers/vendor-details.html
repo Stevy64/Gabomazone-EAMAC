@@ -3,21 +3,15 @@
 {% load cart_template_tags %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/vendor-details.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/vendor-details.css' %}?v=2.1">
 {% endblock headextra %}
 
 {% block body %}
-<main class="main">
+{% url 'suppliers:supplier-list' as gm_vendor_back_url %}
+<main class="main pages">
     <div class="flavoriz-vendor-page">
         <div class="flavoriz-vendor-container">
-            <!-- Breadcrumb -->
-            <div class="flavoriz-vendor-breadcrumb">
-                <a href="{% url 'home:index' %}"><i class="fi-rs-home"></i> Accueil</a>
-                <span> / </span>
-                <a href="{% url 'suppliers:supplier-list' %}">Vendeurs</a>
-                <span> / </span>
-                <span>{{vendor_detail.display_name|default:vendor_detail.user.username}}</span>
-            </div>
+            {% include 'components/gm-page-back-header.html' with page_title=vendor_detail.display_name|default:vendor_detail.user.username back_url=gm_vendor_back_url %}
             
             <!-- Bannière vendeur (épurée) -->
             <div class="flavoriz-vendor-header">
@@ -33,7 +27,6 @@
                     </div>
                     <div class="flavoriz-vendor-info">
                         <div class="flavoriz-vendor-info-top">
-                            <h1 class="flavoriz-vendor-name">{{ vendor_detail.display_name|default:vendor_detail.user.username }}</h1>
                             <span class="flavoriz-vendor-badge">
                                 <i class="fi-rs-check-circle"></i>
                                 Vendeur vérifié
@@ -119,7 +112,7 @@
                     </div>
                     
                     <div id="products-list"
-                         class="flavoriz-vendor-products-grid flavoriz-product-grid"
+                         class="flavoriz-vendor-products-grid gm-product-grid"
                          hx-get="{% url 'suppliers:vendor-products-htmx' %}?vendor_id={{ vendor_detail.id }}&page=1&order_by=-date"
                          hx-trigger="load"
                          hx-swap="innerHTML"

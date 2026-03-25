@@ -4,29 +4,18 @@
 {% load pages_extras %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/pages.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/pages.css' %}?v=2.2">
 {% endblock headextra %}
 
 {% block body %}
 {% if page.slug == 'about-us' or 'about' in page.slug|default:''|lower or 'a-propos' in page.slug|default:''|lower %}
 <!-- ===== Page À Propos - Design Professionnel FLAVORIZ ===== -->
-<section class="flavoriz-section about-page-section" style="padding: 0;">
-    
-    <!-- ===== SECTION HERO ===== -->
-    <div class="gm-s-529283">
+<section class="flavoriz-section about-page-section gm-public-content-page" style="padding: 0;">
+    {% include 'components/gm-page-back-header.html' with page_title="À propos de nous" stretch=False %}
+    <!-- Hero pêche : sous la barre retour, sans chevauchement -->
+    <div class="gm-s-529283 gm-public-hero-band">
         <div class="gm-s-b40cd3">
-            <!-- Breadcrumb -->
-            <div class="gm-s-44c644">
-                <a href="{%url 'home:index'%}" class="gm-s-0d4b6c" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
-                <span>/</span>
-                <span class="gm-s-eb8053">À Propos</span>
-            </div>
-            
-            <!-- Hero Content -->
             <div class="gm-s-b3543c">
-                <h1 class="gm-s-ef7474">
-                    À Propos de Nous
-                </h1>
                 <p class="gm-s-7130b9">
                     Votre partenaire de confiance pour tous vos besoins en ligne au Gabon
                 </p>
@@ -174,23 +163,17 @@
 
 {% else %}
 <!-- ===== Pages Standard FLAVORIZ - Design Moderne et Élégant ===== -->
-<section class="flavoriz-section" style="padding: 0;">
-    
-    <!-- ===== SECTION HERO ===== -->
-    <div class="gm-s-529283">
+<section class="flavoriz-section gm-public-content-page" style="padding: 0;">
+    {% if page.slug == 'terms-of-service' %}
+    {% include 'components/gm-page-back-header.html' with page_title="Conditions générales d'utilisation" stretch=False %}
+    {% elif page.slug == 'refund-policy' %}
+    {% include 'components/gm-page-back-header.html' with page_title="Politique de remboursement" stretch=False %}
+    {% else %}
+    {% include 'components/gm-page-back-header.html' with page_title=page.name stretch=False %}
+    {% endif %}
+    <div class="gm-s-529283 gm-public-hero-band">
         <div class="gm-s-b40cd3">
-            <!-- Breadcrumb -->
-            <div class="gm-s-44c644">
-                <a href="{%url 'home:index'%}" class="gm-s-0d4b6c" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
-                <span>/</span>
-                <span class="gm-s-eb8053">{% if page.slug == 'terms-of-service' %}Conditions générales d'utilisation{% else %}{{ page.name }}{% endif %}</span>
-            </div>
-            
-            <!-- Hero Content -->
             <div class="gm-s-b3543c">
-                <h1 class="gm-s-ef7474">
-                    {% if page.slug == 'terms-of-service' %}Conditions générales d'utilisation{% else %}{{ page.name }}{% endif %}
-                </h1>
                 <p class="gm-s-7130b9">
                     Informations importantes et conditions d'utilisation de notre plateforme
                 </p>

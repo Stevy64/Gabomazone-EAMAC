@@ -3,24 +3,20 @@
 {% load cart_template_tags %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-b2b.css' %}?v=2.1" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-b2b.css' %}?v=2.2" />
 {% endblock headextra %}
 
 {% block body %}
+{% if product_detail.product_supercategory %}
+    {% url 'categories:super-category' product_detail.product_supercategory.slug as gm_product_back_url %}
+{% else %}
+    {% url 'categories:shop' as gm_product_back_url %}
+{% endif %}
 
 <main class="main">
     <div class="flavoriz-product-detail">
         <div class="flavoriz-product-detail-container">
-            <!-- Breadcrumb -->
-            <div class="flavoriz-breadcrumb">
-                <a href="{%url 'home:index'%}"><i class="fi-rs-home"></i> Accueil</a>
-                <span> / </span>
-                {% if product_detail.product_supercategory %}
-                <a href="{% url 'categories:super-category' product_detail.product_supercategory.slug %}">{{product_detail.product_supercategory}}</a>
-                <span> / </span>
-                {% endif %}
-                <span>{{product_detail.product_name|truncatechars:40}}</span>
-            </div>
+            {% include 'components/gm-page-back-header.html' with page_title="Détails du produit" back_url=gm_product_back_url %}
             
             <!-- Messages -->
             {% if messages %}
@@ -358,50 +354,17 @@
                                         </div>
                                     </div>
             
-            <!-- Produits similaires : même design que la page Shop -->
-            {% if related_products %}
-            <div class="flavoriz-related-products gm-s-408788" >
+            <!-- Produits similaires : mêmes cartes que /shop/ (gm-product-card) -->
+            {% if related_products_data %}
+            <div class="flavoriz-related-products gm-s-408788">
                 <h2 class="flavoriz-section-title">Produits similaires</h2>
-                <div class="flavoriz-product-grid-related">
-                    {% for related_product in related_products|slice:"0:4" %}
-                    <div class="flavoriz-product-card gm-s-e381d7"  onclick="window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'">
-                        <div class="gm-s-f77169">
-                            {% if related_product.product_image %}
-                            <img src="{{ related_product.product_image.url }}" alt="{{ related_product.product_name }}" loading="lazy" decoding="async"  class="flavoriz-product-image gm-s-446654" />
-                            {% else %}
-                            <img src="{% static 'assets/imgs/shop/product-16-3.jpg' %}" alt="{{ related_product.product_name }}" loading="lazy" decoding="async"  class="flavoriz-product-image gm-s-343494" />
-                            {% endif %}
-                            <button type="button" data-product-id="{{ related_product.id }}" onclick="event.stopPropagation();" class="flavoriz-favorite-btn gm-s-1ab7bf">
-                                <i class="fi-rs-heart gm-s-345895" ></i>
-                            </button>
-                        </div>
-                        <div class="flavoriz-product-body gm-s-4ef801" >
-                            <h3 onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="flavoriz-product-title gm-s-e9ae14">{{ related_product.product_name }}</h3>
-                            <div class="gm-s-2c7351">
-                                <span class="flavoriz-product-price gm-s-cb8b8a" >{{ related_product.PRDPrice|format_price }} FCFA</span>
-                                {% if related_product.PRDDiscountPrice and related_product.PRDDiscountPrice > 0 %}
-                                <span class="gm-s-47b7e7">{{ related_product.PRDDiscountPrice|format_price }} FCFA</span>
-                                {% endif %}
-                            </div>
-                            <div class="flavoriz-card-meta gm-s-781062" >
-                                {% if related_product.product_vendor %}
-                                {% if related_product.product_vendor.city or related_product.product_vendor.country %}
-                                <span class="gm-s-447ca1"><i class="fi-rs-marker gm-s-5d7659" ></i>{% if related_product.product_vendor.city %}{{ related_product.product_vendor.city }}{% if related_product.product_vendor.country %}, {% endif %}{% endif %}{% if related_product.product_vendor.country %}{{ related_product.product_vendor.country }}{% endif %}</span>
-                                {% else %}<span></span>{% endif %}
-                                {% else %}<span></span>
-                                {% endif %}
-                            </div>
-                            <div class="gm-s-0e6856">
-                                <button onclick="event.stopPropagation(); window.location.href='{% url 'products:product-details' related_product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-7c6af0">
-                                    <i class="fi-rs-eye gm-s-766745" ></i>
-                                    <span>Voir</span>
-                                </button>
-                                <button onclick="event.stopPropagation(); addToCartQuick({{ related_product.id }}, '{{ related_product.PRDPrice|floatformat:0 }}');" type="button" class="gm-s-f4bb8b">
-                                    <i class="fi-rs-shopping-bag gm-s-499df8" ></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="gm-product-grid">
+                    {% for item in related_products_data %}
+                    {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:False is_boosted=item.is_boosted|default:False %}
+                    {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
+                    {% include "components/product_card.html" %}
+                    {% endwith %}
+                    {% endwith %}
                     {% endfor %}
                 </div>
             </div>
@@ -822,4 +785,11 @@
             }
           </script>  
 <script src="{% static 'assets/js/filter.js' %}?v=2.3"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.attachProductEventListeners === 'function') {
+        window.attachProductEventListeners();
+    }
+});
+</script>
 {% endblock script %}

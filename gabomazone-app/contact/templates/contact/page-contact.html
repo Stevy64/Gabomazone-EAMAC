@@ -4,25 +4,16 @@
 {% load pages_extras %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/contact.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/contact.css' %}?v=2.2">
 {% endblock headextra %}
 
 {% block body %}
 <!-- ===== Page Contact - Même design que À propos / CGU (FLAVORIZ) ===== -->
-<section class="flavoriz-section contact-page-section" style="padding: 0;">
-    
-    <!-- ===== SECTION HERO ===== -->
-    <div class="gm-s-529283">
+<section class="flavoriz-section contact-page-section gm-public-content-page" style="padding: 0;">
+    {% include 'components/gm-page-back-header.html' with page_title="Nous contacter" stretch=False %}
+    <div class="gm-s-529283 gm-public-hero-band">
         <div class="gm-s-b40cd3">
-            <div class="gm-s-44c644">
-                <a href="{% url 'home:index' %}" class="gm-s-0d4b6c" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">Accueil</a>
-                <span>/</span>
-                <span class="gm-s-eb8053">Nous contacter</span>
-            </div>
             <div class="gm-s-b3543c">
-                <h1 class="gm-s-ef7474">
-                    Nous Contacter
-                </h1>
                 <p class="gm-s-7130b9">
                     Une question ? Un besoin d'assistance ? Notre équipe est là pour vous aider
                 </p>

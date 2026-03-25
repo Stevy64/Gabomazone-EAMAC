@@ -15,6 +15,144 @@
     background: #FAFAFA;
 }
 
+/* ===== En-tête page (comme Panier) : retour + titre centré ===== */
+.gm-page-back-header {
+    background: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+    box-sizing: border-box;
+}
+.gm-page-back-header__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    color: #1f2937;
+    font-size: 20px;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+.gm-page-back-header__back:hover {
+    background: #f3f4f6;
+}
+.gm-page-back-header__title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 !important;
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+}
+.gm-page-back-header__spacer {
+    width: 40px;
+    flex-shrink: 0;
+}
+@media (max-width: 599px) {
+    .gm-page-back-header__title {
+        font-size: 16px;
+    }
+}
+/* Pleine largeur dans un conteneur paddé (comme .cart-page-nav) */
+.main.pages .container .gm-page-back-header--stretch {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+@media (min-width: 768px) {
+    .main.pages .container .gm-page-back-header--stretch {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+.flavoriz-product-detail-container .gm-page-back-header--stretch {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+@media (min-width: 768px) {
+    .flavoriz-product-detail-container .gm-page-back-header--stretch {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+.flavoriz-product-detail-container > .gm-page-back-header {
+    margin-bottom: 24px;
+}
+/* Page vendre : conteneur custom max-width */
+.add-peer-page .container .gm-page-back-header--stretch {
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+@media (min-width: 768px) {
+    .add-peer-page .container .gm-page-back-header--stretch {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.main.pages .flavoriz-wishlist-container > .gm-page-back-header--stretch {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+@media (min-width: 768px) {
+    .main.pages .flavoriz-wishlist-container > .gm-page-back-header--stretch {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Pages À propos / CGU / contact / FAQ : la barre retour est le 1er bloc ; le bandeau coloré suit (évite le chevauchement avec le grand padding du hero) */
+.gm-public-content-page > .gm-page-back-header {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 100%;
+}
+.gm-public-content-page .gm-public-hero-band {
+    position: relative;
+    z-index: 1;
+    margin-top: 0 !important;
+}
+.gm-public-content-page .gm-s-529283.gm-public-hero-band {
+    padding-top: 24px !important;
+    padding-bottom: 44px !important;
+}
+.gm-public-content-page .faq-hero.gm-public-hero-band {
+    padding-top: 20px !important;
+    padding-bottom: 28px !important;
+}
+section.flavoriz-faq-section.gm-public-content-page {
+    min-height: 0 !important;
+}
+
+.flavoriz-vendor-container > .gm-page-back-header--stretch {
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+@media (min-width: 768px) {
+    .flavoriz-vendor-container > .gm-page-back-header--stretch {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
 /* ===== B2B / C2C SELLER BADGES ===== */
 .gm-badge {
     display: inline-flex;
@@ -53,12 +191,16 @@
 /* ===== HERO WITH CAROUSEL BACKGROUND ===== */
 .gm-hero {
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 380px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: #1F2937;
+    box-sizing: border-box;
 }
 .gm-hero-slides {
     position: absolute;
@@ -94,12 +236,14 @@
     padding: 36px 20px 28px;
 }
 /* !important : flavoriz-design.css force h1 { color: var(--text-dark) } sur tous les titres */
+/* Mobile first : marge sous le titre avant la recherche (suffisamment d’air au touch) */
 .gm-hero .gm-hero-title,
 .gm-hero-title {
     font-size: 30px;
     font-weight: 800 !important;
     color: #F8FAFC !important;
-    margin: 0 0 40px;
+    /* flavoriz-design.css impose h1 { margin: 0 !important } — sans !important ici, l’espace titre → recherche ne s’applique jamais */
+    margin: 0 0 56px !important;
     line-height: 1.25;
     letter-spacing: -0.02em;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.45);
@@ -115,7 +259,7 @@
 /* Hero search (espacement sous le titre géré par .gm-hero-title margin-bottom) */
 .gm-hero-search {
     max-width: 520px;
-    margin: 0 auto 20px;
+    margin: 8px auto 20px;
 }
 .gm-hero-search form {
     display: flex;
@@ -865,7 +1009,7 @@
     }
     .gm-hero-title {
         font-size: 38px;
-        margin-bottom: 44px !important;
+        margin-bottom: 52px !important;
     }
     .gm-hero-subtitle {
         font-size: 15px;
@@ -927,7 +1071,7 @@
     }
     .gm-hero-title {
         font-size: 40px;
-        margin-bottom: 48px !important;
+        margin-bottom: 56px !important;
     }
     .gm-product-grid {
         grid-template-columns: repeat(4, 1fr);
@@ -963,7 +1107,8 @@
         -webkit-backdrop-filter: blur(12px);
         padding: 10px 16px;
         gap: 8px;
-        z-index: 9998;
+        /* Au-dessus de .flavoriz-bottom-nav (z-index 9999) sinon les boutons sont masqués */
+        z-index: 10050;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
         border-top: 1px solid rgba(229,231,235,0.5);
     }

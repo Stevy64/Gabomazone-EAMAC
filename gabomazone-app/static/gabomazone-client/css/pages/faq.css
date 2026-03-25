@@ -127,13 +127,17 @@
     .faq-cta-btn svg { flex-shrink: 0; }
 
     @media (max-width: 768px) {
-        .flavoriz-faq-section {
+        /* Décalage header : layout.css (section.gm-public-content-page), pas de double marge ici */
+        .flavoriz-faq-section:not(.gm-public-content-page) {
             padding-top: 130px !important;
             margin-top: 0 !important;
         }
         .faq-hero {
             padding: 28px 16px 24px !important;
             border-radius: 0 0 20px 20px !important;
+        }
+        .flavoriz-faq-section.gm-public-content-page .faq-hero.gm-public-hero-band {
+            padding: 24px 16px 28px !important;
         }
         .faq-hero h1 { font-size: 24px !important; }
         .faq-hero p { font-size: 15px !important; }

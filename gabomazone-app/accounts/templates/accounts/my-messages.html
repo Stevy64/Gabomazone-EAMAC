@@ -1,23 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 {% load cart_template_tags %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'accounts/css/negotiation.css' %}">
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/messages.css' %}?v=2.0" />
+<link rel="stylesheet" href="{% static 'accounts/css/negotiation.css' %}?v=1.2">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/messages.css' %}?v=3.1" />
 {% endblock headextra %}
 
 {% block body %}
-<main class="main pages gm-s-c09346" >
-    <div class="container">
-        <!-- Breadcrumb -->
-        <nav class="gm-s-634746">
-            <a href="{% url 'home:index' %}" class="gm-s-e14d0f">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-6bbb36">Ma messagerie</span>
-        </nav>
+<main class="main pages gm-messages-page gm-s-c09346">
+    <div class="container gm-messages-container">
+        {% include 'components/gm-page-back-header.html' with page_title="Ma messagerie" %}
 
         <div class="row">
             <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->
@@ -27,22 +21,16 @@
 
             <!-- Main Content -->
             <div class="col-md-9">
-                <div class="gm-s-6dd04b">
-                    <!-- Header -->
-                    <div class="main-content-header gm-s-91e2ae" >
-                        <h1 class="gm-s-ac7dd4">
-                            <i class="fi-rs-comment gm-s-f9346a" ></i>
-                            Ma messagerie
-                            {% if total_unread > 0 %}
-                            <span class="gm-s-5d8682">
-                                {{ total_unread }} non lu{{ total_unread|pluralize }}
-                            </span>
-                            {% endif %}
-                        </h1>
-                        <p class="gm-s-b15782">
-                            Gérez toutes vos conversations avec les vendeurs et acheteurs pour vos articles en occasion.
+                <div class="gm-s-6dd04b gm-msg-studio">
+                    <header class="gm-msg-studio-head">
+                        <h1 class="gm-msg-studio-head__title">Messages</h1>
+                        {% if inbox_total_n > 0 or total_unread > 0 %}
+                        <p class="gm-msg-studio-head__meta">
+                            {% if inbox_total_n %}{{ inbox_total_n }} conversation{{ inbox_total_n|pluralize }}{% endif %}
+                            {% if total_unread %}<span class="gm-msg-studio-head__dot">·</span> {{ total_unread }} non lu{{ total_unread|pluralize }}{% endif %}
                         </p>
-                    </div>
+                        {% endif %}
+                    </header>
 
                     <!-- Messages -->
                     {% if messages %}
@@ -56,154 +44,135 @@
                     </div>
                     {% endif %}
 
-                    <!-- Intentions d'achat (pour les vendeurs) -->
+                    <!-- Intentions d'achat (vendeur) -->
                     {% if purchase_intents and purchase_intents|length > 0 %}
-                    <div class="gm-s-91e2ae">
-                        <h3 class="gm-s-d5c63b">
-                            <i class="fi-rs-money gm-s-a77b0c" ></i>
-                            Intentions d'achat
+                    <section class="gm-intents-panel" aria-labelledby="gm-intents-heading">
+                        <div class="gm-intents-panel__head">
+                            <h2 id="gm-intents-heading" class="gm-intents-panel__title">
+                                <i class="fi-rs-money"></i>
+                                Intentions d’achat
+                            </h2>
                             {% if purchase_intents_unread > 0 %}
-                            <span class="gm-s-a885ba">{{ purchase_intents_unread }}</span>
+                            <span class="gm-inbox-badge gm-inbox-badge--pulse">{{ purchase_intents_unread }} nouvelle{{ purchase_intents_unread|pluralize }}</span>
                             {% endif %}
-                        </h3>
-                        <div class="purchase-intents-grid">
+                        </div>
+                        <p class="gm-intents-panel__hint">Acceptez ou refusez pour ouvrir la négociation de prix avec l’acheteur.</p>
+                        <div class="purchase-intents-grid gm-intents-grid">
                             {% for intent in purchase_intents %}
-                            <div class="intent-card" onclick="openConversationChatbot({{ intent.product.id }}, null)" style="background: {% if not intent.seller_notified %}#FFF9E6{% else %}white{% endif %}; border: 2px solid {% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}; transition: all 0.3s; cursor: pointer; position: relative;" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='{% if not intent.seller_notified %}var(--color-orange){% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'">
-                                <div class="gm-s-d0094d">
+                            <article class="gm-intent-card intent-card{% if not intent.seller_notified %} gm-intent-card--highlight{% endif %}" onclick="openConversationChatbot({{ intent.product.id }}, null)">
+                                <div class="gm-intent-card__head">
                                     <div>
-                                        <h4 class="gm-s-962484">Intention #{{ intent.id }}</h4>
-                                        <p class="gm-s-297460">{{ intent.created_at|date:"d/m/Y à H:i" }}</p>
+                                        <span class="gm-intent-card__id">Intention #{{ intent.id }}</span>
+                                        <time class="gm-intent-card__time" datetime="{{ intent.created_at|date:'c' }}">{{ intent.created_at|date:"d/m/Y à H:i" }}</time>
                                     </div>
                                     {% if not intent.seller_notified %}
-                                    <span class="gm-s-cfee41"></span>
+                                    <span class="gm-intent-card__dot" title="Nouvelle"></span>
                                     {% endif %}
                                 </div>
-                                <p class="gm-s-b3cc98">
-                                    <strong>{{ intent.buyer.get_full_name|default:intent.buyer.username }}</strong> souhaite négocier l'achat de <strong>{{ intent.product.product_name|truncatechars:30 }}</strong>
+                                <p class="gm-intent-card__summary">
+                                    <strong>{{ intent.buyer.get_full_name|default:intent.buyer.username }}</strong> — {{ intent.product.product_name|truncatechars:34 }}
                                 </p>
-                                <div class="gm-s-12be41">
-                                    <p class="gm-s-30cd2a">Prix initial proposé :</p>
-                                    <p class="gm-s-00be1d">
-                                        {{ intent.initial_price|floatformat:0 }} FCFA
-                                    </p>
+                                <div class="gm-intent-card__price">
+                                    <span class="gm-intent-card__price-label">Première offre</span>
+                                    <span class="gm-intent-card__price-value">{{ intent.initial_price|floatformat:0 }} FCFA</span>
                                 </div>
-                                <div class="gm-s-13262f">
+                                <div class="gm-intent-card__actions">
                                     {% if intent.status == 'pending' or intent.status == 'negotiating' %}
-                                    <button onclick="event.stopPropagation(); acceptPurchaseIntent({{ intent.id }})" class="gm-s-001001" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
+                                    <button type="button" onclick="event.stopPropagation(); acceptPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--success">
                                         <i class="fi-rs-check"></i> Accepter
                                     </button>
-                                    <button onclick="event.stopPropagation(); rejectPurchaseIntent({{ intent.id }})" class="gm-s-466b19" onmouseover="this.style.background='#DC2626'" onmouseout="this.style.background='#EF4444'">
+                                    <button type="button" onclick="event.stopPropagation(); rejectPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--danger">
                                         <i class="fi-rs-cross"></i> Refuser
                                     </button>
                                     {% elif intent.status == 'agreed' %}
-                                    <span class="gm-s-3d86bc">
-                                        <i class="fi-rs-check"></i> Prix accepté
-                                    </span>
+                                    <span class="gm-intent-card__status gm-intent-card__status--ok"><i class="fi-rs-check"></i> Prix accepté</span>
                                     {% elif intent.status == 'rejected' or intent.status == 'cancelled' %}
-                                    <span class="gm-s-bb05f4">
-                                        <i class="fi-rs-cross"></i> {% if intent.status == 'rejected' %}Refusée{% else %}Annulée{% endif %}
-                                    </span>
-                                    <button onclick="event.stopPropagation(); cancelPurchaseIntent({{ intent.id }})" class="gm-s-cbc139" onmouseover="this.style.background='#4B5563'" onmouseout="this.style.background='#6B7280'" title="Supprimer cette intention">
+                                    <span class="gm-intent-card__status gm-intent-card__status--off"><i class="fi-rs-cross"></i> {% if intent.status == 'rejected' %}Refusée{% else %}Annulée{% endif %}</span>
+                                    <button type="button" onclick="event.stopPropagation(); cancelPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--muted" title="Supprimer cette intention">
                                         <i class="fi-rs-trash"></i> Supprimer
                                     </button>
                                     {% endif %}
                                 </div>
-                            </div>
+                            </article>
                             {% endfor %}
                         </div>
-                    </div>
+                    </section>
                     {% endif %}
 
                     <!-- Liste des conversations -->
                     {% if conversations %}
-                    <div class="conversations-grid">
+                    <section class="gm-messages-block gm-inbox-section" aria-labelledby="gm-conv-heading">
+                        <h2 id="gm-conv-heading" class="visually-hidden">Liste des conversations</h2>
+
+                        <div class="gm-msg-toolbar" role="region" aria-label="Filtrer et rechercher">
+                            <div class="gm-msg-tabs" role="tablist" aria-label="Type de conversation">
+                                <button type="button" class="gm-msg-tab is-active" data-role="all">Toutes{% if inbox_total_n %}<span class="gm-msg-tab__count">{{ inbox_total_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-msg-tab" data-role="buyer" {% if inbox_purchases_n == 0 %}disabled{% endif %}><i class="fi-rs-shopping-bag" aria-hidden="true"></i> Achats{% if inbox_purchases_n %}<span class="gm-msg-tab__count">{{ inbox_purchases_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-msg-tab" data-role="seller" {% if inbox_sales_n == 0 %}disabled{% endif %}><i class="fi-rs-user" aria-hidden="true"></i> Ventes{% if inbox_sales_n %}<span class="gm-msg-tab__count">{{ inbox_sales_n }}</span>{% endif %}</button>
+                            </div>
+                            <div class="gm-inbox-search-wrap gm-msg-search">
+                                <i class="fi-rs-search gm-inbox-search-wrap__icon" aria-hidden="true"></i>
+                                <input type="search" id="gmInboxSearch" class="gm-inbox-search" placeholder="Rechercher dans les conversations…" autocomplete="off" aria-label="Rechercher dans les conversations">
+                            </div>
+                            <div class="gm-filter-chips gm-msg-chips-sub" aria-label="Affiner par statut">
+                                <button type="button" class="gm-filter-chip is-active" data-filter="all">Tous statuts</button>
+                                <button type="button" class="gm-filter-chip" data-filter="unread" {% if inbox_unread_n == 0 %}disabled{% endif %}>Non lues{% if inbox_unread_n %} <span class="gm-chip-count">{{ inbox_unread_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-filter-chip" data-filter="negotiating" {% if inbox_negotiating_n == 0 %}disabled{% endif %}>Négociation{% if inbox_negotiating_n %} <span class="gm-chip-count">{{ inbox_negotiating_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-filter-chip" data-filter="after_payment" {% if inbox_after_payment_n == 0 %}disabled{% endif %}>Après paiement{% if inbox_after_payment_n %} <span class="gm-chip-count">{{ inbox_after_payment_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-filter-chip" data-filter="completed" {% if inbox_completed_n == 0 %}disabled{% endif %}>Terminées{% if inbox_completed_n %} <span class="gm-chip-count">{{ inbox_completed_n }}</span>{% endif %}</button>
+                            </div>
+                        </div>
+
+                        <div class="conversations-grid gm-inbox-grid gm-msg-list">
                         {% for conversation in conversations %}
-                        <div onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})" onmouseover="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 8px 24px rgba(255, 123, 44, 0.12)'" onmouseout="this.style.borderColor='#E5E7EB'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.06)'" class="conversation-card msg-card gm-s-eda5c9">
-                            <!-- Actions : supprimer -->
-                            <button onclick="event.stopPropagation(); deleteConversation({{ conversation.id }}, '{{ conversation.other_user.get_full_name|default:conversation.other_user.username|escapejs }}')" title="Supprimer la conversation" class="gm-s-9a002b" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='rgba(255,255,255,0.95)'; this.style.color='#9CA3AF'">
-                                <i class="fi-rs-trash gm-s-267f6d" ></i>
-                            </button>
-                            
-                            <!-- Badge de statut C2C -->
-                            {% if conversation.c2c_order %}
-                            <div style="position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; z-index: 10;
-                                {% if conversation.c2c_order.status == 'completed' %}background: #D1FAE5; color: #065F46;
-                                {% elif conversation.c2c_order.status == 'paid' or conversation.c2c_order.status == 'pending_delivery' %}background: #DBEAFE; color: #1E40AF;
-                                {% elif conversation.c2c_order.status == 'pending_payment' %}background: #FEF3C7; color: #D97706;
-                                {% else %}background: #F3F4F6; color: #6B7280;{% endif %}">
-                                {% if conversation.c2c_order.status == 'completed' %}✓ Terminé
-                                {% elif conversation.c2c_order.status == 'paid' %}💳 Payé
-                                {% elif conversation.c2c_order.status == 'pending_delivery' %}📦 Livraison
-                                {% elif conversation.c2c_order.status == 'pending_payment' %}⏳ Paiement
-                                {% else %}{{ conversation.c2c_order.status }}{% endif %}
-                            </div>
-                            {% elif conversation.purchase_intent %}
-                            <div class="gm-s-28ae99">
-                                {% if conversation.purchase_intent.status == 'agreed' %}🤝 Accord
-                                {% elif conversation.purchase_intent.status == 'negotiating' %}💬 Négo
-                                {% else %}📩 Intent{% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            <!-- En-tête de conversation -->
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; margin-top: {% if conversation.c2c_order or conversation.purchase_intent %}32px{% else %}8px{% endif %}; padding-right: 36px;">
-                                <div class="conversation-avatar gm-s-72a79a" >
-                                    {{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}
+                        <article class="gm-msg-row{% if conversation.unread_count > 0 %} is-unread{% endif %}"
+                                 data-tags="{{ conversation.thread_tags|join:' ' }}"
+                                 data-user-role="{{ conversation.user_role }}"
+                                 data-search="{{ conversation.inbox_search_text|escapejs }}"
+                                 role="button" tabindex="0"
+                                 onclick="openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }})"
+                                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openConversationChatbot({{ conversation.product.id }}, {{ conversation.id }});}">
+                            <div class="gm-msg-row__avatar" aria-hidden="true">{{ conversation.other_user.get_full_name|default:conversation.other_user.username|first|upper }}</div>
+                            <div class="gm-msg-row__body">
+                                <div class="gm-msg-row__title-line">
+                                    <span class="gm-msg-row__name">{{ conversation.other_user.get_full_name|default:conversation.other_user.username }}</span>
+                                    {% if conversation.thread_status_label %}
+                                    <span class="gm-status-pill gm-status-pill--{{ conversation.thread_status_variant }} gm-msg-row__pill">{{ conversation.thread_status_label }}</span>
+                                    {% endif %}
                                 </div>
-                                <div class="gm-s-ec2eba">
-                                    <h4 class="conversation-user-name gm-s-e3e3d9" >
-                                        {{ conversation.other_user.get_full_name|default:conversation.other_user.username }}
-                                    </h4>
-                                    <p class="gm-s-edeb6f">
-                                        {% if conversation.user_role == 'seller' %}Acheteur{% else %}Vendeur{% endif %} · {{ conversation.product.product_name|truncatechars:30 }}
-                                    </p>
-                                </div>
-                                {% if conversation.unread_count > 0 %}
-                                <span class="gm-s-596e77">
-                                    {{ conversation.unread_count }}
-                                </span>
+                                <p class="gm-msg-row__subject">{{ conversation.product.product_name|truncatechars:40 }}</p>
+                                {% if conversation.last_message %}
+                                <p class="gm-msg-row__preview">{% if conversation.last_message.sender == user %}<span class="gm-msg-row__you">Vous · </span>{% endif %}{{ conversation.last_message.message|truncatechars:56 }}</p>
+                                {% else %}
+                                <p class="gm-msg-row__preview gm-msg-row__preview--muted">Toucher pour écrire</p>
                                 {% endif %}
                             </div>
-                            
-                            <!-- Informations sur l'article -->
-                            <div class="gm-s-9480e5">
-                                <img src="{{ conversation.product.product_image.url }}" alt="{{ conversation.product.product_name }}" loading="lazy" decoding="async" class="conversation-product-img gm-s-e08855">
-                                <div class="gm-s-ec2eba">
-                                    <h5 class="conversation-product-name gm-s-443ac7" >
-                                        {{ conversation.product.product_name|truncatechars:40 }}
-                                    </h5>
-                                    <p class="gm-s-2c764a">
-                                        {{ conversation.product.PRDPrice|format_price }} FCFA
-                                    </p>
-                                </div>
+                            <div class="gm-msg-row__aside">
+                                {% if conversation.last_message %}
+                                <time class="gm-msg-row__time" datetime="{{ conversation.last_message.created_at|date:'c' }}">{{ conversation.last_message.created_at|naturaltime }}</time>
+                                {% endif %}
+                                {% if conversation.unread_count > 0 %}
+                                <span class="gm-msg-row__badge">{{ conversation.unread_count }}</span>
+                                {% endif %}
                             </div>
-                            
-                            <!-- Dernier message -->
-                            {% if conversation.last_message %}
-                            <div class="gm-s-414320">
-                                <p class="gm-s-1b5d4c">
-                                    {% if conversation.last_message.sender == user %}<span class="gm-s-eb8053">Vous :</span> {% endif %}{{ conversation.last_message.message|truncatechars:55 }}
-                                </p>
-                                <p class="gm-s-979dc2">
-                                    {{ conversation.last_message.created_at|date:"d/m/Y à H:i" }}
-                                </p>
-                            </div>
-                            {% else %}
-                            <div class="gm-s-414320">
-                                <p class="gm-s-c20781">
-                                    Aucun message
-                                </p>
-                            </div>
-                            {% endif %}
-                        </div>
+                        </article>
                         {% endfor %}
+                        </div>
+
+                        <div id="gmInboxFilterEmpty" class="gm-inbox-filter-empty" hidden>
+                            <i class="fi-rs-search"></i>
+                            <p>Aucune conversation ne correspond à ce filtre ou à cette recherche.</p>
+                            <button type="button" class="gm-btn gm-btn--ghost" id="gmInboxResetFilters">Réinitialiser</button>
+                        </div>
+                    </section>
+                    {% elif not purchase_intents %}
+                    <div class="gm-messages-empty gm-s-b1f2cb">
+                        <i class="fi-rs-inbox gm-s-360102"></i>
+                        <h3 class="gm-s-3a86f4">Aucune conversation</h3>
+                        <p class="gm-s-b65fcc">Vos échanges avec vendeurs et acheteurs apparaîtront ici lorsque vous contactez un vendeur ou qu’un acheteur vous écrit.</p>
                     </div>
                     {% else %}
-                    <div class="gm-s-b1f2cb">
-                        <i class="fi-rs-inbox gm-s-360102" ></i>
-                        <h3 class="gm-s-3a86f4">Aucune conversation</h3>
-                        <p class="gm-s-b65fcc">Vos échanges avec vendeurs et acheteurs apparaîtront ici.</p>
-                    </div>
+                    <p class="gm-messages-hint"><i class="fi-rs-info"></i> Ouvrez une intention d’achat ci-dessus pour démarrer la négociation ; la conversation apparaîtra ensuite dans cette liste.</p>
                     {% endif %}
                 </div>
             </div>
@@ -211,52 +180,55 @@
     </div>
 </main>
 
-<!-- Chatbot Popup -->
-<div id="chatbotPopup" class="gm-s-77018d">
-    <!-- Chatbot Header -->
-    <div class="gm-s-39a7c8">
-        <div class="gm-s-1c20bb">
-            <i class="fi-rs-comment gm-s-1551e6" ></i>
+<!-- Fenêtre conversation + négociation (au-dessus de la bottom nav) -->
+<div id="chatbotPopup" class="gm-chat-popup gm-messages-popup" role="dialog" aria-modal="true" aria-labelledby="chatbotPopupTitle">
+    <!-- En-tête liste (choix d’une conversation sur un même article) -->
+    <div id="gmChatHeaderList" class="gm-chat-popup__header gm-chat-popup__header--list">
+        <div class="gm-chat-popup__header-inner">
+            <i class="fi-rs-comment gm-chat-popup__header-icon" aria-hidden="true"></i>
             <div>
-                <h3 class="gm-s-99ea3d">Messages</h3>
-                <p id="chatbotProductName" class="gm-s-9caeb1"></p>
+                <h3 id="chatbotPopupTitle" class="gm-chat-popup__title">Messages</h3>
+                <p id="chatbotProductName" class="gm-chat-popup__subtitle"></p>
             </div>
         </div>
-        <button onclick="closeChatbot()" class="gm-s-7c76c2" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
-            <i class="fi-rs-cross gm-s-beab58" ></i>
+        <button type="button" onclick="closeChatbot()" class="gm-chat-popup__icon-btn" aria-label="Fermer">
+            <i class="fi-rs-cross"></i>
+        </button>
+    </div>
+
+    <!-- En-tête fil actif (style app messagerie) -->
+    <div id="gmChatHeaderActive" class="gm-chat-popup__header gm-chat-popup__header--thread" hidden>
+        <button type="button" onclick="showConversationsList()" class="gm-chat-popup__icon-btn" aria-label="Retour">
+            <i class="fi-rs-arrow-left"></i>
+        </button>
+        <div class="gm-chat-thread-card">
+            <div id="gmChatHeaderAvatar" class="gm-chat-thread-card__avatar" aria-hidden="true"></div>
+            <div class="gm-chat-thread-card__text">
+                <div id="activeConversationBuyer" class="gm-chat-thread-card__name"></div>
+                <p id="activeConversationRole" class="gm-chat-thread-card__status"></p>
+            </div>
+        </div>
+        <button type="button" id="gmChatOpenOptionsBtn" class="gm-chat-popup__icon-btn" aria-label="Options de conversation" aria-haspopup="dialog">
+            <i class="fi-rs-menu-dots-vertical"></i>
         </button>
     </div>
     
     <!-- Conversations List -->
-    <div id="conversationsList" class="gm-s-3683e8">
-        <div id="conversationsLoading" class="gm-s-4e1d61">
-            <i class="fi-rs-spinner gm-s-1a2f8a" ></i>
-            <p class="gm-s-0e64da">Chargement des conversations...</p>
+    <div id="conversationsList" class="gm-chat-popup__list-wrap">
+        <div id="conversationsLoading" class="gm-chat-popup__loading">
+            <i class="fi-rs-spinner"></i>
+            <p>Chargement des conversations...</p>
         </div>
-        <div id="conversationsContent" style="display: none;">
-            <!-- Les conversations seront injectées ici -->
+        <div id="conversationsContent" class="gm-chat-popup__list-inner" style="display: none;">
         </div>
-        <div id="noConversations" class="gm-s-eeed1f">
-            <i class="fi-rs-inbox gm-s-a2dd65" ></i>
-            <p class="gm-s-98891a">Aucune conversation pour cet article</p>
+        <div id="noConversations" class="gm-chat-popup__empty">
+            <i class="fi-rs-inbox"></i>
+            <p>Aucune conversation pour cet article</p>
         </div>
     </div>
     
     <!-- Active Conversation View -->
-    <div id="activeConversation" class="gm-s-9c47f7">
-        <!-- Conversation Header -->
-        <div class="gm-s-eb7cd3">
-            <button onclick="showConversationsList()" class="gm-s-50a060" onmouseover="this.style.background='rgba(255,123,44,0.1)'" onmouseout="this.style.background='none'">
-                <i class="fi-rs-arrow-left gm-s-768e1f" ></i>
-            </button>
-            <div class="gm-s-ec2eba">
-                <h4 id="activeConversationBuyer" class="gm-s-4a9d60"></h4>
-                <p class="gm-s-edeb6f">Acheteur</p>
-            </div>
-            <button id="deleteConversationBtnInPopup" onclick="deleteConversationFromPopup()" title="Supprimer la conversation" class="gm-s-d6684b" onmouseover="this.style.background='#FEE2E2'; this.style.color='#DC2626'" onmouseout="this.style.background='none'; this.style.color='#9CA3AF'">
-                <i class="fi-rs-trash gm-s-beab58" ></i>
-            </button>
-        </div>
+    <div id="activeConversation" class="gm-chat-popup__thread">
         
         <!-- Scrollable Content: Messages + Negotiation -->
         <div class="gm-s-37b2ff">
@@ -303,23 +275,60 @@
             <!-- Contenu injecté par JavaScript -->
         </div>
         
-        <!-- Message Input (fixe en bas) -->
-        <div class="gm-s-a7ea41">
-            <div id="chatHelper" class="gm-s-ad54cc">Pendant la négociation, proposez un prix dans la section jaune. Le chat libre sera disponible après accord.</div>
-            <form id="messageForm" onsubmit="sendMessage(event)" class="gm-s-13262f">
-                <input type="text" id="messageInput" placeholder="Tapez votre message..." class="gm-s-fa5034" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
-                <button type="submit" class="gm-s-f8ad91" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <i class="fi-rs-paper-plane gm-s-beab58" ></i>
+        <!-- Réponses rapides + saisie (fixe en bas) -->
+        <div class="gm-chat-compose">
+            <div id="gmQuickReplies" class="gm-chat-quick" aria-label="Réponses rapides">
+                <span class="gm-chat-quick__label"><i class="fi-rs-comment"></i> Réponses rapides</span>
+                <div class="gm-chat-quick__pills">
+                    <button type="button" class="gm-chat-quick__pill" data-quick="Bonjour, est-ce toujours disponible ?">Bonjour, est-ce toujours disponible ?</button>
+                    <button type="button" class="gm-chat-quick__pill" data-quick="Quel est votre meilleur prix ?">Quel est votre meilleur prix ?</button>
+                    <button type="button" class="gm-chat-quick__pill" data-quick="Merci, je suis intéressé(e).">Merci, je suis intéressé(e).</button>
+                </div>
+            </div>
+            <div id="chatHelper" class="gm-chat-compose__helper">Pendant la négociation, proposez un prix dans la section ci-dessus. Le chat libre sera disponible après accord.</div>
+            <form id="messageForm" onsubmit="sendMessage(event)" class="gm-chat-compose__form">
+                <div class="gm-chat-compose__tools">
+                    <button type="button" class="gm-chat-compose__tool" disabled title="Bientôt disponible" aria-disabled="true"><i class="fi-rs-picture"></i></button>
+                    <button type="button" class="gm-chat-compose__tool" disabled title="Bientôt disponible" aria-disabled="true"><i class="fi-rs-marker"></i></button>
+                    <button type="button" id="gmChatFocusNegotiationBtn" class="gm-chat-compose__tool" title="Négociation de prix"><i class="fi-rs-money"></i></button>
+                </div>
+                <input type="text" id="messageInput" placeholder="Tapez votre message..." class="gm-chat-compose__input" autocomplete="off">
+                <button type="submit" class="gm-chat-compose__send" aria-label="Envoyer">
+                    <i class="fi-rs-paper-plane"></i>
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-<script src="{% static 'accounts/js/negotiation.js' %}?v=3.7"></script>
+<!-- Feuille « Options de conversation » -->
+<div id="gmChatOptionsSheet" class="gm-chat-sheet" hidden aria-hidden="true">
+    <div class="gm-chat-sheet__backdrop" id="gmChatOptionsBackdrop"></div>
+    <div class="gm-chat-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="gmChatOptionsTitle">
+        <div class="gm-chat-sheet__head">
+            <h2 id="gmChatOptionsTitle" class="gm-chat-sheet__title">Options de conversation</h2>
+            <button type="button" class="gm-chat-sheet__close" id="gmChatOptionsClose" aria-label="Fermer"><i class="fi-rs-cross"></i></button>
+        </div>
+        <div class="gm-chat-sheet__product">
+            <p id="gmChatOptProductName" class="gm-chat-sheet__product-name"></p>
+            <p id="gmChatOptProductPrice" class="gm-chat-sheet__product-price"></p>
+            <a id="gmChatOptProductLink" href="#" class="gm-chat-sheet__product-link" target="_blank" rel="noopener"><i class="fi-rs-external"></i> Voir l’annonce</a>
+        </div>
+        <ul class="gm-chat-sheet__actions">
+            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptCompleted"><i class="fi-rs-check"></i> Transaction complétée</button></li>
+            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptMute"><i class="fi-rs-bell-slash"></i> Couper les notifications</button></li>
+            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptReport"><i class="fi-rs-flag"></i> Signaler cette conversation</button></li>
+            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptBlock"><i class="fi-rs-delete-user"></i> Bloquer l’utilisateur</button></li>
+            <li><button type="button" class="gm-chat-sheet__action gm-chat-sheet__action--danger" id="gmChatOptDelete"><i class="fi-rs-trash"></i> Supprimer la conversation</button></li>
+        </ul>
+    </div>
+</div>
+
+<script src="{% static 'accounts/js/negotiation.js' %}?v=3.8"></script>
 <script>
 // Token CSRF pour les requêtes POST (suppression message, etc.)
 window.CSRF_TOKEN = "{{ csrf_token }}";
+window.currentUserId = {% if user.is_authenticated %}{{ user.pk }}{% else %}0{% endif %};
 // Variables globales pour la conversation (accessibles depuis negotiation.js)
 window.currentProductId = null;
 window.currentConversationId = null;
@@ -334,78 +343,100 @@ function openConversationChatbot(productId, conversationId) {
     window.currentConversationId = conversationId;
     const popup = document.getElementById('chatbotPopup');
     popup.style.display = 'flex';
-    
-    // Charger les conversations
-    loadConversations(productId);
-    
-    // Afficher directement la conversation après chargement
-    // Attendre que les conversations soient chargées
-    const checkAndShowConversation = () => {
-        if (conversationId && conversationsData.length > 0) {
-            // Vérifier que la conversation existe dans les données chargées
-            const conv = conversationsData.find(c => c.id === conversationId);
-            if (conv) {
-                showActiveConversation(conversationId);
-                return true;
-            }
+    var hList = document.getElementById('gmChatHeaderList');
+    var hAct = document.getElementById('gmChatHeaderActive');
+    if (hList) hList.hidden = false;
+    if (hAct) hAct.hidden = true;
+    const opts = (conversationId !== null && conversationId !== undefined)
+        ? { selectConversationId: conversationId }
+        : {};
+    function tryLoad() {
+        return loadConversations(productId, opts);
+    }
+    tryLoad().then(function() {
+        if (conversationId && !conversationsData.some(function(c) { return c.id === conversationId; })) {
+            return new Promise(function(r) { setTimeout(r, 700); }).then(tryLoad);
         }
-        return false;
-    };
-    
-    // Essayer immédiatement
-    setTimeout(() => {
-        if (!checkAndShowConversation()) {
-            // Si la conversation n'existe pas encore, attendre un peu plus et réessayer
-            setTimeout(() => {
-                loadConversations(productId);
-                setTimeout(() => {
-                    if (!checkAndShowConversation()) {
-                        showConversationsList();
-                    }
-                }, 500);
-            }, 1000);
-        }
-    }, 500);
+    }).catch(function() {});
 }
 
 function openChatbot(productId) {
     currentProductId = productId;
+    window.currentProductId = productId;
+    currentConversationId = null;
+    window.currentConversationId = null;
     const popup = document.getElementById('chatbotPopup');
     popup.style.display = 'flex';
-    
-    // Charger les conversations
-    loadConversations(productId);
-    
-    // Afficher la liste des conversations
     showConversationsList();
+    loadConversations(productId);
 }
 
 function closeChatbot() {
     const popup = document.getElementById('chatbotPopup');
     popup.style.display = 'none';
+    if (typeof closeGmChatOptionsSheet === 'function') closeGmChatOptionsSheet();
     currentProductId = null;
     currentConversationId = null;
+    window.currentProductId = null;
+    window.currentConversationId = null;
     conversationsData = [];
 }
 
 function showConversationsList() {
     document.getElementById('conversationsList').style.display = 'flex';
     document.getElementById('activeConversation').style.display = 'none';
+    var hList = document.getElementById('gmChatHeaderList');
+    var hAct = document.getElementById('gmChatHeaderActive');
+    if (hList) hList.hidden = false;
+    if (hAct) hAct.hidden = true;
     currentConversationId = null;
+    window.currentConversationId = null;
     if (typeof stopNegotiationPolling === 'function') {
         stopNegotiationPolling();
     }
 }
 
+function gmActivityLabelFr(iso) {
+    if (!iso) return 'Pas encore d’activité';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var sec = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (sec < 45) return 'À l’instant';
+    if (sec < 3600) return 'Vu il y a ' + Math.floor(sec / 60) + ' min';
+    if (sec < 86400) return 'Vu il y a ' + Math.floor(sec / 3600) + ' h';
+    var days = Math.floor(sec / 86400);
+    if (days === 1) return 'Vu hier';
+    return 'Vu il y a ' + days + ' jour' + (days > 1 ? 's' : '');
+}
+
 function showActiveConversation(conversationId) {
     document.getElementById('conversationsList').style.display = 'none';
     document.getElementById('activeConversation').style.display = 'flex';
+    var hList = document.getElementById('gmChatHeaderList');
+    var hAct = document.getElementById('gmChatHeaderActive');
+    if (hList) hList.hidden = true;
+    if (hAct) hAct.hidden = false;
     
     const conversation = conversationsData.find(c => c.id === conversationId);
     if (!conversation) return;
     
     currentConversationId = conversationId;
-    document.getElementById('activeConversationBuyer').textContent = conversation.buyer_name;
+    window.currentConversationId = conversationId;
+    const uid = window.currentUserId || 0;
+    const isSeller = uid && conversation.seller_id === uid;
+    const displayName = isSeller
+        ? (conversation.buyer_name || conversation.buyer_username || '')
+        : (conversation.seller_name || '');
+    const nameEl = document.getElementById('activeConversationBuyer');
+    const roleEl = document.getElementById('activeConversationRole');
+    const av = document.getElementById('gmChatHeaderAvatar');
+    if (nameEl) nameEl.textContent = displayName;
+    if (av) av.textContent = (displayName.trim().charAt(0) || '?').toUpperCase();
+    var iso = conversation.last_message_at_iso || null;
+    if (roleEl) {
+        roleEl.textContent = gmActivityLabelFr(iso);
+    }
+    if (typeof populateGmChatOptionsSheet === 'function') populateGmChatOptionsSheet(conversation);
     
     // Afficher les messages
     displayMessages(conversation.messages);
@@ -422,14 +453,13 @@ function showActiveConversation(conversationId) {
         }
     }
     
-    // Stocker l'ID utilisateur actuel pour la fonction displayNegotiationHistory
-    window.currentUserId = {{ user.id|default:0 }};
-    
     // Marquer comme lu
     markConversationAsRead(conversationId);
 }
 
-function loadConversations(productId) {
+function loadConversations(productId, options) {
+    options = options || {};
+    const forceSelectId = options.selectConversationId;
     const loadingDiv = document.getElementById('conversationsLoading');
     const contentDiv = document.getElementById('conversationsContent');
     const noConversationsDiv = document.getElementById('noConversations');
@@ -438,13 +468,11 @@ function loadConversations(productId) {
     contentDiv.style.display = 'none';
     noConversationsDiv.style.display = 'none';
     
-    // Construire l'URL absolue sans doublon de slash
     const convBase = "{% url 'accounts:get-product-conversations' 0 %}";
     const apiUrl = convBase.replace('/0/', `/${productId}/`);
-    fetch(apiUrl)
+    return fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
-                // Si erreur 404 ou autre, retourner une liste vide
                 return { conversations: [] };
             }
             return response.json();
@@ -452,75 +480,63 @@ function loadConversations(productId) {
         .then(data => {
             loadingDiv.style.display = 'none';
             conversationsData = data.conversations || [];
-            
-            // Si on a un conversationId en attente et qu'on vient de charger les conversations, essayer de l'afficher
-            if (window.currentConversationId && conversationsData.length > 0) {
-                const conv = conversationsData.find(c => c.id === window.currentConversationId);
-                if (conv && typeof showActiveConversation === 'function') {
-                    setTimeout(() => showActiveConversation(window.currentConversationId), 100);
-                    return;
-                }
-            }
-            
+            const idToShow = (forceSelectId !== undefined && forceSelectId !== null)
+                ? forceSelectId
+                : window.currentConversationId;
             if (conversationsData.length === 0) {
                 noConversationsDiv.style.display = 'block';
+                contentDiv.style.display = 'none';
             } else {
+                noConversationsDiv.style.display = 'none';
                 contentDiv.style.display = 'block';
                 displayConversationsList(conversationsData);
+                const conv = idToShow ? conversationsData.find(c => c.id === idToShow) : null;
+                if (conv && typeof showActiveConversation === 'function') {
+                    setTimeout(() => showActiveConversation(idToShow), 50);
+                }
             }
+            return conversationsData;
         })
         .catch(error => {
             console.error('Error loading conversations:', error);
             loadingDiv.style.display = 'none';
             conversationsData = [];
             noConversationsDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+            throw error;
         });
 }
 
 function displayConversationsList(conversations) {
     const container = document.getElementById('conversationsContent');
     container.innerHTML = '';
-    
+    const uid = window.currentUserId || 0;
     conversations.forEach(conv => {
-        const item = document.createElement('div');
-        item.className = 'conversation-item';
-        item.style.cssText = 'background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; border: 2px solid #E5E7EB;';
-        item.onclick = () => showActiveConversation(conv.id);
-        item.onmouseover = function() {
-            this.style.borderColor = 'var(--color-orange)';
-            this.style.boxShadow = '0 4px 12px rgba(255, 123, 44, 0.15)';
-            this.style.transform = 'translateY(-2px)';
+        const row = document.createElement('article');
+        const userRole = (uid && conv.seller_id === uid) ? 'seller' : 'buyer';
+        row.className = 'gm-msg-row gm-msg-row--popup' + (conv.unread_count > 0 ? ' is-unread' : '');
+        row.setAttribute('role', 'button');
+        row.tabIndex = 0;
+        row.onclick = function() { showActiveConversation(conv.id); };
+        row.onkeydown = function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showActiveConversation(conv.id); }
         };
-        item.onmouseout = function() {
-            this.style.borderColor = '#E5E7EB';
-            this.style.boxShadow = 'none';
-            this.style.transform = 'translateY(0)';
-        };
-        
-        const unreadBadge = conv.unread_count > 0 
-            ? `<span class="gm-s-90a948">${conv.unread_count}</span>`
-            : '';
-        
-        const lastMessage = conv.messages.length > 0 
-            ? conv.messages[conv.messages.length - 1].message.substring(0, 50) + (conv.messages[conv.messages.length - 1].message.length > 50 ? '...' : '')
-            : 'Aucun message';
-        
-        item.innerHTML = `
-            <div class="gm-s-1c20bb">
-                <div class="gm-s-c65e7b">
-                    ${conv.buyer_name.charAt(0).toUpperCase()}
-                </div>
-                <div class="gm-s-ec2eba">
-                    <h4 class="gm-s-0eb60b">${conv.buyer_name}</h4>
-                    <p class="gm-s-61380d">
-                        ${escapeHtml(lastMessage)}
-                    </p>
-                </div>
-                ${unreadBadge}
-            </div>
-        `;
-        
-        container.appendChild(item);
+        const displayName = (conv.other_user_name || conv.buyer_name || '').trim() || '—';
+        const initial = displayName.charAt(0).toUpperCase();
+        let preview = 'Toucher pour écrire';
+        if (conv.messages && conv.messages.length > 0) {
+            const m = conv.messages[conv.messages.length - 1];
+            preview = (m.is_sender ? 'Vous · ' : '') + m.message.substring(0, 56) + (m.message.length > 56 ? '…' : '');
+        }
+        const time = conv.last_message_at ? escapeHtml(conv.last_message_at) : '';
+        const badge = conv.unread_count > 0 ? '<span class="gm-msg-row__badge">' + conv.unread_count + '</span>' : '';
+        row.innerHTML =
+            '<div class="gm-msg-row__avatar" aria-hidden="true">' + escapeHtml(initial) + '</div>' +
+            '<div class="gm-msg-row__body">' +
+            '<div class="gm-msg-row__title-line"><span class="gm-msg-row__name">' + escapeHtml(displayName) + '</span></div>' +
+            '<p class="gm-msg-row__preview">' + escapeHtml(preview) + '</p></div>' +
+            '<div class="gm-msg-row__aside">' + (time ? '<time class="gm-msg-row__time">' + time + '</time>' : '') + badge + '</div>';
+        container.appendChild(row);
     });
 }
 
@@ -593,8 +609,14 @@ function doDeleteMessage(messageId) {
         return response.json().then(data => ({ ok: response.ok, status: response.status, data: data }));
     })
     .then(({ ok, status, data }) => {
-        if (ok && data.success && currentConversationId && typeof showActiveConversation === 'function') {
-            showActiveConversation(currentConversationId);
+        if (ok && data.success && currentConversationId) {
+            const conv = conversationsData.find(c => c.id === currentConversationId);
+            const pid = (conv && conv.product_id) ? conv.product_id : currentProductId;
+            if (pid && typeof loadConversations === 'function') {
+                loadConversations(pid, { selectConversationId: currentConversationId });
+            } else if (typeof showActiveConversation === 'function') {
+                showActiveConversation(currentConversationId);
+            }
         } else if (!ok || data.error) {
             const errMsg = (data && data.error) ? data.error : ('Erreur serveur (' + status + ')');
             if (typeof GMModal !== 'undefined' && GMModal.error) GMModal.error('Erreur', errMsg);
@@ -712,10 +734,9 @@ function sendMessage(event) {
     .then(data => {
         if (data && data.success) {
             input.value = '';
-            // Recharger les conversations
-            loadConversations(productId);
-            // Réafficher la conversation active
-            setTimeout(() => showActiveConversation(currentConversationId), 300);
+            const pid = conversation.product_id || currentProductId || 0;
+            const cid = currentConversationId;
+            loadConversations(pid, { selectConversationId: cid });
         } else {
             GMModal.error('Envoi échoué', data.error || 'Le message n\'a pas pu être envoyé.');
         }
@@ -841,8 +862,194 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Ouvrir automatiquement le chatbot si c'est une proposition d'offre
+function initGmInboxFilters() {
+    const toolbar = document.querySelector('.gm-msg-toolbar');
+    if (!toolbar) return;
+    const tabs = toolbar.querySelectorAll('.gm-msg-tab');
+    const chips = toolbar.querySelectorAll('.gm-filter-chip');
+    const search = document.getElementById('gmInboxSearch');
+    const emptyEl = document.getElementById('gmInboxFilterEmpty');
+    const resetBtn = document.getElementById('gmInboxResetFilters');
+    let activeRole = 'all';
+    let activeStatus = 'all';
+    function allCards() {
+        return document.querySelectorAll('.gm-msg-row');
+    }
+    function roleMatches(cardRole, filter) {
+        if (filter === 'all') return true;
+        return cardRole === filter;
+    }
+    function tagMatches(tags, filter) {
+        if (filter === 'all') return true;
+        if (filter === 'unread') return tags.indexOf('unread') !== -1;
+        if (filter === 'negotiating') return tags.indexOf('negotiating') !== -1;
+        if (filter === 'after_payment') {
+            return tags.indexOf('after_payment') !== -1 || tags.indexOf('pending_payment') !== -1;
+        }
+        if (filter === 'completed') return tags.indexOf('completed') !== -1;
+        return true;
+    }
+    function apply() {
+        const q = (search && search.value) ? search.value.trim().toLowerCase() : '';
+        let visible = 0;
+        allCards().forEach(function(card) {
+            const tags = (card.getAttribute('data-tags') || '').split(/\s+/).filter(Boolean);
+            const cardRole = card.getAttribute('data-user-role') || '';
+            const hay = (card.getAttribute('data-search') || '').toLowerCase();
+            const okRole = roleMatches(cardRole, activeRole);
+            const okTag = tagMatches(tags, activeStatus);
+            const okSearch = !q || hay.indexOf(q) !== -1;
+            const show = okRole && okTag && okSearch;
+            card.style.display = show ? '' : 'none';
+            if (show) visible += 1;
+        });
+        if (emptyEl) emptyEl.hidden = visible > 0;
+    }
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            if (tab.disabled) return;
+            tabs.forEach(function(t) { t.classList.remove('is-active'); });
+            tab.classList.add('is-active');
+            activeRole = tab.getAttribute('data-role') || 'all';
+            apply();
+        });
+    });
+    chips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            if (chip.disabled) return;
+            chips.forEach(function(c) { c.classList.remove('is-active'); });
+            chip.classList.add('is-active');
+            activeStatus = chip.getAttribute('data-filter') || 'all';
+            apply();
+        });
+    });
+    if (search) search.addEventListener('input', apply);
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (search) search.value = '';
+            activeRole = 'all';
+            activeStatus = 'all';
+            tabs.forEach(function(t) { t.classList.remove('is-active'); });
+            const t0 = toolbar.querySelector('.gm-msg-tab[data-role="all"]');
+            if (t0) t0.classList.add('is-active');
+            chips.forEach(function(c) { c.classList.remove('is-active'); });
+            const c0 = toolbar.querySelector('.gm-filter-chip[data-filter="all"]');
+            if (c0) c0.classList.add('is-active');
+            apply();
+        });
+    }
+}
+
+function populateGmChatOptionsSheet(conv) {
+    var nameEl = document.getElementById('gmChatOptProductName');
+    var priceEl = document.getElementById('gmChatOptProductPrice');
+    var linkEl = document.getElementById('gmChatOptProductLink');
+    var doneBtn = document.getElementById('gmChatOptCompleted');
+    var muteBtn = document.getElementById('gmChatOptMute');
+    if (nameEl) nameEl.textContent = conv.product_name || '';
+    if (priceEl) priceEl.textContent = (conv.product_price_display ? conv.product_price_display + '\u00a0FCFA' : '');
+    if (linkEl) {
+        linkEl.href = conv.product_url || '#';
+        linkEl.style.display = conv.product_url ? '' : 'none';
+    }
+    if (doneBtn) {
+        doneBtn.disabled = false;
+        doneBtn.innerHTML = conv.transaction_completed
+            ? '<i class="fi-rs-check"></i> Transaction complétée (terminée)'
+            : '<i class="fi-rs-check"></i> Transaction complétée';
+    }
+    if (muteBtn && currentConversationId) {
+        var muted = false;
+        try { muted = (JSON.parse(localStorage.getItem('gm_muted_threads') || '[]').indexOf(currentConversationId) >= 0); } catch (e) {}
+        muteBtn.innerHTML = muted ? '<i class="fi-rs-bell"></i> Réactiver les notifications' : '<i class="fi-rs-bell-slash"></i> Couper les notifications';
+    }
+}
+
+function openGmChatOptionsSheet() {
+    var sh = document.getElementById('gmChatOptionsSheet');
+    if (!sh) return;
+    var conv = conversationsData.find(function(c) { return c.id === currentConversationId; });
+    if (conv && typeof populateGmChatOptionsSheet === 'function') populateGmChatOptionsSheet(conv);
+    sh.hidden = false;
+    sh.setAttribute('aria-hidden', 'false');
+}
+
+function closeGmChatOptionsSheet() {
+    var sh = document.getElementById('gmChatOptionsSheet');
+    if (!sh) return;
+    sh.hidden = true;
+    sh.setAttribute('aria-hidden', 'true');
+}
+
+function initGmChatUi() {
+    var optBtn = document.getElementById('gmChatOpenOptionsBtn');
+    if (optBtn) optBtn.addEventListener('click', openGmChatOptionsSheet);
+    var bd = document.getElementById('gmChatOptionsBackdrop');
+    if (bd) bd.addEventListener('click', closeGmChatOptionsSheet);
+    var cl = document.getElementById('gmChatOptionsClose');
+    if (cl) cl.addEventListener('click', closeGmChatOptionsSheet);
+    var del = document.getElementById('gmChatOptDelete');
+    if (del) del.addEventListener('click', function() {
+        closeGmChatOptionsSheet();
+        if (typeof deleteConversationFromPopup === 'function') deleteConversationFromPopup();
+    });
+    var done = document.getElementById('gmChatOptCompleted');
+    if (done) done.addEventListener('click', function() {
+        closeGmChatOptionsSheet();
+        var conv = conversationsData.find(function(c) { return c.id === currentConversationId; });
+        if (conv && conv.transaction_completed) {
+            if (typeof GMModal !== 'undefined' && GMModal.success) GMModal.success('Transaction', 'Cette transaction est marquée comme complétée.');
+            else alert('Transaction complétée.');
+        } else {
+            if (typeof GMModal !== 'undefined' && GMModal.show) {
+                GMModal.show({ type: 'info', title: 'Transaction en cours', message: 'La commande sera marquée comme terminée automatiquement après confirmation de livraison.', showCancel: false, confirmText: 'OK' });
+            } else alert('La transaction se finalise après livraison confirmée.');
+        }
+    });
+    var mute = document.getElementById('gmChatOptMute');
+    if (mute) mute.addEventListener('click', function() {
+        if (!currentConversationId) return;
+        var a = [];
+        try { a = JSON.parse(localStorage.getItem('gm_muted_threads') || '[]'); } catch (e) { a = []; }
+        var i = a.indexOf(currentConversationId);
+        var wasMuted = i >= 0;
+        if (wasMuted) { a.splice(i, 1); localStorage.setItem('gm_muted_threads', JSON.stringify(a)); }
+        else { a.push(currentConversationId); localStorage.setItem('gm_muted_threads', JSON.stringify(a)); }
+        var conv = conversationsData.find(function(c) { return c.id === currentConversationId; });
+        if (conv) populateGmChatOptionsSheet(conv);
+        if (typeof GMModal !== 'undefined' && GMModal.success) {
+            GMModal.success('Notifications', wasMuted ? 'Notifications réactivées pour cette conversation.' : 'Notifications coupées pour cette conversation (appareil).');
+        }
+    });
+    var rep = document.getElementById('gmChatOptReport');
+    if (rep) rep.addEventListener('click', function() {
+        if (typeof GMModal !== 'undefined' && GMModal.show) GMModal.show({ type: 'info', title: 'Signalement', message: 'Fonctionnalité bientôt disponible. Contactez le support via la page Contact.', showCancel: false, confirmText: 'OK' });
+        else alert('Bientôt disponible.');
+        closeGmChatOptionsSheet();
+    });
+    var blk = document.getElementById('gmChatOptBlock');
+    if (blk) blk.addEventListener('click', function() {
+        if (typeof GMModal !== 'undefined' && GMModal.show) GMModal.show({ type: 'info', title: 'Blocage', message: 'Fonctionnalité bientôt disponible.', showCancel: false, confirmText: 'OK' });
+        else alert('Bientôt disponible.');
+        closeGmChatOptionsSheet();
+    });
+    document.querySelectorAll('.gm-chat-quick__pill').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var inp = document.getElementById('messageInput');
+            var t = btn.getAttribute('data-quick') || '';
+            if (inp && !inp.disabled) { inp.value = t; inp.focus(); }
+        });
+    });
+    var fn = document.getElementById('gmChatFocusNegotiationBtn');
+    if (fn) fn.addEventListener('click', function() {
+        var sec = document.getElementById('negotiationSection');
+        if (sec) { sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); sec.classList.add('gm-chat-negotiation--pulse'); setTimeout(function() { sec.classList.remove('gm-chat-negotiation--pulse'); }, 1200); }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    initGmInboxFilters();
+    initGmChatUi();
     {% if auto_open_product_id and auto_open_conversation_id %}
     setTimeout(function() {
         if (typeof openConversationChatbot === 'function') {

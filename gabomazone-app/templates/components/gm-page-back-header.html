@@ -1,0 +1,15 @@
+{% comment %}
+  Barre type page Panier : flèche retour + titre centré + spacer.
+  Variables :
+    - page_title (requis)
+    - back_url (optionnel, défaut : accueil)
+    - aria_label (optionnel, défaut : « Retour »)
+    - stretch (optionnel) : si absent, marges négatives ; passer stretch=False pour désactiver
+{% endcomment %}
+<div class="gm-page-back-header{% if stretch != False %} gm-page-back-header--stretch{% endif %}">
+    <a href="{% if back_url %}{{ back_url }}{% else %}{% url 'home:index' %}{% endif %}" class="gm-page-back-header__back" aria-label="{{ aria_label|default:'Retour' }}">
+        <i class="fi-rs-arrow-left"></i>
+    </a>
+    <h1 class="gm-page-back-header__title">{{ page_title }}</h1>
+    <div class="gm-page-back-header__spacer" aria-hidden="true"></div>
+</div>

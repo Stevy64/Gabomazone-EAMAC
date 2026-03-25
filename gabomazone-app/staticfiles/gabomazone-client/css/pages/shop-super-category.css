@@ -218,6 +218,7 @@ select.mySelect:focus {
 /* Mobile-First: grille 2x2 par défaut (style Ayoka) */
 #products-list,
 #products-list.flavoriz-product-grid,
+#products-list.gm-product-grid,
 #products-list.ayoka-products-grid,
 div#products-list {
     display: grid !important;
@@ -231,6 +232,7 @@ div#products-list {
 
 #products-list > *,
 #products-list.flavoriz-product-grid > *,
+#products-list.gm-product-grid > *,
 div#products-list > * {
     width: 100% !important;
     min-width: 0 !important;
@@ -242,6 +244,7 @@ div#products-list > * {
 @media (min-width: 769px) {
     #products-list,
     #products-list.flavoriz-product-grid,
+    #products-list.gm-product-grid,
     #products-list.ayoka-products-grid {
         grid-template-columns: repeat(3, 1fr) !important;
         gap: 18px !important;
@@ -252,6 +255,7 @@ div#products-list > * {
 @media (min-width: 1200px) {
     #products-list,
     #products-list.flavoriz-product-grid,
+    #products-list.gm-product-grid,
     #products-list.ayoka-products-grid {
         grid-template-columns: repeat(4, 1fr) !important;
         gap: 20px !important;

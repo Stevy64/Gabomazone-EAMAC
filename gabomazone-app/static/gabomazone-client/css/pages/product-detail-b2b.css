@@ -665,8 +665,8 @@
         width: 100%;
     }
 }
-/* Grille des produits similaires - Responsive comme dans shop */
-.flavoriz-product-grid-related {
+/* Grille produits similaires : cartes /shop/ (gm-product-grid) */
+.flavoriz-related-products .gm-product-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 20px !important;
@@ -676,40 +676,36 @@
     position: relative !important;
 }
 
-.flavoriz-product-grid-related > * {
+.flavoriz-related-products .gm-product-grid > * {
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
 }
 
-/* 4 colonnes sur grand écran */
 @media (min-width: 1200px) {
-    .flavoriz-product-grid-related {
+    .flavoriz-related-products .gm-product-grid {
         grid-template-columns: repeat(4, 1fr) !important;
         gap: 20px !important;
     }
 }
 
-/* 3 colonnes sur écran moyen */
 @media (max-width: 1199px) and (min-width: 769px) {
-    .flavoriz-product-grid-related {
+    .flavoriz-related-products .gm-product-grid {
         grid-template-columns: repeat(3, 1fr) !important;
         gap: 18px !important;
     }
 }
 
-/* 2 colonnes sur tablette ET mobile */
 @media (max-width: 768px) {
-    .flavoriz-product-grid-related {
+    .flavoriz-related-products .gm-product-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px !important;
     }
 }
 
-/* 1 colonne sur très petit mobile (optionnel) */
 @media (max-width: 360px) {
-    .flavoriz-product-grid-related {
+    .flavoriz-related-products .gm-product-grid {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
     }

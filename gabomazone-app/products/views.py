@@ -18,6 +18,58 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _c2c_peer_product_card_context(peer_product):
+    """Données pour `components/product_card.html` (article C2C, aligné sur le shop)."""
+    from accounts.models import PeerToPeerProductFavorite
+
+    product_images = []
+    if peer_product.product_image:
+        img_path = str(peer_product.product_image)
+        if not img_path.startswith('/media/'):
+            img_path = '/media/' + img_path
+        product_images.append(img_path)
+    for attr in ('additional_image_1', 'additional_image_2', 'additional_image_3'):
+        if getattr(peer_product, attr, None):
+            img_path = str(getattr(peer_product, attr))
+            if not img_path.startswith('/media/'):
+                img_path = '/media/' + img_path
+            product_images.append(img_path)
+    try:
+        like_count = PeerToPeerProductFavorite.objects.filter(product=peer_product).count()
+    except Exception:
+        like_count = 0
+    return {
+        'product': peer_product,
+        'product_images': json.dumps(product_images),
+        'like_count': like_count,
+        'is_peer_to_peer': True,
+        'is_boosted': False,
+    }
+
+
+def _b2b_product_card_context(product, boosted_ids):
+    """Données pour `components/product_card.html` (aligné sur le HTMX shop)."""
+    product_images = []
+    if product.product_image:
+        img_path = str(product.product_image)
+        if not img_path.startswith('/media/'):
+            img_path = '/media/' + img_path
+        product_images.append(img_path)
+    for attr in ('additional_image_1', 'additional_image_2', 'additional_image_3', 'additional_image_4'):
+        if getattr(product, attr, None):
+            img_path = str(getattr(product, attr))
+            if not img_path.startswith('/media/'):
+                img_path = '/media/' + img_path
+            product_images.append(img_path)
+    return {
+        'product': product,
+        'product_images': json.dumps(product_images),
+        'like_count': getattr(product, 'like_count', 0),
+        'is_peer_to_peer': False,
+        'is_boosted': product.id in boosted_ids,
+    }
+
+
 def product_details(request, slug):
     """Display B2B product detail page."""
     logger.info("product_details slug=%s user=%s", slug, request.user)
@@ -34,8 +86,24 @@ def product_details(request, slug):
     product_variations = ProductSize.objects.all().filter(PRDIProduct=product_detail)
     product_image = ProductImage.objects.all().filter(PRDIProduct=product_detail)
     related_products_minicategor = product_detail.product_minicategor
-    related_products = Product.objects.all().filter(
-        product_minicategor=related_products_minicategor, PRDISactive=True)
+    from categories.views import get_active_boosted_product_ids
+
+    _boosted = get_active_boosted_product_ids()
+    try:
+        related_products_qs = (
+            Product.objects.filter(product_minicategor=related_products_minicategor, PRDISactive=True)
+            .exclude(pk=product_detail.pk)
+            .select_related('product_vendor')
+            .annotate(like_count=Count('favorites'))[:4]
+        )
+    except Exception:
+        related_products_qs = (
+            Product.objects.filter(product_minicategor=related_products_minicategor, PRDISactive=True)
+            .exclude(pk=product_detail.pk)
+            .select_related('product_vendor')[:4]
+        )
+    related_products_data = [_b2b_product_card_context(p, _boosted) for p in related_products_qs]
+
     supplier_Products = Product.objects.all().filter(product_vendor=product_detail.product_vendor,
                                                      product_minicategor=related_products_minicategor, PRDISactive=True)
 
@@ -118,7 +186,7 @@ def product_details(request, slug):
         'product_variations': product_variations,
         'product_image': product_image,
         'product_images': product_images,  # Toutes les images pour la popup
-        'related_products': related_products,
+        'related_products_data': related_products_data,
         'supplier_Products': supplier_Products,
         'product_feedback': product_feedback,
         'average_rating': average_rating,
@@ -616,16 +684,33 @@ def wishlist(request):
         favorites.sort(key=lambda x: x.date if hasattr(x, 'date') and x.date else None, reverse=True)
         
         favorites_count = len(favorites)
+
+        from categories.views import get_active_boosted_product_ids
+
+        _boosted = get_active_boosted_product_ids()
+        wishlist_card_items = []
+        for fav in favorites:
+            if getattr(fav, 'is_peer_to_peer', False):
+                wishlist_card_items.append(_c2c_peer_product_card_context(fav.product))
+            else:
+                p = fav.product
+                try:
+                    p.like_count = ProductFavorite.objects.filter(product=p).count()
+                except Exception:
+                    p.like_count = 0
+                wishlist_card_items.append(_b2b_product_card_context(p, _boosted))
         
         context = {
             'favorites': favorites,
             'favorites_count': favorites_count,
+            'wishlist_card_items': wishlist_card_items,
         }
         return render(request, 'products/wishlist.html', context)
     except Exception as e:
         context = {
             'favorites': [],
             'favorites_count': 0,
+            'wishlist_card_items': [],
             'error': str(e)
         }
         return render(request, 'products/wishlist.html', context)

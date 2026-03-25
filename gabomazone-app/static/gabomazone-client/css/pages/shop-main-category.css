@@ -215,7 +215,8 @@ select.mySelect:focus {
 
 /* Styles de base pour la grille */
 #products-list,
-#products-list.flavoriz-product-grid {
+#products-list.flavoriz-product-grid,
+#products-list.gm-product-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 20px !important;

@@ -3,28 +3,19 @@
 
 {% block head %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/shop-super-category.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/shop-super-category.css' %}?v=2.1">
 {% endblock head %}
 
 {% block body %}
 <!-- ===== Super Category Page - Design Ayoka, Mobile-First ===== -->
 <main class="main pages ayoka-category-page shop-page-main gm-s-cfcb7c" >
     <div class="container shop-page-container gm-s-8b8839" >
-        <!-- Breadcrumb -->
-        <nav class="gm-s-7080c3">
-            <a href="{%url 'home:index'%}" class="gm-s-e5ac82">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
-            <span class="gm-s-ad3665">/</span>
-            <a href="{% url 'categories:shop' %}" class="gm-s-da24ca">Produits</a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-1fe6b6">{{super_category_obj.name}}</span>
-        </nav>
+        {% url 'categories:shop' as gm_super_back_url %}
+        {% include 'components/gm-page-back-header.html' with page_title=super_category_obj.name back_url=gm_super_back_url %}
 
-        <!-- En-tête style Ayoka : barre verre flouté + titre -->
+        <!-- En-tête style Ayoka : sous-titre (titre dans la barre retour) -->
         <section class="ayoka-category-header gm-s-dc2cb2" >
             <div class="gm-s-46a447">
-                <h1 class="gm-s-ea22c3">{{super_category_obj.name}}</h1>
                 <p class="gm-s-7d59e2">Découvrez tous les produits de cette catégorie</p>
             </div>
         </section>
@@ -120,7 +111,7 @@
         <div class="gm-s-35855e">
             <!-- Products Grid - Mobile-First 2x2 style Ayoka -->
             <div>
-                <div id="products-list" class="flavoriz-product-grid ayoka-products-grid gm-s-5c5bae" 
+                <div id="products-list" class="gm-product-grid ayoka-products-grid gm-s-5c5bae" 
                      hx-get="{% url 'categories:shop-htmx' %}?page=1&order_by={{ request.GET.order_by|default:'-date' }}&cat_type=super&cat_id={{super_category_obj.id}}"
                      hx-trigger="load"
                      hx-swap="innerHTML"

@@ -1,0 +1,55 @@
+/**
+ * Messagerie C2C — bloc négociation de prix (complète messages.css)
+ * IDs utilisés par accounts/js/negotiation.js et my-messages.html
+ */
+
+#negotiationSection {
+    background: linear-gradient(180deg, #FFFBF5 0%, #FFF7ED 100%);
+    border: 1px solid rgba(255, 123, 44, 0.2);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+#negotiationHistory {
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding-right: 4px;
+}
+
+#negotiationHistory::-webkit-scrollbar {
+    width: 6px;
+}
+#negotiationHistory::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+#negotiationForm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+#acceptFinalPriceBtn {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.purchase-intents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 576px) {
+    .purchase-intents-grid {
+        grid-template-columns: 1fr;
+    }
+    #negotiationForm {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

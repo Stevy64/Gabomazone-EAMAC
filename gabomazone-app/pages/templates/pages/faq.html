@@ -3,22 +3,14 @@
 {% load pages_extras %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/faq.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/faq.css' %}?v=2.1">
 {% endblock headextra %}
 
 {% block body %}
-<section class="flavoriz-faq-section gm-s-20edca" >
-    <!-- Hero épuré -->
-    <div class="faq-hero gm-s-575b8c" >
+<section class="flavoriz-faq-section gm-s-20edca gm-public-content-page" >
+    {% include 'components/gm-page-back-header.html' with page_title="Foire aux questions" stretch=False %}
+    <div class="faq-hero gm-s-575b8c gm-public-hero-band" >
         <div class="gm-s-1d0760">
-            <nav class="gm-s-480d6c">
-                <a href="{% url 'home:index' %}" class="gm-s-cbc4c1" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='#6B7280'">Accueil</a>
-                <span aria-hidden="true">/</span>
-                <span class="gm-s-eb8053">FAQ</span>
-            </nav>
-            <h1 class="gm-s-957a88">
-                Foire aux questions
-            </h1>
             <p class="gm-s-829df6">
                 Retrouvez les réponses aux questions les plus fréquentes pour acheter, vendre et utiliser GabomaZone en toute sérénité.
             </p>

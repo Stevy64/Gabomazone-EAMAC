@@ -8,16 +8,13 @@
 
 {% block body %}
 
-<main class="main pages" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
+<main class="main pages add-peer-page" style="padding-top: 100px; padding-bottom: 100px; min-height: calc(100vh - 200px); background: linear-gradient(135deg, #FDF8F3 0%, #FFF9F5 100%);">
     <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 24px;">
-        <!-- Breadcrumb -->
-        <nav style="margin-bottom: 20px; font-size: 13px; color: #6B7280; display: flex; align-items: center; gap: 6px;">
-            <a href="{% url 'home:index' %}" style="color: var(--color-orange); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
-            <span style="color: #9CA3AF;">/</span>
-            <span style="color: #6B7280; font-weight: 500;">Vendre un article</span>
-        </nav>
+        {% if is_edit %}
+        {% include 'components/gm-page-back-header.html' with page_title="Modifier l'annonce" %}
+        {% else %}
+        {% include 'components/gm-page-back-header.html' with page_title="Vendre un article" %}
+        {% endif %}
 
         <div class="row" style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
             <!-- Sidebar Menu (carte Mon compte, sans Déconnexion) -->

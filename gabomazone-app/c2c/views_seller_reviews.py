@@ -79,12 +79,17 @@ def seller_profile(request, seller_id):
             # Si la table n'existe pas encore
             pass
     
-    # Produits du vendeur
-    seller_products = PeerToPeerProduct.objects.filter(
-        seller=seller,
-        status=PeerToPeerProduct.APPROVED
-    ).order_by('-date')[:6]
-    
+    # Produits du vendeur (cartes alignées sur /shop/)
+    seller_products = list(
+        PeerToPeerProduct.objects.filter(
+            seller=seller,
+            status=PeerToPeerProduct.APPROVED
+        ).order_by('-date')[:6]
+    )
+    from products.views import _c2c_peer_product_card_context
+
+    seller_products_cards = [_c2c_peer_product_card_context(p) for p in seller_products]
+
     context = {
         'seller': seller,
         'stats': stats,
@@ -92,6 +97,7 @@ def seller_profile(request, seller_id):
         'can_review': can_review,
         'pending_review_order': pending_review_order,
         'seller_products': seller_products,
+        'seller_products_cards': seller_products_cards,
     }
     
     return render(request, 'c2c/seller_profile.html', context)

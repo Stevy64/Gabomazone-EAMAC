@@ -341,6 +341,10 @@ function lockInputsIfAgreed(intentData) {
             }
         }
     }
+    const quickReplies = document.getElementById('gmQuickReplies');
+    if (quickReplies && messageInput) {
+        quickReplies.style.display = messageInput.disabled ? 'none' : '';
+    }
 }
 
 /**

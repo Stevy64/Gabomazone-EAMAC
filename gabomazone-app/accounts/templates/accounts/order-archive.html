@@ -9,16 +9,13 @@
 {% block body %}
 <main class="main pages order-detail-page gm-s-e4a6f2" >
     <div class="container order-detail-container gm-s-75faf2" >
-        <!-- Breadcrumb -->
-        <nav class="order-detail-breadcrumb gm-s-8bd9c8" >
-            <a href="{% url 'home:index' %}" class="gm-s-7e35e1">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
+        <div class="gm-page-back-header gm-page-back-header--stretch">
+            <a href="{% url 'accounts:dashboard_customer' %}" class="gm-page-back-header__back" aria-label="Retour">
+                <i class="fi-rs-arrow-left"></i>
             </a>
-            <span class="gm-s-293195">/</span>
-            <a href="{% url 'accounts:dashboard_customer' %}" class="gm-s-20a539">Mes commandes</a>
-            <span class="gm-s-293195">/</span>
-            <span class="gm-s-91c809">Commande #{{order.id}}</span>
-        </nav>
+            <h1 class="gm-page-back-header__title">Commande #{{ order.id }}</h1>
+            <div class="gm-page-back-header__spacer" aria-hidden="true"></div>
+        </div>
 
         <!-- Header de la commande -->
         <div class="order-detail-hero gm-s-15be27" >

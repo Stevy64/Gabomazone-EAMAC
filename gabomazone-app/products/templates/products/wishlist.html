@@ -5,14 +5,14 @@
 
 {% block head %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/wishlist.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/wishlist.css' %}?v=2.1">
 {% endblock head %}
 
 {% block body %}
-<main class="main">
+<main class="main pages">
     <div class="flavoriz-wishlist-container">
+        {% include 'components/gm-page-back-header.html' with page_title="Ma liste de souhaits" %}
         <div class="flavoriz-wishlist-header">
-            <h1>Ma liste à souhaits</h1>
             <p class="flavoriz-wishlist-count">{{ favorites_count }} article{{ favorites_count|pluralize }}</p>
         </div>
         
@@ -23,89 +23,19 @@
         {% endif %}
         
         {% if favorites_count > 0 %}
-        <div class="flavoriz-wishlist-grid">
-            {% for favorite in favorites %}
-            {% if not favorite.is_peer_to_peer %}
-            {# Produit normal #}
-            <div class="flavoriz-product-card gm-s-e381d7" >
-                <div class="gm-s-f77169">
-                    <img src="{{ favorite.product.product_image.url }}" alt="{{ favorite.product.product_name }}" 
-                         loading="lazy" decoding="async"
-                         onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'"
-                         class="gm-s-446654" />
-                    <button data-product-id="{{ favorite.product.id }}" 
-                            onclick="event.stopPropagation(); toggleFavorite({{ favorite.product.id }}, this);" 
-                            class="flavoriz-favorite-btn gm-s-da5dea">
-                        <i class="fi-rs-heart gm-s-3eb35f" ></i>
-                    </button>
-                    {% if favorite.product.view_count and favorite.product.view_count > 0 %}
-                    <div class="gm-s-9d65e1">
-                        <i class="fi-rs-eye gm-s-6ec708" ></i>
-                        <span>{{ favorite.product.view_count|default:0 }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="flavoriz-product-body gm-s-8552df" >
-                    <h3 onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-title gm-s-63da28">{{ favorite.product.product_name }}</h3>
-                    <div class="gm-s-14d12e">
-                        <span class="gm-s-43b675">{{ favorite.product.PRDPrice|format_price }} FCFA</span>
-                        {% if favorite.product.PRDDiscountPrice %}
-                        <span class="gm-s-47b7e7">{{ favorite.product.PRDDiscountPrice|format_price }} FCFA</span>
-                        {% endif %}
-                    </div>
-                    <div class="gm-s-9e58e3">
-                        <button onclick="window.location.href='{% url 'products:product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-606ada">
-                            <i class="fi-rs-eye gm-s-766745" ></i>
-                            <span>Voir</span>
-                        </button>
-                        <button data-product-id="{{ favorite.product.id }}" data-product-price="{{ favorite.product.PRDPrice }}" onclick="event.stopPropagation(); addToCartQuick({{ favorite.product.id }}, '{{ favorite.product.PRDPrice }}');" class="flavoriz-add-cart-btn gm-s-3eec59">
-                            <i class="fi-rs-shopping-bag gm-s-499df8" ></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div class="gm-product-grid flavoriz-wishlist-grid">
+            {% for item in wishlist_card_items %}
+            {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:False is_boosted=item.is_boosted|default:False %}
+            {% if is_peer_to_peer %}
+            {% with price=product.PRDPrice discount_price=0 %}
+            {% include "components/product_card.html" %}
+            {% endwith %}
             {% else %}
-            {# Article d'occasion (PeerToPeerProductFavorite) #}
-            <div class="flavoriz-product-card gm-s-e381d7" >
-                <div class="gm-s-f77169">
-                    <img src="{{ favorite.product.product_image.url }}" alt="{{ favorite.product.product_name }}" 
-                         loading="lazy" decoding="async"
-                         onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'"
-                         class="gm-s-446654" />
-                    {% if favorite.product.condition %}
-                    <div class="gm-s-4d0410">
-                        <span class="peer-condition-badge peer-condition-badge-card peer-condition-{{ favorite.product.condition|condition_slug }}">{{ favorite.product.get_condition_display }}</span>
-                    </div>
-                    {% endif %}
-                    <button data-product-id="peer_{{ favorite.product.id }}" 
-                            onclick="event.stopPropagation(); toggleFavorite('peer_{{ favorite.product.id }}', this);" 
-                            class="flavoriz-favorite-btn gm-s-da5dea">
-                        <i class="fi-rs-heart gm-s-3eb35f" ></i>
-                    </button>
-                    {% if favorite.product.view_count and favorite.product.view_count > 0 %}
-                    <div class="gm-s-9d65e1">
-                        <i class="fi-rs-eye gm-s-6ec708" ></i>
-                        <span>{{ favorite.product.view_count|default:0 }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="flavoriz-product-body gm-s-8552df" >
-                    <h3 onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-title gm-s-63da28">{{ favorite.product.product_name }}</h3>
-                    <div class="gm-s-14d12e">
-                        <span class="gm-s-43b675">{{ favorite.product.PRDPrice|format_price }} FCFA</span>
-                    </div>
-                    <div class="gm-s-9e58e3">
-                        <button onclick="window.location.href='{% url 'accounts:peer-product-details' favorite.product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-606ada">
-                            <i class="fi-rs-eye gm-s-766745" ></i>
-                            <span>Voir</span>
-                        </button>
-                        <button data-product-id="{{ favorite.product.id }}" data-product-slug="{{ favorite.product.PRDSlug }}" data-product-price="{{ favorite.product.PRDPrice|floatformat:0 }}" onclick="event.stopPropagation(); proposeOfferToSeller({{ favorite.product.id }}, '{{ favorite.product.PRDSlug }}', {{ favorite.product.PRDPrice|floatformat:0 }});" title="Négocier le prix" class="flavoriz-propose-offer-btn gm-s-3eec59">
-                            <i class="fi-rs-money gm-s-499df8" ></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            {% with price=product.PRDPrice discount_price=product.PRDDiscountPrice %}
+            {% include "components/product_card.html" %}
+            {% endwith %}
             {% endif %}
+            {% endwith %}
             {% endfor %}
         </div>
         {% else %}
@@ -120,26 +50,31 @@
 </main>
 
 <script>
-    // Fonction pour proposer une offre au vendeur (articles peer-to-peer)
-    function proposeOfferToSeller(productId, productSlug, productPrice) {
-        {% if not user.is_authenticated %}
-        // Rediriger vers la page de connexion
-        window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
-        return;
-        {% endif %}
-        
-        // Ouvrir la messagerie avec une proposition d'offre
-        window.location.href = '{% url "accounts:my-messages" %}?product_id=' + productId + '&action=propose_offer';
-    }
-    
-    // S'assurer que les fonctions sont disponibles
-    if (typeof toggleFavorite === 'undefined' && typeof window.toggleFavorite !== 'undefined') {
-        window.toggleFavorite = window.toggleFavorite;
-    }
-    if (typeof addToCartQuick === 'undefined' && typeof window.addToCartQuick !== 'undefined') {
-        window.addToCartQuick = window.addToCartQuick;
-    }
+function proposeOfferToSeller(productId, productSlug, productPrice) {
+    {% if not user.is_authenticated %}
+    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
+    return;
+    {% endif %}
+    var createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
+    window.location.href = createIntentUrl;
+}
+if (typeof toggleFavorite === 'undefined' && typeof window.toggleFavorite !== 'undefined') {
+    window.toggleFavorite = window.toggleFavorite;
+}
+if (typeof addToCartQuick === 'undefined' && typeof window.addToCartQuick !== 'undefined') {
+    window.addToCartQuick = window.addToCartQuick;
+}
 </script>
 {% endblock body %}
 
-
+{% block script %}
+{{ block.super }}
+<script>
+window.addEventListener('load', function() {
+    if (typeof window.attachProductEventListeners === 'function') {
+        document.body.removeAttribute('data-product-listeners-attached');
+        window.attachProductEventListeners();
+    }
+});
+</script>
+{% endblock script %}

@@ -841,6 +841,7 @@ def get_product_conversations(request, product_id):
     Peut être appelée par le vendeur ou l'acheteur
     """
     from django.http import JsonResponse
+    from django.urls import reverse
     from .models import ProductConversation, ProductMessage
     from django.utils import timezone
     from django.contrib.auth.models import User
@@ -968,6 +969,21 @@ def get_product_conversations(request, product_id):
             other_user = conv.seller
             unread_count = conv.get_unread_count_for_buyer()
         
+        user_is_seller = request.user == conv.seller
+        try:
+            product_url = reverse('accounts:peer-product-details', kwargs={'slug': conv.product.PRDSlug})
+        except Exception:
+            product_url = ''
+        price_val = conv.product.PRDPrice
+        try:
+            price_display = f'{int(price_val):,}'.replace(',', '\u202f') if price_val is not None else ''
+        except (TypeError, ValueError):
+            price_display = str(price_val or '')
+        try:
+            _c2c = conv.get_c2c_order()
+            transaction_completed = bool(_c2c and getattr(_c2c, 'status', None) == 'completed')
+        except Exception:
+            transaction_completed = False
         conversations_data.append({
             'id': conv.id,
             'product_id': conv.product.id,
@@ -977,9 +993,16 @@ def get_product_conversations(request, product_id):
             'buyer_name': conv.buyer.get_full_name() or conv.buyer.username,
             'seller_name': conv.seller.get_full_name() or conv.seller.username,
             'other_user_name': other_user.get_full_name() or other_user.username,
+            'user_role': 'seller' if user_is_seller else 'buyer',
+            'product_name': conv.product.product_name,
+            'product_slug': conv.product.PRDSlug,
+            'product_url': product_url,
+            'product_price_display': price_display,
             'messages': messages_data,
             'unread_count': unread_count,
             'last_message_at': conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else None,
+            'last_message_at_iso': conv.last_message_at.isoformat() if conv.last_message_at else None,
+            'transaction_completed': transaction_completed,
         })
     
     return JsonResponse({'conversations': conversations_data})
@@ -1197,6 +1220,112 @@ def mark_conversation_messages_read(request, conversation_id):
     return JsonResponse({'success': True})
 
 
+def _annotate_conversation_thread_meta(conv):
+    """
+    Filtres / libellés pour l’UI messagerie (tags, phase, recherche texte).
+    """
+    tags = []
+    if getattr(conv, 'unread_count', 0) > 0:
+        tags.append('unread')
+
+    order = conv.c2c_order
+    intent = conv.purchase_intent
+    phase = 'contact'
+    status_label = ''
+    variant = 'neutral'
+
+    try:
+        from c2c.models import C2COrder, PurchaseIntent
+    except Exception:
+        conv.thread_tags = tags
+        conv.thread_phase = phase
+        conv.thread_status_label = status_label
+        conv.thread_status_variant = variant
+        ou = getattr(conv, 'other_user', None)
+        pn = ''
+        if getattr(conv, 'product', None) is not None:
+            pn = (conv.product.product_name or '').strip()
+        uname = ''
+        if ou is not None:
+            uname = (ou.get_full_name() or ou.username or '').strip()
+        conv.inbox_search_text = f'{uname} {pn}'.strip().lower()
+        return
+
+    if order:
+        tags.append('order')
+        st = order.status
+        if st == C2COrder.COMPLETED:
+            tags.extend(('completed', 'done'))
+            phase = 'completed'
+            status_label = 'Terminé'
+            variant = 'success'
+        elif st == C2COrder.CANCELLED:
+            tags.append('cancelled')
+            phase = 'cancelled'
+            status_label = 'Annulée'
+            variant = 'danger'
+        elif st == C2COrder.DISPUTED:
+            tags.append('disputed')
+            phase = 'disputed'
+            status_label = 'Litige'
+            variant = 'danger'
+        elif st == C2COrder.PENDING_PAYMENT:
+            tags.append('pending_payment')
+            phase = 'payment'
+            status_label = 'Paiement en attente'
+            variant = 'warn'
+        elif st == C2COrder.PAID:
+            tags.extend(('after_payment', 'paid'))
+            phase = 'after_payment'
+            status_label = 'Payé'
+            variant = 'info'
+        elif st in (C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED, C2COrder.VERIFIED):
+            tags.extend(('after_payment', 'delivery'))
+            phase = 'after_payment'
+            status_label = {
+                C2COrder.PENDING_DELIVERY: 'Livraison',
+                C2COrder.DELIVERED: 'Livré',
+                C2COrder.VERIFIED: 'Vérifié',
+            }.get(st, 'En cours')
+            variant = 'info'
+    elif intent:
+        tags.append('intent')
+        ist = intent.status
+        if ist in (PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING):
+            tags.append('negotiating')
+            phase = 'negotiation'
+            status_label = 'En négociation'
+            variant = 'warn'
+        elif ist == PurchaseIntent.AGREED:
+            tags.append('agreed')
+            phase = 'agreed'
+            status_label = 'Accord — paiement'
+            variant = 'info'
+        elif ist in (PurchaseIntent.REJECTED, PurchaseIntent.CANCELLED, PurchaseIntent.EXPIRED):
+            tags.append('closed_intent')
+            phase = 'inactive'
+            status_label = {
+                PurchaseIntent.REJECTED: 'Refusée',
+                PurchaseIntent.CANCELLED: 'Annulée',
+                PurchaseIntent.EXPIRED: 'Expirée',
+            }.get(ist, 'Inactive')
+            variant = 'neutral'
+
+    ou = getattr(conv, 'other_user', None)
+    name = ''
+    if ou is not None:
+        name = (ou.get_full_name() or ou.username or '').strip()
+    pname = ''
+    if getattr(conv, 'product', None) is not None:
+        pname = (conv.product.product_name or '').strip()
+    conv.inbox_search_text = f'{name} {pname}'.strip().lower()
+
+    conv.thread_tags = tags
+    conv.thread_phase = phase
+    conv.thread_status_label = status_label
+    conv.thread_status_variant = variant
+
+
 @login_required(login_url='accounts:login')
 def my_messages(request):
     """
@@ -1209,6 +1338,14 @@ def my_messages(request):
     total_unread = 0
     peer_notifications = []
     orders_unread_count = 0
+    purchase_intents = []
+    purchase_intents_unread = 0
+    inbox_unread_n = 0
+    inbox_negotiating_n = 0
+    inbox_after_payment_n = 0
+    inbox_completed_n = 0
+    inbox_purchases_n = 0
+    inbox_sales_n = 0
     auto_open_product_id = None
     auto_open_conversation_id = None
     
@@ -1265,12 +1402,21 @@ def my_messages(request):
             context = {
                 'conversations': [],
                 'total_unread': 0,
+                'messages_count': 0,
                 'peer_notifications': [],
                 'orders_unread_count': 0,
                 'purchase_intents': [],
                 'purchase_intents_unread': 0,
                 'auto_open_product_id': auto_open_product_id,
                 'auto_open_conversation_id': auto_open_conversation_id,
+                'archived_conversations': [],
+                'inbox_unread_n': 0,
+                'inbox_negotiating_n': 0,
+                'inbox_after_payment_n': 0,
+                'inbox_completed_n': 0,
+                'inbox_total_n': 0,
+                'inbox_purchases_n': 0,
+                'inbox_sales_n': 0,
             }
             return render(request, 'accounts/my-messages.html', context)
         
@@ -1334,6 +1480,18 @@ def my_messages(request):
         # Toutes les conversations (archivage désactivé)
         all_conversations = active_conversations
         all_conversations.sort(key=lambda x: (x.last_message_at is None, x.last_message_at), reverse=True)
+
+        for conv in all_conversations:
+            _annotate_conversation_thread_meta(conv)
+        inbox_unread_n = sum(1 for c in all_conversations if c.unread_count > 0)
+        inbox_negotiating_n = sum(1 for c in all_conversations if 'negotiating' in c.thread_tags)
+        inbox_after_payment_n = sum(
+            1 for c in all_conversations
+            if 'after_payment' in c.thread_tags or 'pending_payment' in c.thread_tags
+        )
+        inbox_completed_n = sum(1 for c in all_conversations if 'completed' in c.thread_tags)
+        inbox_purchases_n = sum(1 for c in all_conversations if getattr(c, 'user_role', '') == 'buyer')
+        inbox_sales_n = sum(1 for c in all_conversations if getattr(c, 'user_role', '') == 'seller')
         
         # Récupérer les notifications de commandes
         try:
@@ -1375,6 +1533,14 @@ def my_messages(request):
     except Exception as e:
         all_conversations = []
         total_unread = 0
+        purchase_intents = []
+        purchase_intents_unread = 0
+        inbox_unread_n = 0
+        inbox_negotiating_n = 0
+        inbox_after_payment_n = 0
+        inbox_completed_n = 0
+        inbox_purchases_n = 0
+        inbox_sales_n = 0
         # Récupérer les notifications de commandes même en cas d'erreur
         try:
             peer_notifications_qs = PeerToPeerOrderNotification.objects.filter(
@@ -1398,6 +1564,13 @@ def my_messages(request):
         'auto_open_product_id': auto_open_product_id,
         'auto_open_conversation_id': auto_open_conversation_id,
         'archived_conversations': [],  # option d'archivage supprimée
+        'inbox_unread_n': inbox_unread_n,
+        'inbox_negotiating_n': inbox_negotiating_n,
+        'inbox_after_payment_n': inbox_after_payment_n,
+        'inbox_completed_n': inbox_completed_n,
+        'inbox_total_n': len(all_conversations),
+        'inbox_purchases_n': inbox_purchases_n,
+        'inbox_sales_n': inbox_sales_n,
     }
     return render(request, 'accounts/my-messages.html', context)
 

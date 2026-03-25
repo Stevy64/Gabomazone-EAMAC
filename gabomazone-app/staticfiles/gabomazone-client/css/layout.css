@@ -25,10 +25,18 @@ main.main .container,
 
 .flavoriz-section.login-page-section,
 section.flavoriz-section.login-page-section,
-.flavoriz-section.about-page-section,
-section.flavoriz-section.about-page-section {
+.flavoriz-section.about-page-section:not(.gm-public-content-page),
+section.flavoriz-section.about-page-section:not(.gm-public-content-page) {
     margin-top: 120px !important;
     padding-top: 10px !important;
+}
+
+/* Pages sans <main> (À propos, CGU, remboursement, FAQ, contact) : annule flavoriz-force sur section / :first-of-type */
+section.gm-public-content-page {
+    margin-top: 0 !important;
+    padding-top: calc(102px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: 56px !important;
+    box-sizing: border-box;
 }
 
 .flavoriz-hero {
@@ -42,12 +50,33 @@ main.main.pages {
 }
 
 @media (max-width: 768px) {
-    main.main {
-        margin-top: 140px !important;
+    /* Document pleine largeur (évite contenu rétréci + bande vide à droite sur mobile / emulateurs) */
+    html {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+    }
+    body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+    /* Header fixe + encoche : marge seule insuffisante si d’autres feuilles remettent padding-top à 0 */
+    main.main,
+    main.main:not(.pages),
+    main.main.pages {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        margin-top: 0 !important;
+        padding-top: calc(118px + env(safe-area-inset-top, 0px)) !important;
     }
     main.main.pages {
-        margin-top: 140px !important;
-        padding-top: 15px !important;
+        padding-top: calc(128px + env(safe-area-inset-top, 0px)) !important;
     }
     .flavoriz-hero {
         padding-top: 15px !important;
@@ -57,10 +86,22 @@ main.main.pages {
     }
     .flavoriz-section.login-page-section,
     section.flavoriz-section.login-page-section,
-    .flavoriz-section.about-page-section,
-    section.flavoriz-section.about-page-section {
+    .flavoriz-section.about-page-section:not(.gm-public-content-page),
+    section.flavoriz-section.about-page-section:not(.gm-public-content-page) {
         margin-top: 120px !important;
         padding-top: 20px !important;
+    }
+    section.gm-public-content-page {
+        margin-top: 0 !important;
+        padding-top: calc(124px + env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    /* flavoriz-force met body { padding:0 } — on rétablit l’espace au-dessus de la bottom nav */
+    body {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    .flavoriz-header {
+        padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
     }
 }
 

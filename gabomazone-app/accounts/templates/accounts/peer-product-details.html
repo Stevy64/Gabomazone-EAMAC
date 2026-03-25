@@ -4,26 +4,20 @@
 {% load category_icons %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-c2c.css' %}?v=2.0" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-c2c.css' %}?v=2.1" />
 {% endblock headextra %}
 
 {% block body %}
+{% if peer_product.product_supercategory %}
+    {% url 'categories:super-category' peer_product.product_supercategory.slug as gm_peer_back_url %}
+{% else %}
+    {% url 'categories:shop' as gm_peer_back_url %}
+{% endif %}
 
 <main class="main">
     <div class="flavoriz-product-detail">
         <div class="flavoriz-product-detail-container">
-            <!-- Breadcrumb -->
-            <div class="flavoriz-breadcrumb">
-                <a href="{%url 'home:index'%}"><i class="fi-rs-home"></i> Accueil</a>
-                <span> / </span>
-                <a href="{% url 'categories:shop' %}">Boutique</a>
-                <span> / </span>
-                {% if peer_product.product_supercategory %}
-                <a href="{% url 'categories:super-category' peer_product.product_supercategory.slug %}">{{peer_product.product_supercategory}}</a>
-                <span> / </span>
-                {% endif %}
-                <span>{{peer_product.product_name|truncatechars:40}}</span>
-            </div>
+            {% include 'components/gm-page-back-header.html' with page_title="Détails de l'annonce" back_url=gm_peer_back_url %}
             
             <!-- Messages -->
             {% if messages %}
@@ -118,18 +112,18 @@
                             </div>
                         </div>
                         
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons (visibles acheteurs / invités ; masqués pour le vendeur de l’annonce) -->
                         <div class="gm-action-buttons">
-                            {% if user.id != peer_product.seller.id %}
+                            {% if not user.is_authenticated or user.pk != peer_product.seller_id %}
                             <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
                                 <i class="fi-rs-comment"></i>
                                 <span>Proposer une offre</span>
                             </button>
-                            {% endif %}
-                            <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="gm-action-btn gm-btn-contact">
-                                <i class="fi-rs-user"></i>
+                            <button type="button" onclick="openNegotiationChat()" class="gm-action-btn gm-btn-contact">
+                                <i class="fi-rs-comment-alt"></i>
                                 <span>Contacter le vendeur</span>
-                            </a>
+                            </button>
+                            {% endif %}
                         </div>
                         
                         <!-- Bloc Description (style Ayoka) -->
@@ -232,16 +226,16 @@
 
     <!-- Sticky Mobile Action Bar -->
     <div class="gm-sticky-actions">
-        {% if user.id != peer_product.seller.id %}
+        {% if not user.is_authenticated or user.pk != peer_product.seller_id %}
         <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
             <i class="fi-rs-comment"></i>
             <span>Offre</span>
         </button>
-        {% endif %}
-        <a href="{% url 'c2c:seller-profile' peer_product.seller.id %}" class="gm-action-btn gm-btn-contact">
-            <i class="fi-rs-user"></i>
+        <button type="button" onclick="openNegotiationChat()" class="gm-action-btn gm-btn-contact">
+            <i class="fi-rs-comment-alt"></i>
             <span>Contacter</span>
-        </a>
+        </button>
+        {% endif %}
     </div>
 </main>
 
@@ -394,6 +388,18 @@ function addPeerProductToCart() {
     });
 }
 
+/** Ouvre la messagerie / négociation (conversation + propose_offer), pas le profil vendeur */
+function openNegotiationChat() {
+    {% if not user.is_authenticated %}
+    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent('{% url "accounts:my-messages" %}?product_id={{ peer_product.id }}&action=propose_offer');
+    return;
+    {% endif %}
+    {% if user.is_authenticated and user.pk == peer_product.seller_id %}
+    return;
+    {% endif %}
+    window.location.href = '{% url "accounts:my-messages" %}?product_id={{ peer_product.id }}&action=propose_offer';
+}
+
 // Fonction pour proposer une offre au vendeur (remplace addPeerProductToCart)
 function proposeOfferToSeller(productId, productSlug, productPrice) {
     {% if not user.is_authenticated %}
@@ -403,8 +409,7 @@ function proposeOfferToSeller(productId, productSlug, productPrice) {
     {% endif %}
     
     {% if user.is_authenticated %}
-    // Vérifier si l'utilisateur n'est pas le vendeur
-    {% if user.id == peer_product.seller.id %}
+    {% if user.pk == peer_product.seller_id %}
     GMModal.warning('Action non autorisée', 'Vous ne pouvez pas proposer une offre pour votre propre article.');
     return;
     {% endif %}

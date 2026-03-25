@@ -1,7 +1,7 @@
 /* ===== DESKTOP - Grille optimisée: ligne 1 = Histoire | Contact, ligne 2 = Valeurs, ligne 3 = Mission ===== */
         @media (min-width: 1025px) {
-            .flavoriz-section.about-page-section,
-            section.flavoriz-section.about-page-section {
+            .flavoriz-section.about-page-section:not(.gm-public-content-page),
+            section.flavoriz-section.about-page-section:not(.gm-public-content-page) {
                 margin-top: 120px !important;
                 padding-top: 10px !important;
             }
@@ -19,8 +19,8 @@
         
         /* ===== TABLETTE (769px - 1024px) ===== */
         @media (min-width: 769px) and (max-width: 1024px) {
-            .flavoriz-section.about-page-section,
-            section.flavoriz-section.about-page-section {
+            .flavoriz-section.about-page-section:not(.gm-public-content-page),
+            section.flavoriz-section.about-page-section:not(.gm-public-content-page) {
                 margin-top: 120px !important;
             }
             .about-content-grid {
@@ -33,22 +33,15 @@
         
         /* ===== MOBILE - Cartes épurées et professionnelles ===== */
         @media (max-width: 768px) {
-            .flavoriz-section.about-page-section,
-            section.flavoriz-section.about-page-section {
+            .flavoriz-section.about-page-section:not(.gm-public-content-page),
+            section.flavoriz-section.about-page-section:not(.gm-public-content-page) {
                 margin-top: 100px !important;
             }
-            .flavoriz-section > div:first-child {
-                padding: 32px 20px 28px !important;
+            .flavoriz-section .gm-public-hero-band {
+                padding: 28px 20px 32px !important;
                 border-radius: 0 0 24px 24px !important;
             }
-            .flavoriz-section > div:first-child h1 {
-                font-size: 26px !important;
-                font-weight: 700 !important;
-                line-height: 1.25 !important;
-                margin-bottom: 8px !important;
-                letter-spacing: -0.02em !important;
-            }
-            .flavoriz-section > div:first-child p {
+            .flavoriz-section .gm-public-hero-band p {
                 font-size: 15px !important;
                 line-height: 1.55 !important;
                 color: #6B7280 !important;
@@ -152,20 +145,14 @@
         
         /* Mobile - Cartes épurées Entreprise */
         @media (max-width: 768px) {
-            .flavoriz-section:not(.about-page-section) {
+            .flavoriz-section:not(.about-page-section):not(.gm-public-content-page) {
                 margin-top: 100px !important;
             }
-            .flavoriz-section:not(.about-page-section) > div:first-child {
-                padding: 32px 20px 28px !important;
+            .flavoriz-section:not(.about-page-section) .gm-public-hero-band {
+                padding: 28px 20px 32px !important;
                 border-radius: 0 0 24px 24px !important;
             }
-            .flavoriz-section:not(.about-page-section) > div:first-child h1 {
-                font-size: 26px !important;
-                font-weight: 700 !important;
-                line-height: 1.25 !important;
-                margin-bottom: 8px !important;
-            }
-            .flavoriz-section:not(.about-page-section) > div:first-child p {
+            .flavoriz-section:not(.about-page-section) .gm-public-hero-band p {
                 font-size: 15px !important;
                 line-height: 1.55 !important;
                 color: #6B7280 !important;

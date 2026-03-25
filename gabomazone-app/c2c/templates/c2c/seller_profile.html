@@ -4,7 +4,7 @@
 {% load category_icons %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/seller-profile.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/seller-profile.css' %}?v=2.1">
 {% endblock headextra %}
 
 {% block body %}
@@ -146,54 +146,20 @@
             {% endif %}
         </div>
         
-        <!-- Autres articles de ce vendeur : même style que la liste produits (flavoriz-product-card) -->
-        {% if seller_products %}
+        <!-- Autres articles : mêmes cartes que /shop/ (gm-product-card) -->
+        {% if seller_products_cards %}
         <div class="reviews-section seller-products-section gm-s-5c2918" >
             <h2 class="gm-s-755b98">
                 <i class="fi-rs-box gm-s-67e1eb" ></i>
                 Autres articles de ce vendeur
             </h2>
-            <div id="seller-products-list" class="flavoriz-product-grid">
-                {% for product in seller_products %}
-                <div class="flavoriz-product-card gm-s-e381d7" >
-                    <div class="gm-s-f77169">
-                        {% if product.product_image %}
-                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" loading="lazy" decoding="async" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-image gm-s-446654">
-                        {% else %}
-                        <div class="gm-s-224d8f" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'"><i class="fi-rs-picture gm-s-46288c" ></i></div>
-                        {% endif %}
-                        {% if product.condition %}
-                        <div class="gm-s-4d0410">
-                            <span class="peer-condition-badge peer-condition-badge-card peer-condition-{{ product.condition|condition_slug }}">{{ product.get_condition_display }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="flavoriz-product-body gm-s-4ef801" >
-                        <h3 onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-title gm-s-e9ae14">{{ product.product_name }}</h3>
-                        <div class="gm-s-2c7351">
-                            <span class="flavoriz-product-price gm-s-cb8b8a" >{{ product.PRDPrice|format_price }} FCFA</span>
-                        </div>
-                        <div class="flavoriz-card-meta gm-s-af2ea0" >
-                            <span class="gm-s-447ca1">
-                                {% if product.seller_city %}
-                                <i class="fi-rs-marker gm-s-66a0d8" ></i><span class="gm-s-eff43d">{{ product.seller_city }}</span>
-                                {% else %}
-                                <span></span>
-                                {% endif %}
-                            </span>
-                            {% if product.date %}<span class="gm-s-6abb06">{{ product.date|relative_date }}</span>{% endif %}
-                        </div>
-                        <div class="gm-s-0e6856">
-                            <button type="button" onclick="window.location.href='{% url 'accounts:peer-product-details' product.PRDSlug %}'" class="flavoriz-product-card-btn gm-s-7c6af0">
-                                <i class="fi-rs-eye gm-s-766745" ></i>
-                                <span>Voir</span>
-                            </button>
-                            <button type="button" title="Proposer une offre" onclick="event.stopPropagation(); proposeOfferFromSellerProfile({{ product.id }}, '{{ product.PRDSlug }}', {{ product.PRDPrice|floatformat:0 }}, {{ seller.id }});" class="flavoriz-propose-offer-btn gm-s-9745ec">
-                                <i class="fi-rs-comment gm-s-499df8" ></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div id="seller-products-list" class="gm-product-grid seller-profile-products-grid">
+                {% for item in seller_products_cards %}
+                {% with product=item.product product_images=item.product_images like_count=item.like_count is_peer_to_peer=item.is_peer_to_peer|default:True is_boosted=item.is_boosted|default:False %}
+                {% with price=product.PRDPrice discount_price=0 %}
+                {% include "components/product_card.html" %}
+                {% endwith %}
+                {% endwith %}
                 {% endfor %}
             </div>
         </div>
@@ -223,5 +189,17 @@
     window.proposeOfferFromSellerProfile = proposeOfferFromSellerProfile;
 })();
 </script>
-{% endblock %}
+{% endblock body %}
+
+{% block script %}
+{{ block.super }}
+<script>
+window.addEventListener('load', function() {
+    if (typeof window.attachProductEventListeners === 'function') {
+        document.body.removeAttribute('data-product-listeners-attached');
+        window.attachProductEventListeners();
+    }
+});
+</script>
+{% endblock script %}
 

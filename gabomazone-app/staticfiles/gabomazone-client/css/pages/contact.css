@@ -6,11 +6,8 @@
             .contact-page-section .page-sidebar { position: static !important; }
         }
         @media (max-width: 768px) {
-            .contact-page-section.flavoriz-section { margin-top: 100px !important; }
-            .contact-page-section .flavoriz-section > div:first-child,
-            .contact-page-section > div:first-child { padding: 32px 20px 28px !important; border-radius: 0 0 24px 24px !important; }
-            .contact-page-section > div:first-child h1 { font-size: 26px !important; font-weight: 700 !important; line-height: 1.25 !important; margin-bottom: 8px !important; }
-            .contact-page-section > div:first-child p { font-size: 15px !important; line-height: 1.55 !important; color: #6B7280 !important; }
+            .contact-page-section .gm-public-hero-band { padding: 28px 20px 32px !important; border-radius: 0 0 24px 24px !important; }
+            .contact-page-section .gm-public-hero-band p { font-size: 15px !important; line-height: 1.55 !important; color: #6B7280 !important; }
             .contact-page-section .page-main-content { padding: 20px 16px 32px !important; }
             .contact-page-section .page-content-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
             .contact-page-section .page-card { border-radius: 20px !important; padding: 24px 20px !important; margin-bottom: 20px !important; }

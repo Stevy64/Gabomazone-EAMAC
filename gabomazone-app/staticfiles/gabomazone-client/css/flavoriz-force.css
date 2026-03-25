@@ -364,11 +364,12 @@ main.main.pages .col-12 {
         position: static !important;
     }
     
-    /* S'assurer que le header n'interfère pas */
-    .flavoriz-header,
+    /* Dropdown compte mobile : contexte de positionnement sans retirer le header fixed */
     .flavoriz-header-top,
     .flavoriz-header-actions-mobile {
         overflow: visible !important;
+    }
+    .flavoriz-account-dropdown-mobile {
         position: relative !important;
     }
     
@@ -392,15 +393,15 @@ main.main.pages .col-12 {
 }
 
 /*
- * Mobile : le header est en position relative (règle @media plus haut), il occupe la hauteur en flux.
- * Les règles main { margin-top: 140px } ci-dessus créent un vide énorme sous le header sur TOUT le site.
+ * Mobile : smart-header.js impose position:fixed sur le header → sans décalage, le contenu
+ * (accueil, fiches produit, vendeur, etc.) passe SOUS la barre. Un padding-top unique sur main.
  */
 @media (max-width: 768px) {
     main.main,
     main.main.pages,
     main.main:not(.pages) {
         margin-top: 0 !important;
-        padding-top: 0 !important;
+        padding-top: calc(118px + env(safe-area-inset-top, 0px)) !important;
     }
 }
 

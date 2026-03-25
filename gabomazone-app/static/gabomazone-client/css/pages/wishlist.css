@@ -24,12 +24,22 @@
         font-size: 14px;
     }
     
-    .flavoriz-wishlist-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 24px;
+    /* Grille alignée sur /shop/ (gm-product-grid + colonnes responsive) */
+    .flavoriz-wishlist-grid.gm-product-grid {
         margin-bottom: 40px;
     }
+@media (min-width: 769px) {
+    .flavoriz-wishlist-grid.gm-product-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 18px !important;
+    }
+}
+@media (min-width: 1200px) {
+    .flavoriz-wishlist-grid.gm-product-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 20px !important;
+    }
+}
     
     .flavoriz-wishlist-empty {
         background: white;
@@ -88,9 +98,8 @@
             font-size: 24px;
         }
         
-        .flavoriz-wishlist-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+        .flavoriz-wishlist-grid.gm-product-grid {
+            gap: 12px;
         }
         
         .flavoriz-wishlist-empty {

@@ -10,19 +10,9 @@
 <!-- ===== Suppliers List Page FLAVORIZ Design ===== -->
 <main class="main pages shop-page-main gm-s-8748cb" >
     <div class="container shop-page-container gm-s-8b8839" >
-        <!-- Breadcrumb -->
-        <nav class="gm-s-634746">
-            <a href="{%url 'home:index'%}" class="gm-s-e14d0f">
-                <i class="fi-rs-home"></i> <span>Accueil</span>
-            </a>
-            <span class="gm-s-ad3665">/</span>
-            <span class="gm-s-6bbb36">Magasins</span>
-        </nav>
-
-        <!-- Page Header -->
+        {% include 'components/gm-page-back-header.html' with page_title="Magasins partenaires" %}
         <div class="gm-s-d96aad">
             <div>
-                <h1 class="gm-s-aae6b7">Magasins Partenaires</h1>
                 <p class="gm-s-7d59e2">Découvrez nos magasins partenaires</p>
             </div>
         </div>
