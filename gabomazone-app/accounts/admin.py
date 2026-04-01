@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage, AdminNotification, AdminMessage
+from .models import Profile, PeerToPeerProduct, DeliveryCode, PremiumSubscription, ProductBoostRequest, ProductConversation, ProductMessage, AdminNotification, AdminMessage, ConversationReport
+from django.urls import reverse
+from django.utils.html import format_html
 from django.utils import timezone
 # Register your models here.
 
@@ -171,18 +173,74 @@ class ProductMessageInline(admin.TabularInline):
 
 
 class ProductConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'seller', 'buyer', 'last_message_at', 'unread_count_display')
+    list_display = ('id', 'product', 'seller', 'buyer', 'last_message_at', 'transaction_stage_display', 'unread_count_display')
     list_filter = ('last_message_at',)
     list_display_links = ('id', 'product')
     search_fields = ('product__product_name', 'seller__username', 'buyer__username')
-    readonly_fields = ('created_at', 'updated_at', 'last_message_at')
+    readonly_fields = (
+        'created_at', 'updated_at', 'last_message_at',
+        'transaction_stage_display', 'linked_purchase_intent', 'linked_c2c_order',
+    )
     inlines = [ProductMessageInline]
     list_per_page = 20
+    fieldsets = (
+        ('Conversation', {
+            'fields': ('product', 'seller', 'buyer', 'last_message_at')
+        }),
+        ('Suivi transaction', {
+            'fields': ('transaction_stage_display', 'linked_purchase_intent', 'linked_c2c_order')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
     
     def unread_count_display(self, obj):
         """Affiche le nombre de messages non lus pour le vendeur"""
         return obj.get_unread_count_for_seller()
     unread_count_display.short_description = 'Messages non lus (vendeur)'
+
+    def transaction_stage_display(self, obj):
+        try:
+            from c2c.models import C2COrder, PurchaseIntent
+            order = obj.get_c2c_order()
+            intent = obj.get_purchase_intent()
+            if order:
+                if order.status == C2COrder.COMPLETED:
+                    return "4/4 - Terminé"
+                if order.status in (C2COrder.PENDING_PAYMENT,):
+                    return "2/4 - Paiement"
+                if order.status in (C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED, C2COrder.VERIFIED, C2COrder.DISPUTED):
+                    return "3/4 - Article récupéré"
+                return "1/4 - Négociation"
+            if intent and intent.status == PurchaseIntent.AGREED:
+                return "2/4 - Paiement"
+            return "1/4 - Négociation"
+        except Exception:
+            return "-"
+    transaction_stage_display.short_description = "Avancement"
+
+    def linked_purchase_intent(self, obj):
+        try:
+            intent = obj.get_purchase_intent()
+            if not intent:
+                return "-"
+            url = reverse('admin:c2c_purchaseintent_change', args=[intent.id])
+            return format_html('<a href="{}">Intention #{} ({})</a>', url, intent.id, intent.get_status_display())
+        except Exception:
+            return "-"
+    linked_purchase_intent.short_description = "Intention d'achat"
+
+    def linked_c2c_order(self, obj):
+        try:
+            order = obj.get_c2c_order()
+            if not order:
+                return "-"
+            url = reverse('admin:c2c_c2corder_change', args=[order.id])
+            return format_html('<a href="{}">Commande #{} ({})</a>', url, order.id, order.get_status_display())
+        except Exception:
+            return "-"
+    linked_c2c_order.short_description = "Commande C2C"
 
 
 class ProductMessageAdmin(admin.ModelAdmin):
@@ -281,3 +339,65 @@ class AdminMessageAdmin(admin.ModelAdmin):
             pass
 
 admin.site.register(AdminMessage, AdminMessageAdmin)
+
+
+@admin.register(ConversationReport)
+class ConversationReportAdmin(admin.ModelAdmin):
+    list_display = ('id', 'conversation_link', 'reporter', 'status', 'created_at', 'reviewed_by', 'reviewed_at')
+    list_filter = ('status', 'created_at', 'reviewed_at')
+    list_display_links = ('id',)
+    search_fields = (
+        'conversation__product__product_name',
+        'conversation__buyer__username',
+        'conversation__seller__username',
+        'reporter__username',
+        'reason',
+        'details',
+    )
+    readonly_fields = ('conversation', 'reporter', 'reason', 'details', 'created_at', 'updated_at')
+    actions = ('mark_in_review', 'mark_resolved', 'mark_rejected')
+    list_per_page = 30
+
+    fieldsets = (
+        ('Signalement', {
+            'fields': ('conversation', 'reporter', 'reason', 'details')
+        }),
+        ('Traitement', {
+            'fields': ('status', 'reviewed_by', 'reviewed_at')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if change and 'status' in form.changed_data and obj.status in (
+            ConversationReport.IN_REVIEW, ConversationReport.RESOLVED, ConversationReport.REJECTED
+        ):
+            obj.reviewed_by = request.user
+            obj.reviewed_at = timezone.now()
+        super().save_model(request, obj, form, change)
+
+    def conversation_link(self, obj):
+        try:
+            url = reverse('admin:accounts_productconversation_change', args=[obj.conversation_id])
+            return format_html('<a href="{}">Conversation #{}</a>', url, obj.conversation_id)
+        except Exception:
+            return f"Conversation #{obj.conversation_id}"
+    conversation_link.short_description = "Conversation"
+
+    def _bulk_update_status(self, request, queryset, status):
+        updated = queryset.update(status=status, reviewed_by=request.user, reviewed_at=timezone.now())
+        self.message_user(request, f'{updated} signalement(s) mis à jour.')
+
+    def mark_in_review(self, request, queryset):
+        self._bulk_update_status(request, queryset, ConversationReport.IN_REVIEW)
+    mark_in_review.short_description = "Marquer en cours d'analyse"
+
+    def mark_resolved(self, request, queryset):
+        self._bulk_update_status(request, queryset, ConversationReport.RESOLVED)
+    mark_resolved.short_description = "Marquer résolu"
+
+    def mark_rejected(self, request, queryset):
+        self._bulk_update_status(request, queryset, ConversationReport.REJECTED)
+    mark_rejected.short_description = "Marquer rejeté"

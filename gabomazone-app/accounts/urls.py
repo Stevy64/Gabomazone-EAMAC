@@ -42,6 +42,7 @@ urlpatterns = [
     path('delete-peer-product/<int:product_id>/', views.delete_peer_product, name="delete-peer-product"),
     path('my-published-products/', views.my_published_products, name="my-published-products"),
     path('my-messages/', views.my_messages, name="my-messages"),
+    path('inbox-conversations/', views.get_inbox_conversations, name="get-inbox-conversations"),
     path('product-conversations/<int:product_id>/', views.get_product_conversations, name="get-product-conversations"),
     path('send-product-message/<int:product_id>/', views.send_product_message, name="send-product-message"),
     path('mark-conversation-read/<int:conversation_id>/', views.mark_conversation_messages_read, name="mark-conversation-read"),
@@ -49,6 +50,7 @@ path('delete-product-message/<int:message_id>/', views.delete_product_message, n
     path('archive-conversation/<int:conversation_id>/', views.archive_conversation, name="archive-conversation"),
     path('unarchive-conversation/<int:conversation_id>/', views.unarchive_conversation, name="unarchive-conversation"),
     path('delete-conversation/<int:conversation_id>/', views.delete_conversation, name="delete-conversation"),
+    path('report-conversation/<int:conversation_id>/', views.report_conversation, name="report-conversation"),
     path('download_file/<int:order_id>/<str:filename>/',
          views.download_file, name="download-file"),
     

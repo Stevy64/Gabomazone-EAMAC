@@ -46,7 +46,7 @@ class PurchaseIntentAdmin(admin.ModelAdmin):
                    'negotiated_price', 'final_price', 'status', 'created_at')
     list_filter = ('status', 'created_at', 'seller', 'buyer')
     search_fields = ('product__product_name', 'buyer__username', 'seller__username')
-    readonly_fields = ('created_at', 'updated_at', 'agreed_at')
+    readonly_fields = ('created_at', 'updated_at', 'agreed_at', 'availability_confirmed_at')
     date_hierarchy = 'created_at'
     
     fieldsets = (
@@ -57,7 +57,7 @@ class PurchaseIntentAdmin(admin.ModelAdmin):
             'fields': ('initial_price', 'negotiated_price', 'final_price')
         }),
         ('Dates', {
-            'fields': ('created_at', 'updated_at', 'agreed_at', 'expires_at')
+            'fields': ('created_at', 'updated_at', 'agreed_at', 'expires_at', 'availability_confirmed_at')
         }),
         ('Notifications', {
             'fields': ('seller_notified',)
@@ -393,6 +393,10 @@ class DeliveryVerificationAdmin(admin.ModelAdmin):
         }),
         ('Codes de vérification', {
             'fields': ('seller_code', 'buyer_code')
+        }),
+        ('Confirmation remise / réception (avant affichage des codes)', {
+            'fields': ('buyer_handover_confirmed_at', 'seller_handover_confirmed_at'),
+            'description': 'Rempli depuis la messagerie ; les deux dates débloquent l’affichage des codes aux parties.',
         }),
         ('Vérifications', {
             'fields': ('seller_code_verified', 'seller_code_verified_at',

@@ -30,14 +30,70 @@ logger = logging.getLogger(__name__)
 
 
 def _table_exists(table_name):
-    """Check if a database table exists (SQLite compatibility)."""
+    """Vérifie si une table existe (SQLite, PostgreSQL, etc.)."""
     from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name=%s",
-            [table_name]
-        )
-        return cursor.fetchone() is not None
+    try:
+        return table_name in connection.introspection.table_names()
+    except Exception:
+        return False
+
+
+def _c2c_transaction_progress(conv):
+    """
+    Avancement transaction C2C pour l'UI (acheteur et vendeur) : 4 étapes.
+    0 = négociation, 1 = paiement, 2 = article récupéré / livraison, 3 = terminé.
+    """
+    from c2c.models import PurchaseIntent, C2COrder
+    try:
+        order = conv.get_c2c_order()
+        intent = conv.get_purchase_intent()
+    except Exception:
+        return {'tx_step': 0, 'order_status': None, 'intent_status': None}
+    if order:
+        st = order.status
+        if st == C2COrder.COMPLETED:
+            return {
+                'tx_step': 3,
+                'order_status': st,
+                'intent_status': getattr(intent, 'status', None),
+            }
+        if st == C2COrder.PENDING_PAYMENT:
+            return {
+                'tx_step': 1,
+                'order_status': st,
+                'intent_status': getattr(intent, 'status', None),
+            }
+        if st == C2COrder.CANCELLED:
+            return {
+                'tx_step': 0,
+                'order_status': st,
+                'intent_status': getattr(intent, 'status', None),
+            }
+        if st in (
+            C2COrder.PAID,
+            C2COrder.PENDING_DELIVERY,
+            C2COrder.DELIVERED,
+            C2COrder.VERIFIED,
+            C2COrder.DISPUTED,
+        ):
+            return {
+                'tx_step': 2,
+                'order_status': st,
+                'intent_status': getattr(intent, 'status', None),
+            }
+        return {
+            'tx_step': 0,
+            'order_status': st,
+            'intent_status': getattr(intent, 'status', None),
+        }
+    if intent is None:
+        return {'tx_step': 0, 'order_status': None, 'intent_status': None}
+    ist = intent.status
+    if ist in (PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING):
+        return {'tx_step': 0, 'order_status': None, 'intent_status': ist}
+    if ist == PurchaseIntent.AGREED:
+        return {'tx_step': 1, 'order_status': None, 'intent_status': ist}
+    return {'tx_step': 0, 'order_status': None, 'intent_status': ist}
 
 
 def register(request):
@@ -984,6 +1040,10 @@ def get_product_conversations(request, product_id):
             transaction_completed = bool(_c2c and getattr(_c2c, 'status', None) == 'completed')
         except Exception:
             transaction_completed = False
+        try:
+            _tx = _c2c_transaction_progress(conv)
+        except Exception:
+            _tx = {'tx_step': 0, 'order_status': None, 'intent_status': None}
         conversations_data.append({
             'id': conv.id,
             'product_id': conv.product.id,
@@ -1003,8 +1063,111 @@ def get_product_conversations(request, product_id):
             'last_message_at': conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else None,
             'last_message_at_iso': conv.last_message_at.isoformat() if conv.last_message_at else None,
             'transaction_completed': transaction_completed,
+            'tx_step': _tx.get('tx_step', 0),
+            'order_status': _tx.get('order_status'),
+            'intent_status': _tx.get('intent_status'),
         })
     
+    return JsonResponse({'conversations': conversations_data})
+
+
+@login_required(login_url='accounts:login')
+def get_inbox_conversations(request):
+    """
+    Retourne toutes les conversations de l'utilisateur (Achats/Ventes/Toutes),
+    triées de la plus récente à la plus ancienne.
+    """
+    from django.http import JsonResponse
+    from django.urls import reverse
+    from .models import ProductConversation
+    from django.db.models import Q
+
+    role = (request.GET.get('role') or 'all').strip().lower()
+
+    conv_table_exists = False
+    try:
+        conv_table_exists = _table_exists('accounts_productconversation')
+    except Exception:
+        conv_table_exists = False
+    if not conv_table_exists:
+        return JsonResponse({'conversations': []})
+
+    qs = ProductConversation.objects.select_related('product', 'buyer', 'seller')
+    if role == 'buyer':
+        qs = qs.filter(buyer=request.user)
+    elif role == 'seller':
+        qs = qs.filter(seller=request.user)
+    else:
+        qs = qs.filter(Q(buyer=request.user) | Q(seller=request.user))
+
+    conversations = qs.order_by('-last_message_at', '-updated_at')
+    conversations_data = []
+    for conv in conversations:
+        messages = conv.messages.all().order_by('created_at')
+        messages_data = []
+        for msg in messages:
+            messages_data.append({
+                'id': msg.id,
+                'sender': msg.sender.username,
+                'sender_id': msg.sender.id,
+                'message': msg.message,
+                'created_at': msg.created_at.strftime('%d/%m/%Y %H:%M'),
+                'is_read': msg.is_read,
+                'is_sender': msg.sender == request.user,
+            })
+
+        if request.user == conv.seller:
+            other_user = conv.buyer
+            unread_count = conv.get_unread_count_for_seller()
+            user_role = 'seller'
+        else:
+            other_user = conv.seller
+            unread_count = conv.get_unread_count_for_buyer()
+            user_role = 'buyer'
+
+        try:
+            product_url = reverse('accounts:peer-product-details', kwargs={'slug': conv.product.PRDSlug})
+        except Exception:
+            product_url = ''
+        price_val = conv.product.PRDPrice
+        try:
+            price_display = f'{int(price_val):,}'.replace(',', '\u202f') if price_val is not None else ''
+        except (TypeError, ValueError):
+            price_display = str(price_val or '')
+        try:
+            _c2c = conv.get_c2c_order()
+            transaction_completed = bool(_c2c and getattr(_c2c, 'status', None) == 'completed')
+        except Exception:
+            transaction_completed = False
+        try:
+            _tx = _c2c_transaction_progress(conv)
+        except Exception:
+            _tx = {'tx_step': 0, 'order_status': None, 'intent_status': None}
+
+        conversations_data.append({
+            'id': conv.id,
+            'product_id': conv.product.id,
+            'buyer_id': conv.buyer.id,
+            'seller_id': conv.seller.id,
+            'buyer_username': conv.buyer.username,
+            'buyer_name': conv.buyer.get_full_name() or conv.buyer.username,
+            'seller_name': conv.seller.get_full_name() or conv.seller.username,
+            'other_user_name': other_user.get_full_name() or other_user.username,
+            'user_role': user_role,
+            'product_name': conv.product.product_name,
+            'product_slug': conv.product.PRDSlug,
+            'product_url': product_url,
+            'product_price_display': price_display,
+            'messages': messages_data,
+            'unread_count': unread_count,
+            'last_message_at': conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else None,
+            'last_message_at_iso': conv.last_message_at.isoformat() if conv.last_message_at else None,
+            'transaction_completed': transaction_completed,
+            'tx_step': _tx.get('tx_step', 0),
+            'order_status': _tx.get('order_status'),
+            'intent_status': _tx.get('intent_status'),
+        })
+
     return JsonResponse({'conversations': conversations_data})
 
 
@@ -1195,6 +1358,61 @@ def delete_conversation(request, conversation_id):
 
 
 @login_required(login_url='accounts:login')
+@require_POST
+def report_conversation(request, conversation_id):
+    """
+    Crée un signalement de conversation et notifie l'administration.
+    """
+    from django.http import JsonResponse
+    from .models import ProductConversation, ConversationReport, AdminNotification
+    import json
+
+    try:
+        conversation = ProductConversation.objects.get(id=conversation_id)
+    except ProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+
+    if request.user not in [conversation.seller, conversation.buyer]:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except Exception:
+        payload = {}
+
+    reason = (payload.get('reason') or '').strip()
+    details = (payload.get('details') or '').strip()
+    if not reason:
+        reason = 'Signalement depuis la messagerie'
+
+    report = ConversationReport.objects.create(
+        conversation=conversation,
+        reporter=request.user,
+        reason=reason[:255],
+        details=details[:5000],
+    )
+
+    try:
+        AdminNotification.objects.create(
+            notification_type=getattr(AdminNotification, 'CONVERSATION_REPORT', AdminNotification.CONTACT_MESSAGE),
+            title=f'Signalement conversation #{conversation.id}',
+            message=(
+                f"Signalement envoyé par {request.user.get_full_name() or request.user.username} "
+                f"sur la conversation #{conversation.id} ({conversation.product.product_name}).\n\n"
+                f"Motif: {report.reason}\n"
+                f"Détails: {report.details or '—'}"
+            ),
+            related_object_id=report.id,
+            related_object_type='accounts.ConversationReport',
+            related_url='/admin/accounts/conversationreport/',
+        )
+    except Exception:
+        pass
+
+    return JsonResponse({'success': True, 'message': 'Signalement transmis à l’administration.'})
+
+
+@login_required(login_url='accounts:login')
 def mark_conversation_messages_read(request, conversation_id):
     """
     Vue pour marquer les messages d'une conversation comme lus (API JSON)
@@ -1356,45 +1574,44 @@ def my_messages(request):
     except Exception:
         table_exists = False
     
-    # Vérifier si c'est une proposition d'offre ou un retour après paiement (seulement si la table existe)
+    # Ouvrir la conversation (proposition d'offre / retour messagerie) — isolé pour éviter un 500
     if table_exists:
-        product_id = request.GET.get('product_id')
-        action = request.GET.get('action')
-        
-        if product_id:
+        raw_pid = request.GET.get('product_id')
+        action = (request.GET.get('action') or '').strip()
+        product_id_int = None
+        if raw_pid is not None and str(raw_pid).strip() != '':
             try:
-                product = PeerToPeerProduct.objects.get(id=product_id)
-                
-                # Si c'est une proposition d'offre (nouvel acheteur)
-                if action == 'propose_offer' and product.seller != request.user and product.status == PeerToPeerProduct.APPROVED:
-                    # Créer ou récupérer la conversation
+                product_id_int = int(raw_pid)
+            except (TypeError, ValueError):
+                product_id_int = None
+        if product_id_int is not None:
+            try:
+                product = PeerToPeerProduct.objects.filter(id=product_id_int).first()
+                if not product:
+                    pass
+                elif action == 'propose_offer' and product.seller != request.user and product.status == PeerToPeerProduct.APPROVED:
                     conversation, created = ProductConversation.objects.get_or_create(
                         product=product,
                         seller=product.seller,
                         buyer=request.user,
                         defaults={'last_message_at': timezone.now()}
                     )
-                    
-                    # Si la conversation existe déjà, mettre à jour la date du dernier message
                     if not created:
                         conversation.last_message_at = timezone.now()
                         conversation.save()
-                    
                     auto_open_product_id = product.id
                     auto_open_conversation_id = conversation.id
                 else:
-                    # Sinon, essayer de trouver une conversation existante (retour après paiement)
                     conversation = ProductConversation.objects.filter(
                         product=product,
                     ).filter(
                         Q(seller=request.user) | Q(buyer=request.user)
                     ).first()
-                    
                     if conversation:
                         auto_open_product_id = product.id
                         auto_open_conversation_id = conversation.id
-            except (PeerToPeerProduct.DoesNotExist, ValueError, Exception):
-                pass  # Ignorer les erreurs et continuer normalement
+            except Exception:
+                logger.exception('my_messages: auto-open conversation (product_id=%s)', raw_pid)
     
     try:
         
@@ -1518,7 +1735,11 @@ def my_messages(request):
             if c2c_table_exists:
                 purchase_intents_qs = PurchaseIntent.objects.filter(
                     seller=request.user,
-                    status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]
+                    status__in=[
+                        PurchaseIntent.PENDING,
+                        PurchaseIntent.AWAITING_AVAILABILITY,
+                        PurchaseIntent.NEGOTIATING,
+                    ]
                 ).select_related('product', 'buyer').order_by('-created_at')
                 # Compter les intentions non notifiées (seller_notified=False) comme non lues
                 purchase_intents_unread = purchase_intents_qs.filter(seller_notified=False).count()

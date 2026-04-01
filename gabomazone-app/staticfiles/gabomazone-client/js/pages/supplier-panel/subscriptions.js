@@ -156,3 +156,77 @@
             }
         });
     }
+
+    async function submitSupplierSingPayForm(form, button, loadingText, modalTitle) {
+        if (!form) return;
+        const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+        const actionUrl = form.getAttribute('action');
+        const formData = new FormData(form);
+        const originalHtml = button ? button.innerHTML : '';
+
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = loadingText;
+        }
+
+        try {
+            const response = await fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success && data.payment_url) {
+                if (typeof window.openSingPayPaymentModal === 'function') {
+                    window.openSingPayPaymentModal(data.payment_url, { title: modalTitle });
+                } else {
+                    window.location.href = data.payment_url;
+                }
+                return;
+            }
+            if (typeof GMModal !== 'undefined' && GMModal.error) {
+                GMModal.error('Erreur', data.error || "Impossible d'initialiser le paiement.");
+            }
+        } catch (error) {
+            if (typeof GMModal !== 'undefined' && GMModal.error) {
+                GMModal.error('Erreur', "Une erreur est survenue pendant l'initialisation du paiement.");
+            }
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+            }
+        }
+    }
+
+    const subscriptionForm = document.getElementById('subscription-payment-form');
+    if (subscriptionForm) {
+        subscriptionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = subscriptionForm.querySelector('button[type="submit"]');
+            submitSupplierSingPayForm(
+                subscriptionForm,
+                submitBtn,
+                '<i class="fas fa-spinner fa-spin"></i> Initialisation...',
+                'Paiement abonnement premium'
+            );
+        });
+    }
+
+    const boostForm = document.getElementById('boost-payment-form');
+    if (boostForm) {
+        boostForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = boostForm.querySelector('button[type="submit"]');
+            submitSupplierSingPayForm(
+                boostForm,
+                submitBtn,
+                '<i class="fas fa-spinner fa-spin"></i> Initialisation...',
+                'Paiement boost SingPay'
+            );
+        });
+    }

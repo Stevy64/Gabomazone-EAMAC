@@ -2,8 +2,14 @@
  * Fonctions pour la négociation de prix dans le chatbot
  */
 
+/** Au-dessus de #chatbotPopup (z-index ~10050) et des feuilles options (~10160) */
+const GM_VERIFICATION_OVERLAY_Z = 20000;
+
 let currentPurchaseIntentId = null;
 let negotiationPollInterval = null;
+
+const GM_NEGOTIATION_HELPER_DEFAULT =
+    'Pendant la négociation, proposez un prix dans la section ci-dessus. Le chat libre sera disponible après accord.';
 
 /**
  * Démarre un polling léger pour rafraîchir l'historique de négociation en quasi temps réel.
@@ -81,6 +87,9 @@ async function submitNegotiation(event) {
             }
         } else {
             GMModal.error('Erreur', data.error || 'Erreur lors de l\'envoi de la proposition');
+            if (currentPurchaseIntentId && typeof loadPurchaseIntentForConversation === 'function') {
+                loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
+            }
         }
     } catch (error) {
         console.error('Erreur:', error);
@@ -134,9 +143,11 @@ async function loadPurchaseIntentForConversation(productId, buyerId, sellerId, i
             displayNegotiationHistory(data.negotiations || [], data);
             
             // Afficher la section de vérification si la commande est payée
-            const currentUserId = window.currentUserId || 0;
-            const isBuyer = data.buyer_id === currentUserId;
-            const isSeller = data.seller_id === currentUserId;
+            window._intentBuyerId = data.buyer_id;
+            window._intentSellerId = data.seller_id;
+            const uid = Number(window.currentUserId || 0);
+            const isBuyer = Number(data.buyer_id) === uid;
+            const isSeller = Number(data.seller_id) === uid;
             displayVerificationSection(data.verification, data.order, isBuyer, isSeller);
             
             if (typeof updateChatControls === 'function') {
@@ -175,6 +186,8 @@ function displayNegotiationHistory(negotiations, intentData) {
     }
     
     const currentUserId = window.currentUserId || 0;
+    const orderStatus = intentData.order_status;
+    const isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].includes(orderStatus);
     
     let html = '';
     
@@ -182,7 +195,7 @@ function displayNegotiationHistory(negotiations, intentData) {
         const isProposer = neg.proposer_id === currentUserId;
         const isPending = neg.status === 'pending';
         const isLast = idx === negotiations.length - 1;
-        const canAct = isPending && isLast && !isProposer;
+        const canAct = isPending && isLast && !isProposer && !isPaid;
         
         html += `
             <div style="background: ${isProposer ? '#E0F2FE' : 'white'}; border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid #E5E7EB;">
@@ -241,6 +254,56 @@ function displayNegotiationHistory(negotiations, intentData) {
     
     acceptFinalPriceBtn.style.display = 'none';
     lockInputsIfAgreed(intentData);
+    updateNegotiationOfferAvailability(intentData);
+}
+
+/**
+ * Active / désactive le formulaire « Proposer un prix » selon les règles de tour (serveur).
+ */
+function updateNegotiationOfferAvailability(intentData) {
+    const negotiationForm = document.getElementById('negotiationForm');
+    const negotiationPrice = document.getElementById('negotiationPrice');
+    const helper = document.getElementById('chatHelper');
+    if (!negotiationForm || !negotiationPrice || !intentData) {
+        return;
+    }
+    const status = intentData.status;
+    const orderStatus = intentData.order_status;
+    const isAgreed = status === 'agreed';
+    const isPaid =
+        orderStatus &&
+        ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].includes(orderStatus);
+    if (isAgreed || isPaid) {
+        return;
+    }
+    if (intentData.can_make_offer === false) {
+        negotiationPrice.disabled = true;
+        const submitBtn = negotiationForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+        if (helper) {
+            const msg = intentData.offer_form_block_message || 'Vous ne pouvez pas proposer de prix pour le moment.';
+            helper.style.display = 'block';
+            helper.textContent = msg;
+            helper.style.color = '#4B5563';
+        }
+    } else {
+        negotiationPrice.disabled = false;
+        const submitBtn = negotiationForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+        if (helper) {
+            helper.style.display = 'block';
+            helper.textContent = GM_NEGOTIATION_HELPER_DEFAULT;
+            helper.style.color = '';
+        }
+    }
 }
 
 /**
@@ -249,6 +312,7 @@ function displayNegotiationHistory(negotiations, intentData) {
 function lockInputsIfAgreed(intentData) {
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.querySelector('#messageForm button[type="submit"]');
+    const attachBtn = document.getElementById('gmChatAttachBtn');
     const negotiationForm = document.getElementById('negotiationForm');
     const negotiationPrice = document.getElementById('negotiationPrice');
     const helper = document.getElementById('chatHelper');
@@ -258,6 +322,19 @@ function lockInputsIfAgreed(intentData) {
     const isAgreed = status === 'agreed';
     const isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].includes(orderStatus);
     const isCompleted = orderStatus === 'completed';
+
+    const negotiationSection = document.getElementById('negotiationSection');
+    if (negotiationSection && intentData) {
+        const h5 = negotiationSection.querySelector('h5');
+        const sub = negotiationSection.querySelector('p.gm-s-3e99bc');
+        if (!isPaid) {
+            if (h5) h5.innerHTML = '<i class="fi-rs-money gm-s-a77b0c"></i> Négocier le prix';
+            if (sub) sub.textContent = 'Proposez un nouveau prix pour cet article';
+        } else if (isPaid && !isCompleted) {
+            if (h5) h5.innerHTML = '<i class="fi-rs-time-past"></i> Historique de négociation';
+            if (sub) sub.textContent = 'Conservé dans le fil : vos propositions de prix restent visibles.';
+        }
+    }
     
     if (isAgreed && !isPaid) {
         if (messageInput) {
@@ -268,6 +345,11 @@ function lockInputsIfAgreed(intentData) {
             sendBtn.disabled = true;
             sendBtn.style.opacity = '0.5';
             sendBtn.style.cursor = 'not-allowed';
+        }
+        if (attachBtn) {
+            attachBtn.disabled = true;
+            attachBtn.setAttribute('aria-disabled', 'true');
+            attachBtn.title = 'Disponible après paiement (messagerie libre)';
         }
         
         if (negotiationPrice) {
@@ -304,6 +386,11 @@ function lockInputsIfAgreed(intentData) {
                 sendBtn.style.opacity = '0.5';
                 sendBtn.style.cursor = 'not-allowed';
             }
+            if (attachBtn) {
+                attachBtn.disabled = true;
+                attachBtn.setAttribute('aria-disabled', 'true');
+                attachBtn.title = 'Conversation terminée';
+            }
         } else {
             // Paiement effectué mais transaction en cours → chat ouvert
             if (messageInput) {
@@ -315,6 +402,11 @@ function lockInputsIfAgreed(intentData) {
                 sendBtn.style.opacity = '1';
                 sendBtn.style.cursor = 'pointer';
             }
+            if (attachBtn) {
+                attachBtn.disabled = false;
+                attachBtn.setAttribute('aria-disabled', 'false');
+                attachBtn.title = 'Ajouter une pièce jointe';
+            }
         }
         
         if (negotiationPrice) {
@@ -322,11 +414,6 @@ function lockInputsIfAgreed(intentData) {
         }
         if (negotiationForm) {
             negotiationForm.style.display = 'none';
-        }
-        
-        const negotiationSection = document.getElementById('negotiationSection');
-        if (negotiationSection) {
-            negotiationSection.style.display = 'none';
         }
         
         if (helper) {
@@ -340,6 +427,11 @@ function lockInputsIfAgreed(intentData) {
                 helper.style.color = '#2563EB';
             }
         }
+    }
+    if (!isAgreed && !isPaid && attachBtn) {
+        attachBtn.disabled = true;
+        attachBtn.setAttribute('aria-disabled', 'true');
+        attachBtn.title = 'Disponible après paiement (messagerie libre)';
     }
     const quickReplies = document.getElementById('gmQuickReplies');
     if (quickReplies && messageInput) {
@@ -548,20 +640,189 @@ function displayVerificationSection(verificationData, orderData, isBuyer, isSell
         return;
     }
     
-    // Bouton simple pour ouvrir le popup
-    verificationSection.innerHTML = `
-        <button onclick="openVerificationModal()" style="width: 100%; padding: 14px 16px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
+    const needHandover = verificationData.codes_unlocked === false;
+    const hintHtml = needHandover ? `
+        <p style="margin: 0 0 10px; font-size: 12px; color: #6B7280; line-height: 1.45;">
+            Après le paiement, confirmez d’abord la remise (vendeur) et la réception (acheteur). Les codes de vérification s’affichent ensuite pour échange et saisie ici.
+        </p>` : '';
+
+    verificationSection.innerHTML = hintHtml + `
+        <button type="button" id="gmVerifyTransactionOpenBtn" style="width: 100%; padding: 14px 16px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
             <i class="fi-rs-shield-check" style="font-size: 18px;"></i>
             Valider la transaction (codes de vérification)
         </button>
     `;
+    var verifyOpenBtn = document.getElementById('gmVerifyTransactionOpenBtn');
+    if (verifyOpenBtn) {
+        verifyOpenBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof openVerificationModal === 'function') openVerificationModal();
+        });
+    }
 }
 
 /**
- * Ouvre le popup modal personnalisé pour la vérification des codes
- * Modal personnalisé qui capture la valeur AVANT de se fermer
+ * Point d'entrée : étape confirmation remise/réception, puis affichage des codes.
  */
+function gmModalSafe(kind, title, message) {
+    if (typeof GMModal !== 'undefined' && GMModal[kind]) {
+        GMModal[kind](title, message);
+    } else {
+        window.alert(message || title || '');
+    }
+}
+
 function openVerificationModal() {
+    const v = window._verificationData;
+    const uid = Number(window.currentUserId || 0);
+    let isBuyer = window._isBuyer === true;
+    let isSeller = window._isSeller === true;
+    if (window._intentBuyerId != null && window._intentSellerId != null) {
+        isBuyer = Number(window._intentBuyerId) === uid;
+        isSeller = Number(window._intentSellerId) === uid;
+    }
+    if (!v) {
+        gmModalSafe('error', 'Erreur', 'Données de vérification non disponibles');
+        return;
+    }
+    if (v.is_completed) {
+        gmModalSafe('info', 'Transaction', 'Cette transaction est déjà finalisée.');
+        return;
+    }
+    if (v.codes_unlocked === false) {
+        const buyerDone = v.buyer_handover_confirmed === true;
+        const sellerDone = v.seller_handover_confirmed === true;
+        if (isBuyer && buyerDone && !sellerDone) {
+            openHandoverWaitingModal('En attente de la confirmation du vendeur (remise de l\'article).');
+            return;
+        }
+        if (isSeller && sellerDone && !buyerDone) {
+            openHandoverWaitingModal('En attente de la confirmation de l\'acheteur (réception de l\'article).');
+            return;
+        }
+        if (isBuyer && !buyerDone) {
+            openHandoverConfirmModal('buyer');
+            return;
+        }
+        if (isSeller && !sellerDone) {
+            openHandoverConfirmModal('seller');
+            return;
+        }
+        if (buyerDone && sellerDone) {
+            openCodesExchangeModal();
+            return;
+        }
+        gmModalSafe('warning', 'Étape requise', 'Les confirmations de remise et de réception sont nécessaires avant les codes.');
+        return;
+    }
+    openCodesExchangeModal();
+}
+
+if (typeof window !== 'undefined') {
+    window.openVerificationModal = openVerificationModal;
+}
+
+function _bindVerificationOverlayClose(overlay, closeModal) {
+    overlay.querySelectorAll('[data-gm-verif-dismiss]').forEach(function(el) {
+        el.addEventListener('click', closeModal);
+    });
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeModal();
+    });
+}
+
+/**
+ * Popup : attente de l'autre partie (confirmation remise / réception).
+ */
+function openHandoverWaitingModal(message) {
+    const overlay = document.createElement('div');
+    overlay.className = 'gm-peer-verif-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: ' + GM_VERIFICATION_OVERLAY_Z + '; padding: 20px;';
+    overlay.innerHTML = `
+        <div style="background: white; border-radius: 16px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <div style="padding: 20px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">Confirmation</h3>
+                <button type="button" data-gm-verif-dismiss style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">${escapeHtml(message)}</p>
+            </div>
+            <div style="padding: 16px 20px; border-top: 1px solid #E5E7EB; display: flex; justify-content: flex-end;">
+                <button type="button" data-gm-verif-dismiss style="padding: 12px 24px; background: #3B82F6; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">Fermer</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    const closeModal = function() { overlay.remove(); };
+    _bindVerificationOverlayClose(overlay, closeModal);
+}
+
+/**
+ * Popup : confirmation remise (vendeur) ou réception (acheteur), puis rechargement et passage aux codes si les deux ont confirmé.
+ */
+function openHandoverConfirmModal(role) {
+    const overlay = document.createElement('div');
+    overlay.className = 'gm-peer-verif-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: ' + GM_VERIFICATION_OVERLAY_Z + '; padding: 20px;';
+    const title = role === 'buyer' ? 'Réception de l’article' : 'Remise de l’article';
+    const question = role === 'buyer'
+        ? 'Confirmez-vous avoir <strong>reçu l’article</strong> ?'
+        : 'Confirmez-vous avoir <strong>remis l’article</strong> à l’acheteur ?';
+    overlay.innerHTML = `
+        <div style="background: white; border-radius: 16px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <div style="padding: 20px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1F2937;">${title}</h3>
+                <button type="button" data-gm-verif-dismiss style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.5;">${question}</p>
+                <p style="margin: 12px 0 0; font-size: 12px; color: #6B7280;">Ensuite seulement, vos codes de vérification seront affichés pour l’échange.</p>
+            </div>
+            <div style="padding: 16px 20px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" data-gm-verif-dismiss style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
+                <button type="button" data-gm-handover-confirm style="padding: 12px 24px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">Oui, je confirme</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    const closeModal = function() { overlay.remove(); };
+    _bindVerificationOverlayClose(overlay, closeModal);
+    const btn = overlay.querySelector('[data-gm-handover-confirm]');
+    if (btn) {
+        btn.addEventListener('click', async function() {
+            if (!window.currentOrderId) {
+                GMModal.error('Erreur', 'Commande introuvable');
+                return;
+            }
+            btn.disabled = true;
+            try {
+                const resp = await fetch(`/c2c/order/${window.currentOrderId}/confirm-handover/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: '{}'
+                });
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    throw new Error(data.error || 'Enregistrement impossible');
+                }
+                closeModal();
+                await loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
+                openVerificationModal();
+            } catch (err) {
+                GMModal.error('Erreur', err.message || 'Une erreur est survenue');
+                btn.disabled = false;
+            }
+        });
+    }
+}
+
+/**
+ * Étape codes : affichage A-CODE / V-CODE et saisie (après confirmation mutuelle).
+ */
+function openCodesExchangeModal() {
     const verificationData = window._verificationData;
     const isBuyer = window._isBuyer;
     const isSeller = window._isSeller;
@@ -576,8 +837,8 @@ function openVerificationModal() {
     
     // Créer le modal personnalisé
     const overlay = document.createElement('div');
-    overlay.id = 'verificationModalOverlay';
-    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px;';
+    overlay.className = 'gm-peer-verif-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: ' + GM_VERIFICATION_OVERLAY_Z + '; padding: 20px;';
     
     let inputHtml = '';
     let codeDisplayHtml = '';
@@ -604,7 +865,8 @@ function openVerificationModal() {
                     <p style="margin: 0 0 12px 0; font-size: 13px; color: #1E40AF; font-weight: 600;">
                         📥 Entrez le code V-CODE du vendeur :
                     </p>
-                    <input type="text" id="verificationCodeInput" maxlength="6" placeholder="V-CODE" 
+                    <label for="gmPeerVerificationCodeInput" style="display:block;margin:0 0 8px 0;font-size:12px;color:#1E40AF;font-weight:600;">Code V-CODE du vendeur</label>
+                    <input type="text" id="gmPeerVerificationCodeInput" name="peer_verification_code" maxlength="6" placeholder="V-CODE" autocomplete="one-time-code" inputmode="text"
                            style="width: 100%; padding: 14px; border: 2px solid #93C5FD; border-radius: 8px; font-size: 20px; letter-spacing: 6px; text-align: center; text-transform: uppercase; font-family: monospace; font-weight: 700; box-sizing: border-box;">
                     <p style="margin: 8px 0 0 0; font-size: 11px; color: #1E3A8A;">
                         Le vendeur vous donnera ce code après vous avoir remis l'article.
@@ -643,7 +905,8 @@ function openVerificationModal() {
                     <p style="margin: 0 0 12px 0; font-size: 13px; color: #1E40AF; font-weight: 600;">
                         📥 Entrez le code A-CODE de l'acheteur :
                     </p>
-                    <input type="text" id="verificationCodeInput" maxlength="6" placeholder="A-CODE" 
+                    <label for="gmPeerVerificationCodeInput" style="display:block;margin:0 0 8px 0;font-size:12px;color:#1E40AF;font-weight:600;">Code A-CODE de l’acheteur</label>
+                    <input type="text" id="gmPeerVerificationCodeInput" name="peer_verification_code" maxlength="6" placeholder="A-CODE" autocomplete="one-time-code" inputmode="text"
                            style="width: 100%; padding: 14px; border: 2px solid #93C5FD; border-radius: 8px; font-size: 20px; letter-spacing: 6px; text-align: center; text-transform: uppercase; font-family: monospace; font-weight: 700; box-sizing: border-box;">
                     <p style="margin: 8px 0 0 0; font-size: 11px; color: #1E3A8A;">
                         L'acheteur vous donnera ce code quand il recevra l'article.
@@ -667,18 +930,18 @@ function openVerificationModal() {
                     <i class="fi-rs-shield-check" style="color: #3B82F6;"></i>
                     Vérification de la transaction
                 </h3>
-                <button id="closeVerificationModal" style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
+                <button type="button" data-gm-verif-dismiss style="background: none; border: none; font-size: 24px; color: #9CA3AF; cursor: pointer; padding: 4px;">&times;</button>
             </div>
             <div style="padding: 20px;">
                 ${codeDisplayHtml}
                 ${inputHtml}
             </div>
             <div style="padding: 16px 20px; border-top: 1px solid #E5E7EB; display: flex; gap: 12px; justify-content: flex-end;">
-                <button id="cancelVerificationBtn" style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                <button type="button" data-gm-verif-dismiss style="padding: 12px 24px; background: #F3F4F6; color: #374151; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">
                     Annuler
                 </button>
                 ${showValidateBtn ? `
-                <button id="confirmVerificationBtn" style="padding: 12px 24px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <button type="button" data-gm-verif-confirm style="padding: 12px 24px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <i class="fi-rs-check"></i> Valider le code
                 </button>
                 ` : ''}
@@ -690,7 +953,7 @@ function openVerificationModal() {
     
     // Focus sur l'input
     setTimeout(() => {
-        const input = document.getElementById('verificationCodeInput');
+        const input = overlay.querySelector('#gmPeerVerificationCodeInput');
         if (input) input.focus();
     }, 100);
     
@@ -699,17 +962,13 @@ function openVerificationModal() {
         overlay.remove();
     };
     
-    document.getElementById('closeVerificationModal').addEventListener('click', closeModal);
-    document.getElementById('cancelVerificationBtn').addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeModal();
-    });
+    _bindVerificationOverlayClose(overlay, closeModal);
     
     // Valider le code
-    const confirmBtn = document.getElementById('confirmVerificationBtn');
+    const confirmBtn = overlay.querySelector('[data-gm-verif-confirm]');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', async () => {
-            const input = document.getElementById('verificationCodeInput');
+            const input = overlay.querySelector('#gmPeerVerificationCodeInput');
             const code = input ? input.value.trim().toUpperCase() : '';
             
             if (!code || code.length !== 6) {
@@ -736,7 +995,7 @@ function openVerificationModal() {
     }
     
     // Valider avec Entrée
-    const codeInput = document.getElementById('verificationCodeInput');
+    const codeInput = overlay.querySelector('#gmPeerVerificationCodeInput');
     if (codeInput) {
         codeInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && confirmBtn) {

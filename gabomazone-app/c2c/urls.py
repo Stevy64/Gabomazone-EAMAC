@@ -11,6 +11,8 @@ urlpatterns = [
     # Intentions d'achat
     path('purchase-intent/', views.get_purchase_intent_for_conversation, name='get-purchase-intent'),
     path('purchase-intent/<int:product_id>/', views.create_purchase_intent, name='create-purchase-intent'),
+    path('purchase-intent/<int:intent_id>/confirm-availability/', views.confirm_availability, name='confirm-availability'),
+    path('purchase-intent/<int:intent_id>/decline-availability/', views.decline_availability, name='decline-availability'),
     path('purchase-intent/<int:intent_id>/accept/', views.accept_purchase_intent, name='accept-purchase-intent'),
     path('purchase-intent/<int:intent_id>/reject/', views.reject_purchase_intent, name='reject-purchase-intent'),
     path('purchase-intent/<int:intent_id>/cancel/', views.cancel_purchase_intent, name='cancel-purchase-intent'),
@@ -26,6 +28,7 @@ urlpatterns = [
     path('order/<int:order_id>/cancel/', views.cancel_c2c_order, name='order-cancel'),
     
     # Vérification de livraison
+    path('order/<int:order_id>/confirm-handover/', views.confirm_handover, name='confirm-handover'),
     path('order/<int:order_id>/verify-seller-code/', views.verify_seller_code, name='verify-seller-code'),
     path('order/<int:order_id>/verify-buyer-code/', views.verify_buyer_code, name='verify-buyer-code'),
     

@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.urls import reverse
 from django.conf import settings
@@ -30,6 +31,13 @@ from .services import (
 from accounts.models import PeerToPeerProduct
 
 
+def _purchase_intent_wants_json(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return True
+    accept = request.headers.get('Accept', '')
+    return 'application/json' in accept
+
+
 @login_required
 def get_purchase_intent_for_conversation(request):
     """
@@ -39,6 +47,8 @@ def get_purchase_intent_for_conversation(request):
     buyer_id = request.GET.get('buyer_id')
     seller_id = request.GET.get('seller_id')
     intent_id = request.GET.get('intent_id')
+    logger.info('[C2C·FLOW] get_purchase_intent user=%s intent_id=%s product=%s buyer=%s seller=%s',
+                request.user.pk, intent_id, product_id, buyer_id, seller_id)
     
     try:
         if intent_id:
@@ -48,7 +58,12 @@ def get_purchase_intent_for_conversation(request):
                 product_id=product_id,
                 buyer_id=buyer_id,
                 seller_id=seller_id,
-                status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING, PurchaseIntent.AGREED]
+                status__in=[
+                    PurchaseIntent.PENDING,
+                    PurchaseIntent.AWAITING_AVAILABILITY,
+                    PurchaseIntent.NEGOTIATING,
+                    PurchaseIntent.AGREED,
+                ],
             ).first()
         else:
             return JsonResponse({'success': False, 'error': 'Paramètres manquants'}, status=400)
@@ -78,6 +93,10 @@ def get_purchase_intent_for_conversation(request):
             order_data = None
             verification_data = None
             
+            can_make_offer, offer_block_msg = PurchaseIntentService.get_negotiation_offer_rules(
+                intent, request.user
+            )
+
             try:
                 existing_order = intent.c2c_order
                 order_id = existing_order.id
@@ -98,13 +117,15 @@ def get_purchase_intent_for_conversation(request):
                 if existing_order.status in [C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED, C2COrder.VERIFIED, C2COrder.COMPLETED]:
                     try:
                         verification = existing_order.delivery_verification
-                        # Chaque utilisateur voit SON PROPRE code à donner et peut saisir celui de l'autre
+                        codes_unlocked = verification.codes_unlocked_for_exchange()
+                        # Codes masqués tant que les deux parties n'ont pas confirmé remise/réception
                         verification_data = {
                             'status': verification.status,
-                            # L'acheteur voit son buyer_code (A-CODE) à donner au vendeur
-                            # Le vendeur voit son seller_code (V-CODE) à donner à l'acheteur
-                            'seller_code': verification.seller_code,  # V-CODE du vendeur
-                            'buyer_code': verification.buyer_code,    # A-CODE de l'acheteur
+                            'seller_code': verification.seller_code if codes_unlocked else None,
+                            'buyer_code': verification.buyer_code if codes_unlocked else None,
+                            'codes_unlocked': codes_unlocked,
+                            'buyer_handover_confirmed': bool(verification.buyer_handover_confirmed_at),
+                            'seller_handover_confirmed': bool(verification.seller_handover_confirmed_at),
                             'seller_code_verified': verification.seller_code_verified,
                             'buyer_code_verified': verification.buyer_code_verified,
                             'is_completed': verification.is_completed(),
@@ -121,10 +142,13 @@ def get_purchase_intent_for_conversation(request):
                 'negotiated_price': str(accepted_neg.proposed_price if accepted_neg else intent.negotiated_price) if (accepted_neg or intent.negotiated_price) else None,
                 'final_price': str(intent.final_price) if intent.final_price else None,
                 'status': intent.status,
+                'availability_confirmed': bool(intent.availability_confirmed_at),
                 'buyer_id': intent.buyer.id,
                 'seller_id': intent.seller.id,
                 'negotiations': negotiations_data,
                 'can_accept_final_price': can_accept_final_price,
+                'can_make_offer': can_make_offer,
+                'offer_form_block_message': offer_block_msg or '',
                 'order_id': order_id,
                 'order_status': order_status,
                 'order': order_data,
@@ -145,29 +169,32 @@ def create_purchase_intent(request, product_id):
     Remplace le paiement direct par un système de négociation obligatoire
     """
     product = get_object_or_404(PeerToPeerProduct, id=product_id, status=PeerToPeerProduct.APPROVED)
-    
-    # Vérifier que l'utilisateur n'est pas le vendeur
+    wants_json = _purchase_intent_wants_json(request)
+
     if product.seller == request.user:
-        messages.error(request, "Vous ne pouvez pas acheter votre propre article.")
+        msg = "Vous ne pouvez pas acheter votre propre article."
+        if wants_json:
+            return JsonResponse({'success': False, 'error': msg}, status=403)
+        messages.error(request, msg)
         return redirect('accounts:peer-product-details', slug=product.PRDSlug)
-    
+
+    messages_url = reverse('accounts:my-messages') + f'?product_id={product.id}&action=propose_offer'
+
     if request.method == 'POST':
         try:
-            # Créer l'intention d'achat
-            intent = PurchaseIntentService.create_purchase_intent(
+            logger.info('[C2C·FLOW] create_purchase_intent POST user=%s product=#%d price=%s',
+                        request.user.pk, product.id, product.PRDPrice)
+            PurchaseIntentService.create_purchase_intent(
                 product=product,
                 buyer=request.user,
                 initial_price=product.PRDPrice
             )
-            
+            logger.info('[C2C·FLOW] Intent créée avec succès pour product=#%d buyer=%s', product.id, request.user.pk)
             messages.success(request, "Intention d'achat créée. Une conversation a été ouverte avec le vendeur.")
-            
-            # Rediriger vers la messagerie avec la conversation ouverte
-            from django.urls import reverse
-            messages_url = reverse('accounts:my-messages') + f'?product_id={product.id}&action=propose_offer'
+            if wants_json:
+                return JsonResponse({'success': True, 'redirect': messages_url})
             return redirect(messages_url)
         except Exception as e:
-            # Si l'erreur est une contrainte UNIQUE, récupérer l'intention existante
             if 'UNIQUE constraint' in str(e) or 'unique constraint' in str(e).lower():
                 try:
                     existing_intent = PurchaseIntent.objects.filter(
@@ -175,16 +202,43 @@ def create_purchase_intent(request, product_id):
                         buyer=request.user
                     ).first()
                     if existing_intent:
-                        messages.info(request, "Une intention d'achat existe déjà pour cet article. Redirection vers la messagerie...")
-                        from django.urls import reverse
-                        messages_url = reverse('accounts:my-messages') + f'?product_id={product.id}&action=propose_offer'
+                        info_msg = "Une intention d'achat existe déjà pour cet article. Redirection vers la messagerie..."
+                        messages.info(request, info_msg)
+                        if wants_json:
+                            return JsonResponse({'success': True, 'redirect': messages_url, 'message': info_msg})
                         return redirect(messages_url)
                 except Exception:
                     pass
-            messages.error(request, f"Erreur lors de la création de l'intention d'achat: {str(e)}")
+            err_msg = f"Erreur lors de la création de l'intention d'achat: {str(e)}"
+            if wants_json:
+                return JsonResponse({'success': False, 'error': err_msg}, status=400)
+            messages.error(request, err_msg)
             return redirect('accounts:peer-product-details', slug=product.PRDSlug)
-    
-    # GET: Afficher le formulaire de confirmation
+
+    if wants_json:
+        if product.product_image:
+            image_url = request.build_absolute_uri(product.product_image.url)
+        else:
+            image_url = request.build_absolute_uri(
+                settings.STATIC_URL + 'assets/imgs/theme/no-image.png'
+            )
+        price_num = product.PRDPrice
+        try:
+            price_label = f"{int(price_num):,}".replace(',', '\u202f') + '\u00a0FCFA'
+        except (TypeError, ValueError):
+            price_label = f"{price_num}\u00a0FCFA"
+        return JsonResponse({
+            'success': True,
+            'product': {
+                'id': product.id,
+                'name': product.product_name,
+                'slug': product.PRDSlug,
+                'image_url': image_url,
+                'seller_name': product.seller.get_full_name() or product.seller.username,
+                'price_label': price_label,
+            },
+        })
+
     context = {
         'product': product,
         'initial_price': product.PRDPrice,
@@ -208,6 +262,8 @@ def create_negotiation(request, intent_id):
     try:
         data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
         proposed_price = Decimal(str(data.get('proposed_price', 0)))
+        logger.info('[C2C·FLOW] create_negotiation intent=#%d user=%s price=%s',
+                    intent_id, request.user.pk, proposed_price)
         message = data.get('message', '')
         
         if proposed_price <= 0:
@@ -232,9 +288,15 @@ def create_negotiation(request, intent_id):
         messages.success(request, "Proposition de prix envoyée.")
         return redirect('accounts:my-messages')
         
+    except ValidationError as e:
+        text = ' '.join(getattr(e, 'messages', None) or []) or str(e)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'success': False, 'error': text}, status=400)
+        messages.error(request, text)
+        return redirect('accounts:my-messages')
     except Exception as e:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
         messages.error(request, f"Erreur: {str(e)}")
         return redirect('accounts:my-messages')
 
@@ -245,6 +307,7 @@ def accept_negotiation(request, negotiation_id):
     """
     Accepte une proposition de négociation (destinataire uniquement)
     """
+    logger.info('[C2C·FLOW] accept_negotiation #%d user=%s', negotiation_id, request.user.pk)
     negotiation = get_object_or_404(Negotiation, id=negotiation_id)
     intent = negotiation.purchase_intent
     
@@ -269,6 +332,7 @@ def reject_negotiation(request, negotiation_id):
     """
     Refuse une proposition de négociation
     """
+    logger.info('[C2C·FLOW] reject_negotiation #%d user=%s', negotiation_id, request.user.pk)
     negotiation = get_object_or_404(Negotiation, id=negotiation_id)
     intent = negotiation.purchase_intent
     
@@ -287,26 +351,126 @@ def reject_negotiation(request, negotiation_id):
 
 @login_required
 @require_POST
+def confirm_availability(request, intent_id):
+    """
+    Le vendeur confirme que son article est toujours en vente.
+    Passe l'intention de PENDING → AWAITING_AVAILABILITY (ou NEGOTIATING si déjà confirmé).
+    Crée un message automatique dans la conversation.
+    """
+    logger.info('[C2C·FLOW] confirm_availability #%d user=%s', intent_id, request.user.pk)
+    intent = get_object_or_404(PurchaseIntent, id=intent_id)
+
+    if request.user != intent.seller:
+        return JsonResponse({'error': "Seul le vendeur peut confirmer la disponibilité."}, status=403)
+
+    if intent.status not in (PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY):
+        return JsonResponse({
+            'error': f"Cette action n'est plus possible (statut : {intent.get_status_display()}).",
+            'current_status': intent.status,
+        }, status=400)
+
+    try:
+        intent.availability_confirmed_at = timezone.now()
+        intent.status = PurchaseIntent.NEGOTIATING
+        intent.seller_notified = True
+        intent.save(update_fields=['status', 'seller_notified', 'availability_confirmed_at'])
+
+        from accounts.models import ProductConversation, ProductMessage
+        try:
+            conv = ProductConversation.objects.get(
+                product=intent.product, buyer=intent.buyer, seller=intent.seller,
+            )
+            seller_name = intent.seller.get_full_name() or intent.seller.username
+            ProductMessage.objects.create(
+                conversation=conv,
+                sender=intent.seller,
+                message=(
+                    f"✅ {seller_name} confirme que l'article « {intent.product.product_name} » "
+                    f"est toujours disponible à la vente.\n\n"
+                    f"💬 La négociation du prix est maintenant ouverte !"
+                ),
+            )
+            conv.last_message_at = timezone.now()
+            conv.save()
+        except Exception as e:
+            logger.error('[C2C·FLOW] confirm_availability msg error: %s', e)
+
+        logger.info('[C2C·FLOW] Disponibilité confirmée intent=#%d → NEGOTIATING', intent.id)
+        return JsonResponse({
+            'success': True,
+            'message': "Article confirmé disponible ! La négociation est ouverte.",
+        })
+    except Exception as e:
+        logger.exception('[C2C·FLOW] confirm_availability ERROR')
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def decline_availability(request, intent_id):
+    """
+    Le vendeur indique que l'article n'est plus disponible → CANCELLED.
+    """
+    logger.info('[C2C·FLOW] decline_availability #%d user=%s', intent_id, request.user.pk)
+    intent = get_object_or_404(PurchaseIntent, id=intent_id)
+
+    if request.user != intent.seller:
+        return JsonResponse({'error': "Seul le vendeur peut effectuer cette action."}, status=403)
+
+    if intent.status not in (PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY):
+        return JsonResponse({'error': "Action impossible pour le statut actuel."}, status=400)
+
+    try:
+        intent.status = PurchaseIntent.CANCELLED
+        intent.seller_notified = True
+        intent.save(update_fields=['status', 'seller_notified'])
+
+        from accounts.models import ProductConversation, ProductMessage
+        try:
+            conv = ProductConversation.objects.get(
+                product=intent.product, buyer=intent.buyer, seller=intent.seller,
+            )
+            seller_name = intent.seller.get_full_name() or intent.seller.username
+            ProductMessage.objects.create(
+                conversation=conv,
+                sender=intent.seller,
+                message=f"❌ {seller_name} indique que l'article « {intent.product.product_name} » n'est plus disponible.",
+            )
+            conv.last_message_at = timezone.now()
+            conv.save()
+        except Exception:
+            pass
+
+        return JsonResponse({'success': True, 'message': "Intention annulée — article indisponible."})
+    except Exception as e:
+        logger.exception('[C2C·FLOW] decline_availability ERROR')
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
 def accept_purchase_intent(request, intent_id):
     """
-    Accepte une intention d'achat (le vendeur accepte de négocier)
+    Accepte une intention d'achat (le vendeur accepte de négocier).
+    Si la disponibilité n'a pas encore été confirmée, la confirme en même temps.
     """
+    logger.info('[C2C·FLOW] accept_purchase_intent #%d user=%s', intent_id, request.user.pk)
     intent = get_object_or_404(PurchaseIntent, id=intent_id)
     
-    # Vérifier que c'est le vendeur
     if request.user != intent.seller:
         return JsonResponse({'error': 'Seul le vendeur peut accepter cette intention d\'achat.'}, status=403)
     
-    # Vérifier le statut - permettre l'acceptation même si déjà en négociation
-    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]:
+    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]:
         return JsonResponse({
             'error': f'Cette intention d\'achat ne peut plus être acceptée. Statut actuel: {intent.get_status_display()}',
             'current_status': intent.status
         }, status=400)
     
     try:
+        if not intent.availability_confirmed_at:
+            intent.availability_confirmed_at = timezone.now()
         intent.status = PurchaseIntent.NEGOTIATING
-        intent.seller_notified = True  # Marquer comme notifié
+        intent.seller_notified = True
         intent.save()
         
         # Créer un message automatique
@@ -363,6 +527,7 @@ def reject_purchase_intent(request, intent_id):
     """
     Refuse une intention d'achat
     """
+    logger.info('[C2C·FLOW] reject_purchase_intent #%d user=%s', intent_id, request.user.pk)
     intent = get_object_or_404(PurchaseIntent, id=intent_id)
     
     # Vérifier que c'est le vendeur
@@ -370,7 +535,7 @@ def reject_purchase_intent(request, intent_id):
         return JsonResponse({'error': 'Seul le vendeur peut refuser cette intention d\'achat.'}, status=403)
     
     # Vérifier le statut
-    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]:
+    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]:
         return JsonResponse({
             'error': f'Cette intention d\'achat ne peut plus être refusée. Statut actuel: {intent.get_status_display()}',
             'current_status': intent.status
@@ -433,6 +598,7 @@ def cancel_purchase_intent(request, intent_id):
     """
     Annule une intention d'achat (par l'acheteur ou le vendeur)
     """
+    logger.info('[C2C·FLOW] cancel_purchase_intent #%d user=%s', intent_id, request.user.pk)
     intent = get_object_or_404(PurchaseIntent, id=intent_id)
     
     # Vérifier que c'est l'acheteur ou le vendeur
@@ -440,7 +606,7 @@ def cancel_purchase_intent(request, intent_id):
         return JsonResponse({'error': 'Vous n\'avez pas la permission d\'annuler cette intention d\'achat.'}, status=403)
     
     # Vérifier le statut - ne peut être annulé que si en attente ou en négociation
-    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]:
+    if intent.status not in [PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]:
         return JsonResponse({'error': 'Cette intention d\'achat ne peut plus être annulée.'}, status=400)
     
     try:
@@ -498,6 +664,7 @@ def accept_final_price(request, intent_id):
     """
     Accepte un prix final et crée la commande C2C
     """
+    logger.info('[C2C·FLOW] accept_final_price intent=#%d user=%s', intent_id, request.user.pk)
     intent = get_object_or_404(PurchaseIntent, id=intent_id)
     
     # Vérifier les permissions
@@ -508,6 +675,7 @@ def accept_final_price(request, intent_id):
     try:
         data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
         final_price = Decimal(str(data.get('final_price', intent.final_price or intent.negotiated_price)))
+        logger.info('[C2C·FLOW] accept_final_price → final_price=%s', final_price)
         
         if not final_price or final_price <= 0:
             return JsonResponse({'error': 'Le prix final doit être supérieur à 0'}, status=400)
@@ -625,6 +793,7 @@ def payment_success(request, order_id):
     """
     Page de succès de paiement C2C - Redirige vers la messagerie
     """
+    logger.info('[C2C·FLOW] payment_success order=#%d user=%s', order_id, request.user.pk)
     order = get_object_or_404(C2COrder, id=order_id)
     
     # Vérifier que c'est l'acheteur ou le vendeur
@@ -639,6 +808,7 @@ def payment_success(request, order_id):
             order.status = C2COrder.PAID
             order.paid_at = timezone.now()
             order.save()
+            logger.info('[C2C·FLOW] order #%d → PAID', order.id)
     
     # Récupérer les codes de vérification
     verification = None
@@ -648,18 +818,16 @@ def payment_success(request, order_id):
         # Créer la vérification si elle n'existe pas
         verification = DeliveryVerification.objects.create(c2c_order=order)
     
-    # Préparer le message avec les codes
+    # Ne pas afficher les codes ici : ils sont révélés dans la messagerie après confirmation mutuelle remise/réception.
     if request.user == order.buyer:
         messages.success(
             request,
-            f"Paiement réussi ! Votre code de vérification (A-CODE) est : {verification.buyer_code}. "
-            f"Communiquez ce code au vendeur lors de la remise de l'article."
+            "Paiement réussi ! Dans la messagerie, confirmez la réception puis échangez les codes de vérification avec le vendeur."
         )
     else:
         messages.success(
-            request, 
-            f"🎉 Paiement reçu ! Votre code de vérification (V-CODE) est : {verification.seller_code}. "
-            f"Communiquez ce code à l'acheteur après lui avoir remis l'article."
+            request,
+            "Paiement reçu ! Dans la messagerie, confirmez la remise puis échangez les codes de vérification avec l’acheteur."
         )
     
     # Rediriger vers la messagerie avec le produit concerné
@@ -675,6 +843,7 @@ def cancel_c2c_order(request, order_id):
     L'acheteur est remboursé (montant - frais), la plateforme garde les frais de service.
     Accessible à l'acheteur ou au vendeur.
     """
+    logger.info('[C2C·FLOW] cancel_c2c_order order=#%d user=%s', order_id, request.user.pk)
     from payments.escrow_service import EscrowService
     from payments.models import SingPayTransaction
 
@@ -715,27 +884,91 @@ def cancel_c2c_order(request, order_id):
 
 @login_required
 @require_POST
+def confirm_handover(request, order_id):
+    """
+    Confirmation mutuelle avant affichage des codes A/V : l'acheteur confirme la réception,
+    le vendeur confirme la remise.
+    """
+    logger.info('[C2C·FLOW] confirm_handover order=#%d user=%s', order_id, request.user.pk)
+    order = get_object_or_404(C2COrder, id=order_id)
+    if request.user not in (order.buyer, order.seller):
+        logger.warning('[C2C·FLOW] confirm_handover DENIED user=%s order=#%d', request.user.pk, order_id)
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+    if order.status not in (
+        C2COrder.PAID,
+        C2COrder.PENDING_DELIVERY,
+        C2COrder.DELIVERED,
+        C2COrder.VERIFIED,
+        C2COrder.COMPLETED,
+    ):
+        return JsonResponse({'error': 'Commande non éligible'}, status=400)
+
+    verification, _ = DeliveryVerification.objects.get_or_create(c2c_order=order)
+    if verification.is_completed():
+        return JsonResponse({
+            'success': True,
+            'buyer_handover_confirmed': True,
+            'seller_handover_confirmed': True,
+            'codes_unlocked': True,
+        })
+
+    now = timezone.now()
+    if request.user == order.buyer and not verification.buyer_handover_confirmed_at:
+        verification.buyer_handover_confirmed_at = now
+        verification.save(update_fields=['buyer_handover_confirmed_at'])
+    elif request.user == order.seller and not verification.seller_handover_confirmed_at:
+        verification.seller_handover_confirmed_at = now
+        verification.save(update_fields=['seller_handover_confirmed_at'])
+
+    verification.refresh_from_db()
+    unlocked = verification.codes_unlocked_for_exchange()
+    logger.info('[C2C·FLOW] confirm_handover OK order=#%d buyer=%s seller=%s unlocked=%s',
+                order.id,
+                bool(verification.buyer_handover_confirmed_at),
+                bool(verification.seller_handover_confirmed_at),
+                unlocked)
+    return JsonResponse({
+        'success': True,
+        'buyer_handover_confirmed': bool(verification.buyer_handover_confirmed_at),
+        'seller_handover_confirmed': bool(verification.seller_handover_confirmed_at),
+        'codes_unlocked': unlocked,
+    })
+
+
+@login_required
+@require_POST
 def verify_seller_code(request, order_id):
     """
-    Vérifie le code vendeur (V-CODE)
+    Vérifie le code vendeur (V-CODE) — le vendeur saisit le A-CODE de l'acheteur.
     """
+    logger.info('[C2C·FLOW] verify_seller_code order=#%d user=%s', order_id, request.user.pk)
     order = get_object_or_404(C2COrder, id=order_id)
     
     # Vérifier que c'est le vendeur
     if request.user != order.seller:
+        logger.warning('[C2C·FLOW] verify_seller_code DENIED user=%s (not seller) order=#%d', request.user.pk, order_id)
         return JsonResponse({'error': 'Seul le vendeur peut vérifier ce code'}, status=403)
+    
+    try:
+        verification = order.delivery_verification
+        if not verification.codes_unlocked_for_exchange():
+            return JsonResponse({
+                'error': 'Les codes ne sont disponibles qu’après confirmation mutuelle (réception et remise) dans la messagerie.',
+                'codes_locked': True,
+            }, status=403)
+    except Exception:
+        return JsonResponse({'error': 'Vérification indisponible'}, status=400)
     
     try:
         data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
         code = data.get('code', '').strip()
         
         if DeliveryVerificationService.verify_seller_code(order, code):
-            # Vérifier si le vendeur peut noter l'acheteur
+            logger.info('[C2C·FLOW] verify_seller_code OK order=#%d', order.id)
             can_review = False
             review_url = None
             try:
                 from .models import BuyerReview
-                # Vérifier si les deux codes sont validés
                 verification = order.delivery_verification
                 if verification.buyer_code_verified and verification.seller_code_verified:
                     can_review, _ = BuyerReview.can_review(order, order.seller)
@@ -751,11 +984,13 @@ def verify_seller_code(request, order_id):
                 'review_url': review_url
             })
         else:
+            logger.warning('[C2C·FLOW] verify_seller_code FAIL code invalide order=#%d', order.id)
             return JsonResponse({
                 'error': 'Code invalide ou déjà vérifié'
             }, status=400)
             
     except Exception as e:
+        logger.exception('[C2C·FLOW] verify_seller_code ERROR order=#%d', order_id)
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -763,21 +998,32 @@ def verify_seller_code(request, order_id):
 @require_POST
 def verify_buyer_code(request, order_id):
     """
-    Vérifie le code acheteur (B-CODE) — vérification côté acheteur.
-    L'acheteur saisit le code pour confirmer qu'il a reçu l'article.
+    Vérifie le code acheteur (V-CODE) — l'acheteur saisit le V-CODE du vendeur.
     """
+    logger.info('[C2C·FLOW] verify_buyer_code order=#%d user=%s', order_id, request.user.pk)
     order = get_object_or_404(C2COrder, id=order_id)
     
     # Vérifier que c'est l'acheteur
     if request.user != order.buyer:
+        logger.warning('[C2C·FLOW] verify_buyer_code DENIED user=%s (not buyer) order=#%d', request.user.pk, order_id)
         return JsonResponse({'error': 'Seul l\'acheteur peut vérifier ce code'}, status=403)
+    
+    try:
+        verification = order.delivery_verification
+        if not verification.codes_unlocked_for_exchange():
+            return JsonResponse({
+                'error': 'Les codes ne sont disponibles qu’après confirmation mutuelle (réception et remise) dans la messagerie.',
+                'codes_locked': True,
+            }, status=403)
+    except Exception:
+        return JsonResponse({'error': 'Vérification indisponible'}, status=400)
     
     try:
         data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
         code = data.get('code', '').strip()
         
         if DeliveryVerificationService.verify_buyer_code(order, code):
-            # Vérifier si l'acheteur peut noter le vendeur
+            logger.info('[C2C·FLOW] verify_buyer_code OK order=#%d — transaction potentiellement complète', order.id)
             can_review = False
             review_url = None
             try:
@@ -790,16 +1036,18 @@ def verify_buyer_code(request, order_id):
             
             return JsonResponse({
                 'success': True,
-                'message': 'Code vendeur vérifié avec succès. La transaction est maintenant complète !',
+                'message': 'Code vérifié avec succès. La transaction est maintenant complète !',
                 'can_review': can_review,
                 'review_url': review_url
             })
         else:
+            logger.warning('[C2C·FLOW] verify_buyer_code FAIL code invalide order=#%d', order.id)
             return JsonResponse({
                 'error': 'Code invalide ou déjà vérifié'
             }, status=400)
             
     except Exception as e:
+        logger.exception('[C2C·FLOW] verify_buyer_code ERROR order=#%d', order_id)
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -925,7 +1173,7 @@ def seller_dashboard(request):
     # Intentions d'achat en attente
     pending_intents = PurchaseIntent.objects.filter(
         seller=request.user,
-        status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]
+        status__in=[PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]
     )[:5]
     
     context = {

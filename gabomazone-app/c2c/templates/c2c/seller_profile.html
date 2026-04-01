@@ -183,8 +183,9 @@
             return;
         }
         {% endif %}
-        var createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
-        window.location.href = createIntentUrl;
+        if (typeof openPurchaseIntentModal === 'function') {
+            openPurchaseIntentModal(productId);
+        }
     }
     window.proposeOfferFromSellerProfile = proposeOfferFromSellerProfile;
 })();

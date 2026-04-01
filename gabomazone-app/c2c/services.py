@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from .models import (
     PlatformSettings, PurchaseIntent, Negotiation, C2COrder,
@@ -62,6 +63,8 @@ class PurchaseIntentService:
         """
         Crée une intention d'achat pour un produit C2C
         """
+        logger.info('[C2C·SVC] create_purchase_intent product=#%d buyer=%s price=%s',
+                    product.id, buyer.pk, initial_price)
         from django.db import connection
         
         # Vérifier si la table existe avant d'essayer de créer une intention
@@ -79,14 +82,17 @@ class PurchaseIntentService:
         if initial_price is None:
             initial_price = product.PRDPrice
         
-        # Vérifier qu'il n'existe pas déjà une intention d'achat active
+        active_statuses = [
+            PurchaseIntent.PENDING,
+            PurchaseIntent.AWAITING_AVAILABILITY,
+            PurchaseIntent.NEGOTIATING,
+        ]
         existing = PurchaseIntent.objects.filter(
-            product=product,
-            buyer=buyer,
-            status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]
+            product=product, buyer=buyer, status__in=active_statuses,
         ).first()
         
         if existing:
+            logger.info('[C2C·SVC] Intent existante #%d réutilisée (status=%s)', existing.id, existing.status)
             return existing
         
         # Si une intention existe mais est terminée (REJECTED, CANCELLED, EXPIRED), la réactiver
@@ -97,7 +103,7 @@ class PurchaseIntentService:
         ).first()
         
         if existing_terminated:
-            # Réactiver l'intention
+            logger.info('[C2C·SVC] Réactivation intent #%d (ancien status=%s)', existing_terminated.id, existing_terminated.status)
             existing_terminated.status = PurchaseIntent.PENDING
             existing_terminated.initial_price = initial_price
             existing_terminated.negotiated_price = None
@@ -124,30 +130,74 @@ class PurchaseIntentService:
             defaults={'last_message_at': timezone.now()}
         )
         
-        # Créer un message automatique pour notifier le vendeur
         buyer_name = buyer.get_full_name() or buyer.username
-        welcome_message = f"👋 Bonjour ! {buyer_name} souhaite négocier l'achat de votre article '{product.product_name}'.\n\n💰 Prix initial : {initial_price:,.0f} FCFA\n\n💬 Vous pouvez maintenant discuter et négocier le prix directement ici."
+        welcome_message = (
+            f"👋 {buyer_name} souhaite acheter votre article « {product.product_name} ».\n\n"
+            f"💰 Prix affiché : {initial_price:,.0f} FCFA\n\n"
+            f"📦 Vendeur, veuillez d'abord confirmer que cet article est toujours disponible "
+            f"à la vente via le bouton dans les « Intentions d'achat »."
+        )
         
         ProductMessage.objects.create(
             conversation=conversation,
             sender=buyer,
-            message=welcome_message
+            message=welcome_message,
         )
         
-        # Mettre à jour la date du dernier message
         conversation.last_message_at = timezone.now()
         conversation.save()
         
-        # seller_notified reste False par défaut - sera mis à True quand le vendeur verra la notification
-        # Cela permet de compter les intentions non vues
-        
+        logger.info('[C2C·SVC] Intent #%d créée — en attente de dispo (seller_notified=False)', intent.id)
         return intent
+    
+    @staticmethod
+    def get_negotiation_offer_rules(intent: PurchaseIntent, user):
+        """
+        Règles « chacun son tour » :
+        - Tant qu'une offre est en attente : le proposant ne peut pas en envoyer une autre ;
+          l'autre doit accepter ou refuser (pas de nouvelle offre par le formulaire).
+        - Après un refus : seule la personne qui n'avait PAS fait la dernière offre refusée
+          peut proposer le prochain prix (contre-offre).
+        Retourne (can_make_offer: bool, message_fr str ou '').
+        """
+        if intent.status == PurchaseIntent.PENDING or intent.status == PurchaseIntent.AWAITING_AVAILABILITY:
+            return False, "Le vendeur doit d'abord confirmer la disponibilité de l'article."
+        if intent.status not in (PurchaseIntent.NEGOTIATING,):
+            return False, "La négociation n'est plus ouverte pour cette intention."
+        pending = (
+            intent.negotiations.filter(status=Negotiation.PENDING)
+            .order_by('-created_at')
+            .first()
+        )
+        if pending:
+            if pending.proposer_id == user.id:
+                return (
+                    False,
+                    "Votre proposition est en attente. L'autre partie doit répondre (accepter ou refuser) avant une nouvelle offre.",
+                )
+            return (
+                False,
+                "Une proposition est en cours : utilisez Accepter ou Refuser sur l'offre ci-dessus avant d'en proposer une nouvelle.",
+            )
+        last = intent.negotiations.order_by('-created_at').first()
+        if last and last.status == Negotiation.REJECTED and last.proposer_id == user.id:
+            return (
+                False,
+                "Après ce refus, c'est au tour de l'autre partie de faire la prochaine proposition de prix.",
+            )
+        return True, ''
     
     @staticmethod
     def create_negotiation(intent: PurchaseIntent, proposer, proposed_price, message=None):
         """
         Crée une proposition de négociation
         """
+        logger.info('[C2C·SVC] create_negotiation intent=#%d proposer=%s price=%s',
+                    intent.id, proposer.pk, proposed_price)
+        can, msg = PurchaseIntentService.get_negotiation_offer_rules(intent, proposer)
+        if not can:
+            logger.warning('[C2C·SVC] Offre bloquée pour intent=#%d: %s', intent.id, msg)
+            raise ValidationError(msg)
         negotiation = Negotiation.objects.create(
             purchase_intent=intent,
             proposer=proposer,
@@ -197,6 +247,8 @@ class PurchaseIntentService:
         """
         Accepte une proposition de négociation (par le destinataire)
         """
+        logger.info('[C2C·SVC] accept_negotiation #%d actor=%s price=%s',
+                    negotiation.id, actor.pk, negotiation.proposed_price)
         intent = negotiation.purchase_intent
         if actor not in [intent.buyer, intent.seller]:
             raise PermissionError("Vous n'avez pas la permission d'accepter cette offre.")
@@ -241,6 +293,7 @@ class PurchaseIntentService:
         """
         Refuse une proposition de négociation (par le destinataire)
         """
+        logger.info('[C2C·SVC] reject_negotiation #%d actor=%s', negotiation.id, actor.pk)
         intent = negotiation.purchase_intent
         if actor not in [intent.buyer, intent.seller]:
             raise PermissionError("Vous n'avez pas la permission de refuser cette offre.")
@@ -275,9 +328,10 @@ class PurchaseIntentService:
         """
         Accepte un prix final et crée la commande C2C
         """
-        # Vérifier si une commande existe déjà pour cette intention
+        logger.info('[C2C·SVC] accept_final_price intent=#%d price=%s', intent.id, final_price)
         existing_order = C2COrder.objects.filter(purchase_intent=intent).first()
         if existing_order:
+            logger.info('[C2C·SVC] Commande existante #%d retournée', existing_order.id)
             return existing_order
         
         if intent.status != PurchaseIntent.AGREED:
@@ -304,8 +358,9 @@ class PurchaseIntentService:
             buyer_total=commissions['buyer_total']
         )
         
-        # Créer la vérification de livraison avec les codes
-        DeliveryVerification.objects.create(c2c_order=c2c_order)
+        verification = DeliveryVerification.objects.create(c2c_order=c2c_order)
+        logger.info('[C2C·SVC] Commande #%d créée — buyer_total=%s seller_net=%s — verification #%d',
+                    c2c_order.id, c2c_order.buyer_total, c2c_order.seller_net, verification.id)
         
         return c2c_order
 
@@ -747,8 +802,8 @@ class DeliveryVerificationService:
         Vérifie le code acheteur (A-CODE) saisi par le vendeur
         Le vendeur entre le code A-CODE de l'acheteur pour confirmer qu'il a remis l'article
         """
+        logger.info('[C2C·SVC] verify_seller_code order=#%d code=%s…', c2c_order.id, code[:2] if code else '?')
         verification = c2c_order.delivery_verification
-        # Le vendeur entre le code acheteur (A-CODE)
         if code == verification.buyer_code and not verification.seller_code_verified:
             verification.seller_code_verified = True
             verification.seller_code_verified_at = timezone.now()
@@ -756,11 +811,12 @@ class DeliveryVerificationService:
                 verification.status = DeliveryVerification.SELLER_CODE_VERIFIED
             verification.save()
             
-            # Mettre à jour le statut de la commande
             if c2c_order.status == C2COrder.PAID:
                 c2c_order.status = C2COrder.PENDING_DELIVERY
                 c2c_order.save()
+            logger.info('[C2C·SVC] seller_code vérifié OK order=#%d → status=%s', c2c_order.id, verification.status)
             return True
+        logger.warning('[C2C·SVC] seller_code FAIL order=#%d (mismatch ou déjà vérifié)', c2c_order.id)
         return False
     
     @staticmethod
@@ -769,8 +825,8 @@ class DeliveryVerificationService:
         Vérifie le code vendeur (V-CODE) saisi par l'acheteur
         L'acheteur entre le code V-CODE du vendeur pour confirmer qu'il a reçu l'article
         """
+        logger.info('[C2C·SVC] verify_buyer_code order=#%d code=%s…', c2c_order.id, code[:2] if code else '?')
         verification = c2c_order.delivery_verification
-        # L'acheteur entre le code vendeur (V-CODE)
         if code == verification.seller_code and not verification.buyer_code_verified:
             verification.buyer_code_verified = True
             verification.buyer_code_verified_at = timezone.now()
@@ -781,15 +837,16 @@ class DeliveryVerificationService:
                 verification.status = DeliveryVerification.BUYER_CODE_VERIFIED
             verification.save()
             
-            # Mettre à jour le statut de la commande
             if verification.status == DeliveryVerification.COMPLETED:
                 c2c_order.status = C2COrder.COMPLETED
                 c2c_order.completed_at = timezone.now()
                 c2c_order.save()
-                
-                # Mettre à jour les statistiques du vendeur
+                logger.info('[C2C·SVC] 🎉 TRANSACTION COMPLÈTE order=#%d — mise à jour stats vendeur', c2c_order.id)
                 DeliveryVerificationService._update_seller_stats(c2c_order.seller)
+            else:
+                logger.info('[C2C·SVC] buyer_code vérifié OK order=#%d → verif_status=%s', c2c_order.id, verification.status)
             return True
+        logger.warning('[C2C·SVC] buyer_code FAIL order=#%d (mismatch ou déjà vérifié)', c2c_order.id)
         return False
     
     @staticmethod

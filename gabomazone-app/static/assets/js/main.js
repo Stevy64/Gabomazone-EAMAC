@@ -1,5 +1,26 @@
 (function ($) {
     ("use strict");
+    function showGlobalPreloader() {
+        var $preloader = $("#preloader-active");
+        if (!$preloader.length) return;
+        $preloader.stop(true, true).show().css({
+            opacity: 1,
+            visibility: "visible"
+        });
+        $("body").css({
+            overflow: "hidden"
+        });
+    }
+
+    function shouldIgnorePreloaderForLink(el, href) {
+        if (!href || href === "#" || href.indexOf("javascript:") === 0) return true;
+        if (href.indexOf("mailto:") === 0 || href.indexOf("tel:") === 0) return true;
+        if (el.hasAttribute("download")) return true;
+        if ((el.getAttribute("target") || "").toLowerCase() === "_blank") return true;
+        if (el.hasAttribute("hx-get") || el.hasAttribute("hx-post")) return true;
+        return false;
+    }
+
     // Page loading
     $(window).on("load", function () {
         $("#preloader-active").fadeOut("slow");
@@ -11,6 +32,44 @@
         // if (typeof $.fn.modal !== 'undefined' && $("#onloadModal").length) {
         //     $("#onloadModal").modal("show");
         // }
+    });
+
+    $(document).on("click", "a[href]", function (e) {
+        if (e.defaultPrevented) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (e.which && e.which !== 1) return;
+
+        var href = this.getAttribute("href");
+        if (shouldIgnorePreloaderForLink(this, href)) return;
+
+        var nextUrl;
+        try {
+            nextUrl = new URL(href, window.location.href);
+        } catch (err) {
+            return;
+        }
+        if (nextUrl.origin !== window.location.origin) return;
+        if (
+            nextUrl.pathname === window.location.pathname &&
+            nextUrl.search === window.location.search &&
+            nextUrl.hash
+        ) {
+            return;
+        }
+        showGlobalPreloader();
+    });
+
+    $(document).on("submit", "form", function () {
+        if (this.hasAttribute("data-no-preloader")) return;
+        if (this.hasAttribute("hx-post") || this.hasAttribute("hx-get")) return;
+        showGlobalPreloader();
+    });
+
+    window.addEventListener("pageshow", function () {
+        $("#preloader-active").hide();
+        $("body").css({
+            overflow: "visible"
+        });
     });
     /*-----------------
         Menu Stick

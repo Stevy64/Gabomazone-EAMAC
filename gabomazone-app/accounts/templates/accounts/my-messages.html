@@ -5,7 +5,7 @@
 
 {% block headextra %}
 <link rel="stylesheet" href="{% static 'accounts/css/negotiation.css' %}?v=1.2">
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/messages.css' %}?v=3.1" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/messages.css' %}?v=3.3" />
 {% endblock headextra %}
 
 {% block body %}
@@ -56,7 +56,7 @@
                             <span class="gm-inbox-badge gm-inbox-badge--pulse">{{ purchase_intents_unread }} nouvelle{{ purchase_intents_unread|pluralize }}</span>
                             {% endif %}
                         </div>
-                        <p class="gm-intents-panel__hint">Acceptez ou refusez pour ouvrir la négociation de prix avec l’acheteur.</p>
+                        <p class="gm-intents-panel__hint">Confirmez d'abord la disponibilité de l'article, puis la négociation s'ouvrira.</p>
                         <div class="purchase-intents-grid gm-intents-grid">
                             {% for intent in purchase_intents %}
                             <article class="gm-intent-card intent-card{% if not intent.seller_notified %} gm-intent-card--highlight{% endif %}" onclick="openConversationChatbot({{ intent.product.id }}, null)">
@@ -73,24 +73,23 @@
                                     <strong>{{ intent.buyer.get_full_name|default:intent.buyer.username }}</strong> — {{ intent.product.product_name|truncatechars:34 }}
                                 </p>
                                 <div class="gm-intent-card__price">
-                                    <span class="gm-intent-card__price-label">Première offre</span>
+                                    <span class="gm-intent-card__price-label">Prix affiché</span>
                                     <span class="gm-intent-card__price-value">{{ intent.initial_price|floatformat:0 }} FCFA</span>
                                 </div>
                                 <div class="gm-intent-card__actions">
-                                    {% if intent.status == 'pending' or intent.status == 'negotiating' %}
-                                    <button type="button" onclick="event.stopPropagation(); acceptPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--success">
-                                        <i class="fi-rs-check"></i> Accepter
+                                    {% if intent.status == 'pending' or intent.status == 'awaiting_availability' %}
+                                    <button type="button" onclick="event.stopPropagation(); confirmAvailability({{ intent.id }})" class="gm-btn gm-btn--success">
+                                        <i class="fi-rs-box"></i> Dispo — ouvrir la négo
                                     </button>
-                                    <button type="button" onclick="event.stopPropagation(); rejectPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--danger">
-                                        <i class="fi-rs-cross"></i> Refuser
+                                    <button type="button" onclick="event.stopPropagation(); declineAvailability({{ intent.id }})" class="gm-btn gm-btn--danger">
+                                        <i class="fi-rs-cross"></i> Plus disponible
                                     </button>
+                                    {% elif intent.status == 'negotiating' %}
+                                    <span class="gm-intent-card__status gm-intent-card__status--ok"><i class="fi-rs-comment"></i> Négociation en cours</span>
                                     {% elif intent.status == 'agreed' %}
                                     <span class="gm-intent-card__status gm-intent-card__status--ok"><i class="fi-rs-check"></i> Prix accepté</span>
                                     {% elif intent.status == 'rejected' or intent.status == 'cancelled' %}
                                     <span class="gm-intent-card__status gm-intent-card__status--off"><i class="fi-rs-cross"></i> {% if intent.status == 'rejected' %}Refusée{% else %}Annulée{% endif %}</span>
-                                    <button type="button" onclick="event.stopPropagation(); cancelPurchaseIntent({{ intent.id }})" class="gm-btn gm-btn--muted" title="Supprimer cette intention">
-                                        <i class="fi-rs-trash"></i> Supprimer
-                                    </button>
                                     {% endif %}
                                 </div>
                             </article>
@@ -107,8 +106,8 @@
                         <div class="gm-msg-toolbar" role="region" aria-label="Filtrer et rechercher">
                             <div class="gm-msg-tabs" role="tablist" aria-label="Type de conversation">
                                 <button type="button" class="gm-msg-tab is-active" data-role="all">Toutes{% if inbox_total_n %}<span class="gm-msg-tab__count">{{ inbox_total_n }}</span>{% endif %}</button>
-                                <button type="button" class="gm-msg-tab" data-role="buyer" {% if inbox_purchases_n == 0 %}disabled{% endif %}><i class="fi-rs-shopping-bag" aria-hidden="true"></i> Achats{% if inbox_purchases_n %}<span class="gm-msg-tab__count">{{ inbox_purchases_n }}</span>{% endif %}</button>
-                                <button type="button" class="gm-msg-tab" data-role="seller" {% if inbox_sales_n == 0 %}disabled{% endif %}><i class="fi-rs-user" aria-hidden="true"></i> Ventes{% if inbox_sales_n %}<span class="gm-msg-tab__count">{{ inbox_sales_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-msg-tab" data-role="buyer"><i class="fi-rs-shopping-bag" aria-hidden="true"></i> Achats{% if inbox_purchases_n %}<span class="gm-msg-tab__count">{{ inbox_purchases_n }}</span>{% endif %}</button>
+                                <button type="button" class="gm-msg-tab" data-role="seller"><i class="fi-rs-user" aria-hidden="true"></i> Ventes{% if inbox_sales_n %}<span class="gm-msg-tab__count">{{ inbox_sales_n }}</span>{% endif %}</button>
                             </div>
                             <div class="gm-inbox-search-wrap gm-msg-search">
                                 <i class="fi-rs-search gm-inbox-search-wrap__icon" aria-hidden="true"></i>
@@ -161,8 +160,7 @@
 
                         <div id="gmInboxFilterEmpty" class="gm-inbox-filter-empty" hidden>
                             <i class="fi-rs-search"></i>
-                            <p>Aucune conversation ne correspond à ce filtre ou à cette recherche.</p>
-                            <button type="button" class="gm-btn gm-btn--ghost" id="gmInboxResetFilters">Réinitialiser</button>
+                            <p id="gmInboxFilterEmptyText">Aucune conversation ne correspond à ce filtre ou à cette recherche.</p>
                         </div>
                     </section>
                     {% elif not purchase_intents %}
@@ -182,6 +180,7 @@
 
 <!-- Fenêtre conversation + négociation (au-dessus de la bottom nav) -->
 <div id="chatbotPopup" class="gm-chat-popup gm-messages-popup" role="dialog" aria-modal="true" aria-labelledby="chatbotPopupTitle">
+    <div class="gm-chat-popup__drag-handle" aria-hidden="true"></div>
     <!-- En-tête liste (choix d’une conversation sur un même article) -->
     <div id="gmChatHeaderList" class="gm-chat-popup__header gm-chat-popup__header--list">
         <div class="gm-chat-popup__header-inner">
@@ -255,8 +254,8 @@
                 <!-- Formulaire de proposition -->
                 <form id="negotiationForm" onsubmit="submitNegotiation(event)" class="gm-s-a218d4">
                     <div style="flex: 1;">
-                        <label class="gm-s-2cab63">Prix proposé (FCFA)</label>
-                        <input type="number" id="negotiationPrice" placeholder="Ex: 50000" min="1" step="1" required class="gm-s-62f51c" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
+                        <label class="gm-s-2cab63" for="negotiationPrice">Prix proposé (FCFA)</label>
+                        <input type="number" id="negotiationPrice" name="negotiation_price" placeholder="Ex: 50000" min="1" step="1" required class="gm-s-62f51c" onfocus="this.style.borderColor='var(--color-orange)'" onblur="this.style.borderColor='#E5E7EB'">
                     </div>
                     <button type="submit" class="gm-s-b7939c" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                         <i class="fi-rs-check"></i> Proposer
@@ -275,24 +274,18 @@
             <!-- Contenu injecté par JavaScript -->
         </div>
         
-        <!-- Réponses rapides + saisie (fixe en bas) -->
+        <!-- Saisie (fixe en bas) -->
         <div class="gm-chat-compose">
-            <div id="gmQuickReplies" class="gm-chat-quick" aria-label="Réponses rapides">
-                <span class="gm-chat-quick__label"><i class="fi-rs-comment"></i> Réponses rapides</span>
-                <div class="gm-chat-quick__pills">
-                    <button type="button" class="gm-chat-quick__pill" data-quick="Bonjour, est-ce toujours disponible ?">Bonjour, est-ce toujours disponible ?</button>
-                    <button type="button" class="gm-chat-quick__pill" data-quick="Quel est votre meilleur prix ?">Quel est votre meilleur prix ?</button>
-                    <button type="button" class="gm-chat-quick__pill" data-quick="Merci, je suis intéressé(e).">Merci, je suis intéressé(e).</button>
-                </div>
-            </div>
             <div id="chatHelper" class="gm-chat-compose__helper">Pendant la négociation, proposez un prix dans la section ci-dessus. Le chat libre sera disponible après accord.</div>
             <form id="messageForm" onsubmit="sendMessage(event)" class="gm-chat-compose__form">
+                <label class="visually-hidden" for="messageInput">Votre message</label>
                 <div class="gm-chat-compose__tools">
-                    <button type="button" class="gm-chat-compose__tool" disabled title="Bientôt disponible" aria-disabled="true"><i class="fi-rs-picture"></i></button>
-                    <button type="button" class="gm-chat-compose__tool" disabled title="Bientôt disponible" aria-disabled="true"><i class="fi-rs-marker"></i></button>
-                    <button type="button" id="gmChatFocusNegotiationBtn" class="gm-chat-compose__tool" title="Négociation de prix"><i class="fi-rs-money"></i></button>
+                    <button type="button" id="gmChatAttachBtn" class="gm-chat-compose__tool" title="Ajouter une pièce jointe">
+                        <i class="fi-rs-picture"></i>
+                    </button>
+                    <input type="file" id="gmChatAttachmentInput" name="chat_attachment" accept="image/*" hidden aria-label="Joindre une image">
                 </div>
-                <input type="text" id="messageInput" placeholder="Tapez votre message..." class="gm-chat-compose__input" autocomplete="off">
+                <input type="text" id="messageInput" name="message" placeholder="Tapez votre message..." class="gm-chat-compose__input" autocomplete="off">
                 <button type="submit" class="gm-chat-compose__send" aria-label="Envoyer">
                     <i class="fi-rs-paper-plane"></i>
                 </button>
@@ -306,25 +299,31 @@
     <div class="gm-chat-sheet__backdrop" id="gmChatOptionsBackdrop"></div>
     <div class="gm-chat-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="gmChatOptionsTitle">
         <div class="gm-chat-sheet__head">
-            <h2 id="gmChatOptionsTitle" class="gm-chat-sheet__title">Options de conversation</h2>
+            <h2 id="gmChatOptionsTitle" class="gm-chat-sheet__title">Statut de la transaction</h2>
             <button type="button" class="gm-chat-sheet__close" id="gmChatOptionsClose" aria-label="Fermer"><i class="fi-rs-cross"></i></button>
         </div>
         <div class="gm-chat-sheet__product">
             <p id="gmChatOptProductName" class="gm-chat-sheet__product-name"></p>
             <p id="gmChatOptProductPrice" class="gm-chat-sheet__product-price"></p>
             <a id="gmChatOptProductLink" href="#" class="gm-chat-sheet__product-link" target="_blank" rel="noopener"><i class="fi-rs-external"></i> Voir l’annonce</a>
+            <div class="gm-tx-progress" id="gmChatTxProgress" aria-label="Avancement de la transaction">
+                <p class="gm-tx-progress__title">Avancement</p>
+                <ol class="gm-tx-progress__steps">
+                    <li class="gm-tx-step" data-step="0"><span class="gm-tx-step__dot" aria-hidden="true"></span><span class="gm-tx-step__label">Négociation</span></li>
+                    <li class="gm-tx-step" data-step="1"><span class="gm-tx-step__dot" aria-hidden="true"></span><span class="gm-tx-step__label">Paiement</span></li>
+                    <li class="gm-tx-step" data-step="2"><span class="gm-tx-step__dot" aria-hidden="true"></span><span class="gm-tx-step__label">Article récupéré</span></li>
+                    <li class="gm-tx-step" data-step="3"><span class="gm-tx-step__dot" aria-hidden="true"></span><span class="gm-tx-step__label">Terminé</span></li>
+                </ol>
+            </div>
         </div>
         <ul class="gm-chat-sheet__actions">
-            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptCompleted"><i class="fi-rs-check"></i> Transaction complétée</button></li>
-            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptMute"><i class="fi-rs-bell-slash"></i> Couper les notifications</button></li>
             <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptReport"><i class="fi-rs-flag"></i> Signaler cette conversation</button></li>
-            <li><button type="button" class="gm-chat-sheet__action" id="gmChatOptBlock"><i class="fi-rs-delete-user"></i> Bloquer l’utilisateur</button></li>
             <li><button type="button" class="gm-chat-sheet__action gm-chat-sheet__action--danger" id="gmChatOptDelete"><i class="fi-rs-trash"></i> Supprimer la conversation</button></li>
         </ul>
     </div>
 </div>
 
-<script src="{% static 'accounts/js/negotiation.js' %}?v=3.8"></script>
+<script src="{% static 'accounts/js/negotiation.js' %}?v=6.0"></script>
 <script>
 // Token CSRF pour les requêtes POST (suppression message, etc.)
 window.CSRF_TOKEN = "{{ csrf_token }}";
@@ -335,6 +334,8 @@ window.currentConversationId = null;
 let currentProductId = null;
 let currentConversationId = null;
 let conversationsData = [];
+const gmInboxConversationsApi = "{% url 'accounts:get-inbox-conversations' %}";
+const gmReportConversationApiBase = "{% url 'accounts:report-conversation' 0 %}".replace(/0\/$/, '');
 
 function openConversationChatbot(productId, conversationId) {
     currentProductId = productId;
@@ -373,7 +374,13 @@ function openChatbot(productId) {
 
 function closeChatbot() {
     const popup = document.getElementById('chatbotPopup');
-    popup.style.display = 'none';
+    if (popup && popup.classList.contains('gm-chat-popup--closing')) return;
+    if (popup) popup.classList.add('gm-chat-popup--closing');
+    setTimeout(function() {
+        if (!popup) return;
+        popup.style.display = 'none';
+        popup.classList.remove('gm-chat-popup--closing');
+    }, 180);
     if (typeof closeGmChatOptionsSheet === 'function') closeGmChatOptionsSheet();
     currentProductId = null;
     currentConversationId = null;
@@ -468,8 +475,9 @@ function loadConversations(productId, options) {
     contentDiv.style.display = 'none';
     noConversationsDiv.style.display = 'none';
     
-    const convBase = "{% url 'accounts:get-product-conversations' 0 %}";
-    const apiUrl = convBase.replace('/0/', `/${productId}/`);
+    const activeTab = document.querySelector('.gm-msg-toolbar .gm-msg-tab.is-active');
+    const activeRole = activeTab ? (activeTab.getAttribute('data-role') || 'all') : 'all';
+    const apiUrl = `${gmInboxConversationsApi}?role=${encodeURIComponent(activeRole)}`;
     return fetch(apiUrl)
         .then(response => {
             if (!response.ok) {
@@ -494,6 +502,11 @@ function loadConversations(productId, options) {
                 if (conv && typeof showActiveConversation === 'function') {
                     setTimeout(() => showActiveConversation(idToShow), 50);
                 }
+            }
+            var optsSheet = document.getElementById('gmChatOptionsSheet');
+            if (optsSheet && !optsSheet.hidden && currentConversationId && typeof populateGmChatOptionsSheet === 'function') {
+                var cRefresh = conversationsData.find(function(c) { return c.id === currentConversationId; });
+                if (cRefresh) populateGmChatOptionsSheet(cRefresh);
             }
             return conversationsData;
         })
@@ -869,7 +882,7 @@ function initGmInboxFilters() {
     const chips = toolbar.querySelectorAll('.gm-filter-chip');
     const search = document.getElementById('gmInboxSearch');
     const emptyEl = document.getElementById('gmInboxFilterEmpty');
-    const resetBtn = document.getElementById('gmInboxResetFilters');
+    const emptyTxt = document.getElementById('gmInboxFilterEmptyText');
     let activeRole = 'all';
     let activeStatus = 'all';
     function allCards() {
@@ -889,7 +902,52 @@ function initGmInboxFilters() {
         if (filter === 'completed') return tags.indexOf('completed') !== -1;
         return true;
     }
+    function roleScopedCards() {
+        return Array.prototype.slice.call(allCards()).filter(function(card) {
+            const cardRole = card.getAttribute('data-user-role') || '';
+            return roleMatches(cardRole, activeRole);
+        });
+    }
+    function updateChipsForRole() {
+        const cards = roleScopedCards();
+        const counts = {
+            unread: 0,
+            negotiating: 0,
+            after_payment: 0,
+            completed: 0,
+        };
+        cards.forEach(function(card) {
+            const tags = (card.getAttribute('data-tags') || '').split(/\s+/).filter(Boolean);
+            if (tags.indexOf('unread') !== -1) counts.unread += 1;
+            if (tags.indexOf('negotiating') !== -1) counts.negotiating += 1;
+            if (tags.indexOf('after_payment') !== -1 || tags.indexOf('pending_payment') !== -1) counts.after_payment += 1;
+            if (tags.indexOf('completed') !== -1) counts.completed += 1;
+        });
+        chips.forEach(function(chip) {
+            const f = chip.getAttribute('data-filter') || 'all';
+            if (f === 'all') {
+                chip.disabled = false;
+                chip.removeAttribute('aria-disabled');
+                return;
+            }
+            const v = counts[f] || 0;
+            chip.disabled = v === 0;
+            chip.setAttribute('aria-disabled', v === 0 ? 'true' : 'false');
+            var cnt = chip.querySelector('.gm-chip-count');
+            if (cnt) cnt.textContent = v;
+        });
+        if (activeStatus !== 'all') {
+            const activeChip = toolbar.querySelector('.gm-filter-chip[data-filter="' + activeStatus + '"]');
+            if (activeChip && activeChip.disabled) {
+                activeStatus = 'all';
+                chips.forEach(function(c) { c.classList.remove('is-active'); });
+                const c0 = toolbar.querySelector('.gm-filter-chip[data-filter="all"]');
+                if (c0) c0.classList.add('is-active');
+            }
+        }
+    }
     function apply() {
+        updateChipsForRole();
         const q = (search && search.value) ? search.value.trim().toLowerCase() : '';
         let visible = 0;
         allCards().forEach(function(card) {
@@ -904,6 +962,17 @@ function initGmInboxFilters() {
             if (show) visible += 1;
         });
         if (emptyEl) emptyEl.hidden = visible > 0;
+        if (emptyTxt && visible === 0) {
+            const hasQuery = !!q;
+            const roleLabel = activeRole === 'buyer' ? 'd’achat' : (activeRole === 'seller' ? 'de vente' : '');
+            if (hasQuery) {
+                emptyTxt.textContent = "Aucune conversation ne correspond à votre recherche.";
+            } else if (activeRole === 'buyer' || activeRole === 'seller') {
+                emptyTxt.textContent = "Aucune conversation " + roleLabel + " pour le moment.";
+            } else {
+                emptyTxt.textContent = "Aucune conversation ne correspond à ce filtre.";
+            }
+        }
     }
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
@@ -924,45 +993,38 @@ function initGmInboxFilters() {
         });
     });
     if (search) search.addEventListener('input', apply);
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            if (search) search.value = '';
-            activeRole = 'all';
-            activeStatus = 'all';
-            tabs.forEach(function(t) { t.classList.remove('is-active'); });
-            const t0 = toolbar.querySelector('.gm-msg-tab[data-role="all"]');
-            if (t0) t0.classList.add('is-active');
-            chips.forEach(function(c) { c.classList.remove('is-active'); });
-            const c0 = toolbar.querySelector('.gm-filter-chip[data-filter="all"]');
-            if (c0) c0.classList.add('is-active');
-            apply();
-        });
+    apply();
+}
+
+function updateGmTransactionProgressFromConv(conv) {
+    var root = document.getElementById('gmChatTxProgress');
+    if (!root) return;
+    var step = 0;
+    if (conv) {
+        if (typeof conv.tx_step === 'number') step = conv.tx_step;
+        else if (conv.transaction_completed) step = 3;
     }
+    if (step < 0 || step > 3) step = 0;
+    var items = root.querySelectorAll('.gm-tx-step');
+    items.forEach(function(el, i) {
+        el.classList.remove('gm-tx-step--done', 'gm-tx-step--current', 'gm-tx-step--pending');
+        if (i < step) el.classList.add('gm-tx-step--done');
+        else if (i === step) el.classList.add('gm-tx-step--current');
+        else el.classList.add('gm-tx-step--pending');
+    });
 }
 
 function populateGmChatOptionsSheet(conv) {
     var nameEl = document.getElementById('gmChatOptProductName');
     var priceEl = document.getElementById('gmChatOptProductPrice');
     var linkEl = document.getElementById('gmChatOptProductLink');
-    var doneBtn = document.getElementById('gmChatOptCompleted');
-    var muteBtn = document.getElementById('gmChatOptMute');
     if (nameEl) nameEl.textContent = conv.product_name || '';
     if (priceEl) priceEl.textContent = (conv.product_price_display ? conv.product_price_display + '\u00a0FCFA' : '');
     if (linkEl) {
         linkEl.href = conv.product_url || '#';
         linkEl.style.display = conv.product_url ? '' : 'none';
     }
-    if (doneBtn) {
-        doneBtn.disabled = false;
-        doneBtn.innerHTML = conv.transaction_completed
-            ? '<i class="fi-rs-check"></i> Transaction complétée (terminée)'
-            : '<i class="fi-rs-check"></i> Transaction complétée';
-    }
-    if (muteBtn && currentConversationId) {
-        var muted = false;
-        try { muted = (JSON.parse(localStorage.getItem('gm_muted_threads') || '[]').indexOf(currentConversationId) >= 0); } catch (e) {}
-        muteBtn.innerHTML = muted ? '<i class="fi-rs-bell"></i> Réactiver les notifications' : '<i class="fi-rs-bell-slash"></i> Couper les notifications';
-    }
+    updateGmTransactionProgressFromConv(conv || null);
 }
 
 function openGmChatOptionsSheet() {
@@ -993,58 +1055,107 @@ function initGmChatUi() {
         closeGmChatOptionsSheet();
         if (typeof deleteConversationFromPopup === 'function') deleteConversationFromPopup();
     });
-    var done = document.getElementById('gmChatOptCompleted');
-    if (done) done.addEventListener('click', function() {
-        closeGmChatOptionsSheet();
-        var conv = conversationsData.find(function(c) { return c.id === currentConversationId; });
-        if (conv && conv.transaction_completed) {
-            if (typeof GMModal !== 'undefined' && GMModal.success) GMModal.success('Transaction', 'Cette transaction est marquée comme complétée.');
-            else alert('Transaction complétée.');
-        } else {
-            if (typeof GMModal !== 'undefined' && GMModal.show) {
-                GMModal.show({ type: 'info', title: 'Transaction en cours', message: 'La commande sera marquée comme terminée automatiquement après confirmation de livraison.', showCancel: false, confirmText: 'OK' });
-            } else alert('La transaction se finalise après livraison confirmée.');
-        }
-    });
-    var mute = document.getElementById('gmChatOptMute');
-    if (mute) mute.addEventListener('click', function() {
-        if (!currentConversationId) return;
-        var a = [];
-        try { a = JSON.parse(localStorage.getItem('gm_muted_threads') || '[]'); } catch (e) { a = []; }
-        var i = a.indexOf(currentConversationId);
-        var wasMuted = i >= 0;
-        if (wasMuted) { a.splice(i, 1); localStorage.setItem('gm_muted_threads', JSON.stringify(a)); }
-        else { a.push(currentConversationId); localStorage.setItem('gm_muted_threads', JSON.stringify(a)); }
-        var conv = conversationsData.find(function(c) { return c.id === currentConversationId; });
-        if (conv) populateGmChatOptionsSheet(conv);
-        if (typeof GMModal !== 'undefined' && GMModal.success) {
-            GMModal.success('Notifications', wasMuted ? 'Notifications réactivées pour cette conversation.' : 'Notifications coupées pour cette conversation (appareil).');
-        }
-    });
     var rep = document.getElementById('gmChatOptReport');
     if (rep) rep.addEventListener('click', function() {
-        if (typeof GMModal !== 'undefined' && GMModal.show) GMModal.show({ type: 'info', title: 'Signalement', message: 'Fonctionnalité bientôt disponible. Contactez le support via la page Contact.', showCancel: false, confirmText: 'OK' });
-        else alert('Bientôt disponible.');
+        if (!currentConversationId) return;
+        var doSend = function() {
+            fetch(gmReportConversationApiBase + currentConversationId + '/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': (window.CSRF_TOKEN || '')
+                },
+                body: JSON.stringify({
+                    reason: 'Signalement conversation',
+                    details: ''
+                })
+            }).then(function(resp) {
+                return resp.text().then(function(text) {
+                    var data = {};
+                    try { data = text ? JSON.parse(text) : {}; } catch (e) { data = {}; }
+                    if (!resp.ok || !data.success) {
+                        throw new Error((data && data.error) || 'Impossible d\'envoyer le signalement.');
+                    }
+                    return data;
+                });
+            }).then(function(data) {
+                if (typeof GMModal !== 'undefined' && GMModal.success) {
+                    GMModal.success('Signalement envoyé', (data && data.message) || 'Votre signalement a bien été transmis.');
+                } else {
+                    alert((data && data.message) || 'Signalement envoyé.');
+                }
+            }).catch(function(err) {
+                if (typeof GMModal !== 'undefined' && GMModal.show) {
+                    GMModal.show({ type: 'error', title: 'Signalement', message: err.message || 'Une erreur est survenue.', showCancel: false, confirmText: 'OK' });
+                } else {
+                    alert(err.message || 'Une erreur est survenue.');
+                }
+            });
+        };
+        if (typeof GMModal !== 'undefined' && GMModal.confirm) {
+            GMModal.confirm({
+                title: 'Signaler cette conversation',
+                message: 'Souhaitez-vous envoyer ce signalement à l\'administration ?',
+                confirmText: 'Signaler',
+                cancelText: 'Annuler',
+                onConfirm: doSend
+            });
+        } else if (confirm('Souhaitez-vous signaler cette conversation ?')) {
+            doSend();
+        }
         closeGmChatOptionsSheet();
     });
-    var blk = document.getElementById('gmChatOptBlock');
-    if (blk) blk.addEventListener('click', function() {
-        if (typeof GMModal !== 'undefined' && GMModal.show) GMModal.show({ type: 'info', title: 'Blocage', message: 'Fonctionnalité bientôt disponible.', showCancel: false, confirmText: 'OK' });
-        else alert('Bientôt disponible.');
-        closeGmChatOptionsSheet();
+    var attachBtn = document.getElementById('gmChatAttachBtn');
+    var attachInput = document.getElementById('gmChatAttachmentInput');
+    if (attachBtn && attachInput) attachBtn.addEventListener('click', function() {
+        if (attachBtn.disabled) return;
+        attachInput.click();
     });
-    document.querySelectorAll('.gm-chat-quick__pill').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var inp = document.getElementById('messageInput');
-            var t = btn.getAttribute('data-quick') || '';
-            if (inp && !inp.disabled) { inp.value = t; inp.focus(); }
-        });
+    if (attachInput) attachInput.addEventListener('change', function() {
+        if (!attachInput.files || !attachInput.files.length) return;
+        var f = attachInput.files[0];
+        if (typeof GMModal !== 'undefined' && GMModal.show) {
+            GMModal.show({
+                type: 'info',
+                title: 'Pièce jointe sélectionnée',
+                message: 'Fichier sélectionné : <strong>' + (f.name || 'image') + '</strong><br>Envoi de pièce jointe bientôt disponible.',
+                showCancel: false,
+                confirmText: 'OK'
+            });
+        } else {
+            alert('Fichier sélectionné : ' + (f.name || 'image'));
+        }
+        attachInput.value = '';
     });
-    var fn = document.getElementById('gmChatFocusNegotiationBtn');
-    if (fn) fn.addEventListener('click', function() {
-        var sec = document.getElementById('negotiationSection');
-        if (sec) { sec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); sec.classList.add('gm-chat-negotiation--pulse'); setTimeout(function() { sec.classList.remove('gm-chat-negotiation--pulse'); }, 1200); }
-    });
+
+    // Fermeture de la popup par swipe vers le bas (smartphone)
+    var popup = document.getElementById('chatbotPopup');
+    if (popup) {
+        var startX = 0;
+        var startY = 0;
+        var touching = false;
+        function bindSwipeZone(el) {
+            if (!el) return;
+            el.addEventListener('touchstart', function(e) {
+                if (!e.touches || !e.touches.length) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                touching = true;
+            }, { passive: true });
+            el.addEventListener('touchend', function(e) {
+                if (!touching || window.innerWidth > 768) return;
+                if (!e.changedTouches || !e.changedTouches.length) return;
+                var dx = e.changedTouches[0].clientX - startX;
+                var dy = e.changedTouches[0].clientY - startY;
+                touching = false;
+                if (dy > 70 && Math.abs(dx) < 80) {
+                    closeChatbot();
+                }
+            }, { passive: true });
+        }
+        bindSwipeZone(document.getElementById('gmChatHeaderList'));
+        bindSwipeZone(document.getElementById('gmChatHeaderActive'));
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1058,6 +1169,75 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
     {% endif %}
 });
+
+/* --- Confirmation de disponibilité (nouveau flux C2C) --- */
+function confirmAvailability(intentId) {
+    GMModal.show({
+        type: 'confirm',
+        title: 'Confirmer la disponibilité',
+        message: 'Votre article est-il <strong>toujours en vente</strong> ?<br><br>En confirmant, la négociation du prix sera ouverte avec l\'acheteur.',
+        showCancel: true,
+        confirmText: 'Oui, article disponible',
+        cancelText: 'Annuler',
+        onConfirm: function() {
+            fetch('/c2c/purchase-intent/' + intentId + '/confirm-availability/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    GMModal.show({
+                        type: 'success',
+                        title: 'Disponibilité confirmée !',
+                        message: (data.message || 'La négociation est maintenant ouverte.') + '<br><br>'
+                            + '<strong>Prochaine étape :</strong> l\'acheteur va proposer un prix dans la conversation. '
+                            + 'Vous pourrez accepter, refuser ou contre-proposer.',
+                        confirmText: 'OK, j\'ai compris',
+                        onConfirm: function() { location.reload(); }
+                    });
+                } else {
+                    GMModal.error('Erreur', data.error || 'Impossible de confirmer la disponibilité.');
+                }
+            })
+            .catch(function() { GMModal.error('Erreur', 'Erreur réseau. Réessayez.'); });
+        }
+    });
+}
+
+function declineAvailability(intentId) {
+    GMModal.show({
+        type: 'warning',
+        title: 'Article plus disponible',
+        message: 'Confirmez-vous que cet article <strong>n\'est plus en vente</strong> ?<br><br>L\'intention de l\'acheteur sera annulée.',
+        showCancel: true,
+        confirmText: 'Oui, plus disponible',
+        cancelText: 'Annuler',
+        onConfirm: function() {
+            fetch('/c2c/purchase-intent/' + intentId + '/decline-availability/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    GMModal.success('Intention annulée', data.message || 'L\'acheteur a été informé.', function() { location.reload(); });
+                } else {
+                    GMModal.error('Erreur', data.error || 'Impossible de décliner.');
+                }
+            })
+            .catch(function() { GMModal.error('Erreur', 'Erreur réseau. Réessayez.'); });
+        }
+    });
+}
 
 function acceptPurchaseIntent(intentId) {
     GMModal.show({

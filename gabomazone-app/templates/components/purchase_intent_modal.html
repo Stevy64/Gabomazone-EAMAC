@@ -1,0 +1,45 @@
+{% load static %}
+{# Modale « intention d’achat » — remplie par purchase-intent-modal.js #}
+<div id="gmPiModal" class="gm-pi-modal" hidden aria-hidden="true">
+    <div class="gm-pi-modal__backdrop" id="gmPiModalBackdrop"></div>
+    <div class="gm-pi-modal__panel" role="dialog" aria-modal="true" aria-labelledby="gmPiModalTitle">
+        <button type="button" class="gm-pi-modal__close" id="gmPiModalClose" aria-label="Fermer">
+            <i class="fi-rs-cross"></i>
+        </button>
+        <div id="gmPiModalLoading" class="gm-pi-modal__loading">
+            <i class="fi-rs-spinner gm-pi-modal__spin" aria-hidden="true"></i>
+            <p>Chargement…</p>
+        </div>
+        <div id="gmPiModalError" class="gm-pi-modal__error" hidden></div>
+        <div id="gmPiModalInner" class="gm-pi-modal__inner" hidden>
+            <p class="gm-pi-modal__eyebrow" id="gmPiModalEyebrow">Négociation</p>
+            <h2 id="gmPiModalTitle" class="gm-pi-modal__title">Ce n'est pas la pharmacie.. donne ton prix !</h2>
+            <div class="gm-pi-modal__product">
+                <div class="gm-pi-modal__thumb-wrap">
+                    <img id="gmPiModalImg" src="" alt="" />
+                </div>
+                <div class="gm-pi-modal__product-text">
+                    <p id="gmPiModalProductName" class="gm-pi-modal__product-name"></p>
+                    <p class="gm-pi-modal__seller">Vendeur · <span id="gmPiModalSeller"></span></p>
+                    <p id="gmPiModalPrice" class="gm-pi-modal__price"></p>
+                </div>
+            </div>
+            <ul class="gm-pi-modal__steps" aria-label="Étapes">
+                <li><span>1</span> Le vendeur confirme la disponibilité de l'article</li>
+                <li><span>2</span> Négociation du prix</li>
+                <li><span>3</span> Paiement sécurisé après accord</li>
+                <li><span>4</span> Rencontre et échange de l'article</li>
+            </ul>
+            <form id="gmPiModalForm" method="post" action="">
+                {% csrf_token %}
+                <button type="submit" class="gm-pi-modal__submit" id="gmPiModalSubmit">
+                    <i class="fi-rs-comment"></i>
+                    Commencer la négociation
+                </button>
+            </form>
+            <p class="gm-pi-modal__foot">
+                <i class="fi-rs-shield-check"></i> Paiement sécurisé · Données protégées
+            </p>
+        </div>
+    </div>
+</div>

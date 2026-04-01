@@ -10,7 +10,7 @@
     function initAccountDropdown() {
         // Desktop
         const accountTrigger = document.getElementById('account-dropdown-trigger');
-        const accountMenu = document.getElementById('account-dropdown-menu');
+        const accountMenu = document.getElementById('account-dropdown-menu-auth') || document.getElementById('account-dropdown-menu-guest');
         
         if (accountTrigger && accountMenu) {
             // Vérifier si déjà initialisé
@@ -107,7 +107,7 @@
         if (!window.accountDropdownOutsideClickHandler) {
             window.accountDropdownOutsideClickHandler = function(e) {
                 const accountTrigger = document.getElementById('account-dropdown-trigger');
-                const accountMenu = document.getElementById('account-dropdown-menu');
+                const accountMenu = document.getElementById('account-dropdown-menu-auth') || document.getElementById('account-dropdown-menu-guest');
                 const accountTriggerMobile = document.getElementById('account-dropdown-trigger-mobile');
                 const accountMenuMobile = document.getElementById('account-dropdown-menu-mobile');
                 

@@ -32,25 +32,54 @@
     <!-- Gabomazone Design System -->
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-design.css'%}?v=28.1" />
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/flavoriz-force.css'%}?v=27.3" />
-    <link rel="stylesheet" href="{% static 'gabomazone-client/css/gabomazone-ux.css'%}?v=8.7" />
+    <link rel="stylesheet" href="{% static 'gabomazone-client/css/gabomazone-ux.css'%}?v=8.9" />
     <!-- Extracted inline styles (consolidated) -->
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/gm-extracted.css'%}?v=3.0" />
     <!-- Component styles -->
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/layout.css'%}?v=2.3" />
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/alerts.css'%}?v=1.0" />
     <link rel="stylesheet" href="{% static 'gabomazone-client/css/modals.css'%}?v=1.0" />
+    <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/purchase-intent.css'%}?v=3.0" />
     {% endblock head %}
     {% block headextra %}{% endblock headextra %}
 </head>
 
-<body>
+<body{% if user.is_authenticated %} data-gm-authenticated="1"{% endif %} data-gm-login-url="{% url 'accounts:login' %}">
 
     {% include "components/header.html" %}
 
     {% include "components/alerts.html" %}
 
+    {% include "components/purchase_intent_modal.html" %}
+    <script>
+        window.GM_C2C_PURCHASE_INTENT_URL_TEMPLATE = "{% url 'c2c:create-purchase-intent' 0 %}";
+    </script>
+    <script src="{% static 'gabomazone-client/js/purchase-intent-modal.js' %}?v=1.2"></script>
+
     {% block body %}
     {% endblock body %}
+
+    <script>
+    (function () {
+        if (typeof window.proposeOfferToSeller === 'function') return;
+        window.proposeOfferToSeller = function (productId, productSlug, productPrice) {
+            if (document.body.getAttribute('data-gm-authenticated') !== '1') {
+                var login = document.body.getAttribute('data-gm-login-url');
+                if (login) {
+                    window.location.href =
+                        login +
+                        (login.indexOf('?') >= 0 ? '&' : '?') +
+                        'next=' +
+                        encodeURIComponent(window.location.pathname + window.location.search);
+                }
+                return;
+            }
+            if (typeof window.openPurchaseIntentModal === 'function') {
+                window.openPurchaseIntentModal(productId);
+            }
+        };
+    })();
+    </script>
 
     {% include "components/footer.html" %}
 
@@ -62,9 +91,9 @@
     <!-- Gabomazone UI scripts -->
     <script src="{% static 'gabomazone-client/js/smart-header.js' %}?v=8.0"></script>
     <script src="{% static 'gabomazone-client/js/custom-dropdown.js' %}?v=5.0"></script>
-    <script src="{% static 'gabomazone-client/js/mobile-search-expand.js' %}?v=5.0"></script>
+    <script src="{% static 'gabomazone-client/js/mobile-search-expand.js' %}?v=5.1"></script>
     <script src="{% static 'gabomazone-client/js/desktop-search-expand.js' %}?v=7.0"></script>
-    <script src="{% static 'gabomazone-client/js/account-dropdown-fix.js' %}?v=8.0"></script>
+    <script src="{% static 'gabomazone-client/js/account-dropdown-fix.js' %}?v=8.1"></script>
     <!-- Vendor JS -->
     <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js'%}"></script>
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js'%}"></script>
@@ -89,7 +118,7 @@
     <script src="{% static 'assets/js/main.js'%}"></script>
     <script src="{% static 'assets/js/shop.js'%}"></script>
     <!-- Product interaction (favorites, cart) -->
-    <script src="{% static 'assets/js/filter.js'%}?v=2.3"></script>
+    <script src="{% static 'assets/js/filter.js'%}?v=3.0"></script>
     {% endblock script %}
 
     <!-- Component JS -->

@@ -23,7 +23,11 @@
         {% if not is_peer_to_peer and product.product_vendor and product.product_vendor.status == 'vendor' %}
         <span class="gm-badge gm-badge-pro gm-product-badge"><i class="fi-rs-shield-check gm-badge-icon"></i> PRO</span>
         {% elif is_peer_to_peer %}
-        <span class="gm-badge gm-badge-particulier gm-product-badge">Particulier</span>
+        <span class="gm-c2c-mark"
+              title="Annonce entre particuliers"
+              aria-label="Annonce entre particuliers — mise en relation directe">
+            <i class="fi-rs-users" aria-hidden="true"></i>
+        </span>
         {% endif %}
         {% if product.view_count and product.view_count > 0 %}
         <span class="gm-product-views"><i class="fi-rs-eye"></i> {{ product.view_count|default:0 }}</span>
@@ -50,26 +54,6 @@
                 {% endif %}
             </span>
             {% if product.date %}<span class="gm-product-date">{{ product.date|relative_date }}</span>{% endif %}
-        </div>
-        <div class="gm-product-actions">
-            <button class="gm-product-btn-view" onclick="event.stopPropagation(); window.location.href='{% if is_peer_to_peer %}{% url 'accounts:peer-product-details' product.PRDSlug %}{% else %}{% url 'products:product-details' product.PRDSlug %}{% endif %}'">
-                <i class="fi-rs-eye"></i> Voir
-            </button>
-            {% if is_peer_to_peer %}
-            <button class="gm-product-btn-action flavoriz-propose-offer-btn"
-                    data-product-id="{{ product.id }}" data-product-slug="{{ product.PRDSlug }}" data-product-price="{{ price|floatformat:0 }}"
-                    onclick="event.stopPropagation(); proposeOfferToSeller({{ product.id }}, '{{ product.PRDSlug }}', {{ price|floatformat:0 }});"
-                    type="button" title="Négocier le prix">
-                <i class="fi-rs-comment"></i>
-            </button>
-            {% else %}
-            <button class="gm-product-btn-action flavoriz-add-cart-btn"
-                    data-product-id="{{ product.id }}" data-product-price="{{ price|floatformat:0 }}"
-                    type="button"
-                    onclick="event.stopPropagation(); if(typeof window.addToCartQuick==='function') window.addToCartQuick(this.getAttribute('data-product-id'), this.getAttribute('data-product-price'));">
-                <i class="fi-rs-shopping-bag"></i>
-            </button>
-            {% endif %}
         </div>
     </div>
 </div>

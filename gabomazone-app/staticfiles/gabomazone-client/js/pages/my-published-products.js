@@ -354,7 +354,11 @@ async function confirmBoost() {
                 if (data.success) {
                     // Rediriger vers la page de paiement
                     if (data.payment_url) {
-                        window.location.href = data.payment_url;
+                        if (typeof window.openSingPayPaymentModal === 'function') {
+                            window.openSingPayPaymentModal(data.payment_url, { title: 'Paiement boost SingPay' });
+                        } else {
+                            window.location.href = data.payment_url;
+                        }
                     } else {
                         GMModal.success('Boost activé !', data.message || 'Votre boost a été activé avec succès !', () => {
                             location.reload();

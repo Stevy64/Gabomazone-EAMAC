@@ -97,6 +97,7 @@ class PurchaseIntent(models.Model):
     Remplace le paiement direct par un système de négociation obligatoire
     """
     PENDING = 'pending'
+    AWAITING_AVAILABILITY = 'awaiting_availability'
     NEGOTIATING = 'negotiating'
     AGREED = 'agreed'
     REJECTED = 'rejected'
@@ -105,6 +106,7 @@ class PurchaseIntent(models.Model):
     
     STATUS_CHOICES = [
         (PENDING, _('En attente')),
+        (AWAITING_AVAILABILITY, _('En attente de disponibilité')),
         (NEGOTIATING, _('En négociation')),
         (AGREED, _('Accord trouvé')),
         (REJECTED, _('Refusé')),
@@ -125,7 +127,7 @@ class PurchaseIntent(models.Model):
     
     # Statut
     status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default=PENDING,
+        max_length=25, choices=STATUS_CHOICES, default=PENDING,
         verbose_name=_("Statut"))
     
     # Prix initial et prix négocié
@@ -146,6 +148,11 @@ class PurchaseIntent(models.Model):
     
     # Notification
     seller_notified = models.BooleanField(default=False, verbose_name=_("Vendeur notifié"))
+    
+    # Confirmation de disponibilité par le vendeur
+    availability_confirmed_at = models.DateTimeField(
+        blank=True, null=True,
+        verbose_name=_("Disponibilité confirmée par le vendeur"))
     
     class Meta:
         ordering = ('-created_at',)
@@ -365,6 +372,12 @@ class DeliveryVerification(models.Model):
         blank=True, null=True, verbose_name=_("Date vérification code vendeur"))
     buyer_code_verified_at = models.DateTimeField(
         blank=True, null=True, verbose_name=_("Date vérification code acheteur"))
+
+    # Confirmation mutuelle avant révélation des codes (remise / réception)
+    buyer_handover_confirmed_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Acheteur confirme la réception (étape avant codes)"))
+    seller_handover_confirmed_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Vendeur confirme la remise (étape avant codes)"))
     
     # Statut
     status = models.CharField(
@@ -425,6 +438,15 @@ class DeliveryVerification(models.Model):
     def is_completed(self):
         """Vérifie si la vérification est complète"""
         return self.seller_code_verified and self.buyer_code_verified
+
+    def codes_unlocked_for_exchange(self):
+        """
+        Les codes A/V ne sont visibles qu'après confirmation mutuelle remise/réception,
+        sauf si un échange de codes a déjà commencé (compatibilité données existantes).
+        """
+        if self.seller_code_verified or self.buyer_code_verified:
+            return True
+        return bool(self.buyer_handover_confirmed_at and self.seller_handover_confirmed_at)
 
 
 class ProductBoost(models.Model):

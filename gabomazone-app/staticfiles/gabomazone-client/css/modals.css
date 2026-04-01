@@ -140,3 +140,87 @@
     .gm-modal-footer { padding: 12px 20px 20px; flex-direction: column; }
     .gm-modal-btn { width: 100%; }
 }
+
+/* SingPay (GMModal : pas d’iframe — SingPay bloque le cadrage via X-Frame-Options / CSP) */
+.gm-modal.gm-modal--singpay {
+    max-width: min(96vw, 520px);
+    width: 100%;
+}
+
+.gm-modal-body--html {
+    text-align: left;
+    padding: 0 20px 20px;
+}
+
+@media (min-width: 481px) {
+    .gm-modal-body--html { padding: 0 28px 24px; }
+}
+
+.gm-singpay-amount {
+    margin: 0 0 12px;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+.gm-singpay-external {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #f9fafb;
+}
+
+.gm-singpay-external-lead {
+    margin: 0 0 10px;
+    color: #4b5563;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.gm-singpay-external-lead:last-of-type {
+    margin-bottom: 12px;
+}
+
+.gm-singpay-external-steps {
+    margin: 0 0 14px;
+    padding-left: 1.25rem;
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.gm-singpay-external-steps li {
+    margin-bottom: 6px;
+}
+
+.gm-singpay-hint {
+    margin: 0;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.gm-singpay-direct-link {
+    color: var(--color-orange, #ff7b2c);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.gm-singpay-same-tab {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-orange, #ff7b2c);
+    font-weight: 600;
+    font-size: inherit;
+    font-family: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .gm-modal.gm-modal--singpay {
+        max-width: calc(100% - 24px);
+    }
+}

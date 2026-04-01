@@ -2,7 +2,7 @@
 Signaux pour le module C2C
 Gestion des notifications et mises à jour automatiques
 """
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from .models import PurchaseIntent, C2COrder, DeliveryVerification
@@ -14,13 +14,15 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=PurchaseIntent)
 def notify_seller_on_purchase_intent(sender, instance, created, **kwargs):
     """
-    Notifie le vendeur lorsqu'une nouvelle intention d'achat est créée
+    Logue la création d'une intention d'achat.
+    seller_notified reste False → le vendeur verra la notification non lue
+    dans sa messagerie et devra d'abord confirmer la disponibilité de l'article.
     """
-    if created and not instance.seller_notified:
-        # TODO: Implémenter la notification (email, push, etc.)
-        logger.info(f"Nouvelle intention d'achat #{instance.id} pour {instance.seller.username}")
-        instance.seller_notified = True
-        instance.save(update_fields=['seller_notified'])
+    if created:
+        logger.info(
+            '[C2C·SIGNAL] Nouvelle intention #%d — seller=%s product=#%d (seller_notified=%s)',
+            instance.id, instance.seller_id, instance.product_id, instance.seller_notified,
+        )
 
 
 @receiver(post_save, sender=C2COrder)
@@ -46,7 +48,6 @@ def complete_order_on_verification(sender, instance, created, **kwargs):
         instance.c2c_order.completed_at = timezone.now()
         instance.c2c_order.save(update_fields=['status', 'completed_at'])
         
-        # Libérer les fonds en escrow
         try:
             from payments.escrow_service import EscrowService
             success, response = EscrowService.release_escrow_for_c2c_order(instance.c2c_order)
@@ -56,6 +57,3 @@ def complete_order_on_verification(sender, instance, created, **kwargs):
                 logger.error(f"Erreur lors de la libération de l'escrow: {response.get('error')}")
         except Exception as e:
             logger.exception(f"Erreur lors de la libération de l'escrow C2C: {str(e)}")
-
-
-

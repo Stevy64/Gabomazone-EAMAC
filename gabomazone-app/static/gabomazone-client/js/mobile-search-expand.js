@@ -9,7 +9,7 @@
     
     const searchMobile = document.querySelector('.flavoriz-search-mobile');
     const searchTrigger = document.querySelector('.flavoriz-search-trigger-mobile');
-    const searchInput = document.getElementById('mobile-search-input');
+    const searchInput = document.getElementById('gmHeaderSearchMobile');
     const searchForm = document.querySelector('.flavoriz-search-form-mobile');
     const searchClose = document.querySelector('.flavoriz-search-close-mobile');
     const headerActions = document.querySelector('.flavoriz-header-actions-mobile');

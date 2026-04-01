@@ -50,14 +50,6 @@
 </main>
 
 <script>
-function proposeOfferToSeller(productId, productSlug, productPrice) {
-    {% if not user.is_authenticated %}
-    window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
-    return;
-    {% endif %}
-    var createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
-    window.location.href = createIntentUrl;
-}
 if (typeof toggleFavorite === 'undefined' && typeof window.toggleFavorite !== 'undefined') {
     window.toggleFavorite = window.toggleFavorite;
 }

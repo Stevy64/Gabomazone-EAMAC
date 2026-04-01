@@ -585,6 +585,7 @@ class AdminNotification(models.Model):
     PRODUCT_APPROVAL = 'PRODUCT_APPROVAL'
     B2C_PRODUCT_PUBLISHED = 'B2C_PRODUCT_PUBLISHED'
     VENDOR_REGISTRATION = 'VENDOR_REGISTRATION'
+    CONVERSATION_REPORT = 'CONVERSATION_REPORT'
     
     TYPE_CHOICES = [
         (BOOST_REQUEST, _('Demande de boost')),
@@ -593,6 +594,7 @@ class AdminNotification(models.Model):
         (PRODUCT_APPROVAL, _('Approbation de produit')),
         (B2C_PRODUCT_PUBLISHED, _('Nouveau produit B2C en ligne')),
         (VENDOR_REGISTRATION, _('Nouveau vendeur B2C inscrit')),
+        (CONVERSATION_REPORT, _('Signalement conversation')),
     ]
     
     notification_type = models.CharField(
@@ -642,6 +644,52 @@ class AdminNotification(models.Model):
             self.is_resolved = True
             self.resolved_at = timezone.now()
             self.save(update_fields=['is_resolved', 'resolved_at'])
+
+
+class ConversationReport(models.Model):
+    """Signalement d'une conversation par un utilisateur."""
+    OPEN = 'open'
+    IN_REVIEW = 'in_review'
+    RESOLVED = 'resolved'
+    REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (OPEN, _('Ouvert')),
+        (IN_REVIEW, _('En cours d\'analyse')),
+        (RESOLVED, _('Résolu')),
+        (REJECTED, _('Rejeté')),
+    ]
+
+    conversation = models.ForeignKey(
+        ProductConversation, on_delete=models.CASCADE, related_name='reports',
+        verbose_name=_("Conversation"))
+    reporter = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='conversation_reports',
+        verbose_name=_("Auteur du signalement"))
+    reason = models.CharField(max_length=255, blank=True, verbose_name=_("Motif court"))
+    details = models.TextField(blank=True, verbose_name=_("Détails"))
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=OPEN,
+        verbose_name=_("Statut"))
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='reviewed_conversation_reports',
+        verbose_name=_("Traité par"))
+    reviewed_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Traité le"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Créé le"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Mis à jour le"))
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Signalement de conversation")
+        verbose_name_plural = _("Signalements de conversation")
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['reporter', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"Signalement #{self.id} - Conversation #{self.conversation_id}"
 
 
 class AdminMessage(models.Model):

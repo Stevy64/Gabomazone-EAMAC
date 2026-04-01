@@ -23,9 +23,9 @@
         <div class="flavoriz-header-actions flavoriz-header-actions-desktop">
             <!-- Search -->
             <div class="flavoriz-search">
-                <form action="{% url 'products:product-search'%}" method="post">
+                <form action="{% url 'products:product-search'%}" method="post" id="gmHeaderSearchFormDesktop">
                     {% csrf_token %}
-                    <input type="text" name="search-product" placeholder="Rechercher un produit (ex: iPhone, voiture, terrain...)" autocomplete="off" required/>
+                    <input type="text" name="search-product" id="gmHeaderSearchDesktop" placeholder="Rechercher un produit (ex: iPhone, voiture, terrain...)" autocomplete="off" required/>
                     <button type="submit"><i class="fi-rs-search"></i></button>
                 </form>
             </div>
@@ -51,7 +51,7 @@
                     {% endif %}
                 </a>
                 {% if user.is_authenticated %}
-                <div class="flavoriz-account-menu" id="account-dropdown-menu">
+                <div class="flavoriz-account-menu" id="account-dropdown-menu-auth">
                     <a href="{% url 'accounts:my-messages' %}" style="display: flex; align-items: center; justify-content: space-between;">
                         <span><i class="fi-rs-comment"></i> Messages</span>
                         {% if unread_messages_count and unread_messages_count > 0 %}
@@ -73,7 +73,7 @@
                     </a>
                 </div>
                 {% else %}
-                <div class="flavoriz-account-menu" id="account-dropdown-menu">
+                <div class="flavoriz-account-menu" id="account-dropdown-menu-guest">
                     <a href="{% url 'accounts:login' %}">
                         <i class="fi-rs-user"></i> Connexion
                     </a>
@@ -92,9 +92,9 @@
                 <button type="button" class="flavoriz-search-trigger-mobile" title="Rechercher">
                     <i class="fi-rs-search"></i>
                 </button>
-                <form action="{% url 'products:product-search'%}" method="post" class="flavoriz-search-form-mobile" style="display: none;">
+                <form action="{% url 'products:product-search'%}" method="post" class="flavoriz-search-form-mobile" id="gmHeaderSearchFormMobile" style="display: none;">
                     {% csrf_token %}
-                    <input type="text" name="search-product" id="mobile-search-input" placeholder="Rechercher (iPhone, voiture...)" autocomplete="off" required/>
+                    <input type="text" name="search-product" id="gmHeaderSearchMobile" placeholder="Rechercher (iPhone, voiture...)" autocomplete="off" required/>
                     <button type="submit" class="flavoriz-search-submit-mobile"><i class="fi-rs-search"></i></button>
                     <button type="button" class="flavoriz-search-close-mobile"><i class="fi-rs-cross"></i></button>
                 </form>

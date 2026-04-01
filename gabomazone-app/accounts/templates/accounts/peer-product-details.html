@@ -39,6 +39,11 @@
                             {%else %}
                             <img src="{% static 'assets/imgs/shop/product-16-3.jpg'%}" alt="{{peer_product.product_name}}" id="main-product-image" onclick="openPeerProductImagePreview()" />
                             {%endif %}
+                            <span class="gm-c2c-mark gm-c2c-mark--detail-photo"
+                                  title="Annonce entre particuliers"
+                                  aria-label="Annonce entre particuliers — mise en relation directe">
+                                <i class="fi-rs-users" aria-hidden="true"></i>
+                            </span>
                         </div>
                         
                         {% if peer_product.additional_image_1 or peer_product.additional_image_2 or peer_product.additional_image_3 %}
@@ -97,7 +102,6 @@
                                 <div class="gm-seller-info">
                                     <div class="gm-seller-name">
                                         <button type="button" onclick="openSellerModal()" class="gm-s-01d3be">{{ peer_product.seller.username }}</button>
-                                        <span class="gm-badge gm-badge-particulier gm-badge-lg">Particulier</span>
                                     </div>
                                     <div class="gm-seller-meta">
                                         {% if peer_product.seller_city %}
@@ -117,7 +121,7 @@
                             {% if not user.is_authenticated or user.pk != peer_product.seller_id %}
                             <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
                                 <i class="fi-rs-comment"></i>
-                                <span>Proposer une offre</span>
+                                <span>Négocier le prix</span>
                             </button>
                             <button type="button" onclick="openNegotiationChat()" class="gm-action-btn gm-btn-contact">
                                 <i class="fi-rs-comment-alt"></i>
@@ -229,7 +233,7 @@
         {% if not user.is_authenticated or user.pk != peer_product.seller_id %}
         <button type="button" onclick="proposeOfferToSeller({{ peer_product.id }}, '{{ peer_product.PRDSlug }}', {{ peer_product.PRDPrice|floatformat:0 }})" class="gm-action-btn gm-btn-buy">
             <i class="fi-rs-comment"></i>
-            <span>Offre</span>
+            <span>Négocier</span>
         </button>
         <button type="button" onclick="openNegotiationChat()" class="gm-action-btn gm-btn-contact">
             <i class="fi-rs-comment-alt"></i>
@@ -400,24 +404,19 @@ function openNegotiationChat() {
     window.location.href = '{% url "accounts:my-messages" %}?product_id={{ peer_product.id }}&action=propose_offer';
 }
 
-// Fonction pour proposer une offre au vendeur (remplace addPeerProductToCart)
+// Proposer un prix : modale intention d'achat (voir base.html + purchase-intent-modal.js)
 function proposeOfferToSeller(productId, productSlug, productPrice) {
     {% if not user.is_authenticated %}
-    // Rediriger vers la page de connexion
     window.location.href = '{% url "accounts:login" %}?next=' + encodeURIComponent(window.location.pathname);
     return;
     {% endif %}
-    
-    {% if user.is_authenticated %}
-    {% if user.pk == peer_product.seller_id %}
+    {% if user.is_authenticated and user.pk == peer_product.seller_id %}
     GMModal.warning('Action non autorisée', 'Vous ne pouvez pas proposer une offre pour votre propre article.');
     return;
     {% endif %}
-    {% endif %}
-    
-    // Rediriger vers la création d'intention d'achat C2C
-    const createIntentUrl = '{% url "c2c:create-purchase-intent" 0 %}'.replace('0', productId);
-    window.location.href = createIntentUrl;
+    if (typeof openPurchaseIntentModal === 'function') {
+        openPurchaseIntentModal(productId);
+    }
 }
 
 function openSellerModal() {

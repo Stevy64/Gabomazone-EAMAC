@@ -108,7 +108,11 @@ def messages_count(request):
             total_unread_intents = PurchaseIntent.objects.filter(
                 seller=request.user,
                 seller_notified=False,
-                status__in=[PurchaseIntent.PENDING, PurchaseIntent.NEGOTIATING]
+                status__in=[
+                    PurchaseIntent.PENDING,
+                    PurchaseIntent.AWAITING_AVAILABILITY,
+                    PurchaseIntent.NEGOTIATING,
+                ]
             ).count()
         
         # Total des messages non lus (conversations uniquement)

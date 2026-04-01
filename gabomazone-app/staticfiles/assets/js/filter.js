@@ -803,228 +803,331 @@ if (!document.getElementById('cart-toast-styles')) {
     document.head.appendChild(style);
 }
 
-// Fonction pour ouvrir l'aperçu d'image avec galerie
+/**
+ * Aperçu plein écran (lightbox) — gabomazone-client/css/image-lightbox.css (.gm-lightbox).
+ * Signature inchangée : openImagePreview(images, startIndex, imageAlt)
+ */
 function openImagePreview(images, startIndex, imageAlt) {
-    // Normaliser les images en tableau
     if (typeof images === 'string') {
         images = [images];
     }
     if (!Array.isArray(images) || images.length === 0) {
         return;
     }
-    
+
+    const prevOpen = document.getElementById('flavoriz-image-preview');
+    if (prevOpen && prevOpen.parentNode) {
+        prevOpen.parentNode.removeChild(prevOpen);
+    }
+
     let currentIndex = startIndex || 0;
     if (currentIndex < 0) currentIndex = 0;
     if (currentIndex >= images.length) currentIndex = images.length - 1;
-    
-    // Créer le conteneur de la popup
+
+    const titleText = (imageAlt && String(imageAlt).trim()) || 'Aperçu';
+    const multi = images.length > 1;
+    const previousActiveElement = document.activeElement;
+
     const popup = document.createElement('div');
     popup.id = 'flavoriz-image-preview';
-    popup.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: zoom-out; animation: fadeIn 0.3s ease;';
-    
-    // Conteneur pour l'image
-    const imageContainer = document.createElement('div');
-    imageContainer.style.cssText = 'position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; min-height: 100vh;';
-    
-    // Créer l'image
-    const img = document.createElement('img');
-    img.src = images[currentIndex];
-    img.alt = imageAlt;
-    img.id = 'preview-main-image';
-    img.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); animation: zoomIn 0.3s ease; cursor: zoom-out; transition: opacity 0.3s ease;';
-    
-    // Créer le bouton précédent (si plusieurs images)
-    let prevBtn = null;
-    let nextBtn = null;
-    if (images.length > 1) {
-        prevBtn = document.createElement('button');
-        prevBtn.innerHTML = '<i class="fi-rs-angle-left" style="font-size: 28px; color: white;"></i>';
-        prevBtn.className = 'preview-nav-btn preview-prev-btn';
-        prevBtn.style.cssText = 'position: fixed; left: 20px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); z-index: 10001;';
-        prevBtn.onmouseover = function() {
-            this.style.background = 'rgba(255, 255, 255, 0.2)';
-            this.style.transform = 'translateY(-50%) scale(1.1)';
-        };
-        prevBtn.onmouseout = function() {
-            this.style.background = 'rgba(255, 255, 255, 0.1)';
-            this.style.transform = 'translateY(-50%) scale(1)';
-        };
-        prevBtn.onclick = function(e) {
-            e.stopPropagation();
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateImage();
-            }
-        };
-        
-        // Créer le bouton suivant
-        nextBtn = document.createElement('button');
-        nextBtn.innerHTML = '<i class="fi-rs-angle-right" style="font-size: 28px; color: white;"></i>';
-        nextBtn.className = 'preview-nav-btn preview-next-btn';
-        nextBtn.style.cssText = 'position: fixed; right: 20px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); z-index: 10001;';
-        nextBtn.onmouseover = function() {
-            this.style.background = 'rgba(255, 255, 255, 0.2)';
-            this.style.transform = 'translateY(-50%) scale(1.1)';
-        };
-        nextBtn.onmouseout = function() {
-            this.style.background = 'rgba(255, 255, 255, 0.1)';
-            this.style.transform = 'translateY(-50%) scale(1)';
-        };
-        nextBtn.onclick = function(e) {
-            e.stopPropagation();
-            if (currentIndex < images.length - 1) {
-                currentIndex++;
-                updateImage();
-            }
-        };
-    }
-    
-    // Décompte "n / total" — toujours affiché (y compris 1/1), ancré en haut du conteneur (évite top:max() mal parsé en inline style)
-    const counterLabel = document.createElement('div');
-    counterLabel.className = 'preview-image-counter';
-    counterLabel.setAttribute('aria-live', 'polite');
-    counterLabel.setAttribute('aria-atomic', 'true');
-    counterLabel.textContent = (currentIndex + 1) + ' / ' + images.length;
-    // Styles de secours (flavoriz-design.css renforce avec !important)
-    counterLabel.style.cssText = 'position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:10050;background:rgba(0,0,0,0.6);color:#fff;padding:8px 18px;border-radius:999px;font-size:15px;font-weight:600;pointer-events:none;min-width:64px;text-align:center;border:1px solid rgba(255,255,255,0.25);';
+    popup.className = 'gm-lightbox';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-modal', 'true');
+    popup.setAttribute('aria-labelledby', 'gm-lightbox-title');
 
-    // Créer les indicateurs de pagination (si plusieurs images)
-    let indicatorsContainer = null;
-    if (images.length > 1) {
-        indicatorsContainer = document.createElement('div');
-        indicatorsContainer.className = 'preview-indicators';
-        indicatorsContainer.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10001;';
-        
-        for (let i = 0; i < images.length; i++) {
-            const indicator = document.createElement('button');
-            indicator.className = 'preview-indicator';
-            indicator.setAttribute('data-index', i);
-            indicator.style.cssText = `width: ${i === currentIndex ? '24px' : '8px'}; height: 8px; border-radius: 4px; background: ${i === currentIndex ? 'white' : 'rgba(255, 255, 255, 0.4)'}; border: none; cursor: pointer; transition: all 0.3s ease;`;
-            indicator.onclick = function(e) {
+    const bg = document.createElement('div');
+    bg.className = 'gm-lightbox__bg';
+
+    const shell = document.createElement('div');
+    shell.className = 'gm-lightbox__shell';
+
+    const topbar = document.createElement('div');
+    topbar.className = 'gm-lightbox__topbar';
+
+    const topInfo = document.createElement('div');
+    topInfo.className = 'gm-lightbox__topbar-info';
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'gm-lightbox__title';
+    titleEl.id = 'gm-lightbox-title';
+    titleEl.textContent = titleText;
+
+    const meta = document.createElement('div');
+    meta.className = 'gm-lightbox__meta';
+
+    const badge = document.createElement('span');
+    badge.className = 'gm-lightbox__badge';
+    badge.setAttribute('aria-live', 'polite');
+    badge.setAttribute('aria-atomic', 'true');
+    const badgeDot = document.createElement('span');
+    badgeDot.className = 'gm-lightbox__badge-dot';
+    badgeDot.setAttribute('aria-hidden', 'true');
+    const badgeText = document.createElement('span');
+    badgeText.className = 'gm-lightbox__badge-text';
+    badge.appendChild(badgeDot);
+    badge.appendChild(badgeText);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'gm-lightbox__close';
+    closeBtn.setAttribute('aria-label', 'Fermer la galerie');
+    closeBtn.innerHTML = '<i class="fi-rs-cross" aria-hidden="true"></i>';
+
+    meta.appendChild(badge);
+    topInfo.appendChild(titleEl);
+    topInfo.appendChild(meta);
+    topbar.appendChild(topInfo);
+    topbar.appendChild(closeBtn);
+
+    const stage = document.createElement('div');
+    stage.className = 'gm-lightbox__stage';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className =
+        'gm-lightbox__nav gm-lightbox__nav--prev' + (multi ? '' : ' gm-lightbox__nav--hidden');
+    prevBtn.setAttribute('aria-label', 'Photo précédente');
+    prevBtn.innerHTML = '<i class="fi-rs-angle-left" aria-hidden="true"></i>';
+
+    const frame = document.createElement('div');
+    frame.className = 'gm-lightbox__frame';
+
+    const img = document.createElement('img');
+    img.className = 'gm-lightbox__img';
+    img.alt = titleText;
+    img.decoding = 'async';
+
+    const loading = document.createElement('div');
+    loading.className = 'gm-lightbox__loading';
+    loading.setAttribute('aria-hidden', 'true');
+    loading.innerHTML = '<div class="gm-lightbox__spinner"></div>';
+
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className =
+        'gm-lightbox__nav gm-lightbox__nav--next' + (multi ? '' : ' gm-lightbox__nav--hidden');
+    nextBtn.setAttribute('aria-label', 'Photo suivante');
+    nextBtn.innerHTML = '<i class="fi-rs-angle-right" aria-hidden="true"></i>';
+
+    frame.appendChild(img);
+    frame.appendChild(loading);
+
+    stage.appendChild(prevBtn);
+    stage.appendChild(frame);
+    stage.appendChild(nextBtn);
+
+    const thumbButtons = [];
+
+    shell.appendChild(topbar);
+    shell.appendChild(stage);
+
+    if (multi) {
+        const thumbsWrap = document.createElement('div');
+        thumbsWrap.className = 'gm-lightbox__thumbs-wrap';
+        const thumbsEl = document.createElement('div');
+        thumbsEl.className = 'gm-lightbox__thumbs';
+        thumbsEl.setAttribute('role', 'tablist');
+        thumbsEl.setAttribute('aria-label', 'Miniatures');
+        images.forEach((src, i) => {
+            const tb = document.createElement('button');
+            tb.type = 'button';
+            tb.className = 'gm-lightbox__thumb' + (i === currentIndex ? ' is-active' : '');
+            tb.setAttribute('role', 'tab');
+            tb.setAttribute('aria-selected', i === currentIndex ? 'true' : 'false');
+            tb.setAttribute('aria-label', 'Afficher la photo ' + (i + 1) + ' sur ' + images.length);
+            const tim = document.createElement('img');
+            tim.src = src;
+            tim.alt = '';
+            tim.loading = 'lazy';
+            tb.appendChild(tim);
+            tb.addEventListener('click', function (e) {
                 e.stopPropagation();
-                currentIndex = parseInt(this.getAttribute('data-index'));
-                updateImage();
-            };
-            indicatorsContainer.appendChild(indicator);
-        }
-    }
-    
-    // Fonction pour mettre à jour l'image affichée
-    function updateImage() {
-        img.style.opacity = '0';
-        setTimeout(() => {
-            img.src = images[currentIndex];
-            img.style.opacity = '1';
-        }, 150);
-        
-        // Mettre à jour les indicateurs
-        if (indicatorsContainer) {
-            const indicators = indicatorsContainer.querySelectorAll('.preview-indicator');
-            indicators.forEach((ind, i) => {
-                if (i === currentIndex) {
-                    ind.style.width = '24px';
-                    ind.style.background = 'white';
-                } else {
-                    ind.style.width = '8px';
-                    ind.style.background = 'rgba(255, 255, 255, 0.4)';
+                if (i !== currentIndex) {
+                    showAt(i, false);
                 }
             });
+            thumbsEl.appendChild(tb);
+            thumbButtons.push(tb);
+        });
+        thumbsWrap.appendChild(thumbsEl);
+        shell.appendChild(thumbsWrap);
+    }
+
+    popup.appendChild(bg);
+    popup.appendChild(shell);
+
+    function updateChrome() {
+        badgeText.textContent =
+            images.length === 1
+                ? '1 photo'
+                : 'Photo ' + (currentIndex + 1) + ' sur ' + images.length;
+        if (multi) {
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= images.length - 1;
+            thumbButtons.forEach(function (tb, i) {
+                tb.classList.toggle('is-active', i === currentIndex);
+                tb.setAttribute('aria-selected', i === currentIndex ? 'true' : 'false');
+            });
+            const activeThumb = thumbButtons[currentIndex];
+            if (activeThumb && typeof activeThumb.scrollIntoView === 'function') {
+                activeThumb.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+            }
         }
-        
-        // Mettre à jour l'état des boutons de navigation
-        if (prevBtn) {
-            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
-            prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+    }
+
+    let loadSeq = 0;
+    function showAt(index, initialOpen) {
+        if (index < 0 || index >= images.length) {
+            return;
         }
-        if (nextBtn) {
-            nextBtn.style.opacity = currentIndex === images.length - 1 ? '0.5' : '1';
-            nextBtn.style.pointerEvents = currentIndex === images.length - 1 ? 'none' : 'auto';
+        currentIndex = index;
+        loadSeq += 1;
+        const seq = loadSeq;
+        loading.classList.add('is-visible');
+        img.classList.remove('gm-lightbox__img--swap-in');
+        if (initialOpen) {
+            img.classList.remove('gm-lightbox__img--swap-out');
+        } else {
+            img.classList.add('gm-lightbox__img--swap-out');
         }
 
-        counterLabel.textContent = (currentIndex + 1) + ' / ' + images.length;
+        const src = images[currentIndex];
+
+        function onDone() {
+            if (seq !== loadSeq) {
+                return;
+            }
+            img.removeEventListener('load', onDone);
+            img.removeEventListener('error', onDone);
+            loading.classList.remove('is-visible');
+            img.classList.remove('gm-lightbox__img--swap-out');
+            requestAnimationFrame(function () {
+                if (seq !== loadSeq) {
+                    return;
+                }
+                img.classList.add('gm-lightbox__img--swap-in');
+                updateChrome();
+            });
+        }
+
+        img.addEventListener('load', onDone);
+        img.addEventListener('error', onDone);
+        img.src = src;
+        if (img.complete && img.naturalWidth > 0) {
+            onDone();
+        }
     }
-    
-    // Créer le bouton de fermeture
-    const closeBtn = document.createElement('button');
-    closeBtn.innerHTML = '<i class="fi-rs-cross" style="font-size: 24px; color: white;"></i>';
-    closeBtn.style.cssText = 'position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); z-index: 10001;';
-    closeBtn.onmouseover = function() {
-        this.style.background = 'rgba(255, 255, 255, 0.2)';
-        this.style.transform = 'scale(1.1)';
-    };
-    closeBtn.onmouseout = function() {
-        this.style.background = 'rgba(255, 255, 255, 0.1)';
-        this.style.transform = 'scale(1)';
-    };
-    
-    // Fonction pour fermer la popup
-    const closePopup = function() {
-        popup.style.animation = 'fadeOut 0.3s ease';
-        setTimeout(() => {
+
+    let closed = false;
+    let domRemoved = false;
+    function closePopup() {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        document.removeEventListener('keydown', onKey);
+        stage.removeEventListener('touchstart', onTouchStart);
+        stage.removeEventListener('touchend', onTouchEnd);
+        document.body.style.overflow = '';
+        popup.classList.add('gm-lightbox--closing');
+
+        function cleanup() {
+            if (domRemoved) {
+                return;
+            }
+            domRemoved = true;
             if (popup.parentNode) {
                 popup.parentNode.removeChild(popup);
             }
-            document.body.style.overflow = '';
-        }, 300);
-    };
-    
-    closeBtn.onclick = closePopup;
-    popup.onclick = function(e) {
-        if (e.target === popup || e.target === imageContainer) {
-            closePopup();
-        }
-    };
-    
-    // Empêcher la fermeture quand on clique sur l'image ou les boutons
-    img.onclick = function(e) {
-        e.stopPropagation();
-    };
-    
-    // Navigation au clavier
-    const handleKeyboard = function(e) {
-        if (e.key === 'Escape') {
-            closePopup();
-            document.removeEventListener('keydown', handleKeyboard);
-        } else if (e.key === 'ArrowLeft' && images.length > 1 && currentIndex > 0) {
-            currentIndex--;
-            updateImage();
-        } else if (e.key === 'ArrowRight' && images.length > 1 && currentIndex < images.length - 1) {
-            currentIndex++;
-            updateImage();
-        }
-    };
-    document.addEventListener('keydown', handleKeyboard);
-    
-    // Ajouter les éléments à la popup (compteur dans le conteneur pour rester au-dessus de l’image)
-    imageContainer.appendChild(img);
-    imageContainer.appendChild(counterLabel);
-    if (prevBtn) imageContainer.appendChild(prevBtn);
-    if (nextBtn) imageContainer.appendChild(nextBtn);
-    if (indicatorsContainer) imageContainer.appendChild(indicatorsContainer);
-    popup.appendChild(imageContainer);
-    popup.appendChild(closeBtn);
-    
-    // Ajouter la popup au body et empêcher le scroll
-    document.body.appendChild(popup);
-    document.body.style.overflow = 'hidden';
-    
-    // Initialiser l'état des boutons
-    updateImage();
-    
-    // Ajouter l'animation fadeOut si elle n'existe pas
-    if (!document.getElementById('image-preview-animations')) {
-        const style = document.createElement('style');
-        style.id = 'image-preview-animations';
-        style.textContent = `
-            @keyframes fadeOut {
-                from {
-                    opacity: 1;
-                }
-                to {
-                    opacity: 0;
+            if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+                try {
+                    previousActiveElement.focus();
+                } catch (e) {
+                    /* ignore */
                 }
             }
-        `;
-        document.head.appendChild(style);
+        }
+
+        function onAnimEnd(ev) {
+            if (ev.target === popup && ev.animationName === 'gmLightboxExit') {
+                popup.removeEventListener('animationend', onAnimEnd);
+                cleanup();
+            }
+        }
+        popup.addEventListener('animationend', onAnimEnd);
+        setTimeout(cleanup, 350);
+    }
+
+    function onKey(e) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closePopup();
+        } else if (multi && e.key === 'ArrowLeft' && currentIndex > 0) {
+            e.preventDefault();
+            showAt(currentIndex - 1, false);
+        } else if (multi && e.key === 'ArrowRight' && currentIndex < images.length - 1) {
+            e.preventDefault();
+            showAt(currentIndex + 1, false);
+        }
+    }
+
+    let touchStartX = 0;
+    function onTouchStart(e) {
+        if (!multi || !e.changedTouches || !e.changedTouches[0]) {
+            return;
+        }
+        touchStartX = e.changedTouches[0].screenX;
+    }
+    function onTouchEnd(e) {
+        if (!multi || !e.changedTouches || !e.changedTouches[0]) {
+            return;
+        }
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(dx) < 50) {
+            return;
+        }
+        if (dx < 0 && currentIndex < images.length - 1) {
+            showAt(currentIndex + 1, false);
+        } else if (dx > 0 && currentIndex > 0) {
+            showAt(currentIndex - 1, false);
+        }
+    }
+
+    bg.addEventListener('click', closePopup);
+    closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closePopup();
+    });
+    prevBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (currentIndex > 0) {
+            showAt(currentIndex - 1, false);
+        }
+    });
+    nextBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (currentIndex < images.length - 1) {
+            showAt(currentIndex + 1, false);
+        }
+    });
+    img.addEventListener('click', function (e) {
+        e.stopPropagation();
+    });
+
+    document.addEventListener('keydown', onKey);
+    if (multi) {
+        stage.addEventListener('touchstart', onTouchStart, { passive: true });
+        stage.addEventListener('touchend', onTouchEnd, { passive: true });
+    }
+
+    document.body.appendChild(popup);
+    document.body.style.overflow = 'hidden';
+    showAt(currentIndex, true);
+    try {
+        closeBtn.focus({ preventScroll: true });
+    } catch (e) {
+        closeBtn.focus();
     }
 }
+
+window.openImagePreview = openImagePreview;
