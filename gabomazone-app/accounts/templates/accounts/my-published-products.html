@@ -198,7 +198,7 @@ function confirmDelete(productId, productName) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 // Construire l'URL correctement sans double slash
-                form.action = '{% url "accounts:delete-peer-product" 999 %}'.replace('999', productId);
+                form.action = '{% url "accounts:delete-peer-product" 99999 %}'.replace('99999', productId);
                 
                 // Récupérer le token CSRF
                 const csrfToken = getCookie('csrftoken');
@@ -219,7 +219,7 @@ function confirmDelete(productId, productName) {
         if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{% url "accounts:delete-peer-product" 999 %}'.replace('999', productId);
+            form.action = '{% url "accounts:delete-peer-product" 99999 %}'.replace('99999', productId);
             
             const csrfToken = getCookie('csrftoken');
             if (csrfToken) {

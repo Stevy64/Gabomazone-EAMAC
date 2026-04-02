@@ -52,12 +52,12 @@
                                     <div style="font-size: 12px; font-weight: 600; color: #1F2937;">1. Publier</div>
                                 </div>
                                 <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
-                                    <div style="font-size: 20px; margin-bottom: 4px;">✅</div>
-                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">2. Validation</div>
+                                    <div style="font-size: 20px; margin-bottom: 4px;">🌍</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">2. En ligne</div>
                                 </div>
                                 <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
-                                    <div style="font-size: 20px; margin-bottom: 4px;">🌍</div>
-                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">3. En ligne</div>
+                                    <div style="font-size: 20px; margin-bottom: 4px;">🤝</div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">3. Négocier</div>
                                 </div>
                                 <div style="flex: 1; min-width: 100px; text-align: center; padding: 12px 8px; background: white; border-radius: 10px;">
                                     <div style="font-size: 20px; margin-bottom: 4px;">💰</div>
@@ -332,7 +332,7 @@
                                     <option value="APPROVED">Approuvés</option>
                                     <option value="PENDING">En attente</option>
                                     <option value="REJECTED">Rejetés</option>
-                                    <option value="SOLD">Vendus</option>
+                                    <!-- SOLD exclu du queryset, filtre inutile -->
                                 </select>
                                 <div style="position: relative;">
                                     <input type="text" id="gm-articles-search" placeholder="Rechercher..." style="padding: 8px 12px 8px 32px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 13px; width: 180px; color: #374151;">
@@ -409,23 +409,35 @@ function toggleSalesJourney() {
     }
 }
 
+var MAX_IMAGE_SIZE_MB = 5;
+
 function previewImage(input, previewId) {
     if (!input.files || !input.files[0]) return;
-    const reader = new FileReader();
+    var file = input.files[0];
+    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+        if (typeof GMModal !== 'undefined') {
+            GMModal.warning('Image trop lourde', 'La taille maximale est de ' + MAX_IMAGE_SIZE_MB + ' Mo. Votre image fait ' + (file.size / (1024 * 1024)).toFixed(1) + ' Mo.');
+        } else {
+            alert('Image trop lourde (' + (file.size / (1024 * 1024)).toFixed(1) + ' Mo). Maximum : ' + MAX_IMAGE_SIZE_MB + ' Mo.');
+        }
+        input.value = '';
+        return;
+    }
+    var reader = new FileReader();
     reader.onload = function(e) {
-        const img = document.getElementById(previewId);
+        var img = document.getElementById(previewId);
         if (img) {
             img.src = e.target.result;
             if (img.tagName === 'IMG') {
-                const wrap = document.getElementById(previewId + '_wrap');
-                const num = previewId.replace('preview_', '');
-                const placeholder = document.getElementById('placeholder_' + num);
+                var wrap = document.getElementById(previewId + '_wrap');
+                var num = previewId.replace('preview_', '');
+                var placeholder = document.getElementById('placeholder_' + num);
                 if (wrap) wrap.style.display = 'block';
                 if (placeholder) placeholder.style.display = 'none';
             }
         }
     };
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
 }
 
 (function() {
@@ -441,13 +453,23 @@ function previewImage(input, previewId) {
         {% endif %}
         mainInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
+                var file = this.files[0];
+                if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+                    if (typeof GMModal !== 'undefined') {
+                        GMModal.warning('Image trop lourde', 'La taille maximale est de ' + MAX_IMAGE_SIZE_MB + ' Mo. Votre image fait ' + (file.size / (1024 * 1024)).toFixed(1) + ' Mo.');
+                    } else {
+                        alert('Image trop lourde. Maximum : ' + MAX_IMAGE_SIZE_MB + ' Mo.');
+                    }
+                    this.value = '';
+                    return;
+                }
                 var r = new FileReader();
                 r.onload = function(e) {
                     mainPreview.src = e.target.result;
                     mainWrap.style.display = 'block';
                     mainPlaceholder.style.display = 'none';
                 };
-                r.readAsDataURL(this.files[0]);
+                r.readAsDataURL(file);
             }
         });
         var zone = mainInput.closest('.upload-zone-main');
@@ -499,7 +521,7 @@ function loadMainCategories(superCategoryId) {
         return;
     }
     
-    fetch(`/categories/get-main-categories/?super_category_id=${superCategoryId}`)
+    fetch(`/get-main-categories/?super_category_id=${superCategoryId}`)
         .then(response => response.json())
         .then(data => {
             mainPanel.innerHTML = '';
@@ -540,7 +562,7 @@ function loadSubCategories(mainCategoryId) {
         return;
     }
     
-    fetch(`/categories/get-sub-categories/?main_category_id=${mainCategoryId}`)
+    fetch(`/get-sub-categories/?main_category_id=${mainCategoryId}`)
         .then(response => response.json())
         .then(data => {
             subPanel.innerHTML = '';
@@ -607,48 +629,44 @@ function initDropdowns() {
     });
 }
 
-// URL de base pour la suppression (générée par Django)
-const DELETE_PRODUCT_URL_BASE = '{% url "accounts:delete-peer-product" 0 %}'.replace('0', '');
-
-// Fonction pour confirmer la suppression
 function confirmDelete(productId, productName) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${productName}" ?\n\nCette action est irréversible.`)) {
-        // Créer un formulaire pour la suppression
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = DELETE_PRODUCT_URL_BASE + productId + '/';
-        
-        // Ajouter le token CSRF
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = csrfToken.value;
-            form.appendChild(csrfInput);
-        } else {
-            // Récupérer le token depuis les cookies
-            const cookies = document.cookie.split(';');
-            let csrfValue = null;
-            for (let cookie of cookies) {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'csrftoken') {
-                    csrfValue = value;
-                    break;
-                }
-            }
-            if (csrfValue) {
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrfmiddlewaretoken';
-                csrfInput.value = csrfValue;
-                form.appendChild(csrfInput);
-            }
-        }
-        
-        document.body.appendChild(form);
-        form.submit();
+    var deleteUrl = '{% url "accounts:delete-peer-product" 99999 %}'.replace('99999', productId);
+    if (typeof GMModal !== 'undefined' && GMModal.show) {
+        GMModal.show({
+            type: 'warning',
+            title: 'Supprimer l\'article',
+            message: 'Êtes-vous sûr de vouloir supprimer <strong>' + productName + '</strong> ?<br><br>Cette action est irréversible.',
+            showCancel: true,
+            confirmText: 'Supprimer',
+            cancelText: 'Annuler',
+            onConfirm: function() { _submitDelete(deleteUrl); }
+        });
+    } else if (confirm('Êtes-vous sûr de vouloir supprimer "' + productName + '" ?\n\nCette action est irréversible.')) {
+        _submitDelete(deleteUrl);
     }
+}
+
+function _submitDelete(actionUrl) {
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = actionUrl;
+    var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'csrfmiddlewaretoken';
+    input.value = csrf ? csrf.value : getCookie('csrftoken');
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function getCookie(name) {
+    var v = null;
+    document.cookie.split(';').forEach(function(c) {
+        var parts = c.trim().split('=');
+        if (parts[0] === name) v = parts[1];
+    });
+    return v;
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -665,21 +683,5 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Modal de confirmation de suppression -->
-<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
-        <h3 style="font-size: 20px; font-weight: 700; color: #1F2937; margin: 0 0 16px 0;">Confirmer la suppression</h3>
-        <p style="font-size: 15px; color: #6B7280; margin: 0 0 24px 0; line-height: 1.6;">Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.</p>
-        <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button onclick="document.getElementById('deleteModal').style.display='none'" style="padding: 12px 24px; background: #F3F4F6; color: #6B7280; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Annuler</button>
-            <form id="deleteForm" method="POST" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" style="padding: 12px 24px; background: #DC2626; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">Supprimer</button>
-            </form>
-        </div>
-    </div>
-</div>
-{% endblock body %}
-
-
 <script src="{% static 'gabomazone-client/js/pages/add-peer-product.js' %}?v=2.0"></script>
+{% endblock body %}

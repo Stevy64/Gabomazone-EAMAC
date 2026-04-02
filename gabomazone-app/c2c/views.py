@@ -267,7 +267,7 @@ def create_negotiation(request, intent_id):
         message = data.get('message', '')
         
         if proposed_price <= 0:
-            return JsonResponse({'error': 'Le prix proposé doit être supérieur à 0'}, status=400)
+            return JsonResponse({'success': False, 'error': 'Le prix proposé doit être supérieur à 0'}, status=400)
         
         # Créer la négociation
         negotiation = PurchaseIntentService.create_negotiation(
@@ -354,7 +354,7 @@ def reject_negotiation(request, negotiation_id):
 def confirm_availability(request, intent_id):
     """
     Le vendeur confirme que son article est toujours en vente.
-    Passe l'intention de PENDING → AWAITING_AVAILABILITY (ou NEGOTIATING si déjà confirmé).
+    Passe l'intention de PENDING → NEGOTIATING et enregistre availability_confirmed_at.
     Crée un message automatique dans la conversation.
     """
     logger.info('[C2C·FLOW] confirm_availability #%d user=%s', intent_id, request.user.pk)

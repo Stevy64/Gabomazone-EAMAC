@@ -730,6 +730,10 @@ def edit_peer_product(request, product_id):
             except SubCategory.DoesNotExist:
                 pass
         
+        # Vérifier si le nom a changé AVANT de l'écraser
+        old_name = product.product_name
+        name_changed = product_name != old_name
+
         # Mettre à jour l'article
         valid_conditions = [c[0] for c in PeerToPeerProduct.CONDITION_CHOICES]
         if condition in valid_conditions:
@@ -744,7 +748,6 @@ def edit_peer_product(request, product_id):
         product.product_maincategory = main_category
         product.product_subcategory = sub_category
         
-        # Mettre à jour les images seulement si de nouvelles sont fournies
         if product_image:
             product.product_image = product_image
         if additional_image_1:
@@ -756,9 +759,7 @@ def edit_peer_product(request, product_id):
         if additional_image_4:
             product.additional_image_4 = additional_image_4
         
-        # Si le nom a changé, mettre à jour le slug
-        old_name = product.product_name
-        if product_name != old_name:
+        if name_changed:
             base_slug = slugify(product_name, allow_unicode=True)
             slug = base_slug
             counter = 1
@@ -837,7 +838,7 @@ def delete_peer_product(request, product_id):
     else:
         messages.error(request, 'Méthode non autorisée.')
     
-    return redirect('accounts:my-published-products')
+    return redirect('accounts:sell-product')
 
 
 @login_required(login_url='accounts:login')

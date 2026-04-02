@@ -260,6 +260,7 @@
                     <button type="submit" class="gm-s-b7939c" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                         <i class="fi-rs-check"></i> Proposer
                     </button>
+                    <p class="gm-nego-form-hint" style="display:none;width:100%;margin:6px 0 0;font-size:12px;color:#4B5563;line-height:1.4;"></p>
                 </form>
                 
                 <!-- Bouton pour accepter le prix final -->
@@ -323,7 +324,7 @@
     </div>
 </div>
 
-<script src="{% static 'accounts/js/negotiation.js' %}?v=6.0"></script>
+<script src="{% static 'accounts/js/negotiation.js' %}?v=6.1"></script>
 <script>
 // Token CSRF pour les requêtes POST (suppression message, etc.)
 window.CSRF_TOKEN = "{{ csrf_token }}";
@@ -795,62 +796,85 @@ function updateMessageBadges() {
  * Après paiement (PAID), on réactive le chat libre.
  */
 function updateChatControls(intentData) {
-    const messageInput = document.getElementById('messageInput');
-    const sendBtn = document.querySelector('#messageForm button[type="submit"]');
-    const helper = document.getElementById('chatHelper');
-    
+    var messageInput = document.getElementById('messageInput');
+    var sendBtn = document.querySelector('#messageForm button[type="submit"]');
+    var attachBtn = document.getElementById('gmChatAttachBtn');
+    var helper = document.getElementById('chatHelper');
     if (!messageInput || !sendBtn || !helper) return;
-    
-    const status = intentData && intentData.status ? intentData.status : null;
-    const orderStatus = intentData ? intentData.order_status : null;
-    const isAgreed = status === 'agreed';
-    const isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].includes(orderStatus);
-    const isCompleted = orderStatus === 'completed';
-    
-    if (isCompleted) {
-        // Transaction terminée → DÉSACTIVER le chat complètement
+
+    var status = intentData && intentData.status ? intentData.status : null;
+    var orderStatus = intentData ? intentData.order_status : null;
+    var availOk = intentData ? intentData.availability_confirmed : false;
+    var uid = window.currentUserId || 0;
+    var isBuyer = intentData && intentData.buyer_id === uid;
+
+    var isAwaitingAvail = (status === 'pending' || status === 'awaiting_availability') && !availOk;
+    var isNegotiating = status === 'negotiating';
+    var isAgreed = status === 'agreed';
+    var paidList = ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'];
+    var isPaid = orderStatus && paidList.indexOf(orderStatus) !== -1;
+    var isCompleted = orderStatus === 'completed';
+
+    function lockChat(placeholder, helperHtml, helperColor) {
         messageInput.disabled = true;
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.5';
-        sendBtn.style.cursor = 'not-allowed';
-        messageInput.placeholder = "Transaction terminée - Le chat est désactivé";
+        messageInput.placeholder = placeholder;
+        sendBtn.disabled = true; sendBtn.style.opacity = '0.5'; sendBtn.style.cursor = 'not-allowed';
+        if (attachBtn) { attachBtn.disabled = true; attachBtn.style.opacity = '0.5'; }
         helper.style.display = 'block';
-        helper.innerHTML = '🎉 Transaction terminée avec succès ! Le chat est maintenant fermé.';
-        helper.style.color = '#059669';
-    } else if (isPaid) {
-        // Paiement effectué mais pas terminé → activer le chat libre
+        helper.innerHTML = helperHtml;
+        helper.style.color = helperColor;
+    }
+    function unlockChat(placeholder, helperHtml, helperColor) {
         messageInput.disabled = false;
-        sendBtn.disabled = false;
-        sendBtn.style.opacity = '1';
-        sendBtn.style.cursor = 'pointer';
-        messageInput.placeholder = "Discutez du lieu et de l'heure de rencontre...";
+        messageInput.placeholder = placeholder;
+        sendBtn.disabled = false; sendBtn.style.opacity = '1'; sendBtn.style.cursor = 'pointer';
+        if (attachBtn) { attachBtn.disabled = false; attachBtn.style.opacity = '1'; }
         helper.style.display = 'block';
-        helper.innerHTML = '💬 Paiement confirmé ! Échangez pour convenir du lieu et de l\'heure de remise.';
-        helper.style.color = '#2563EB';
+        helper.innerHTML = helperHtml;
+        helper.style.color = helperColor;
+    }
+
+    if (isCompleted) {
+        lockChat(
+            'Transaction terminée',
+            '🎉 Transaction terminée avec succès ! Le chat est fermé.',
+            '#059669'
+        );
+    } else if (isPaid) {
+        unlockChat(
+            'Discutez du lieu et de l\'heure de rencontre...',
+            '💬 Paiement confirmé ! Échangez pour convenir du lieu et de l\'heure de remise de l\'article.',
+            '#2563EB'
+        );
     } else if (isAgreed) {
-        // Prix accepté mais pas payé → bloquer tout
-        messageInput.disabled = true;
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.5';
-        sendBtn.style.cursor = 'not-allowed';
-        messageInput.placeholder = "⏳ En attente du paiement...";
-        helper.style.display = 'block';
-        const currentUserId = window.currentUserId || 0;
-        const isBuyer = intentData && intentData.buyer_id === currentUserId;
-        helper.innerHTML = isBuyer 
-            ? '✅ Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.'
-            : '✅ Prix accepté ! En attente du paiement de l\'acheteur.';
-        helper.style.color = '#10B981';
+        lockChat(
+            '⏳ En attente du paiement...',
+            isBuyer
+                ? '✅ Prix accepté ! Cliquez sur le bouton de paiement pour continuer.'
+                : '✅ Prix accepté ! En attente du paiement de l\'acheteur.',
+            '#10B981'
+        );
+    } else if (isAwaitingAvail) {
+        lockChat(
+            '⏳ En attente de la confirmation du vendeur...',
+            isBuyer
+                ? '📦 Le vendeur doit d\'abord confirmer que son article est toujours disponible. Vous serez notifié dès que la négociation sera ouverte.'
+                : '📦 Rendez-vous dans « Intentions d\'achat » ci-dessus pour confirmer la disponibilité de votre article.',
+            '#6B7280'
+        );
+    } else if (isNegotiating) {
+        lockChat(
+            'La discussion libre sera disponible après le paiement',
+            '📝 Utilisez le formulaire de négociation ci-dessous pour proposer ou accepter un prix.',
+            '#6B7280'
+        );
     } else {
-        // Négociation en cours → bloquer le chat libre
-        messageInput.disabled = true;
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.5';
-        sendBtn.style.cursor = 'not-allowed';
-        messageInput.placeholder = "La discussion libre sera disponible après le paiement";
-        helper.style.display = 'block';
-        helper.innerHTML = '📝 Utilisez le formulaire ci-dessus pour négocier le prix';
-        helper.style.color = '#6B7280';
+        lockChat(
+            'Sélectionnez une conversation',
+            '',
+            '#6B7280'
+        );
+        helper.style.display = 'none';
     }
 }
 
@@ -1239,111 +1263,7 @@ function declineAvailability(intentId) {
     });
 }
 
-function acceptPurchaseIntent(intentId) {
-    GMModal.show({
-        type: 'confirm',
-        title: 'Accepter l\'intention d\'achat',
-        message: 'Êtes-vous sûr de vouloir accepter cette intention d\'achat ? Vous pourrez ensuite négocier le prix.',
-        showCancel: true,
-        confirmText: 'Accepter',
-        cancelText: 'Annuler',
-        onConfirm: function() {
-            fetch(`/c2c/purchase-intent/${intentId}/accept/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Ouvrir automatiquement le chatbot avec la conversation pour démarrer la négociation
-                    if (data.product_id) {
-                        // Attendre un peu pour que la conversation soit créée côté serveur
-                        setTimeout(() => {
-                            openConversationChatbot(data.product_id, data.conversation_id || null);
-                        }, 500);
-                    } else {
-                        GMModal.success('Acceptée !', 'Intention d\'achat acceptée ! Vous pouvez maintenant négocier le prix.', () => location.reload());
-                    }
-                } else {
-                    GMModal.error('Erreur', data.error || 'Erreur lors de l\'acceptation');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                GMModal.error('Erreur', 'Erreur lors de l\'acceptation');
-            });
-        }
-    });
-}
-
-function rejectPurchaseIntent(intentId) {
-    GMModal.confirm(
-        'Refuser l\'intention d\'achat',
-        'Êtes-vous sûr de vouloir refuser cette intention d\'achat ?',
-        function() {
-            fetch(`/c2c/purchase-intent/${intentId}/reject/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    GMModal.success('Refusée', 'Intention d\'achat refusée.', () => location.reload());
-                } else {
-                    GMModal.error('Erreur', data.error || 'Erreur lors du refus');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                GMModal.error('Erreur', 'Erreur lors du refus');
-            });
-        }
-    );
-}
-
-function cancelPurchaseIntent(intentId) {
-    GMModal.show({
-        type: 'warning',
-        title: 'Supprimer l\'intention d\'achat',
-        message: 'Êtes-vous sûr de vouloir supprimer cette intention d\'achat ? Cette action est définitive.',
-        showCancel: true,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
-        onConfirm: function() {
-            fetch(`/c2c/purchase-intent/${intentId}/cancel/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    GMModal.success('Supprimée', 'Intention d\'achat supprimée.', () => location.reload());
-                } else {
-                    GMModal.error('Erreur', data.error || 'Erreur lors de la suppression');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                GMModal.error('Erreur', 'Erreur lors de la suppression');
-            });
-        }
-    });
-}
-
 // Le CSS mobile-first gère maintenant le responsive nativement
-// Plus besoin de JavaScript pour forcer les styles
 </script>
 
 {% endblock body %}

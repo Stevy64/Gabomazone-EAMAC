@@ -25,10 +25,6 @@ const GM_DEV_LOGS = true;
 /** z-index au-dessus de #chatbotPopup (~10050) et des feuilles d'options (~10160) */
 const GM_VERIFICATION_OVERLAY_Z = 20000;
 
-/** Message d'aide par défaut sous la zone de saisie (négociation en cours) */
-const GM_NEGOTIATION_HELPER_DEFAULT =
-    'Pendant la négociation, proposez un prix dans la section ci-dessus. Le chat libre sera disponible après accord.';
-
 /* ═══════════════════════════════════════════════════════════
    Utilitaires
    ═══════════════════════════════════════════════════════════ */
@@ -189,7 +185,10 @@ function _showStepGuide(data, isBuyer, isSeller) {
     var status = data.status;
     var orderStatus = data.order_status;
     var avail = data.availability_confirmed;
-    var key = 'gm_guide_' + data.purchase_intent_id + '_' + status + '_' + (orderStatus || '');
+    var v = data.verification;
+    var codesUnlocked = v && v.codes_unlocked === true;
+    var verificationDone = v && v.is_completed;
+    var key = 'gm_guide_' + data.purchase_intent_id + '_' + status + '_' + (orderStatus || '') + (codesUnlocked ? '_codes' : '');
     if (_guidesShown[key]) return;
     try { if (sessionStorage.getItem(key)) return; } catch (e) {}
     _guidesShown[key] = true;
@@ -197,37 +196,73 @@ function _showStepGuide(data, isBuyer, isSeller) {
 
     var title = null, message = null;
 
+    /* Étape 1 : En attente de disponibilité vendeur */
     if ((status === 'pending' || status === 'awaiting_availability') && !avail) {
         if (isBuyer) {
-            title = 'Demande envoyée';
-            message = 'Votre demande a été transmise au vendeur. Il doit confirmer que son article est toujours disponible avant l\'ouverture de la négociation.<br><br>Vous serez notifié dès que le vendeur aura répondu.';
+            title = 'Étape 1/5 — Demande envoyée';
+            message = 'Votre demande a été transmise au vendeur.<br><br>'
+                + 'Il doit confirmer que son article est <strong>toujours disponible</strong>. '
+                + 'Vous serez notifié dès qu\'il aura répondu.';
         } else if (isSeller) {
-            title = 'Nouvelle demande d\'achat';
-            message = 'Un acheteur souhaite négocier le prix de votre article.<br><br><strong>Action requise :</strong> confirmez la disponibilité de l\'article dans la section « Intentions d\'achat » ci-dessus pour ouvrir la négociation.';
+            title = 'Étape 1/5 — Nouvelle demande';
+            message = 'Un acheteur souhaite acheter votre article !<br><br>'
+                + '<strong>Action requise :</strong> confirmez la disponibilité dans la section '
+                + '« Intentions d\'achat » ci-dessus.';
         }
+
+    /* Étape 2 : Négociation du prix */
     } else if (status === 'negotiating' && !data.final_price) {
         if (isBuyer) {
-            title = 'Négociation ouverte';
-            message = 'Le vendeur a confirmé la disponibilité de l\'article !<br><br>Utilisez le formulaire « Proposer un prix » ci-dessous pour envoyer votre offre. Le vendeur pourra l\'accepter ou la refuser.';
+            title = 'Étape 2/5 — Négociation';
+            message = 'L\'article est disponible !<br><br>'
+                + 'Proposez un prix avec le formulaire ci-dessous. '
+                + 'Le vendeur pourra accepter, refuser ou contre-proposer.';
         } else if (isSeller) {
-            title = 'Négociation ouverte';
-            message = 'L\'acheteur peut maintenant proposer un prix.<br><br>Quand vous recevrez une offre, vous pourrez l\'accepter, la refuser ou faire une contre-proposition.';
+            title = 'Étape 2/5 — Négociation';
+            message = 'L\'acheteur peut maintenant proposer un prix.<br><br>'
+                + 'Vous pourrez accepter, refuser ou faire une contre-proposition.';
         }
-    } else if (status === 'agreed' && orderStatus !== 'paid') {
+
+    /* Étape 3 : Prix accepté → Paiement */
+    } else if (status === 'agreed' && (!orderStatus || orderStatus === 'pending_payment')) {
         if (isBuyer) {
-            title = 'Prix accepté — Paiement';
-            message = 'Le prix a été accepté par les deux parties !<br><br><strong>Prochaine étape :</strong> procédez au paiement sécurisé via le bouton vert dans la conversation.';
+            title = 'Étape 3/5 — Paiement';
+            message = 'Accord trouvé !<br><br>'
+                + 'Procédez au <strong>paiement sécurisé</strong> via le bouton vert ci-dessous. '
+                + 'Le montant sera conservé en escrow jusqu\'à la fin de la transaction.';
         } else if (isSeller) {
-            title = 'Prix accepté';
-            message = 'Vous avez trouvé un accord sur le prix !<br><br>L\'acheteur doit maintenant effectuer le paiement. Vous serez notifié dès que le paiement sera confirmé.';
+            title = 'Étape 3/5 — En attente de paiement';
+            message = 'Le prix est accepté !<br><br>'
+                + 'L\'acheteur doit maintenant effectuer le paiement sécurisé. '
+                + 'Vous serez notifié dès que c\'est fait.';
         }
-    } else if (orderStatus === 'paid') {
+
+    /* Étape 4 : Paiement confirmé → Remise article */
+    } else if (orderStatus === 'paid' && !codesUnlocked && !verificationDone) {
         if (isBuyer) {
-            title = 'Paiement confirmé';
-            message = 'Votre paiement a été reçu !<br><br>Échangez avec le vendeur dans le chat pour convenir du <strong>lieu et de l\'heure de remise</strong> de l\'article.';
+            title = 'Étape 4/5 — Rendez-vous';
+            message = 'Paiement confirmé !<br><br>'
+                + 'Échangez avec le vendeur dans le chat pour convenir du <strong>lieu et de l\'heure de remise</strong>. '
+                + 'Lors de la rencontre, confirmez la réception de l\'article.';
         } else if (isSeller) {
-            title = 'Paiement reçu';
-            message = 'L\'acheteur a effectué le paiement !<br><br>Convenez du lieu et de l\'heure de remise dans le chat. Les fonds seront libérés après la confirmation de livraison.';
+            title = 'Étape 4/5 — Rendez-vous';
+            message = 'Le paiement est reçu !<br><br>'
+                + 'Convenez du lieu et de l\'heure de remise dans le chat. '
+                + 'Lors de la rencontre, confirmez la remise de l\'article.';
+        }
+
+    /* Étape 5 : Codes de vérification */
+    } else if (codesUnlocked && !verificationDone) {
+        if (isBuyer) {
+            title = 'Étape 5/5 — Validation finale';
+            message = 'Remise et réception confirmées !<br><br>'
+                + 'Échangez vos <strong>codes de vérification</strong> avec le vendeur pour finaliser la transaction. '
+                + 'Les fonds seront libérés ensuite.';
+        } else if (isSeller) {
+            title = 'Étape 5/5 — Validation finale';
+            message = 'Remise et réception confirmées !<br><br>'
+                + 'Échangez vos <strong>codes de vérification</strong> avec l\'acheteur pour finaliser. '
+                + 'Les fonds vous seront versés ensuite.';
         }
     }
 
@@ -369,7 +404,6 @@ function displayNegotiationHistory(negotiations, intentData) {
 function updateNegotiationOfferAvailability(intentData) {
     var form = document.getElementById('negotiationForm');
     var priceInput = document.getElementById('negotiationPrice');
-    var helper = document.getElementById('chatHelper');
     if (!form || !priceInput || !intentData) return;
 
     var isAgreed = intentData.status === 'agreed';
@@ -378,18 +412,18 @@ function updateNegotiationOfferAvailability(intentData) {
     if (isAgreed || isPaid) return;
 
     var submitBtn = form.querySelector('button[type="submit"]');
+    var formHint = form.querySelector('.gm-nego-form-hint');
     if (intentData.can_make_offer === false) {
         priceInput.disabled = true;
         if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; submitBtn.style.cursor = 'not-allowed'; }
-        if (helper) {
-            helper.style.display = 'block';
-            helper.textContent = intentData.offer_form_block_message || 'Vous ne pouvez pas proposer de prix pour le moment.';
-            helper.style.color = '#4B5563';
+        if (formHint) {
+            formHint.textContent = intentData.offer_form_block_message || 'Vous ne pouvez pas proposer de prix pour le moment.';
+            formHint.style.display = 'block';
         }
     } else {
         priceInput.disabled = false;
         if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.style.cursor = 'pointer'; }
-        if (helper) { helper.style.display = 'block'; helper.textContent = GM_NEGOTIATION_HELPER_DEFAULT; helper.style.color = ''; }
+        if (formHint) formHint.style.display = 'none';
     }
 }
 
@@ -398,127 +432,63 @@ function updateNegotiationOfferAvailability(intentData) {
    ═══════════════════════════════════════════════════════════ */
 
 /**
- * Gère l'état (actif / bloqué / terminé) de tous les contrôles du chat
- * et de la section négociation, selon le statut courant de l'intention / commande.
+ * Gère l'affichage de la section négociation (titre, formulaire, prix)
+ * selon le statut courant. Le chat input/helper est géré par updateChatControls.
  */
 function lockInputsIfAgreed(intentData) {
-    var messageInput = document.getElementById('messageInput');
-    var sendBtn = document.querySelector('#messageForm button[type="submit"]');
-    var attachBtn = document.getElementById('gmChatAttachBtn');
     var negotiationForm = document.getElementById('negotiationForm');
     var negotiationPrice = document.getElementById('negotiationPrice');
-    var helper = document.getElementById('chatHelper');
+    var negotiationSection = document.getElementById('negotiationSection');
 
     var status = intentData ? intentData.status : null;
     var orderStatus = intentData ? intentData.order_status : null;
-    var availabilityConfirmed = intentData ? intentData.availability_confirmed : false;
-    var isAwaitingAvail = status === 'pending' || status === 'awaiting_availability';
+    var availOk = intentData ? intentData.availability_confirmed : false;
+    var isAwaitingAvail = (status === 'pending' || status === 'awaiting_availability') && !availOk;
+    var isNegotiating = status === 'negotiating';
     var isAgreed = status === 'agreed';
     var isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].indexOf(orderStatus) !== -1;
     var isCompleted = orderStatus === 'completed';
     var uid = window.currentUserId || 0;
     var isBuyer = intentData ? intentData.buyer_id === uid : false;
 
-    /* Mise à jour du titre de la section négociation */
-    var negotiationSection = document.getElementById('negotiationSection');
+    /* Titre de la section */
     if (negotiationSection && intentData) {
         var h5 = negotiationSection.querySelector('h5');
         var sub = negotiationSection.querySelector('p.gm-s-3e99bc');
         if (isAwaitingAvail) {
-            if (h5) h5.innerHTML = '<i class="fi-rs-time-past gm-s-a77b0c"></i> En attente';
+            if (h5) h5.innerHTML = '<i class="fi-rs-time-past gm-s-a77b0c"></i> En attente de disponibilité';
             if (sub) sub.textContent = isBuyer
-                ? 'Le vendeur doit confirmer la disponibilité de l\'article avant la négociation.'
-                : 'Confirmez la disponibilité dans vos « Intentions d\'achat » pour ouvrir la négociation.';
-        } else if (!isPaid) {
+                ? 'Le vendeur doit confirmer la disponibilité de l\'article.'
+                : 'Confirmez la disponibilité dans « Intentions d\'achat » ci-dessus.';
+        } else if (isNegotiating && !isAgreed) {
             if (h5) h5.innerHTML = '<i class="fi-rs-money gm-s-a77b0c"></i> Négocier le prix';
-            if (sub) sub.textContent = 'Proposez un nouveau prix pour cet article';
+            if (sub) sub.textContent = 'Proposez ou acceptez un prix pour cet article.';
+        } else if (isAgreed && !isPaid) {
+            if (h5) h5.innerHTML = '<i class="fi-rs-check gm-s-a77b0c" style="color:#10B981"></i> Prix accepté';
+            if (sub) sub.textContent = isBuyer ? 'Procédez au paiement.' : 'En attente du paiement.';
         } else if (isPaid && !isCompleted) {
             if (h5) h5.innerHTML = '<i class="fi-rs-time-past"></i> Historique de négociation';
-            if (sub) sub.textContent = 'Conservé dans le fil : vos propositions de prix restent visibles.';
+            if (sub) sub.textContent = 'Vos propositions de prix restent visibles.';
+        } else if (isCompleted) {
+            if (h5) h5.innerHTML = '<i class="fi-rs-check" style="color:#059669"></i> Transaction terminée';
+            if (sub) sub.textContent = '';
         }
     }
 
-    /* --- En attente de dispo vendeur → tout bloqué --- */
+    /* Formulaire de négociation : visibilité */
     if (isAwaitingAvail) {
-        gmLog('État: en attente de disponibilité article');
-        _setInputDisabled(messageInput, true, '⏳ En attente de la confirmation du vendeur...');
-        _setButtonDisabled(sendBtn, true);
-        _setAttachDisabled(attachBtn, true, 'Disponible après confirmation');
-        if (negotiationPrice) { negotiationPrice.disabled = true; }
-        if (negotiationForm) { negotiationForm.style.display = 'none'; }
-        if (helper) {
-            helper.style.display = 'block';
-            helper.innerHTML = isBuyer
-                ? '📦 Le vendeur doit d\'abord confirmer la disponibilité de l\'article. Vous serez notifié dès que la négociation sera ouverte.'
-                : '📦 Confirmez la disponibilité de votre article dans la section « Intentions d\'achat » de cette page.';
-            helper.style.color = '#6B7280';
-        }
-        return;
-    }
-
-    /* --- Prix accepté, en attente de paiement --- */
-    if (isAgreed && !isPaid) {
-        gmLog('État: prix accepté, en attente de paiement');
-        _setInputDisabled(messageInput, true, '⏳ En attente du paiement...');
-        _setButtonDisabled(sendBtn, true);
-        _setAttachDisabled(attachBtn, true, 'Disponible après paiement');
-        if (negotiationPrice) { negotiationPrice.disabled = true; negotiationPrice.placeholder = 'Prix accepté'; }
-        if (negotiationForm) { var sb = negotiationForm.querySelector('button[type="submit"]'); if (sb) { sb.disabled = true; sb.style.opacity = '0.5'; sb.style.cursor = 'not-allowed'; } }
-        if (helper) {
-            var isBuyer = intentData.buyer_id === (window.currentUserId || 0);
-            helper.style.display = 'block';
-            helper.innerHTML = isBuyer
-                ? '✅ Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.'
-                : '✅ Prix accepté ! En attente du paiement de l\'acheteur.';
-            helper.style.color = '#10B981';
-        }
-    }
-
-    /* --- Commande payée --- */
-    else if (isPaid) {
-        if (isCompleted) {
-            gmLog('État: transaction terminée (completed)');
-            _setInputDisabled(messageInput, true, 'Transaction terminée - Le chat est désactivé');
-            _setButtonDisabled(sendBtn, true);
-            _setAttachDisabled(attachBtn, true, 'Conversation terminée');
-            if (helper) { helper.style.display = 'block'; helper.innerHTML = '🎉 Transaction terminée avec succès ! Le chat est maintenant fermé.'; helper.style.color = '#059669'; }
-        } else {
-            gmLog('État: payé, chat libre ouvert (status=%s)', orderStatus);
-            _setInputDisabled(messageInput, false, "Discutez du lieu et de l'heure de rencontre...");
-            _setButtonDisabled(sendBtn, false);
-            _setAttachDisabled(attachBtn, false, 'Ajouter une pièce jointe');
-            if (helper) { helper.style.display = 'block'; helper.innerHTML = '💬 Paiement confirmé ! Échangez pour convenir du lieu et de l\'heure de remise.'; helper.style.color = '#2563EB'; }
-        }
-        if (negotiationPrice) negotiationPrice.disabled = true;
+        gmLog('Négo: en attente dispo → formulaire masqué');
         if (negotiationForm) negotiationForm.style.display = 'none';
+        if (negotiationPrice) negotiationPrice.disabled = true;
+    } else if (isAgreed || isPaid) {
+        gmLog('Négo: prix fixé / payé → formulaire bloqué');
+        if (negotiationPrice) { negotiationPrice.disabled = true; negotiationPrice.placeholder = 'Prix fixé'; }
+        if (negotiationForm) {
+            var sb = negotiationForm.querySelector('button[type="submit"]');
+            if (sb) { sb.disabled = true; sb.style.opacity = '0.5'; sb.style.cursor = 'not-allowed'; }
+            if (isPaid) negotiationForm.style.display = 'none';
+        }
     }
-
-    /* --- Avant accord : pièce jointe bloquée --- */
-    if (!isAgreed && !isPaid && attachBtn) {
-        _setAttachDisabled(attachBtn, true, 'Disponible après paiement (messagerie libre)');
-    }
-
-    var quickReplies = document.getElementById('gmQuickReplies');
-    if (quickReplies && messageInput) quickReplies.style.display = messageInput.disabled ? 'none' : '';
-}
-
-/* Helpers d'état pour éviter la répétition */
-function _setInputDisabled(el, disabled, placeholder) {
-    if (!el) return;
-    el.disabled = disabled;
-    if (placeholder) el.placeholder = placeholder;
-}
-function _setButtonDisabled(btn, disabled) {
-    if (!btn) return;
-    btn.disabled = disabled;
-    btn.style.opacity = disabled ? '0.5' : '1';
-    btn.style.cursor = disabled ? 'not-allowed' : 'pointer';
-}
-function _setAttachDisabled(btn, disabled, title) {
-    if (!btn) return;
-    btn.disabled = disabled;
-    btn.setAttribute('aria-disabled', String(disabled));
-    if (title) btn.title = title;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1175,10 +1145,12 @@ function toggleNegotiationSection(purchaseIntentId, intentData) {
         if (section) section.style.display = 'block';
         if (intentData && intentData.negotiations) {
             displayNegotiationHistory(intentData.negotiations, intentData);
+        } else if (intentData) {
+            lockInputsIfAgreed(intentData);
+            if (acceptBtn) acceptBtn.style.display = 'none';
         } else if (acceptBtn) {
             acceptBtn.style.display = 'none';
         }
-        if (intentData) lockInputsIfAgreed(intentData);
         startNegotiationPolling();
     } else {
         currentPurchaseIntentId = null;

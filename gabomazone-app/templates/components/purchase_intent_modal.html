@@ -24,11 +24,12 @@
                     <p id="gmPiModalPrice" class="gm-pi-modal__price"></p>
                 </div>
             </div>
-            <ul class="gm-pi-modal__steps" aria-label="Étapes">
-                <li><span>1</span> Le vendeur confirme la disponibilité de l'article</li>
+            <ul class="gm-pi-modal__steps" aria-label="Étapes de la transaction">
+                <li><span>1</span> Le vendeur confirme la disponibilité</li>
                 <li><span>2</span> Négociation du prix</li>
-                <li><span>3</span> Paiement sécurisé après accord</li>
-                <li><span>4</span> Rencontre et échange de l'article</li>
+                <li><span>3</span> Paiement sécurisé (escrow)</li>
+                <li><span>4</span> Rencontre et remise de l'article</li>
+                <li><span>5</span> Validation par codes et libération des fonds</li>
             </ul>
             <form id="gmPiModalForm" method="post" action="">
                 {% csrf_token %}
