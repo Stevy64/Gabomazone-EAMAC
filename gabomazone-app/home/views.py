@@ -3,10 +3,11 @@ from categories.models import SuperCategory, MainCategory
 from .models import (Carousel, HomeAdSidebar, HomeAdMiddlebar,
                      HomeAdSupplier, HomeAdDaily, HomeAdDealTime)
 from products.models import Product
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from settings.models import HomePageTheme
 from django.db.models import Count
+from django.db import connection
 import random
 import json
 import logging
@@ -400,6 +401,22 @@ def home_page(request):
     }
     # FORCER LE NOUVEAU DESIGN FLAVORIZ - TOUJOURS
     return render(request, 'home/index-flavoriz.html', context)
+
+
+def health_check(request):
+    """Endpoint de santé pour Docker et monitoring."""
+    try:
+        connection.ensure_connection()
+        db_ok = True
+    except Exception:
+        db_ok = False
+
+    status = 200 if db_ok else 503
+    return JsonResponse({
+        'status': 'ok' if db_ok else 'degraded',
+        'database': 'ok' if db_ok else 'error',
+        'version': '1.0.0',
+    }, status=status)
 
 
 def set_currency(request):

@@ -40,7 +40,7 @@ class Profile(models.Model):
     recommended_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="recommended_by", blank=True, null=True)
     referrals = models.IntegerField(default=0, blank=True, null=True)
-    blance = models.FloatField(default=0.00, blank=True, null=True)
+    balance = models.FloatField(default=0.00, blank=True, null=True)
     requested = models.FloatField(default=0.00, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     date_update = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -420,7 +420,7 @@ class ProductMessage(models.Model):
 
 
 def create_profile(sender, **kwargs):
-    if kwargs['created']:
+    if kwargs['created'] and not kwargs.get('raw', False):
         user_profile = Profile.objects.create(
             user=kwargs['instance'], )
 

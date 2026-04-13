@@ -12,7 +12,7 @@ class Carousel(models.Model):
 
     CARURL = models.URLField(blank=True, null=True)
 
-    class meta:
+    class Meta:
         verbose_name = _("Carousel")
         verbose_name_plural = _("Carousels")
 
@@ -40,7 +40,7 @@ class HomeAdSidebar(models.Model):
         default=Left,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Home Ad Sidebar")
         verbose_name_plural = _("Home Ads Sidebar")
 
@@ -67,7 +67,7 @@ class HomeAdMiddlebar(models.Model):
         default=Right,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Home Ad Middlebar")
         verbose_name_plural = _("Home Ads Middlebar")
 
@@ -94,7 +94,7 @@ class HomeAdSupplier(models.Model):
         default=Left,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Home Ad Supplier")
         verbose_name_plural = _("Home Ads Suppliers")
 
@@ -121,7 +121,7 @@ class HomeAdDaily(models.Model):
         default=Right,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Home Ad Daily")
         verbose_name_plural = _("Home Ads Daily")
 
@@ -149,7 +149,7 @@ class HomeAdDealTime(models.Model):
     PRDdealtime = models.DateTimeField(
         verbose_name=_("Deal Time"), blank=True, null=True)
 
-    class meta:
+    class Meta:
         verbose_name = _("Home Ad Daily")
         verbose_name_plural = _("Home Ads Daily")
 
@@ -164,7 +164,7 @@ class VendorDetailsAdImage(models.Model):
     ad_URL = models.URLField(blank=True, null=True,
                              verbose_name=_("Product URL"))
 
-    class meta:
+    class Meta:
         verbose_name = _("Vendor Details Ad Image")
         verbose_name_plural = _("Vendors Details Ad Image")
 
@@ -193,7 +193,7 @@ class ShopAdSidebar(models.Model):
         default=Right,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Shop Ad Sidebar")
         verbose_name_plural = _("Shop Ads Sidebar")
 
@@ -220,7 +220,7 @@ class HotDealAd(models.Model):
         default=Right,
     )
 
-    class meta:
+    class Meta:
         verbose_name = _("Hot Deal Ad")
         verbose_name_plural = _("Hot Deal Ads")
 
@@ -233,7 +233,7 @@ class HeadTextAd(models.Model):
     ad_title = models.CharField(
         max_length=40, verbose_name=_("Title"), blank=True, null=True)
     ad_URL = models.URLField(blank=True, null=True)
-    class meta:
+    class Meta:
         verbose_name = _("Head Text Ad")
         verbose_name_plural = _("Head Text Ads")
 

@@ -20,15 +20,9 @@ def wishlist_count(request):
     """Context processor pour le compteur de la liste à souhaits (produits normaux + articles d'occasion)"""
     try:
         # Vérifier si les tables existent
-        product_fav_table_name = ProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{product_fav_table_name}'")
-            product_fav_table_exists = cursor.fetchone() is not None
-        
-        peer_fav_table_name = PeerToPeerProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{peer_fav_table_name}'")
-            peer_fav_table_exists = cursor.fetchone() is not None
+        existing_tables = connection.introspection.table_names()
+        product_fav_table_exists = ProductFavorite._meta.db_table in existing_tables
+        peer_fav_table_exists = PeerToPeerProductFavorite._meta.db_table in existing_tables
         
         if not product_fav_table_exists and not peer_fav_table_exists:
             return {'wishlist_count': 0}
@@ -72,15 +66,10 @@ def messages_count(request):
         total_unread_intents = 0
         
         # Vérifier si les tables existent
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-            conv_table_exists = cursor.fetchone() is not None
-            
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_peertopeerordernotification'")
-            notif_table_exists = cursor.fetchone() is not None
-            
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='c2c_purchaseintent'")
-            intent_table_exists = cursor.fetchone() is not None
+        existing_tables = connection.introspection.table_names()
+        conv_table_exists = 'accounts_productconversation' in existing_tables
+        notif_table_exists = 'accounts_peertopeerordernotification' in existing_tables
+        intent_table_exists = 'c2c_purchaseintent' in existing_tables
         
         # Messages non lus dans les conversations
         if conv_table_exists:

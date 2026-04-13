@@ -1,0 +1,31 @@
+# Base de données - NE JAMAIS COMMITTER
+*.sqlite3
+db.sqlite3
+
+# Variables d'environnement
+.env
+.env.local
+.env.production
+
+# Médias uploadés
+media/
+
+# Logs
+logs/*.log
+*.log
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

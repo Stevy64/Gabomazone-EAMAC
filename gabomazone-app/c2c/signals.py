@@ -18,7 +18,7 @@ def notify_seller_on_purchase_intent(sender, instance, created, **kwargs):
     seller_notified reste False → le vendeur verra la notification non lue
     dans sa messagerie et devra d'abord confirmer la disponibilité de l'article.
     """
-    if created:
+    if created and not kwargs.get('raw', False):
         logger.info(
             '[C2C·SIGNAL] Nouvelle intention #%d — seller=%s product=#%d (seller_notified=%s)',
             instance.id, instance.seller_id, instance.product_id, instance.seller_notified,
@@ -30,6 +30,8 @@ def update_order_status_on_payment(sender, instance, created, **kwargs):
     """
     Met à jour le statut de la commande lorsque le paiement est confirmé
     """
+    if kwargs.get('raw', False):
+        return
     if instance.payment_transaction and instance.payment_transaction.status == 'success':
         if instance.status == C2COrder.PENDING_PAYMENT:
             instance.status = C2COrder.PAID
@@ -43,6 +45,8 @@ def complete_order_on_verification(sender, instance, created, **kwargs):
     Finalise la commande lorsque la vérification est complète
     Libère les fonds en escrow après confirmation de livraison
     """
+    if kwargs.get('raw', False):
+        return
     if instance.is_completed() and instance.c2c_order.status != C2COrder.COMPLETED:
         instance.c2c_order.status = C2COrder.COMPLETED
         instance.c2c_order.completed_at = timezone.now()

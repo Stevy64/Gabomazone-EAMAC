@@ -165,10 +165,7 @@ def product_details(request, slug):
     try:
         from .models import ProductFavorite
         from django.db import connection
-        table_name = ProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
-            table_exists = cursor.fetchone() is not None
+        table_exists = ProductFavorite._meta.db_table in connection.introspection.table_names()
         
         if table_exists:
             if request.user.is_authenticated:
@@ -453,10 +450,7 @@ def toggle_favorite(request):
         try:
             # Vérifier si la table existe
             from django.db import connection
-            table_name = ProductFavorite._meta.db_table
-            with connection.cursor() as cursor:
-                cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
-                table_exists = cursor.fetchone() is not None
+            table_exists = ProductFavorite._meta.db_table in connection.introspection.table_names()
             
             if not table_exists:
                 return JsonResponse({
@@ -609,12 +603,7 @@ def get_wishlist_count(request):
         from django.db import connection
         from accounts.models import PeerToPeerProductFavorite
         
-        table_name = ProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
-            table_exists = cursor.fetchone() is not None
-        
-        if not table_exists:
+        if ProductFavorite._meta.db_table not in connection.introspection.table_names():
             return JsonResponse({'wishlist_count': 0})
         
         if request.user.is_authenticated:
@@ -640,15 +629,9 @@ def wishlist(request):
         from accounts.models import PeerToPeerProductFavorite
         
         # Vérifier si les tables existent
-        product_fav_table_name = ProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{product_fav_table_name}'")
-            product_fav_table_exists = cursor.fetchone() is not None
-        
-        peer_fav_table_name = PeerToPeerProductFavorite._meta.db_table
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{peer_fav_table_name}'")
-            peer_fav_table_exists = cursor.fetchone() is not None
+        existing_tables = connection.introspection.table_names()
+        product_fav_table_exists = ProductFavorite._meta.db_table in existing_tables
+        peer_fav_table_exists = PeerToPeerProductFavorite._meta.db_table in existing_tables
         
         favorites = []
         if request.user.is_authenticated:

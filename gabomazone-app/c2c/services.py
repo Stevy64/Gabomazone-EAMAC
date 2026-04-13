@@ -65,20 +65,7 @@ class PurchaseIntentService:
         """
         logger.info('[C2C·SVC] create_purchase_intent product=#%d buyer=%s price=%s',
                     product.id, buyer.pk, initial_price)
-        from django.db import connection
-        
-        # Vérifier si la table existe avant d'essayer de créer une intention
-        table_exists = False
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='c2c_purchaseintent'")
-                table_exists = cursor.fetchone() is not None
-        except Exception:
-            table_exists = False
-        
-        if not table_exists:
-            raise Exception("Les migrations C2C n'ont pas été appliquées. Exécutez: python manage.py migrate c2c")
-        
+
         if initial_price is None:
             initial_price = product.PRDPrice
         

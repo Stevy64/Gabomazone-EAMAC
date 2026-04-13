@@ -1808,9 +1808,9 @@ def request_payment(request):
                 description = request.POST["description"]
                 profile = Profile.objects.get(user=request.user)
                 method = request.POST["method"]
-                if profile.blance >= request_amount:
+                if profile.balance >= request_amount:
                     profile.requested = request_amount
-                    profile.blance = profile.blance - request_amount
+                    profile.balance = profile.balance - request_amount
                     if method in ("Bank", "SingPay"):
                         VendorPayments.objects.create(
                             vendor_profile=request.user,

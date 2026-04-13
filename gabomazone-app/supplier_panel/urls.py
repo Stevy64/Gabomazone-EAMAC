@@ -16,6 +16,9 @@ urlpatterns = [
          name="get-categories"),
     path('supplier-products-list-ajax/', views.SupplierProductsJsonListView.as_view(),
          name="supplier-products-list-ajax"),
+    path('supplier-products/remove-product/<int:id>/',
+         views.remove_product, name="remove-product"),
+    # Redirection permanente pour l'ancienne URL (compatibilité liens existants)
     path('supplier-products/remeve-product/<int:id>/',
          views.remove_product, name="remove-item"),
     path('supplier-edit-product/<int:id>/', views.supplier_edit_product,

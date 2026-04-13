@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Django Dev Server",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["gabomazone-app/manage.py", "runserver", "8001"],
+      "port": 8001
+    },
+    {
+      "name": "Gunicorn (Docker)",
+      "runtimeExecutable": "gunicorn",
+      "runtimeArgs": ["gabomazone.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"],
+      "port": 8000
+    },
+    {
+      "name": "Jenkins CI/CD",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "gabomazone-app/docker-compose.jenkins.yml", "up"],
+      "port": 8080
+    }
+  ]
+}

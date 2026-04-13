@@ -8,7 +8,7 @@ from django.utils import timezone
 class ProfileAdmin(admin.ModelAdmin):
     #fields = ("","")
     # inlines = [ ]
-    list_display = ('id', 'user', 'mobile_number', 'country', 'blance',"status" , "admission")
+    list_display = ('id', 'user', 'mobile_number', 'country', 'balance', "status", "admission")
     list_filter = ("status",)
     # list_editable = ()
     list_display_links = ("id", 'user', )

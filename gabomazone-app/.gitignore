@@ -20,3 +20,18 @@ __pycache__/
 
 # Log files
 logs/*.log
+*.log
+
+# Base de données - NE JAMAIS COMMITTER
+*.sqlite3
+db.sqlite3
+
+# Variables d'environnement
+.env.production
+
+# Médias uploadés (trop lourds pour Git)
+media/
+
+# Docker volumes
+postgres_data/
+redis_data/

@@ -759,7 +759,7 @@ def cart(request):
 
     if order_view:
         try:
-            blance = Profile.objects.get(user=request.user).blance
+            blance = Profile.objects.get(user=request.user).balance
 
         except Exception:
             blance = 0
@@ -1103,9 +1103,9 @@ def payment_blance(request):
             pass
 
         profile = Profile.objects.get(user=request.user)
-        if float(old_orde.amount) <= float(profile.blance):
+        if float(old_orde.amount) <= float(profile.balance):
             payment_method = Payment.objects.get(order=old_orde)
-            payment_method.payment_method = "Blance"
+            payment_method.payment_method = "Balance"
             payment_method.save()
         if not old_orde.tracking_no:
             old_orde.tracking_no = code_generator()
@@ -1114,15 +1114,15 @@ def payment_blance(request):
             old_orde.is_finished = True
             old_orde.status = "Underway"
             old_orde.save()
-            profile.blance = float(profile.blance) - float(old_orde.amount)
+            profile.balance = float(profile.balance) - float(old_orde.amount)
             profile.save()
 
             obj_order_suppliers = OrderSupplier.objects.all().filter(
                 user=request.user,  order=old_orde)
             for obj_order_supplier in obj_order_suppliers:
                 supplier = Profile.objects.get(id=obj_order_supplier.vendor.id)
-                supplier.blance = float(
-                    supplier.blance) + float(obj_order_supplier.amount)
+                supplier.balance = float(
+                    supplier.balance) + float(obj_order_supplier.amount)
                 supplier.save()
 
             if "coupon_id" in request.session.keys():

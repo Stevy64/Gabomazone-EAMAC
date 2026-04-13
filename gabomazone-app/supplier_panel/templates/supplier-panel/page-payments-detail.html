@@ -57,7 +57,7 @@
             </div>
             <div class="financial-card-label">Solde disponible</div>
         </div>
-        <div class="financial-card-value">{{vendor.blance|format_price}} FCFA</div>
+        <div class="financial-card-value">{{vendor.balance|format_price}} FCFA</div>
         <div class="financial-card-footer">
             <i class="fas fa-chart-line"></i>
             <span>Montant total disponible</span>
@@ -579,13 +579,13 @@
         </div>
         <div class="modal-body">
             <div class="stat-modal-content">
-                <div class="stat-modal-value">{{vendor.blance|format_price}} FCFA</div>
+                <div class="stat-modal-value">{{vendor.balance|format_price}} FCFA</div>
                 <div class="stat-modal-description">Montant total disponible sur votre compte</div>
                 <div class="stat-modal-details">
                     <div class="stat-detail-item">
                         <i class="fas fa-chart-line"></i>
                         <span>Solde actuel</span>
-                        <strong>{{vendor.blance|format_price}} FCFA</strong>
+                        <strong>{{vendor.balance|format_price}} FCFA</strong>
                     </div>
                     <div class="stat-detail-item">
                         <i class="fas fa-hourglass-half"></i>
@@ -623,7 +623,7 @@
                     <div class="stat-detail-item">
                         <i class="fas fa-university"></i>
                         <span>Solde disponible</span>
-                        <strong>{{vendor.blance|format_price}} FCFA</strong>
+                        <strong>{{vendor.balance|format_price}} FCFA</strong>
                     </div>
                 </div>
             </div>
@@ -686,7 +686,7 @@
                         <i class="fas fa-university"></i>
                         Solde disponible
                     </label>
-                    <input type="text" name="available_balance" id="balance" class="form-input" value="{{vendor.blance|floatformat:'2'}} FCFA" readonly>
+                    <input type="text" name="available_balance" id="balance" class="form-input" value="{{vendor.balance|floatformat:'2'}} FCFA" readonly>
                             </div>
                 
                             <div class="form-group">
@@ -695,7 +695,7 @@
                         Montant à retirer
                     </label>
                     <input type="number" name="request_amount" id="request_amount" step="any" class="form-input" placeholder="Entrez le montant" required>
-                    <small class="form-hint">Montant maximum: {{vendor.blance|floatformat:'2'}} FCFA</small>
+                    <small class="form-hint">Montant maximum: {{vendor.balance|floatformat:'2'}} FCFA</small>
                             </div>
                 
                             <div class="form-group">
@@ -914,7 +914,7 @@
     // Validation du formulaire
     document.getElementById('payment_request_form')?.addEventListener('submit', function(e) {
         const requestAmount = parseFloat(document.getElementById('request_amount').value);
-        const availableBalance = parseFloat('{{vendor.blance}}');
+        const availableBalance = parseFloat('{{vendor.balance}}');
         
         if (requestAmount > availableBalance) {
             e.preventDefault();

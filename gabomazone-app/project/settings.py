@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from decouple import config, Csv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,17 +27,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-mysecret'
+SECRET_KEY = config('SECRET_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = [
+# Garde de sécurité : SECRET_KEY obligatoire en production
+if not DEBUG and (not SECRET_KEY or 'insecure' in SECRET_KEY):
+    raise ImproperlyConfigured(
+        "SECRET_KEY doit être défini via la variable d'environnement SECRET_KEY en production. "
+        "Voir gabomazone-app/.env.example"
+    )
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv()) + [
     "51.91.255.215",
     "gabomazone.com",
     "www.gabomazone.com",
-    "localhost",
-    "127.0.0.1",
 ]
 
 # Application definition
@@ -74,6 +80,7 @@ INSTALLED_APPS = [
     'pages',
     'payments',
     'c2c',  # Module C2C
+    'django_ratelimit',
 ]
 
 MIDDLEWARE = [
@@ -127,26 +134,24 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if config('USE_SQLITE', default='false').lower() == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'nestali',
-#         'USER': 'nestali',
-#         'PASSWORD': 'nestali123!@#',
-#         'HOST': 'localhost',
-#         'PORT':'',
-#         'OPTIONS': {
-#         'sql_mode': 'traditional',
-#     }
-#     }
-# }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_DB', default='gabomazone'),
+            'USER': config('POSTGRES_USER', default='gabomazone'),
+            'PASSWORD': config('POSTGRES_PASSWORD', default=''),
+            'HOST': config('POSTGRES_HOST', default='db'),
+            'PORT': config('POSTGRES_PORT', default='5432'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -229,10 +234,9 @@ CRISPY_TEMPLATE_PACK = 'uni_form'
 
 # #Smtp Email for recovery password
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
-#SENDGRID_API_KEY = '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'
-SENDGRID_API_KEY = 'UseTheAbove_SENDGRID_API_KEY_ForThisOneIsFake'
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', default='')
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-EMAIL_SENDGRID = "selemhamed2016@gmail.com"
+EMAIL_SENDGRID = config('EMAIL_SENDGRID', default='contact@gabomazone.com')
 
 
         ## SingPay account ##
@@ -248,6 +252,59 @@ SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandb
 # Domaine de production pour les URLs de callback SingPay
 # Les callbacks doivent être accessibles publiquement depuis Internet
 SINGPAY_PRODUCTION_DOMAIN = config('SINGPAY_PRODUCTION_DOMAIN', default='gabomazone.pythonanywhere.com')
+
+
+# =============================================================================
+# SÉCURITÉ HTTP — Headers de sécurité pour la production
+# =============================================================================
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+
+# =============================================================================
+# SESSIONS — Durée de vie et nettoyage
+# =============================================================================
+SESSION_COOKIE_AGE = 1209600  # 2 semaines
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = False
+
+# =============================================================================
+# CACHE & SESSIONS REDIS — Activé si REDIS_URL est défini
+# =============================================================================
+_REDIS_URL = config('REDIS_URL', default='')
+if _REDIS_URL:
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': _REDIS_URL,
+        }
+    }
+
+# =============================================================================
+# CELERY — Queue de tâches asynchrones
+# =============================================================================
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://redis:6379/0')
+CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://redis:6379/1')
+CELERY_BEAT_SCHEDULE = {
+    'expire-c2c-intents': {
+        'task': 'c2c.tasks.expire_old_intents',
+        'schedule': 3600.0,
+    },
+    'reconcile-pending-payments': {
+        'task': 'payments.tasks.reconcile_pending_transactions',
+        'schedule': 900.0,
+    },
+    'cleanup-sessions': {
+        'task': 'accounts.tasks.cleanup_expired_sessions',
+        'schedule': 86400.0,
+    },
+}
 
 
 # =============================================================================

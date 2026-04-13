@@ -478,11 +478,8 @@ def accept_purchase_intent(request, intent_id):
         from django.db import connection as db_connection
         
         # Vérifier si la table existe
-        table_exists = False
         try:
-            with db_connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-                table_exists = cursor.fetchone() is not None
+            table_exists = 'accounts_productconversation' in db_connection.introspection.table_names()
         except Exception:
             table_exists = False
         
@@ -551,11 +548,8 @@ def reject_purchase_intent(request, intent_id):
         from django.db import connection as db_connection
         
         # Vérifier si la table existe
-        table_exists = False
         try:
-            with db_connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-                table_exists = cursor.fetchone() is not None
+            table_exists = 'accounts_productconversation' in db_connection.introspection.table_names()
         except Exception:
             table_exists = False
         
@@ -619,11 +613,8 @@ def cancel_purchase_intent(request, intent_id):
         from django.db import connection as db_connection
         
         # Vérifier si la table existe
-        table_exists = False
         try:
-            with db_connection.cursor() as cursor:
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_productconversation'")
-                table_exists = cursor.fetchone() is not None
+            table_exists = 'accounts_productconversation' in db_connection.introspection.table_names()
         except Exception:
             table_exists = False
         

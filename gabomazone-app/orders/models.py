@@ -2,7 +2,7 @@ import secrets
 import string
 from decimal import Decimal
 
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
 from products.models import Product
@@ -66,30 +66,31 @@ class Order(models.Model):
     #     return my_recs
 
     def save(self, *args, **kwargs):
-        if self.status == "PENDING":
-            order_suppliers = OrderSupplier.objects.all().filter(order=self.id)
-            for order_supplier in order_suppliers:
-                order_supplier.status = self.status
-                order_supplier.save()
+        with transaction.atomic():
+            if self.status == "PENDING":
+                order_suppliers = OrderSupplier.objects.all().filter(order=self.id)
+                for order_supplier in order_suppliers:
+                    order_supplier.status = self.status
+                    order_supplier.save()
 
-        else:
-            order_suppliers = OrderSupplier.objects.all().filter(order=self.id)
-            for order_supplier in order_suppliers:
-                order_supplier.status = self.status
-                order_supplier.is_finished = True
-                order_supplier.save()
+            else:
+                order_suppliers = OrderSupplier.objects.all().filter(order=self.id)
+                for order_supplier in order_suppliers:
+                    order_supplier.status = self.status
+                    order_supplier.is_finished = True
+                    order_supplier.save()
 
-            ref = float(self.amount)*0.025
-            try:
-                recommended_by = Profile.objects.get(
-                    user=self.user).recommended_by
-                blance = Profile.objects.get(user=recommended_by)
-                blance.blance = blance.blance + float(ref)
-                blance.save()
-            except Exception:
-                pass
+                ref = float(self.amount)*0.025
+                try:
+                    recommended_by = Profile.objects.get(
+                        user=self.user).recommended_by
+                    balance = Profile.objects.get(user=recommended_by)
+                    balance.balance = balance.balance + float(ref)
+                    balance.save()
+                except Exception:
+                    pass
 
-        super().save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
     class Meta:
         ordering = ('-id',)
@@ -270,18 +271,18 @@ class OrderSupplier(models.Model):
         return str(self.id)
 
     def save(self, *args, **kwargs):
-
-        if self.status == "Underway":
-            ref = float(self.amount)*0.025
-            try:
-                recommended_by = Profile.objects.get(
-                    user=self.user).recommended_by
-                blance = Profile.objects.get(user=recommended_by)
-                blance.blance = blance.blance + float(ref)
-                blance.save()
-            except Exception:
-                pass
-        super().save(*args, **kwargs)
+        with transaction.atomic():
+            if self.status == "Underway":
+                ref = float(self.amount)*0.025
+                try:
+                    recommended_by = Profile.objects.get(
+                        user=self.user).recommended_by
+                    balance = Profile.objects.get(user=recommended_by)
+                    balance.balance = balance.balance + float(ref)
+                    balance.save()
+                except Exception:
+                    pass
+            super().save(*args, **kwargs)
 
     class Meta:
         ordering = ('-id',)

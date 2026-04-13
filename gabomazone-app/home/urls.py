@@ -8,8 +8,8 @@ from django.urls import reverse_lazy
 app_name = 'home'
 urlpatterns = [
     path('', views.home_page, name='index'),
-    path('set_currency/', views.set_currency , name='set-currency'),
-
+    path('set_currency/', views.set_currency, name='set-currency'),
+    path('health/', views.health_check, name='health-check'),
 ]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

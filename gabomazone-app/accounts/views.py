@@ -15,6 +15,7 @@ from .models import Profile, PeerToPeerProduct, DeliveryCode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import CustomPasswordChangeForm
+from django_ratelimit.decorators import ratelimit
 from PIL import Image
 from django.conf import settings
 from wsgiref.util import FileWrapper
@@ -96,6 +97,7 @@ def _c2c_transaction_progress(conv):
     return {'tx_step': 0, 'order_status': None, 'intent_status': ist}
 
 
+@ratelimit(key='ip', rate='3/m', block=True)
 def register(request):
     """User registration view."""
     logger.info("register method=%s", request.method)
@@ -106,6 +108,15 @@ def register(request):
             new_user = form.save(commit=False)
             new_user.set_password(form.cleaned_data['password1'])
             new_user.save()
+            # Sauvegarder le numéro de téléphone dans le profil
+            phone_number = form.cleaned_data.get('phone_number', '')
+            if phone_number:
+                try:
+                    profile = Profile.objects.get(user=new_user)
+                    profile.mobile_number = phone_number
+                    profile.save()
+                except Profile.DoesNotExist:
+                    pass
             username = form.cleaned_data['username']
             messages.success(
                 request, 'Félicitations {}, votre compte a été créé avec succès.'.format(new_user))
@@ -135,6 +146,7 @@ def register(request):
     })
 
 
+@ratelimit(key='ip', rate='5/m', block=True)
 def login_user(request):
     """User login view."""
     if request.method == 'POST':

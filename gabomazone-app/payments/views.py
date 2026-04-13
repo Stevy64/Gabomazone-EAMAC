@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.utils import timezone
@@ -517,14 +516,33 @@ def init_cash_fee_payment(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def singpay_callback(request):
     """
-    Callback webhook de SingPay
+    Callback webhook de SingPay — vérification HMAC obligatoire (même en DEBUG)
     """
     try:
         payload = request.body.decode('utf-8')
+
+        # Vérification HMAC stricte — non désactivable en DEBUG
+        signature = request.headers.get('X-Signature', '')
+        timestamp = request.headers.get('X-Timestamp', '')
+
+        if not signature or not timestamp:
+            logger.warning(
+                '[SECURITY] Webhook SingPay reçu sans signature/timestamp - IP: %s',
+                request.META.get('REMOTE_ADDR')
+            )
+            return HttpResponse(status=403)
+
+        if not singpay_service.verify_webhook_signature(payload, signature, timestamp):
+            logger.warning(
+                '[SECURITY] Webhook SingPay signature invalide - IP: %s transaction_id peut-être: %s',
+                request.META.get('REMOTE_ADDR'),
+                json.loads(payload).get('transaction_id', 'inconnu') if payload else 'inconnu'
+            )
+            return HttpResponse(status=403)
+
         payload_data = json.loads(payload)
         transaction_id = payload_data.get('transaction_id')
         status = payload_data.get('status', '')
@@ -532,48 +550,27 @@ def singpay_callback(request):
             f"{LOG_PREFIX} phase=view_callback entry transaction_id={transaction_id} status={status} "
             f"payload_keys={list(payload_data.keys()) if isinstance(payload_data, dict) else 'n/a'}"
         )
-        # Récupérer les headers
-        signature = request.headers.get('X-Signature', '')
-        timestamp = request.headers.get('X-Timestamp', '')
-        
+
         # Récupérer la transaction
         if not transaction_id:
             logger.error(f"{LOG_PREFIX} phase=view_callback error=transaction_id_missing payload={payload_data}")
             return HttpResponse(status=400)
-        
+
         try:
             transaction = SingPayTransaction.objects.get(transaction_id=transaction_id)
         except SingPayTransaction.DoesNotExist:
             logger.error(f"Transaction {transaction_id} non trouvée")
             return HttpResponse(status=404)
         
-        # Vérifier la signature (tolérance en DEBUG pour simplifier les tests locaux)
-        is_valid = True  # Par défaut, accepter le webhook
-        if signature and timestamp:
-            is_valid = singpay_service.verify_webhook_signature(payload, signature, timestamp)
-        elif settings.DEBUG:
-            # En mode développement, accepter les webhooks sans signature
-            logger.info(f"Mode DEBUG: Webhook accepté sans vérification de signature pour {transaction_id}")
-        else:
-            # En production, logger un avertissement mais continuer
-            logger.warning(f"Webhook reçu sans signature pour {transaction_id} - traitement continué")
-        
-        # Logger le webhook
+        # Logger le webhook (signature déjà vérifiée — is_valid=True ici)
         webhook_log = SingPayWebhookLog.objects.create(
             transaction=transaction,
             payload=payload_data,
             signature=signature or '',
             timestamp=timestamp or '',
-            is_valid=is_valid
+            is_valid=True
         )
-        
-        if not is_valid and not settings.DEBUG:
-            # En production, rejeter les webhooks avec signature invalide
-            logger.warning(f"Signature invalide pour la transaction {transaction_id}")
-            webhook_log.error_message = "Signature invalide"
-            webhook_log.save()
-            return HttpResponse(status=401)
-        
+
         # Traiter le statut
         status = payload_data.get('status', '').lower()
         logger.info(

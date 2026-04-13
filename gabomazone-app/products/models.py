@@ -73,6 +73,24 @@ class Product(models.Model):
     PRDDiscountPrice = models.FloatField(default=0,
                                          blank=True, null=True,  verbose_name=_("Discount"))
 
+    stock_quantity = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_("Quantité en stock"),
+        help_text=_("0 = rupture de stock")
+    )
+    is_out_of_stock = models.BooleanField(
+        default=False,
+        verbose_name=_("En rupture de stock")
+    )
+
+    def update_stock(self, quantity_sold):
+        """Décrémente le stock et marque en rupture si nécessaire."""
+        from django.db import transaction
+        with transaction.atomic():
+            self.stock_quantity = max(0, self.stock_quantity - quantity_sold)
+            self.is_out_of_stock = (self.stock_quantity == 0)
+            self.save(update_fields=['stock_quantity', 'is_out_of_stock'])
+
     additional_image_1 = models.ImageField(
         upload_to='products/imgs/product_imgs/', blank=True, null=True, max_length=500, verbose_name=_("Additional  Image_1"), )
 

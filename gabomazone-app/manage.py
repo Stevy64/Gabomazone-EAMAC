@@ -3,6 +3,8 @@
 import os
 import sys
 
+import compat_django4  # noqa: F401 — shims pour jsonfield/django-currencies sur Django 4+
+
 
 def main():
     """Run administrative tasks."""

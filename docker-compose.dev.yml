@@ -1,0 +1,100 @@
+version: "3.9"
+
+# ════════════════════════════════════════════
+# GABOMAZONE — Dev local (hot reload, SQLite possible)
+# Usage : docker compose -f docker-compose.dev.yml up
+# ════════════════════════════════════════════
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: gabomazone-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gabomazone
+      POSTGRES_USER: gabomazone
+      POSTGRES_PASSWORD: devpassword123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gabomazone"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gabomazone-dev-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: gabomazone-redis-dev
+    ports:
+      - "6380:6379"
+    networks:
+      - gabomazone-dev-net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: gabomazone-web-dev
+    restart: unless-stopped
+    volumes:
+      - ./gabomazone-app:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: project.settings
+      SECRET_KEY: dev-secret-key-uniquement-pour-le-dev-local-non-production
+      DEBUG: "True"
+      POSTGRES_DB: gabomazone
+      POSTGRES_USER: gabomazone
+      POSTGRES_PASSWORD: devpassword123
+      POSTGRES_HOST: db
+      REDIS_URL: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - gabomazone-dev-net
+    command: >
+      sh -c "
+        python manage.py migrate --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: gabomazone-celery-dev
+    volumes:
+      - ./gabomazone-app:/app
+    environment:
+      DJANGO_SETTINGS_MODULE: project.settings
+      SECRET_KEY: dev-secret-key-uniquement-pour-le-dev-local-non-production
+      DEBUG: "True"
+      POSTGRES_DB: gabomazone
+      POSTGRES_USER: gabomazone
+      POSTGRES_PASSWORD: devpassword123
+      POSTGRES_HOST: db
+      REDIS_URL: redis://redis:6379/1
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - gabomazone-dev-net
+    command: celery -A project worker --loglevel=debug --concurrency=1
+
+volumes:
+  postgres_dev_data:
+
+networks:
+  gabomazone-dev-net:
+    driver: bridge

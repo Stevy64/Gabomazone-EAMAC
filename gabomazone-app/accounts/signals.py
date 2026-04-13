@@ -15,10 +15,8 @@ def get_admin_notification_model():
         from .models import AdminNotification
         # Vérifier si la table existe
         from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='accounts_adminnotification'")
-            if cursor.fetchone():
-                return AdminNotification
+        if 'accounts_adminnotification' in connection.introspection.table_names():
+            return AdminNotification
     except Exception:
         pass
     return None
@@ -27,9 +25,11 @@ def get_admin_notification_model():
 @receiver(post_save, sender='accounts.ProductBoostRequest')
 def notify_admin_on_boost_request(sender, instance, created, **kwargs):
     """Créer une notification admin lorsqu'une demande de boost est créée"""
+    if kwargs.get('raw', False):
+        return
     try:
         from .models import AdminNotification, ProductBoostRequest
-        
+
         if created and instance.status == ProductBoostRequest.PENDING:
             try:
                 related_url = reverse('admin:accounts_productboostrequest_change', args=[instance.id])
@@ -54,9 +54,11 @@ def notify_admin_on_boost_request(sender, instance, created, **kwargs):
 @receiver(post_save, sender='accounts.PremiumSubscription')
 def notify_admin_on_premium_subscription(sender, instance, created, **kwargs):
     """Créer une notification admin lorsqu'un abonnement premium est créé ou en attente"""
+    if kwargs.get('raw', False):
+        return
     try:
         from .models import AdminNotification, PremiumSubscription
-        
+
         if created and instance.status == PremiumSubscription.PENDING:
             try:
                 related_url = reverse('admin:accounts_premiumsubscription_change', args=[instance.id])
@@ -80,9 +82,11 @@ def notify_admin_on_premium_subscription(sender, instance, created, **kwargs):
 @receiver(post_save, sender='contact.MessagesList')
 def notify_admin_on_contact_message(sender, instance, created, **kwargs):
     """Créer une notification admin lorsqu'un message de contact est reçu"""
+    if kwargs.get('raw', False):
+        return
     try:
         from .models import AdminNotification
-        
+
         if created:
             try:
                 related_url = reverse('admin:contact_messageslist_change', args=[instance.id])
@@ -106,6 +110,8 @@ def notify_admin_on_contact_message(sender, instance, created, **kwargs):
 @receiver(post_save, sender='accounts.PeerToPeerProduct')
 def notify_admin_on_new_product(sender, instance, created, **kwargs):
     """Notifier l'admin lorsqu'un nouvel article C2C est mis en ligne (pas de validation requise)."""
+    if kwargs.get('raw', False):
+        return
     try:
         AdminNotification = get_admin_notification_model()
         if not AdminNotification:
@@ -148,6 +154,8 @@ def notify_admin_on_new_product(sender, instance, created, **kwargs):
 @receiver(post_save, sender='products.Product')
 def notify_admin_on_b2c_product_published(sender, instance, created, **kwargs):
     """Notifier l'admin lorsqu'un vendeur B2C publie un nouvel article (pas de validation requise, info uniquement)."""
+    if kwargs.get('raw', False):
+        return
     try:
         AdminNotification = get_admin_notification_model()
         if not AdminNotification:
