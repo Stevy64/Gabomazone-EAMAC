@@ -59,6 +59,12 @@
                     <div class="stat-value">{{ seller_products|length }}</div>
                     <div class="stat-label">Articles publiés</div>
                 </div>
+                {% if conversion_rate is not None %}
+                <div class="stat-card">
+                    <div class="stat-value">{{ conversion_rate }}%</div>
+                    <div class="stat-label">Taux de conversion</div>
+                </div>
+                {% endif %}
                 {% if seller.date_joined %}
                 <div class="stat-card">
                     <div class="stat-value gm-s-71f94a" >{{ seller.date_joined|member_since_natural }}</div>

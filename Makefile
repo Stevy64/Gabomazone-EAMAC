@@ -71,6 +71,8 @@ import-sqlite-dev:
 		  --exclude=contenttypes --exclude=auth.permission --exclude=sessions --exclude=admin \
 		  --natural-foreign --natural-primary \
 		  -o /tmp/sqlite_backup.json \
+		 && echo '>>> Application des migrations PostgreSQL...' \
+		 && python manage.py migrate --no-input \
 		 && echo '>>> Purge des données PostgreSQL existantes...' \
 		 && python manage.py flush --no-input \
 		 && echo '>>> Import dans PostgreSQL...' \

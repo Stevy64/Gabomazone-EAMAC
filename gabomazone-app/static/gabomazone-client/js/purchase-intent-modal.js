@@ -196,9 +196,8 @@
                                 GMModal.show({
                                     type: 'info',
                                     title: 'Demande envoyée !',
-                                    message: 'Votre demande de négociation a été envoyée au vendeur.<br><br>'
-                                        + '<strong>Prochaine étape :</strong> le vendeur doit confirmer que son article est toujours disponible. '
-                                        + 'Vous recevrez un message dans la conversation dès que la négociation sera ouverte.',
+                                    message: 'Votre demande a été envoyée ! La négociation est maintenant ouverte.<br><br>'
+                                        + '<strong>Prochaine étape :</strong> proposez votre prix directement dans la conversation.',
                                     confirmText: 'Aller à la messagerie',
                                     onConfirm: function () {
                                         window.location.href = res.json.redirect;

@@ -1184,6 +1184,31 @@ def get_inbox_conversations(request):
     return JsonResponse({'conversations': conversations_data})
 
 
+import re as _re
+
+_BYPASS_PATTERNS = [
+    # Numéros de téléphone (gabonais et internationaux)
+    _re.compile(r'\b(\+?2?4?1?[\s\-.]?\d{2}[\s\-.]?\d{2}[\s\-.]?\d{2}[\s\-.]?\d{2})\b'),
+    # Applications de messagerie externes
+    _re.compile(r'\b(whatsapp|telegram|signal|messenger|wechat|viber|snapchat|instagram|dm|direct\s?message)\b', _re.IGNORECASE),
+    # Propositions de paiement hors plateforme
+    _re.compile(r'\b(mobile\s?money|airtel\s?money|moov\s?money|payer?\s+en\s+dehors|payer?\s+directement|virement|western\s+union|paypal|cash\s+direct|payer?\s+cash|paiement\s+direct)\b', _re.IGNORECASE),
+]
+
+_BYPASS_MASK = '[***]'
+
+
+def _filter_bypass_content(text):
+    """
+    Masque silencieusement les tentatives de contournement de la plateforme.
+    Retourne (texte_filtré, a_été_filtré).
+    """
+    filtered = text
+    for pattern in _BYPASS_PATTERNS:
+        filtered = pattern.sub(_BYPASS_MASK, filtered)
+    return filtered, (filtered != text)
+
+
 @login_required(login_url='accounts:login')
 def send_product_message(request, product_id):
     """
@@ -1235,20 +1260,29 @@ def send_product_message(request, product_id):
         if request.user not in [conversation.seller, conversation.buyer]:
             return JsonResponse({'error': 'Accès non autorisé'}, status=403)
         
-        # Vérifier si une commande C2C existe et si elle est terminée (bloquer le chat)
+        # Vérifier si une commande C2C existe et bloquer selon le statut
         try:
             from c2c.models import C2COrder
             c2c_order = C2COrder.objects.filter(
                 product=conversation.product,
                 buyer=conversation.buyer,
                 seller=conversation.seller,
-                status=C2COrder.COMPLETED
-            ).first()
-            
+            ).exclude(status__in=[C2COrder.CANCELLED, C2COrder.DISPUTED]).first()
+
             if c2c_order:
-                return JsonResponse({
-                    'error': 'Cette transaction est terminée. Le chat est désactivé.'
-                }, status=403)
+                if c2c_order.status == C2COrder.COMPLETED:
+                    return JsonResponse({
+                        'error': 'Cette transaction est terminée. Le chat est désactivé.',
+                        'action': 'chat_closed',
+                    }, status=403)
+                elif c2c_order.status in [C2COrder.PENDING_PAYMENT, C2COrder.PAID]:
+                    from django.urls import reverse
+                    payment_url = reverse('c2c:order-detail', kwargs={'order_id': c2c_order.id})
+                    return JsonResponse({
+                        'error': 'Un accord de prix a été trouvé. Finalisez la transaction via la page de commande.',
+                        'action': 'redirect_payment',
+                        'payment_url': payment_url,
+                    }, status=403)
         except Exception:
             # Si erreur lors de la vérification C2C, continuer quand même
             pass
@@ -1258,15 +1292,35 @@ def send_product_message(request, product_id):
     except User.DoesNotExist:
         return JsonResponse({'error': 'Utilisateur introuvable'}, status=404)
     
+    # Filtrer silencieusement les tentatives de contournement
+    filtered_text, was_filtered = _filter_bypass_content(message_text)
+    if was_filtered:
+        try:
+            from .models import AdminNotification
+            AdminNotification.objects.create(
+                notification_type=AdminNotification.BYPASS_ATTEMPT,
+                title=f'Contournement détecté — conversation #{conversation.id}',
+                message=(
+                    f"Message de {request.user.get_full_name() or request.user.username} "
+                    f"dans la conversation #{conversation.id} contient du contenu masqué.\n\n"
+                    f"Texte original : {message_text[:500]}"
+                ),
+                related_object_id=conversation.id,
+                related_object_type='accounts.ProductConversation',
+                related_url=f'/admin/accounts/productconversation/{conversation.id}/change/',
+            )
+        except Exception:
+            pass
+
     # Mettre à jour la date du dernier message
     conversation.last_message_at = timezone.now()
     conversation.save()
-    
-    # Créer le message
+
+    # Créer le message (avec le texte filtré)
     message = ProductMessage.objects.create(
         conversation=conversation,
         sender=request.user,
-        message=message_text
+        message=filtered_text
     )
     
     return JsonResponse({
@@ -1377,6 +1431,7 @@ def report_conversation(request, conversation_id):
     Crée un signalement de conversation et notifie l'administration.
     """
     from django.http import JsonResponse
+    from django.utils import timezone
     from .models import ProductConversation, ConversationReport, AdminNotification
     import json
 
@@ -1405,13 +1460,44 @@ def report_conversation(request, conversation_id):
         details=details[:5000],
     )
 
+    # Détection de tentative de contournement répétée (≥ 3 signalements "hors plateforme" en 30 jours)
+    is_bypass_report = 'hors' in reason.lower() or 'contournement' in reason.lower() or 'bypass' in reason.lower()
+    if is_bypass_report:
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        bypass_count = ConversationReport.objects.filter(
+            conversation__in=ProductConversation.objects.filter(
+                seller=conversation.seller
+            ),
+            reason__icontains='hors',
+            created_at__gte=thirty_days_ago,
+        ).count()
+
+        if bypass_count >= 3:
+            try:
+                AdminNotification.objects.create(
+                    notification_type=AdminNotification.BYPASS_ATTEMPT,
+                    title=f'⚠️ Vendeur suspect — {bypass_count} signalements hors-plateforme en 30 j',
+                    message=(
+                        f"Le vendeur {conversation.seller.get_full_name() or conversation.seller.username} "
+                        f"(ID {conversation.seller.id}) a reçu {bypass_count} signalements "
+                        f"'proposition hors plateforme' au cours des 30 derniers jours.\n\n"
+                        f"Dernier signalement par : {request.user.get_full_name() or request.user.username}\n"
+                        f"Détails : {details[:300] or '—'}"
+                    ),
+                    related_object_id=conversation.seller.id,
+                    related_object_type='auth.User',
+                    related_url=f'/admin/auth/user/{conversation.seller.id}/change/',
+                )
+            except Exception:
+                pass
+
     try:
         AdminNotification.objects.create(
-            notification_type=getattr(AdminNotification, 'CONVERSATION_REPORT', AdminNotification.CONTACT_MESSAGE),
+            notification_type=AdminNotification.CONVERSATION_REPORT,
             title=f'Signalement conversation #{conversation.id}',
             message=(
                 f"Signalement envoyé par {request.user.get_full_name() or request.user.username} "
-                f"sur la conversation #{conversation.id} ({conversation.product.product_name}).\n\n"
+                f"sur la conversation #{conversation.id} ({conversation.product.product_name if conversation.product else '—'}).\n\n"
                 f"Motif: {report.reason}\n"
                 f"Détails: {report.details or '—'}"
             ),
@@ -1422,7 +1508,7 @@ def report_conversation(request, conversation_id):
     except Exception:
         pass
 
-    return JsonResponse({'success': True, 'message': 'Signalement transmis à l’administration.'})
+    return JsonResponse({'success': True, 'message': 'Signalement transmis à l\u2019administration.'})
 
 
 @login_required(login_url='accounts:login')
@@ -1453,7 +1539,7 @@ def mark_conversation_messages_read(request, conversation_id):
 
 def _annotate_conversation_thread_meta(conv):
     """
-    Filtres / libellés pour l’UI messagerie (tags, phase, recherche texte).
+    Filtres / libellés pour l'UI messagerie (tags, phase, recherche texte).
     """
     tags = []
     if getattr(conv, 'unread_count', 0) > 0:
@@ -2027,3 +2113,15 @@ def download_file(request, order_id, filename):
             messages.warning(
                 request, "You don't have access to this page !")
             return redirect('accounts:dashboard_customer')
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def mark_product_sold(request, product_id):
+    """Marque un article C2C comme vendu et le retire du catalogue."""
+    from django.shortcuts import get_object_or_404
+    product = get_object_or_404(PeerToPeerProduct, id=product_id, seller=request.user)
+    product.status = PeerToPeerProduct.SOLD
+    product.save(update_fields=['status'])
+    messages.success(request, "Article marqué comme vendu et retiré du catalogue.")
+    return redirect('accounts:my-published-products')

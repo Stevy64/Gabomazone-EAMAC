@@ -586,7 +586,8 @@ class AdminNotification(models.Model):
     B2C_PRODUCT_PUBLISHED = 'B2C_PRODUCT_PUBLISHED'
     VENDOR_REGISTRATION = 'VENDOR_REGISTRATION'
     CONVERSATION_REPORT = 'CONVERSATION_REPORT'
-    
+    BYPASS_ATTEMPT = 'BYPASS_ATTEMPT'
+
     TYPE_CHOICES = [
         (BOOST_REQUEST, _('Demande de boost')),
         (PREMIUM_SUBSCRIPTION, _('Abonnement premium')),
@@ -595,6 +596,7 @@ class AdminNotification(models.Model):
         (B2C_PRODUCT_PUBLISHED, _('Nouveau produit B2C en ligne')),
         (VENDOR_REGISTRATION, _('Nouveau vendeur B2C inscrit')),
         (CONVERSATION_REPORT, _('Signalement conversation')),
+        (BYPASS_ATTEMPT, _('Tentative de contournement')),
     ]
     
     notification_type = models.CharField(

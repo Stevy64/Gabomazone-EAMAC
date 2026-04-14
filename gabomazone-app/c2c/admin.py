@@ -15,12 +15,12 @@ from .models import (
 @admin.register(PlatformSettings)
 class PlatformSettingsAdmin(admin.ModelAdmin):
     """Administration des paramètres de la plateforme"""
-    list_display = ('id', 'c2c_buyer_commission_rate', 'c2c_seller_commission_rate',
+    list_display = ('id', 'c2c_seller_commission_rate',
                    'b2c_buyer_commission_rate', 'b2c_seller_commission_rate', 'is_active', 'updated_at')
     list_editable = ('is_active',)
     fieldsets = (
         ('Commissions C2C', {
-            'fields': ('c2c_buyer_commission_rate', 'c2c_seller_commission_rate')
+            'fields': ('c2c_seller_commission_rate',)
         }),
         ('Commissions B2C', {
             'fields': ('b2c_buyer_commission_rate', 'b2c_seller_commission_rate')

@@ -79,6 +79,21 @@ def seller_profile(request, seller_id):
             # Si la table n'existe pas encore
             pass
     
+    # Taux de conversion : intentions actives → commandes terminées
+    conversion_rate = None
+    try:
+        from .models import PurchaseIntent
+        total_intents = PurchaseIntent.objects.filter(
+            seller=seller
+        ).exclude(status=PurchaseIntent.CANCELLED).count()
+        completed_orders = C2COrder.objects.filter(
+            seller=seller, status=C2COrder.COMPLETED
+        ).count()
+        if total_intents > 0:
+            conversion_rate = round((completed_orders / total_intents) * 100)
+    except Exception:
+        pass
+
     # Produits du vendeur (cartes alignées sur /shop/)
     seller_products = list(
         PeerToPeerProduct.objects.filter(
@@ -98,6 +113,7 @@ def seller_profile(request, seller_id):
         'pending_review_order': pending_review_order,
         'seller_products': seller_products,
         'seller_products_cards': seller_products_cards,
+        'conversion_rate': conversion_rate,
     }
     
     return render(request, 'c2c/seller_profile.html', context)

@@ -128,8 +128,19 @@
                                 <span>Contacter le vendeur</span>
                             </button>
                             {% endif %}
+                            {% if user.is_authenticated and user.pk == peer_product.seller_id and peer_product.status == 'APPROVED' %}
+                            <form method="post" action="{% url 'accounts:mark-product-sold' peer_product.id %}"
+                                  style="margin-top:8px;"
+                                  onsubmit="return confirm('Marquer cet article comme vendu ? Il sera retiré du catalogue.')">
+                                {% csrf_token %}
+                                <button type="submit" class="gm-action-btn gm-btn-contact">
+                                    <i class="fi-rs-check-circle"></i>
+                                    <span>Marquer comme vendu</span>
+                                </button>
+                            </form>
+                            {% endif %}
                         </div>
-                        
+
                         <!-- Bloc Description (style Ayoka) -->
                         <div class="ayoka-description-block">
                             <div class="ayoka-infos-title">

@@ -40,21 +40,23 @@
             <h3><i class="fi-rs-money"></i> Détails financiers</h3>
             <div class="c2c-info-grid">
                 <div class="c2c-info-item">
-                    <div class="c2c-info-label">Prix final négocié</div>
+                    <div class="c2c-info-label">Prix de vente</div>
                     <div class="c2c-info-value">{{ order.final_price|floatformat:0 }} FCFA</div>
                 </div>
+                {% if is_buyer %}
                 <div class="c2c-info-item">
-                    <div class="c2c-info-label">Commission acheteur</div>
-                    <div class="c2c-info-value">{{ order.buyer_commission|floatformat:0 }} FCFA</div>
+                    <div class="c2c-info-label">Total payé</div>
+                    <div class="c2c-info-value gm-s-0ffe3c">{{ order.buyer_total|floatformat:0 }} FCFA</div>
                 </div>
-                <div class="c2c-info-item">
-                    <div class="c2c-info-label">Total à payer</div>
-                    <div class="c2c-info-value gm-s-0ffe3c" >{{ order.buyer_total|floatformat:0 }} FCFA</div>
-                </div>
+                {% endif %}
                 {% if is_seller %}
                 <div class="c2c-info-item">
+                    <div class="c2c-info-label">Frais de service Gabomazone</div>
+                    <div class="c2c-info-value">-{{ order.seller_commission|floatformat:0 }} FCFA</div>
+                </div>
+                <div class="c2c-info-item">
                     <div class="c2c-info-label">Net à recevoir</div>
-                    <div class="c2c-info-value gm-s-7bc59c" >{{ order.seller_net|floatformat:0 }} FCFA</div>
+                    <div class="c2c-info-value gm-s-7bc59c">{{ order.seller_net|floatformat:0 }} FCFA</div>
                 </div>
                 {% endif %}
             </div>
@@ -90,57 +92,60 @@
         {% if verification and order.status in 'paid,pending_delivery,delivered' %}
         <div class="c2c-verification-box">
             <h3 style="margin-top: 0;"><i class="fi-rs-shield-check"></i> Vérification de livraison</h3>
-            
+            <p style="color:#5F5E5A;font-size:13px;margin-bottom:16px;">
+                Lors de la remise en main propre, échangez vos codes pour débloquer le paiement.
+            </p>
+
             {% if is_seller %}
-            <div class="gm-s-d32779">
-                <p class="gm-s-5994d1">
-                    <strong>Votre code vendeur (V-CODE) :</strong> <span class="gm-s-8ab5ed">{{ verification.seller_code }}</span>
-                </p>
-                <p class="gm-s-2e9724">
-                    Communiquez ce code à l'acheteur après avoir remis l'article. L'acheteur devra le saisir pour confirmer la réception.
-                </p>
-            </div>
-            <p class="gm-s-7f3f7b">
-                Saisissez le <strong>code acheteur (A-CODE)</strong> pour confirmer que vous avez remis l'article à l'acheteur.
-            </p>
-            {% if not verification.seller_code_verified %}
-            <div class="c2c-code-input">
-                <input type="text" id="sellerCodeInput" maxlength="6" placeholder="Code acheteur (A-CODE)" pattern="[0-9]{6}" class="gm-s-90fefe">
-                <button class="c2c-btn c2c-btn-primary" onclick="verifySellerCode()">
-                    <i class="fi-rs-check"></i> Vérifier
-                </button>
-            </div>
-            {% else %}
-            <div class="gm-s-b0ed7f">
-                <i class="fi-rs-check"></i> Code acheteur vérifié le {{ verification.seller_code_verified_at|date:"d/m/Y à H:i" }}
+            <div class="c2c-code-panel">
+                <div class="c2c-code-panel__yours">
+                    <p class="c2c-code-panel__label">Votre code — montrez-le à l'acheteur</p>
+                    <div class="c2c-code-panel__code">{{ verification.seller_code }}</div>
+                    <p class="c2c-code-panel__hint">L'acheteur va le saisir pour confirmer qu'il a reçu l'article</p>
+                </div>
+                <div class="c2c-code-panel__theirs">
+                    <p class="c2c-code-panel__label">Code de l'acheteur — saisissez-le après la remise</p>
+                    {% if not verification.seller_code_verified %}
+                    <input type="text" id="sellerCodeInput" maxlength="9"
+                           placeholder="GM-XX0000" class="c2c-code-input__field"
+                           autocomplete="off" autocapitalize="characters">
+                    <button class="c2c-btn c2c-btn-primary" onclick="verifySellerCode()">
+                        <i class="fi-rs-check"></i> Confirmer la remise
+                    </button>
+                    {% else %}
+                    <p class="c2c-code-panel__done">
+                        <i class="fi-rs-check-circle"></i>
+                        Remise confirmée le {{ verification.seller_code_verified_at|date:"d/m/Y à H:i" }}
+                    </p>
+                    {% endif %}
+                </div>
             </div>
             {% endif %}
-            {% endif %}
-            
+
             {% if is_buyer %}
-            <div class="gm-s-d32779">
-                <p class="gm-s-5994d1">
-                    <strong>Votre code acheteur (A-CODE) :</strong> <span class="gm-s-8ab5ed">{{ verification.buyer_code }}</span>
-                </p>
-                <p class="gm-s-2e9724">
-                    Communiquez ce code au vendeur après avoir reçu l'article. Le vendeur devra le saisir pour confirmer la remise.
-                </p>
+            <div class="c2c-code-panel">
+                <div class="c2c-code-panel__yours">
+                    <p class="c2c-code-panel__label">Votre code — montrez-le au vendeur</p>
+                    <div class="c2c-code-panel__code">{{ verification.buyer_code }}</div>
+                    <p class="c2c-code-panel__hint">Le vendeur va le saisir pour confirmer qu'il vous a remis l'article</p>
+                </div>
+                <div class="c2c-code-panel__theirs">
+                    <p class="c2c-code-panel__label">Code du vendeur — saisissez-le après réception</p>
+                    {% if not verification.buyer_code_verified %}
+                    <input type="text" id="buyerCodeInput" maxlength="9"
+                           placeholder="GM-XX0000" class="c2c-code-input__field"
+                           autocomplete="off" autocapitalize="characters">
+                    <button class="c2c-btn c2c-btn-primary" onclick="verifyBuyerCode()">
+                        <i class="fi-rs-check"></i> Confirmer la réception
+                    </button>
+                    {% else %}
+                    <p class="c2c-code-panel__done">
+                        <i class="fi-rs-check-circle"></i>
+                        Réception confirmée le {{ verification.buyer_code_verified_at|date:"d/m/Y à H:i" }}
+                    </p>
+                    {% endif %}
+                </div>
             </div>
-            <p class="gm-s-7f3f7b">
-                Saisissez le <strong>code vendeur (V-CODE)</strong> que le vendeur vous a communiqué pour confirmer que vous avez reçu l'article et que vous êtes satisfait.
-            </p>
-            {% if not verification.buyer_code_verified %}
-            <div class="c2c-code-input">
-                <input type="text" id="buyerCodeInput" maxlength="6" placeholder="Code vendeur (V-CODE)" pattern="[0-9]{6}" class="gm-s-90fefe">
-                <button class="c2c-btn c2c-btn-primary" onclick="verifyBuyerCode()">
-                    <i class="fi-rs-check"></i> Vérifier
-                </button>
-            </div>
-            {% else %}
-            <div class="gm-s-b0ed7f">
-                <i class="fi-rs-check"></i> Code vendeur vérifié le {{ verification.buyer_code_verified_at|date:"d/m/Y à H:i" }}
-            </div>
-            {% endif %}
             {% endif %}
         </div>
         {% endif %}
@@ -150,8 +155,8 @@
 <script>
 function verifySellerCode() {
     const code = document.getElementById('sellerCodeInput').value.trim();
-    if (code.length !== 6) {
-        alert('Le code doit contenir 6 chiffres');
+    if (code.length !== 9) {
+        alert('Le code doit être au format GM-XXXXXX (9 caractères)');
         return;
     }
     
@@ -190,8 +195,8 @@ function verifySellerCode() {
 
 function verifyBuyerCode() {
     const code = document.getElementById('buyerCodeInput').value.trim();
-    if (code.length !== 6) {
-        alert('Le code doit contenir 6 chiffres');
+    if (code.length !== 9) {
+        alert('Le code doit être au format GM-XXXXXX (9 caractères)');
         return;
     }
     

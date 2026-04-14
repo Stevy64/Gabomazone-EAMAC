@@ -13,7 +13,7 @@
         <div id="gmPiModalError" class="gm-pi-modal__error" hidden></div>
         <div id="gmPiModalInner" class="gm-pi-modal__inner" hidden>
             <p class="gm-pi-modal__eyebrow" id="gmPiModalEyebrow">Négociation</p>
-            <h2 id="gmPiModalTitle" class="gm-pi-modal__title">Ce n'est pas la pharmacie.. donne ton prix !</h2>
+            <h2 id="gmPiModalTitle" class="gm-pi-modal__title">Faites votre offre au vendeur</h2>
             <div class="gm-pi-modal__product">
                 <div class="gm-pi-modal__thumb-wrap">
                     <img id="gmPiModalImg" src="" alt="" />
@@ -24,18 +24,16 @@
                     <p id="gmPiModalPrice" class="gm-pi-modal__price"></p>
                 </div>
             </div>
-            <ul class="gm-pi-modal__steps" aria-label="Étapes de la transaction">
-                <li><span>1</span> Le vendeur confirme la disponibilité</li>
-                <li><span>2</span> Négociation du prix</li>
-                <li><span>3</span> Paiement sécurisé (escrow)</li>
-                <li><span>4</span> Rencontre et remise de l'article</li>
-                <li><span>5</span> Validation par codes et libération des fonds</li>
-            </ul>
-            <form id="gmPiModalForm" method="post" action="">
+            <div class="gm-pi-modal__trust">
+                <p><i class="fi-rs-shield-check"></i> <strong>Votre argent est protégé</strong> jusqu'à la remise de l'article</p>
+                <p><i class="fi-rs-handshake"></i> Négociez librement le prix dans la messagerie</p>
+                <p><i class="fi-rs-star"></i> Notez le vendeur après la transaction</p>
+            </div>
+            <form id="gmPiModalForm" method="post" action="" data-no-preloader>
                 {% csrf_token %}
                 <button type="submit" class="gm-pi-modal__submit" id="gmPiModalSubmit">
                     <i class="fi-rs-comment"></i>
-                    Commencer la négociation
+                    Contacter le vendeur
                 </button>
             </form>
             <p class="gm-pi-modal__foot">

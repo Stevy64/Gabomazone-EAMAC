@@ -34,23 +34,22 @@ class CommissionCalculator:
     @staticmethod
     def calculate_b2c_commissions(price):
         """
-        Calcule les commissions B2C pour un prix donné
+        Calcule les frais de service B2C.
+        L'acheteur paie exactement le prix affiché.
+        Seul le vendeur supporte les frais de service.
         """
         settings = PlatformSettings.get_active_settings()
         price = Decimal(str(price))
-        buyer_commission = price * (settings.b2c_buyer_commission_rate / Decimal('100'))
-        seller_commission = price * (settings.b2c_seller_commission_rate / Decimal('100'))
-        total_platform_commission = buyer_commission + seller_commission
-        seller_net = price - seller_commission
-        buyer_total = price + buyer_commission
-        
+        service_fee = (price * settings.b2c_seller_commission_rate / Decimal('100')).quantize(Decimal('1'))
+        seller_net = price - service_fee
         return {
-            'buyer_commission': buyer_commission,
-            'seller_commission': seller_commission,
-            'platform_commission': total_platform_commission,
+            'buyer_commission': Decimal('0'),       # conservé pour compatibilité schéma
+            'seller_commission': service_fee,       # frais de service prélevés au vendeur
+            'platform_commission': service_fee,
             'seller_net': seller_net,
-            'buyer_total': buyer_total,
-            'original_price': price
+            'buyer_total': price,                   # l'acheteur paie exactement le prix
+            'original_price': price,
+            'service_fee': service_fee,
         }
 
 
@@ -88,14 +87,15 @@ class PurchaseIntentService:
             buyer=buyer,
             status__in=[PurchaseIntent.REJECTED, PurchaseIntent.CANCELLED, PurchaseIntent.EXPIRED]
         ).first()
-        
+
         if existing_terminated:
             logger.info('[C2C·SVC] Réactivation intent #%d (ancien status=%s)', existing_terminated.id, existing_terminated.status)
-            existing_terminated.status = PurchaseIntent.PENDING
+            existing_terminated.status = PurchaseIntent.NEGOTIATING
+            existing_terminated.availability_confirmed_at = timezone.now()
+            existing_terminated.seller_notified = True
             existing_terminated.initial_price = initial_price
             existing_terminated.negotiated_price = None
             existing_terminated.final_price = None
-            existing_terminated.seller_notified = False
             existing_terminated.expires_at = timezone.now() + timedelta(days=7)
             existing_terminated.save()
             return existing_terminated
@@ -119,22 +119,27 @@ class PurchaseIntentService:
         
         buyer_name = buyer.get_full_name() or buyer.username
         welcome_message = (
-            f"👋 {buyer_name} souhaite acheter votre article « {product.product_name} ».\n\n"
+            f"👋 {buyer_name} souhaite acheter « {product.product_name} ».\n\n"
             f"💰 Prix affiché : {initial_price:,.0f} FCFA\n\n"
-            f"📦 Vendeur, veuillez d'abord confirmer que cet article est toujours disponible "
-            f"à la vente via le bouton dans les « Intentions d'achat »."
+            f"💬 La négociation est ouverte ! Faites vos propositions ci-dessous."
         )
-        
+
         ProductMessage.objects.create(
             conversation=conversation,
             sender=buyer,
             message=welcome_message,
         )
-        
+
         conversation.last_message_at = timezone.now()
         conversation.save()
-        
-        logger.info('[C2C·SVC] Intent #%d créée — en attente de dispo (seller_notified=False)', intent.id)
+
+        # Passer directement en NEGOTIATING — plus d'étape de confirmation de disponibilité
+        intent.status = PurchaseIntent.NEGOTIATING
+        intent.availability_confirmed_at = timezone.now()
+        intent.seller_notified = True
+        intent.save(update_fields=['status', 'availability_confirmed_at', 'seller_notified'])
+
+        logger.info('[C2C·SVC] Intent #%d créée — directement NEGOTIATING', intent.id)
         return intent
     
     @staticmethod
@@ -147,8 +152,6 @@ class PurchaseIntentService:
           peut proposer le prochain prix (contre-offre).
         Retourne (can_make_offer: bool, message_fr str ou '').
         """
-        if intent.status == PurchaseIntent.PENDING or intent.status == PurchaseIntent.AWAITING_AVAILABILITY:
-            return False, "Le vendeur doit d'abord confirmer la disponibilité de l'article."
         if intent.status not in (PurchaseIntent.NEGOTIATING,):
             return False, "La négociation n'est plus ouverte pour cette intention."
         pending = (

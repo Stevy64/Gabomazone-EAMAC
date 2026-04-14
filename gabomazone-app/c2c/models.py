@@ -13,9 +13,12 @@ import string
 from django.db.models import Avg, Count, Q
 
 
-def generate_verification_code(length=6):
-    """Génère un code de vérification aléatoire"""
-    return ''.join(secrets.choice(string.digits) for _ in range(length))
+def generate_verification_code():
+    """Génère un code de vérification au format GM-XXNNNN (ex: GM-AB1234)"""
+    import random
+    letters = ''.join(random.choices(string.ascii_uppercase, k=2))
+    digits = ''.join(random.choices(string.digits, k=4))
+    return f"GM-{letters}{digits}"
 
 
 class PlatformSettings(models.Model):
@@ -23,13 +26,8 @@ class PlatformSettings(models.Model):
     Paramètres de la plateforme configurables depuis l'admin
     Gère les commissions C2C et B2C
     """
-    # Commissions C2C (par défaut)
-    c2c_buyer_commission_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, default=Decimal('5.90'),
-        validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
-        verbose_name=_("Commission acheteur C2C (%)"),
-        help_text=_("Pourcentage de commission prélevé sur l'acheteur pour les transactions C2C")
-    )
+    # Commissions C2C — seul le vendeur supporte les frais de service
+    # c2c_buyer_commission_rate supprimé : l'acheteur paie exactement le prix négocié
     c2c_seller_commission_rate = models.DecimalField(
         max_digits=5, decimal_places=2, default=Decimal('9.90'),
         validators=[MinValueValidator(Decimal('0')), MaxValueValidator(Decimal('100'))],
@@ -62,7 +60,7 @@ class PlatformSettings(models.Model):
         ordering = ('-updated_at',)
     
     def __str__(self):
-        return f"Paramètres plateforme (C2C: {self.c2c_buyer_commission_rate}%/{self.c2c_seller_commission_rate}%)"
+        return f"Paramètres plateforme (C2C frais vendeur: {self.c2c_seller_commission_rate}%)"
     
     @classmethod
     def get_active_settings(cls):
@@ -71,23 +69,21 @@ class PlatformSettings(models.Model):
     
     def calculate_c2c_commissions(self, price):
         """
-        Calcule les commissions C2C pour un prix donné
-        Retourne: (commission_acheteur, commission_vendeur, total_plateforme, net_vendeur, total_acheteur)
+        Calcule les frais de service C2C.
+        L'acheteur paie exactement le prix négocié.
+        Seul le vendeur supporte les frais de service.
         """
         price = Decimal(str(price))
-        buyer_commission = price * (self.c2c_buyer_commission_rate / Decimal('100'))
-        seller_commission = price * (self.c2c_seller_commission_rate / Decimal('100'))
-        total_platform_commission = buyer_commission + seller_commission
-        seller_net = price - seller_commission
-        buyer_total = price + buyer_commission
-        
+        service_fee = (price * self.c2c_seller_commission_rate / Decimal('100')).quantize(Decimal('1'))
+        seller_net = price - service_fee
         return {
-            'buyer_commission': buyer_commission,
-            'seller_commission': seller_commission,
-            'platform_commission': total_platform_commission,
+            'buyer_commission': Decimal('0'),       # conservé pour compatibilité schéma
+            'seller_commission': service_fee,       # frais de service prélevés au vendeur
+            'platform_commission': service_fee,
             'seller_net': seller_net,
-            'buyer_total': buyer_total,
-            'original_price': price
+            'buyer_total': price,                   # l'acheteur paie exactement le prix négocié
+            'original_price': price,
+            'service_fee': service_fee,             # alias lisible pour les templates
         }
 
 
@@ -359,9 +355,9 @@ class DeliveryVerification(models.Model):
     
     # Codes de vérification
     seller_code = models.CharField(
-        max_length=6, unique=True, verbose_name=_("Code vendeur (V-CODE)"))
+        max_length=9, unique=True, verbose_name=_("Code vendeur"))
     buyer_code = models.CharField(
-        max_length=6, unique=True, verbose_name=_("Code acheteur (A-CODE)"))
+        max_length=9, unique=True, verbose_name=_("Code acheteur"))
     
     # Vérifications
     seller_code_verified = models.BooleanField(default=False, verbose_name=_("Code vendeur vérifié"))

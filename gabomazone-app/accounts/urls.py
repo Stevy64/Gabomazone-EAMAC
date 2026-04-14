@@ -40,6 +40,7 @@ urlpatterns = [
     path('peer-product/<str:slug>/', views.peer_product_details, name="peer-product-details"),
     path('edit-peer-product/<int:product_id>/', views.edit_peer_product, name="edit-peer-product"),
     path('delete-peer-product/<int:product_id>/', views.delete_peer_product, name="delete-peer-product"),
+    path('peer-product/<int:product_id>/mark-sold/', views.mark_product_sold, name="mark-product-sold"),
     path('my-published-products/', views.my_published_products, name="my-published-products"),
     path('my-messages/', views.my_messages, name="my-messages"),
     path('inbox-conversations/', views.get_inbox_conversations, name="get-inbox-conversations"),

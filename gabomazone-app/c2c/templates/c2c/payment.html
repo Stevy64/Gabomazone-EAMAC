@@ -13,11 +13,11 @@
             <h1><i class="fi-rs-credit-card"></i> Finaliser votre achat</h1>
             <p>Commande C2C #{{ order.id }}</p>
         </div>
-        
+
         <!-- Informations produit -->
         <div class="c2c-product-info">
-            {% if order.product.PRDImage %}
-            <img src="{{ order.product.PRDImage.url }}" alt="{{ order.product.product_name }}">
+            {% if order.product.product_image %}
+            <img src="{{ order.product.product_image.url }}" alt="{{ order.product.product_name }}">
             {% endif %}
             <div style="flex: 1;">
                 <h3 class="gm-s-ebc9aa">{{ order.product.product_name }}</h3>
@@ -25,40 +25,20 @@
                 <p class="gm-s-c07e2a">Prix négocié: <strong class="gm-s-a77b0c">{{ order.final_price|floatformat:0 }} FCFA</strong></p>
             </div>
         </div>
-        
-        <!-- Détail des commissions -->
+
+        <!-- Récapitulatif -->
         <div class="c2c-commission-breakdown">
-            <h3><i class="fi-rs-info"></i> Détail des commissions</h3>
+            <h3><i class="fi-rs-info"></i> Récapitulatif</h3>
             <div class="c2c-commission-item">
-                <span>Prix négocié:</span>
+                <span>Prix négocié :</span>
                 <strong>{{ order.final_price|floatformat:0 }} FCFA</strong>
             </div>
-            <div class="c2c-commission-item">
-                <span>Commission acheteur ({{ commission_rate_buyer }}%):</span>
-                <strong class="gm-s-78589e">+{{ order.buyer_commission|floatformat:0 }} FCFA</strong>
-            </div>
-            <div class="c2c-commission-item gm-s-bd1478" >
-                <span class="gm-s-be8e63">Total à payer:</span>
+            <div class="c2c-commission-item gm-s-bd1478">
+                <span class="gm-s-be8e63">Total à payer :</span>
                 <strong class="gm-s-ba07d9">{{ order.buyer_total|floatformat:0 }} FCFA</strong>
             </div>
         </div>
-        
-        <!-- Résumé -->
-        <div class="c2c-summary-section">
-            <div class="c2c-summary-item">
-                <span class="c2c-summary-label">Prix de l'article</span>
-                <span class="c2c-summary-value">{{ order.final_price|floatformat:0 }} FCFA</span>
-            </div>
-            <div class="c2c-summary-item">
-                <span class="c2c-summary-label">Commission plateforme</span>
-                <span class="c2c-summary-value">{{ order.buyer_commission|floatformat:0 }} FCFA</span>
-            </div>
-            <div class="c2c-summary-item">
-                <span class="c2c-summary-label gm-s-be8e63" >Total à payer</span>
-                <span class="c2c-summary-value c2c-summary-total">{{ order.buyer_total|floatformat:0 }} FCFA</span>
-            </div>
-        </div>
-        
+
         <!-- Bouton de paiement -->
         <form method="POST" action="{% url 'c2c:init-payment' order.id %}">
             {% csrf_token %}
@@ -67,12 +47,10 @@
                 Payer {{ order.buyer_total|floatformat:0 }} FCFA avec SingPay
             </button>
         </form>
-        
+
         <p class="gm-s-0084c5">
             <i class="fi-rs-shield-check"></i> Paiement sécurisé via SingPay
         </p>
     </div>
 </main>
 {% endblock %}
-
-
