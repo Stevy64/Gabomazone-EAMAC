@@ -19,33 +19,27 @@
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="{% url 'admin:orders_order_changelist' %}" class="nav-link {% if '/admin/orders/order/' in current_path %}active{% endif %}">
+            <a href="{% url 'admin:orders_ordersupplier_changelist' %}" class="nav-link {% if '/admin/orders/ordersupplier/' in current_path %}active{% endif %}">
                 <i class="nav-icon fas fa-shopping-cart"></i>
-                <p>Commandes</p>
+                <p>Commandes par magasin</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'admin:orders_payment_changelist' %}" class="nav-link {% if '/admin/orders/payment/' in current_path %}active{% endif %}">
-                <i class="nav-icon fas fa-receipt"></i>
-                <p>Paiements / Factures</p>
+            <a href="{% url 'admin:orders_order_changelist' %}" class="nav-link {% if '/admin/orders/order/' in current_path %}active{% endif %}">
+                <i class="nav-icon fas fa-clipboard-list"></i>
+                <p>Suivi cycle de commande</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'admin:payments_singpaytransaction_changelist' %}" class="nav-link {% if '/admin/payments/singpaytransaction/' in current_path %}active{% endif %}">
+                <i class="nav-icon fas fa-credit-card"></i>
+                <p>Transactions SingPay</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{% url 'admin:orders_coupon_changelist' %}" class="nav-link {% if '/admin/orders/coupon/' in current_path %}active{% endif %}">
                 <i class="nav-icon fas fa-tag"></i>
                 <p>Coupons</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{% url 'admin:payments_singpaytransaction_changelist' %}" class="nav-link {% if '/admin/payments/singpaytransaction/' in current_path %}active{% endif %}">
-                <i class="nav-icon fas fa-credit-card"></i>
-                <p>Paiements SingPay</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{% url 'admin:orders_b2cdeliveryverification_changelist' %}" class="nav-link {% if '/admin/orders/b2cdeliveryverification/' in current_path %}active{% endif %}">
-                <i class="nav-icon fas fa-check-double"></i>
-                <p>Vérif. livraison B2C</p>
             </a>
         </li>
         <li class="nav-item">

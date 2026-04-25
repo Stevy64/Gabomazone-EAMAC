@@ -1,3 +1,45 @@
+/* Modern auth background + robust field icons */
+.gm-auth-aurora {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 10% 20%, rgba(255, 123, 44, 0.12) 0%, rgba(255, 123, 44, 0) 38%),
+                radial-gradient(circle at 90% 10%, rgba(31, 41, 55, 0.08) 0%, rgba(31, 41, 55, 0) 42%),
+                linear-gradient(180deg, #fff9f5 0%, #fff 45%, #fff8f2 100%);
+}
+.gm-auth-bg-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+.gm-auth-shape {
+    position: absolute;
+    border-radius: 999px;
+    opacity: .28;
+    animation: gmAuthFloat 14s ease-in-out infinite;
+}
+.gm-auth-shape--lg { width: 160px; height: 160px; top: 8%; left: 5%; background: rgba(255, 123, 44, 0.18); }
+.gm-auth-shape--md { width: 90px; height: 90px; bottom: 14%; right: 8%; background: rgba(255, 166, 0, 0.16); animation-delay: 1.6s; }
+.gm-auth-shape--sm { width: 58px; height: 58px; top: 30%; right: 18%; background: rgba(31, 41, 55, 0.14); animation-delay: .8s; }
+.gm-auth-shape--diamond { width: 44px; height: 44px; top: 62%; left: 18%; border-radius: 10px; transform: rotate(45deg); background: rgba(255, 123, 44, 0.14); animation-delay: 2.2s; }
+@keyframes gmAuthFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.login-card { position: relative; z-index: 2; backdrop-filter: blur(4px); }
+.gm-auth-input-with-icon { padding-left: 44px !important; }
+.gm-auth-fallback-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    line-height: 1;
+    opacity: .92;
+    pointer-events: none;
+}
+
 /* Desktop - Carte centrée et réduite */
 @media (min-width: 1024px) {
     .flavoriz-section.login-page-section,

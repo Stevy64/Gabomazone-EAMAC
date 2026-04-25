@@ -21,6 +21,22 @@ class B2CSingPayService:
     
     # Prix de l'abonnement premium (mensuel)
     PREMIUM_SUBSCRIPTION_PRICE = Decimal('50000')  # 50 000 FCFA par mois
+
+    @staticmethod
+    def _format_phone_international(phone):
+        """Formate un numéro Gabon en +241XXXXXXXXX pour SingPay."""
+        if not phone:
+            return ''
+        digits = ''.join(ch for ch in str(phone) if ch.isdigit())
+        if not digits:
+            return ''
+        if digits.startswith('0'):
+            return '+241' + digits[1:]
+        if digits.startswith('241'):
+            return '+' + digits
+        if digits.startswith('+'):
+            return str(phone)
+        return '+241' + digits
     
     @staticmethod
     def init_subscription_payment(vendor_profile: Profile, request):
@@ -52,7 +68,12 @@ class B2CSingPayService:
             description = f"Abonnement premium B2C - {user.get_full_name() or user.username}"
             
             # Récupérer le téléphone
-            customer_phone = vendor_profile.mobile_number or ''
+            customer_phone = B2CSingPayService._format_phone_international(vendor_profile.mobile_number)
+            if not customer_phone:
+                return False, {
+                    'error': "Votre numéro de téléphone vendeur est requis pour payer l'abonnement. "
+                             "Ajoutez-le dans Paramètres du magasin."
+                }
             
             # Construire les URLs
             if settings.DEBUG:
@@ -62,7 +83,7 @@ class B2CSingPayService:
                 base_url = f"https://{production_domain}"
             
             callback_url = f"{base_url}/payments/singpay/callback/"
-            return_url = f"{base_url}/supplier/subscriptions/success/"
+            return_url = f"{base_url}/subscriptions/success/"
             
             # Initialiser le paiement via l'API SingPay
             success, response = singpay_service.init_payment(
@@ -169,7 +190,12 @@ class B2CSingPayService:
             description = f"Boost produit B2C - {product.product_name} ({boost_request.duration_days} jours)"
             
             # Récupérer le téléphone
-            customer_phone = vendor_profile.mobile_number or ''
+            customer_phone = B2CSingPayService._format_phone_international(vendor_profile.mobile_number)
+            if not customer_phone:
+                return False, {
+                    'error': "Votre numéro de téléphone vendeur est requis pour payer un boost. "
+                             "Ajoutez-le dans Paramètres du magasin."
+                }
             
             # Construire les URLs
             if settings.DEBUG:
@@ -179,7 +205,7 @@ class B2CSingPayService:
                 base_url = f"https://{production_domain}"
             
             callback_url = f"{base_url}/payments/singpay/callback/"
-            return_url = f"{base_url}/supplier/subscriptions/boost-success/{boost_request.id}/"
+            return_url = f"{base_url}/subscriptions/boost-success/{boost_request.id}/"
             
             # Initialiser le paiement via l'API SingPay
             success, response = singpay_service.init_payment(

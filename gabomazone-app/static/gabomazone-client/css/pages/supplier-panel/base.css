@@ -108,10 +108,39 @@
                 justify-content: center;
                 text-decoration: none;
                 transition: all 0.2s ease;
+                position: relative;
             }
             .header-icon-link:hover {
                 background: #E5E7EB;
                 color: #6B46C1;
+            }
+
+            .gm-b2c-msg-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 18px;
+                height: 18px;
+                border-radius: 999px;
+                margin-left: 8px;
+                padding: 0 6px;
+                background: #ef4444;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 1;
+            }
+
+            .gm-b2c-msg-badge--header {
+                position: absolute;
+                top: 3px;
+                right: 3px;
+                margin-left: 0;
+                min-width: 16px;
+                height: 16px;
+                font-size: 10px;
+                padding: 0 4px;
+                border: 2px solid #F3F4F6;
             }
             
             .sidebar-toggle-icon {

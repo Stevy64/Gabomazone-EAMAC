@@ -24,12 +24,16 @@
         <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
         <!-- Font Awesome (icônes unifiées pour tout l'espace vendeur) -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <!-- Material Icons (utilisées dans store-settings, subscriptions, etc.) -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <!-- HTMX pour navigation SPA -->
         <script src="https://unpkg.com/htmx.org@1.9.10"></script>
         <!-- Template CSS -->
         <link href="{% static 'assets-supplier/css/main.css'%}" rel="stylesheet" type="text/css" />
         <!-- Gabomazone Dashboard Theme -->
         <link rel="stylesheet" href="{% static 'gabomazone-dashboard/css/dashboard.css'%}" />
+        <!-- Base styles du dashboard vendeur -->
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/base.css' %}?v=2.1">
         <!-- Extracted inline styles (consolidated) -->
         <link rel="stylesheet" href="{% static 'gabomazone-client/css/gm-extracted.css'%}?v=3.0" />
         {% endblock head %}
@@ -93,9 +97,9 @@
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a class="sidebar-menu-link" href="{% url 'accounts:my-messages' %}" data-tooltip="Messages">
+                        <a class="sidebar-menu-link" href="{% url 'supplier_dashboard:vendor-b2c-messages' %}" data-tooltip="Messagerie">
                             <i class="fas fa-envelope sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Messages</span>
+                            <span class="sidebar-menu-text">Messagerie{% if b2c_unread_messages_count and b2c_unread_messages_count > 0 %} <span class="gm-b2c-msg-badge">{{ b2c_unread_messages_count }}</span>{% endif %}</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
@@ -132,8 +136,11 @@
                         <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Menu">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <a href="{% url 'accounts:my-messages' %}" class="header-icon-link" title="Messages">
+                        <a href="{% url 'supplier_dashboard:vendor-b2c-messages' %}" class="header-icon-link" title="Messagerie">
                             <i class="fas fa-envelope"></i>
+                            {% if b2c_unread_messages_count and b2c_unread_messages_count > 0 %}
+                            <span class="gm-b2c-msg-badge gm-b2c-msg-badge--header">{{ b2c_unread_messages_count }}</span>
+                            {% endif %}
                         </a>
                         <!-- Notifications -->
                         <div class="notification-dropdown">
@@ -164,7 +171,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                                 <li><a class="dropdown-item" href="{% url 'accounts:account_details' %}"><i class="fas fa-user"></i> Modifier le profil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'accounts:my-messages' %}"><i class="fas fa-envelope"></i> Messages</a></li>
+                                <li><a class="dropdown-item" href="{% url 'supplier_dashboard:vendor-b2c-messages' %}"><i class="fas fa-envelope"></i> Messagerie</a></li>
                                 <li><a class="dropdown-item" href="{% url 'supplier_dashboard:store-settings' %}"><i class="fas fa-cog"></i> Paramètres du magasin</a></li>
                                 <li><a class="dropdown-item" href="{% url 'supplier_dashboard:payments' %}"><i class="fas fa-receipt"></i> Facturation</a></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -174,7 +181,6 @@
                 </div>
             </header>
                 <div class="dashboard-content" id="dashboardContent">
-            <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/base.css' %}?v=2.0">
 {% block section %}
             
             {% endblock section %}
@@ -566,6 +572,13 @@
                     if (isCollapsed && sidebar && main) {
                         sidebar.classList.add('collapsed');
                         main.classList.add('sidebar-collapsed');
+                        // Nettoyer un éventuel style inline posé en mode mobile
+                        main.style.marginLeft = '';
+                    } else if (sidebar && main) {
+                        sidebar.classList.remove('collapsed');
+                        main.classList.remove('sidebar-collapsed');
+                        // Restaurer la marge pilotée par le CSS desktop
+                        main.style.marginLeft = '';
                     }
                 } else {
                     const sidebar = document.querySelector('.dashboard-sidebar');
@@ -604,9 +617,11 @@
                         if (isCollapsed && sidebar && main) {
                             sidebar.classList.add('collapsed');
                             main.classList.add('sidebar-collapsed');
+                            main.style.marginLeft = '';
                         } else if (sidebar && main) {
                             sidebar.classList.remove('collapsed');
                             main.classList.remove('sidebar-collapsed');
+                            main.style.marginLeft = '';
                         }
                     }
                 }, 100);

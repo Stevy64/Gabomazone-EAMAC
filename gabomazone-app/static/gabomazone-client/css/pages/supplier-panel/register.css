@@ -9,6 +9,82 @@
                     --color-white: #FFFFFF;
                     --color-black: #1F2937;
                 }
+                .gm-auth-aurora {
+                    position: relative;
+                    overflow: hidden;
+                    background: radial-gradient(circle at 12% 15%, rgba(255, 123, 44, 0.20) 0%, rgba(255, 123, 44, 0) 36%),
+                                radial-gradient(circle at 88% 8%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 40%),
+                                linear-gradient(180deg, #0f172a 0%, #111827 45%, #1f2937 100%);
+                }
+                /* Force dark background over generated utility class */
+                .gm-s-efb4d3.gm-auth-aurora {
+                    background: radial-gradient(circle at 12% 15%, rgba(255, 123, 44, 0.20) 0%, rgba(255, 123, 44, 0) 36%),
+                                radial-gradient(circle at 88% 8%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 40%),
+                                linear-gradient(180deg, #0f172a 0%, #111827 45%, #1f2937 100%) !important;
+                }
+                .login-card {
+                    position: relative;
+                    z-index: 2;
+                    backdrop-filter: blur(7px);
+                    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+                }
+                .gm-auth-input-with-icon { padding-left: 44px !important; }
+                .gm-auth-fallback-icon {
+                    position: absolute;
+                    left: 14px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 15px;
+                    opacity: .92;
+                    pointer-events: none;
+                    line-height: 1;
+                }
+
+                /* Formes géométriques animées en arrière-plan */
+                .supplier-login-bg-shapes {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 0;
+                }
+                .supplier-login-bg-shapes .shape {
+                    position: absolute;
+                    border-radius: 4px;
+                    opacity: 0.35;
+                }
+                .supplier-login-bg-shapes .shape-circle {
+                    border-radius: 50%;
+                    background: rgba(255, 123, 44, 0.22);
+                }
+                .supplier-login-bg-shapes .shape-square {
+                    background: rgba(148, 163, 184, 0.16);
+                    transform: rotate(45deg);
+                }
+                .supplier-login-bg-shapes .shape-diamond {
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(56, 189, 248, 0.22);
+                    transform: rotate(45deg);
+                }
+                .supplier-login-bg-shapes .shape-1 { width: 120px; height: 120px; top: 8%; left: 5%; animation: floatShape 14s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-2 { width: 60px; height: 60px; top: 25%; right: 12%; animation: floatShape 10s ease-in-out infinite 1s; }
+                .supplier-login-bg-shapes .shape-3 { width: 90px; height: 90px; bottom: 20%; left: 8%; animation: floatShape 12s ease-in-out infinite 2s; }
+                .supplier-login-bg-shapes .shape-4 { width: 40px; height: 40px; top: 15%; right: 25%; animation: floatShape 11s ease-in-out infinite 0.5s; }
+                .supplier-login-bg-shapes .shape-5 { width: 55px; height: 55px; bottom: 35%; right: 8%; animation: floatShape 13s ease-in-out infinite 1.5s; }
+                .supplier-login-bg-shapes .shape-6 { top: 45%; left: 3%; animation: floatShape 9s ease-in-out infinite 2.5s; }
+                .supplier-login-bg-shapes .shape-7 { width: 70px; height: 70px; bottom: 10%; right: 20%; animation: floatShape 15s ease-in-out infinite; }
+                .supplier-login-bg-shapes .shape-8 { width: 30px; height: 30px; top: 60%; left: 15%; animation: floatShape 10s ease-in-out infinite 3s; }
+                .supplier-login-bg-shapes .shape-9 { width: 45px; height: 45px; top: 70%; right: 28%; animation: floatShape 12s ease-in-out infinite 0.8s; }
+                .supplier-login-bg-shapes .shape-10 { top: 12%; left: 22%; animation: floatShape 11s ease-in-out infinite 1.2s; }
+                @keyframes floatShape {
+                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+                    25% { transform: translate(8px, -12px) scale(1.02); opacity: 0.45; }
+                    50% { transform: translate(-6px, 8px) scale(0.98); opacity: 0.3; }
+                    75% { transform: translate(10px, 6px) scale(1.01); opacity: 0.4; }
+                }
                 
                 /* Responsive Mobile */
                 @media (max-width: 767px) {

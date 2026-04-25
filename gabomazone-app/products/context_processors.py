@@ -2,7 +2,7 @@ from .models import ProductFavorite, Product
 from django.db import connection
 from django.db.models import Q
 from django.urls import reverse
-from accounts.models import PeerToPeerProductFavorite, ProductConversation
+from accounts.models import PeerToPeerProductFavorite, ProductConversation, B2CProductConversation
 
 
 def new_products_obj(request):
@@ -117,11 +117,22 @@ def messages_count(request):
         # Total des notifications (messages + commandes)
         total_notifications = unread_messages + unread_orders
         
+        # Messagerie B2C produit : badge uniquement côté vendeur pro (interface dans le dashboard vendeur)
+        b2c_unread_messages_count = 0
+        b2c_conv_table_exists = 'accounts_b2cproductconversation' in existing_tables
+        if b2c_conv_table_exists:
+            from accounts.models import Profile
+            prof = Profile.objects.filter(user=request.user).first()
+            if prof and prof.status == 'vendor' and prof.admission:
+                for conv in B2CProductConversation.objects.filter(vendor=request.user):
+                    b2c_unread_messages_count += conv.unread_for_vendor()
+
         return {
             'messages_count': total_notifications,  # Pour compatibilité
             'unread_messages_count': unread_messages,
             'unread_orders_count': unread_orders,
             'total_notifications_count': total_notifications,
+            'b2c_unread_messages_count': b2c_unread_messages_count,
         }
     except Exception as e:
         # En cas d'erreur, retourner 0 pour éviter de casser le template
@@ -133,6 +144,7 @@ def messages_count(request):
             'unread_messages_count': 0,
             'unread_orders_count': 0,
             'total_notifications_count': 0,
+            'b2c_unread_messages_count': 0,
         }
 
 

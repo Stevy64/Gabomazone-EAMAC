@@ -6,8 +6,7 @@ from django.contrib.auth.models import User
 from orders.models import Order, OrderDetails
 from django.views.generic import View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, Http404
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -33,6 +32,60 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
+
+
+def _user_can_chat_b2c_product(user, product):
+    """Vérifie l'accès au chat B2C pour un produit."""
+    if not user.is_authenticated or product is None or not product.product_vendor:
+        return False
+    if product.product_vendor.user_id == user.id:
+        return True
+    from orders.models import OrderDetails
+    # Un client peut chatter uniquement s'il a effectivement passé une commande sur ce produit.
+    return OrderDetails.objects.filter(
+        product=product,
+    ).filter(
+        Q(order__user=user) | Q(order__email_client__iexact=user.email)
+    ).filter(
+        Q(order__is_finished=True) | Q(order__status__in=['Underway', 'COMPLETE'])
+    ).exists()
+
+
+def _get_b2c_order_qs_for_conversation(conversation):
+    from orders.models import Order
+    from orders.models import OrderDetails
+    return Order.objects.filter(
+        id__in=OrderDetails.objects.filter(product=conversation.product).filter(
+            Q(order__user=conversation.customer) |
+            Q(order__email_client__iexact=(conversation.customer.email or ''))
+        ).values_list('order_id', flat=True)
+    ).filter(
+        Q(is_finished=True) | Q(status__in=['Underway', 'COMPLETE'])
+    ).distinct()
+
+
+def _is_approved_b2c_vendor_user(user):
+    """Vendeur professionnel validé (messagerie B2C produit réservée à cet espace)."""
+    if not user.is_authenticated:
+        return False
+    p = Profile.objects.filter(user=user).first()
+    return bool(p and p.status == 'vendor' and p.admission)
+
+
+def _is_b2c_chat_closed(conversation):
+    """
+    Chat B2C ouvert du post-achat jusqu'à la fin de livraison.
+    Fermeture quand la commande est COMPLETE ou que la vérification livraison est terminée.
+    """
+    from orders.models import B2CDeliveryVerification
+    orders_qs = _get_b2c_order_qs_for_conversation(conversation)
+    if orders_qs.filter(status='COMPLETE').exists():
+        return True
+    return B2CDeliveryVerification.objects.filter(
+        order__in=orders_qs
+    ).filter(
+        Q(status='completed') | Q(seller_code_verified=True, buyer_code_verified=True)
+    ).exists()
 def _normalize_phone_for_auth(value):
     """Normalise un numéro de téléphone pour la connexion (garde + et chiffres)."""
     if value is None:
@@ -2083,6 +2136,140 @@ def my_messages(request):
         'inbox_sales_n': inbox_sales_n,
     }
     return render(request, 'accounts/my-messages.html', context)
+
+
+@login_required(login_url='accounts:login')
+def b2c_messages(request):
+    """
+    Ancienne entrée messagerie B2C : uniquement l'espace vendeur pro héberge l'interface.
+    Les vendeurs validés sont redirigés ; les autres reçoivent 404.
+    """
+    if not _is_approved_b2c_vendor_user(request.user):
+        raise Http404()
+    target = HttpResponseRedirect(
+        reverse('supplier_dashboard:vendor-b2c-messages')
+        + ('?' + request.META['QUERY_STRING'] if request.META.get('QUERY_STRING') else '')
+    )
+    return target
+
+
+@login_required(login_url='accounts:login')
+def get_b2c_inbox_conversations(request):
+    from django.http import JsonResponse
+    from .models import B2CProductConversation
+
+    if not _is_approved_b2c_vendor_user(request.user):
+        return JsonResponse({'error': 'Accès réservé aux vendeurs professionnels'}, status=403)
+
+    qs = B2CProductConversation.objects.select_related(
+        'product', 'vendor', 'customer', 'product__product_vendor'
+    ).filter(vendor=request.user).order_by('-last_message_at')
+
+    data = []
+    for conv in qs:
+        if request.user == conv.vendor:
+            other = conv.customer
+            unread = conv.unread_for_vendor()
+            role = 'vendor'
+        else:
+            other = conv.vendor
+            unread = conv.unread_for_customer()
+            role = 'customer'
+        messages_data = [{
+            'id': m.id,
+            'sender_id': m.sender_id,
+            'sender': m.sender.username,
+            'message': m.message,
+            'created_at': m.created_at.strftime('%d/%m/%Y %H:%M'),
+            'is_sender': m.sender_id == request.user.id,
+        } for m in conv.messages.all()]
+        data.append({
+            'id': conv.id,
+            'product_id': conv.product_id,
+            'product_name': conv.product.product_name,
+            'product_slug': conv.product.PRDSlug,
+            'vendor_id': conv.vendor_id,
+            'customer_id': conv.customer_id,
+            'other_user_name': other.get_full_name() or other.username,
+            'other_user_username': other.username,
+            'unread_count': unread,
+            'last_message_at': conv.last_message_at.strftime('%d/%m/%Y %H:%M') if conv.last_message_at else '',
+            'last_message_at_iso': conv.last_message_at.isoformat() if conv.last_message_at else '',
+            'messages': messages_data,
+            'role': role,
+            'chat_closed': _is_b2c_chat_closed(conv),
+        })
+    return JsonResponse({'conversations': data})
+
+
+@login_required(login_url='accounts:login')
+def send_b2c_message(request, conversation_id):
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import B2CProductConversation, B2CProductMessage
+    import json
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+    if not _is_approved_b2c_vendor_user(request.user):
+        return JsonResponse({'error': 'Accès réservé aux vendeurs professionnels'}, status=403)
+
+    try:
+        conv = B2CProductConversation.objects.select_related('product', 'vendor', 'customer').get(id=conversation_id)
+    except B2CProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+    if request.user != conv.vendor:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+    if _is_b2c_chat_closed(conv):
+        return JsonResponse({
+            'error': "Le suivi est terminé : la livraison est finalisée et le chat est fermé.",
+            'action': 'chat_closed',
+        }, status=403)
+
+    payload = json.loads(request.body or '{}')
+    body = (payload.get('message') or '').strip()
+    if not body:
+        return JsonResponse({'error': 'Le message ne peut pas être vide'}, status=400)
+
+    msg = B2CProductMessage.objects.create(conversation=conv, sender=request.user, message=body)
+    conv.last_message_at = timezone.now()
+    conv.save(update_fields=['last_message_at'])
+    return JsonResponse({
+        'success': True,
+        'message': {
+            'id': msg.id,
+            'sender_id': msg.sender_id,
+            'sender': msg.sender.username,
+            'message': msg.message,
+            'created_at': msg.created_at.strftime('%d/%m/%Y %H:%M'),
+            'is_sender': True,
+        }
+    })
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def mark_b2c_conversation_read(request, conversation_id):
+    from django.http import JsonResponse
+    from django.utils import timezone
+    from .models import B2CProductConversation, B2CProductMessage
+
+    if not _is_approved_b2c_vendor_user(request.user):
+        return JsonResponse({'error': 'Accès réservé aux vendeurs professionnels'}, status=403)
+
+    try:
+        conv = B2CProductConversation.objects.get(id=conversation_id)
+    except B2CProductConversation.DoesNotExist:
+        return JsonResponse({'error': 'Conversation introuvable'}, status=404)
+    if request.user != conv.vendor:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+
+    B2CProductMessage.objects.filter(
+        conversation=conv,
+        is_read=False,
+    ).exclude(sender=request.user).update(is_read=True, read_at=timezone.now())
+    return JsonResponse({'success': True})
 
 
 def peer_product_details(request, slug):

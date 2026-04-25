@@ -40,4 +40,5 @@ urlpatterns = [
     path('notifications/', views.get_notifications, name="notifications"),
     path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name="mark-notification-read"),
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name="mark-all-notifications-read"),
+    path('messagerie-b2c/', views.vendor_b2c_messages, name='vendor-b2c-messages'),
 ]

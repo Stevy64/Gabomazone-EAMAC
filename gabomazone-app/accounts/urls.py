@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
-from .forms import CaptchaPasswordResetForm
+from .forms import CaptchaPasswordResetForm, CustomSetPasswordForm
 
 app_name = 'accounts'
 urlpatterns = [
@@ -31,6 +31,7 @@ urlpatterns = [
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='accounts/auth/password_reset_done.html'), name='password_reset_done'),
     path('password-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='accounts/auth/password_reset_confirm.html',
+                                                                                           form_class=CustomSetPasswordForm,
                                                                                            post_reset_login=True, success_url=reverse_lazy('accounts:password_reset_complete')),   name='password_reset_confirm'),
     path('password-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='accounts/auth/password_reset_complete.html'), name='password_reset_complete'),
@@ -45,6 +46,10 @@ urlpatterns = [
     path('peer-product/<int:product_id>/mark-sold/', views.mark_product_sold, name="mark-product-sold"),
     path('my-published-products/', views.my_published_products, name="my-published-products"),
     path('my-messages/', views.my_messages, name="my-messages"),
+    path('b2c-messages/', views.b2c_messages, name="b2c-messages"),
+    path('b2c-inbox-conversations/', views.get_b2c_inbox_conversations, name="b2c-inbox-conversations"),
+    path('b2c-send-message/<int:conversation_id>/', views.send_b2c_message, name="b2c-send-message"),
+    path('b2c-mark-conversation-read/<int:conversation_id>/', views.mark_b2c_conversation_read, name="b2c-mark-conversation-read"),
     path('inbox-conversations/', views.get_inbox_conversations, name="get-inbox-conversations"),
     path('product-conversations/<int:product_id>/', views.get_product_conversations, name="get-product-conversations"),
     path('send-product-message/<int:product_id>/', views.send_product_message, name="send-product-message"),

@@ -9,6 +9,36 @@
                     --color-white: #FFFFFF;
                     --color-black: #1F2937;
                 }
+                .gm-auth-aurora {
+                    position: relative;
+                    overflow: hidden;
+                    background: radial-gradient(circle at 12% 15%, rgba(255, 123, 44, 0.20) 0%, rgba(255, 123, 44, 0) 36%),
+                                radial-gradient(circle at 88% 8%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 40%),
+                                linear-gradient(180deg, #0f172a 0%, #111827 45%, #1f2937 100%);
+                }
+                /* Force dark background over generated utility class */
+                .gm-s-a1330d.gm-auth-aurora {
+                    background: radial-gradient(circle at 12% 15%, rgba(255, 123, 44, 0.20) 0%, rgba(255, 123, 44, 0) 36%),
+                                radial-gradient(circle at 88% 8%, rgba(56, 189, 248, 0.16) 0%, rgba(56, 189, 248, 0) 40%),
+                                linear-gradient(180deg, #0f172a 0%, #111827 45%, #1f2937 100%) !important;
+                }
+                .login-card {
+                    position: relative;
+                    z-index: 2;
+                    backdrop-filter: blur(7px);
+                    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+                }
+                .gm-auth-input-with-icon { padding-left: 44px !important; }
+                .gm-auth-fallback-icon {
+                    position: absolute;
+                    left: 14px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 15px;
+                    opacity: .92;
+                    pointer-events: none;
+                    line-height: 1;
+                }
                 
                 /* Formes géométriques animées en arrière-plan */
                 .supplier-login-bg-shapes {
@@ -27,16 +57,16 @@
                 }
                 .supplier-login-bg-shapes .shape-circle {
                     border-radius: 50%;
-                    background: rgba(255, 123, 44, 0.12);
+                    background: rgba(255, 123, 44, 0.22);
                 }
                 .supplier-login-bg-shapes .shape-square {
-                    background: rgba(31, 41, 55, 0.06);
+                    background: rgba(148, 163, 184, 0.16);
                     transform: rotate(45deg);
                 }
                 .supplier-login-bg-shapes .shape-diamond {
                     width: 20px;
                     height: 20px;
-                    background: rgba(255, 123, 44, 0.1);
+                    background: rgba(56, 189, 248, 0.22);
                     transform: rotate(45deg);
                 }
                 /* Positions et tailles (desktop) */

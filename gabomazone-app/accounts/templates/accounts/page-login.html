@@ -4,11 +4,19 @@
 
 {% block headextra %}
 <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/login.css' %}?v=2.0">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+<link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-straight/css/uicons-regular-straight.css">
 {% endblock headextra %}
 
 {% block body %}
 <!-- ===== Modern Login Page FLAVORIZ Design ===== -->
-<section class="flavoriz-section login-page-section gm-s-ef4c79" >
+<section class="flavoriz-section login-page-section gm-s-ef4c79 gm-auth-aurora" >
+    <div class="gm-auth-bg-shapes" aria-hidden="true">
+        <span class="gm-auth-shape gm-auth-shape--lg"></span>
+        <span class="gm-auth-shape gm-auth-shape--md"></span>
+        <span class="gm-auth-shape gm-auth-shape--sm"></span>
+        <span class="gm-auth-shape gm-auth-shape--diamond"></span>
+    </div>
     <div class="login-container gm-s-63389a" >
         <div class="login-card gm-s-191780" >
             
@@ -56,7 +64,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Email ou téléphone</label>
                             <div class="gm-s-d85c4e">
-                                <input type="text" name="username" placeholder="Entrez votre email ou +241 XX XX XX XX" required class="gm-s-43c715" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                <input type="text" name="username" placeholder="Entrez votre email ou +241 XX XX XX XX" required class="gm-s-43c715 gm-auth-input-with-icon" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-user gm-s-e5e883" ></i>
                             </div>
                         </div>
@@ -65,7 +73,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Mot de passe</label>
                             <div class="gm-s-d85c4e">
-                                <input type="password" name="password" placeholder="Entrez votre mot de passe" required class="gm-s-43c715" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
+                                <input type="password" name="password" placeholder="Entrez votre mot de passe" required class="gm-s-43c715 gm-auth-input-with-icon" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
                                 <i class="fi-rs-lock gm-s-e5e883" ></i>
                                 <button type="button" onclick="togglePassword()" class="gm-s-75478e" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">
                                     <i class="fi-rs-eye" id="password-toggle"></i>
@@ -105,7 +113,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Nom d'utilisateur</label>
                             <div class="gm-s-d85c4e">
-                                <input type="text" name="username" value="{% if register_form and register_form.username.value %}{{ register_form.username.value }}{% endif %}" placeholder="Choisissez un nom d'utilisateur" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <input type="text" name="username" value="{% if register_form and register_form.username.value %}{{ register_form.username.value }}{% endif %}" placeholder="Choisissez un nom d'utilisateur" required class="gm-auth-input-with-icon" style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.username.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-user gm-s-e5e883" ></i>
                             </div>
                             {% if register_form and register_form.username.errors %}
@@ -117,7 +125,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Email</label>
                             <div class="gm-s-d85c4e">
-                                <input type="email" name="email" value="{% if register_form and register_form.email.value %}{{ register_form.email.value }}{% endif %}" placeholder="Entrez votre email" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <input type="email" name="email" value="{% if register_form and register_form.email.value %}{{ register_form.email.value }}{% endif %}" placeholder="Entrez votre email" required class="gm-auth-input-with-icon" style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.email.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-envelope gm-s-e5e883" ></i>
                                     </div>
                             {% if register_form and register_form.email.errors %}
@@ -129,7 +137,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Téléphone <span style="color:#dc2626">*</span></label>
                             <div class="gm-s-d85c4e">
-                                <input type="tel" name="phone_number" value="{% if register_form and register_form.phone_number.value %}{{ register_form.phone_number.value }}{% endif %}" placeholder="+241 XX XX XX XX" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <input type="tel" name="phone_number" value="{% if register_form and register_form.phone_number.value %}{{ register_form.phone_number.value }}{% endif %}" placeholder="+241 XX XX XX XX" required class="gm-auth-input-with-icon" style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-phone-call gm-s-e5e883" ></i>
                             </div>
                             {% if register_form and register_form.phone_number.errors %}
@@ -141,7 +149,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Mot de passe</label>
                             <div class="gm-s-d85c4e">
-                                <input type="password" name="password1" placeholder="Créez un mot de passe (min. 8 caractères)" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" id="register-password1" />
+                                <input type="password" name="password1" placeholder="Créez un mot de passe (min. 8 caractères)" required class="gm-auth-input-with-icon" style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password1.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" id="register-password1" />
                                 <i class="fi-rs-lock gm-s-e5e883" ></i>
                                 <button type="button" onclick="toggleRegisterPassword()" class="gm-s-75478e" onmouseover="this.style.color='var(--color-orange)'" onmouseout="this.style.color='var(--text-gray)'">
                                     <i class="fi-rs-eye" id="register-password-toggle"></i>
@@ -156,7 +164,7 @@
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Confirmer le mot de passe</label>
                             <div class="gm-s-d85c4e">
-                                <input type="password" name="password2" placeholder="Confirmez votre mot de passe" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <input type="password" name="password2" placeholder="Confirmez votre mot de passe" required class="gm-auth-input-with-icon" style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.password2.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
                                 <i class="fi-rs-lock gm-s-e5e883" ></i>
                                         </div>
                             {% if register_form and register_form.password2.errors %}
@@ -170,6 +178,12 @@
                         </button>
                         <p class="gm-s-444231" style="margin-top: 10px; font-size: 12px; color: #6B7280;">
                             Un e-mail de validation vous sera envoyé après l'inscription. Le téléphone est requis pour les flux escrow (paiement/remboursement).
+                        </p>
+                        <p class="gm-s-444231" style="margin-top: 8px; font-size: 12px; color: #6B7280;">
+                            En créant votre compte, vous acceptez la
+                            <a href="{% url 'pages:pages-name' 'politique-de-confidentialite' %}" style="color: var(--color-orange); font-weight: 600;">Politique de confidentialité</a>
+                            et les
+                            <a href="{% url 'pages:pages-name' 'conditions-utilisation' %}" style="color: var(--color-orange); font-weight: 600;">Conditions d'utilisation</a>.
                         </p>
                                     </form>
                                 </div>

@@ -1,12 +1,55 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Profile
-from django.contrib.auth.forms import PasswordResetForm, PasswordChangeForm
+from django.contrib.auth.forms import PasswordResetForm, PasswordChangeForm, SetPasswordForm
+from django.db.models import Q
 from django.core import validators
 from captcha.fields import CaptchaField
 
 class CaptchaPasswordResetForm(PasswordResetForm):
-    captcha = CaptchaField()
+    email = forms.CharField(
+        label="Email ou nom d'utilisateur",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': "Entrez votre email ou votre nom d'utilisateur",
+                'autocomplete': 'username',
+            }
+        ),
+        help_text="Saisissez l'adresse email du compte ou son nom d'utilisateur.",
+    )
+    captcha = CaptchaField(label="Vérification anti-robot")
+
+    def get_users(self, email):
+        """
+        Récupère les utilisateurs actifs via email OU nom d'utilisateur.
+        Le paramètre s'appelle `email` pour rester compatible avec PasswordResetForm.
+        """
+        identifier = (email or '').strip()
+        if not identifier:
+            return []
+
+        UserModel = get_user_model()
+        users = UserModel._default_manager.filter(
+            Q(email__iexact=identifier) | Q(username__iexact=identifier),
+            is_active=True,
+        )
+        return (u for u in users if u.has_usable_password())
+
+
+class CustomSetPasswordForm(SetPasswordForm):
+    """Formulaire de redéfinition de mot de passe en français."""
+    new_password1 = forms.CharField(
+        label='Nouveau mot de passe',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Entrez votre nouveau mot de passe'}),
+        help_text='Minimum 8 caractères. Évitez les mots de passe trop simples.',
+    )
+    new_password2 = forms.CharField(
+        label='Confirmez le nouveau mot de passe',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmez votre nouveau mot de passe'}),
+        help_text='Entrez le même mot de passe pour confirmation.',
+    )
 
 class UserCreationForm(forms.ModelForm):
     username = forms.CharField(

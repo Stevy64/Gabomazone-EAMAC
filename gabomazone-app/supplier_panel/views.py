@@ -20,10 +20,59 @@ from accounts.models import Profile, BankAccount, SocialLink
 from products.models import Product, ProductImage, ProductRating, ProductSize
 from categories.models import SuperCategory, MainCategory, SubCategory, MiniCategory
 from orders.models import Order, OrderSupplier, OrderDetailsSupplier, Payment
-from payments.models import VendorPayments
+from payments.models import VendorPayments, SingPayTransaction
+from payments.services.singpay import singpay_service
 from .utils import vendor_only
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_phone(value):
+    """Normalise un numéro pour comparaison login (garde uniquement les chiffres)."""
+    if value is None:
+        return ''
+    return ''.join(ch for ch in str(value) if ch.isdigit())
+
+
+def _resolve_vendor_profile_from_identifier(identifier):
+    """
+    Résout un profil vendeur via:
+    - username
+    - email
+    - mobile_number (normalisé)
+    """
+    login_value = (identifier or '').strip()
+    if not login_value:
+        return None
+
+    profile_obj = (
+        Profile.objects.select_related('user')
+        .filter(user__username__iexact=login_value)
+        .first()
+    )
+    if profile_obj:
+        return profile_obj
+
+    profile_obj = (
+        Profile.objects.select_related('user')
+        .filter(user__email__iexact=login_value)
+        .first()
+    )
+    if profile_obj:
+        return profile_obj
+
+    login_phone = _normalize_phone(login_value)
+    if login_phone:
+        profiles_with_phone = (
+            Profile.objects.select_related('user')
+            .filter(mobile_number__isnull=False)
+            .exclude(mobile_number='')
+        )
+        for candidate in profiles_with_phone:
+            if _normalize_phone(candidate.mobile_number) == login_phone:
+                return candidate
+
+    return None
 
 
 @vendor_only
@@ -181,44 +230,36 @@ class chartJsonListViewAdmin(View):
 def supplier_login(request):
     """Authentification du vendeur B2C."""
     if request.method == 'POST':
+        login_identifier = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
 
-        username = request.POST['username']
-        password = request.POST['password']
+        profile_obj = _resolve_vendor_profile_from_identifier(login_identifier)
+        if not profile_obj:
+            messages.warning(request, "Identifiant ou mot de passe incorrect.")
+            return render(request, 'supplier-panel/supplier-account-login.html')
 
-        profile_obj = None
+        if profile_obj.status != "vendor":
+            messages.warning(request, "Ce compte n'est pas un compte vendeur pro.")
+            return render(request, 'supplier-panel/supplier-account-login.html')
 
-        try:
-            if Profile.objects.all().filter(user__username=username).exists():
-                profile_obj = Profile.objects.get(user__username=username)
-            else:
-                user_email = User.objects.get(email=username).email
-
-                profile_obj = Profile.objects.get(user__email=user_email)
-        except Exception:
-            messages.warning(request, ' username or password is incorrect')
-            profile_obj = None
-
-        if profile_obj != None and profile_obj.status == "vendor" and profile_obj.admission == True:
-
-            try:
-                user = authenticate(request, username=User.objects.get(
-                    email=username), password=password)
-
-            except Exception:
-                user = authenticate(
-                    request, username=username, password=password)
-
-            if user is not None:
-                login(request, user)
-                messages.success(
-                    request, f'Welcome {username}, You are logged in successfully')
-                return redirect('supplier_dashboard:supplier-panel')
-
-            else:
-                messages.warning(request, ' username or password is incorrect')
-        else:
+        if not profile_obj.admission:
             messages.warning(
-                request, 'Your account is being reviewed by the administrator.')
+                request, "Votre compte vendeur est en cours de validation.")
+            return render(request, 'supplier-panel/supplier-account-login.html')
+
+        user = authenticate(
+            request,
+            username=profile_obj.user.username,
+            password=password
+        )
+
+        if user is not None:
+            login(request, user)
+            messages.success(
+                request, f'Bienvenue {profile_obj.user.username}, connexion réussie.')
+            return redirect('supplier_dashboard:supplier-panel')
+
+        messages.warning(request, "Identifiant ou mot de passe incorrect.")
 
     return render(request, 'supplier-panel/supplier-account-login.html')
 
@@ -1630,6 +1671,26 @@ def subscription_success(request):
     if request.user.is_authenticated and not request.user.is_anonymous:
         profile = Profile.objects.get(user=request.user)
         
+        # Si SingPay redirige ici avant le webhook, on vérifie le statut transaction.
+        tx_id = request.GET.get('transaction_id')
+        if tx_id:
+            transaction = SingPayTransaction.objects.filter(
+                transaction_id=tx_id,
+                user=request.user,
+                transaction_type=SingPayTransaction.SUBSCRIPTION_PAYMENT,
+            ).first()
+            if transaction and transaction.status == SingPayTransaction.PENDING:
+                ok, verify_resp = singpay_service.verify_payment(tx_id)
+                if ok and (verify_resp.get('status') or '').lower() == 'success':
+                    from supplier_panel.singpay_services import B2CSingPayService
+                    B2CSingPayService.handle_subscription_payment_success(transaction)
+                elif ok:
+                    messages.warning(
+                        request,
+                        "Le paiement d'abonnement est encore en cours de confirmation. "
+                        "Rafraîchissez la page dans quelques secondes.",
+                    )
+
         # Récupérer l'abonnement actif
         subscription = None
         try:
@@ -1660,6 +1721,26 @@ def boost_success(request, boost_request_id):
     if request.user.is_authenticated and not request.user.is_anonymous:
         profile = Profile.objects.get(user=request.user)
         
+        # Si SingPay redirige ici avant le webhook, on vérifie le statut transaction.
+        tx_id = request.GET.get('transaction_id')
+        if tx_id:
+            transaction = SingPayTransaction.objects.filter(
+                transaction_id=tx_id,
+                user=request.user,
+                transaction_type=SingPayTransaction.BOOST_PAYMENT,
+            ).first()
+            if transaction and transaction.status == SingPayTransaction.PENDING:
+                ok, verify_resp = singpay_service.verify_payment(tx_id)
+                if ok and (verify_resp.get('status') or '').lower() == 'success':
+                    from supplier_panel.singpay_services import B2CSingPayService
+                    B2CSingPayService.handle_boost_payment_success(transaction)
+                elif ok:
+                    messages.warning(
+                        request,
+                        "Le paiement du boost est encore en cours de confirmation. "
+                        "Rafraîchissez la page dans quelques secondes.",
+                    )
+
         # Récupérer la demande de boost
         boost_request = None
         try:
@@ -1927,6 +2008,49 @@ def mark_all_notifications_read(request):
         
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
+
+@vendor_only
+def vendor_b2c_messages(request):
+    """
+    Messagerie B2C (suivi commande produit) : interface réservée à l'espace vendeur pro,
+    pas au site vitrine / compte client.
+    """
+    from accounts.models import B2CProductConversation
+    from products.models import Product
+
+    auto_open_conversation_id = None
+    raw_cid = request.GET.get('conversation_id') or request.GET.get('c')
+    if raw_cid:
+        try:
+            cid = int(raw_cid)
+            if B2CProductConversation.objects.filter(id=cid, vendor=request.user).exists():
+                auto_open_conversation_id = cid
+        except (ValueError, TypeError):
+            pass
+
+    product_id = request.GET.get('product_id')
+    action = (request.GET.get('action') or '').strip()
+    if auto_open_conversation_id is None and product_id and action == 'start':
+        try:
+            product = Product.objects.select_related('product_vendor__user').get(id=int(product_id))
+            if product.product_vendor and product.product_vendor.user_id == request.user.id:
+                conversation = (
+                    B2CProductConversation.objects.filter(product=product, vendor=request.user)
+                    .order_by('-last_message_at')
+                    .first()
+                )
+                if conversation:
+                    auto_open_conversation_id = conversation.id
+        except Exception:
+            pass
+
+    return render(
+        request,
+        'supplier-panel/vendor-b2c-messages.html',
+        {'auto_open_conversation_id': auto_open_conversation_id},
+    )
+
 
 def supplier_reviews(request):
     """Page des avis clients pour le vendeur."""

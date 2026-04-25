@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/b2c-messages.css' %}?v=1.0">
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages gm-b2c-chat-page">
+    <div class="container gm-b2c-chat-wrap">
+        <div class="gm-page-back-header gm-page-back-header--stretch">
+            <a href="{% if is_vendor_dashboard_user %}{% url 'supplier_dashboard:supplier-panel' %}{% else %}{% url 'accounts:dashboard_customer' %}{% endif %}" class="gm-page-back-header__back" aria-label="Retour">
+                <i class="fi-rs-arrow-left"></i>
+            </a>
+            <h1 class="gm-page-back-header__title"><i class="fi-rs-comment-alt"></i> Messagerie</h1>
+            <div class="gm-page-back-header__spacer" aria-hidden="true"></div>
+        </div>
+
+        <section class="gm-b2c-chat">
+            <aside class="gm-b2c-chat__sidebar">
+                <div class="gm-b2c-chat__search">
+                    <i class="fi-rs-search"></i>
+                    <input id="b2cSearch" type="search" placeholder="Rechercher une conversation..." autocomplete="off">
+                </div>
+                <div id="b2cConversationList" class="gm-b2c-chat__list"></div>
+                <div id="b2cEmptyState" class="gm-b2c-chat__empty" hidden>
+                    <i class="fi-rs-inbox"></i>
+                    <p>Aucune conversation pour le moment.</p>
+                </div>
+            </aside>
+
+            <article class="gm-b2c-chat__thread">
+                <header class="gm-b2c-chat__thread-head">
+                    <div>
+                        <h2 id="b2cThreadName">Sélectionnez une conversation</h2>
+                        <p id="b2cThreadProduct"></p>
+                        <p id="b2cThreadState" class="gm-b2c-chat__state" hidden></p>
+                    </div>
+                </header>
+                <div id="b2cMessages" class="gm-b2c-chat__messages"></div>
+                <form id="b2cSendForm" class="gm-b2c-chat__composer">
+                    <input id="b2cMessageInput" type="text" placeholder="Écrivez votre message..." autocomplete="off" disabled>
+                    <button type="submit" id="b2cSendBtn" disabled>
+                        <i class="fi-rs-paper-plane"></i>
+                    </button>
+                </form>
+            </article>
+        </section>
+    </div>
+</main>
+
+<script>
+const b2cInboxApi = "{% url 'accounts:b2c-inbox-conversations' %}";
+const b2cSendApiBase = "{% url 'accounts:b2c-send-message' 0 %}".replace('/0/', '/');
+const b2cReadApiBase = "{% url 'accounts:b2c-mark-conversation-read' 0 %}".replace('/0/', '/');
+const autoOpenConversationId = {% if auto_open_conversation_id %}{{ auto_open_conversation_id }}{% else %}null{% endif %};
+
+let b2cConversations = [];
+let activeConversationId = null;
+
+function csrfToken() {
+    const match = document.cookie.split(';').map(v => v.trim()).find(v => v.startsWith('csrftoken='));
+    return match ? decodeURIComponent(match.slice('csrftoken='.length)) : '';
+}
+function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value || '';
+    return div.innerHTML;
+}
+function renderMessages(conversation) {
+    const root = document.getElementById('b2cMessages');
+    root.innerHTML = '';
+    const msgs = conversation.messages || [];
+    if (!msgs.length) {
+        root.innerHTML = '<p class="gm-b2c-chat__no-msg">Aucun message. Démarrez la discussion.</p>';
+        return;
+    }
+    msgs.forEach(msg => {
+        const row = document.createElement('div');
+        row.className = 'gm-b2c-bubble ' + (msg.is_sender ? 'is-me' : 'is-other');
+        row.innerHTML = '<p>' + escapeHtml(msg.message) + '</p><small>' + escapeHtml(msg.created_at) + '</small>';
+        root.appendChild(row);
+    });
+    root.scrollTop = root.scrollHeight;
+}
+function selectConversation(conversationId) {
+    const conv = b2cConversations.find(c => c.id === conversationId);
+    if (!conv) return;
+    activeConversationId = conversationId;
+    document.querySelectorAll('.gm-b2c-conv').forEach(el => el.classList.toggle('is-active', Number(el.dataset.id) === conversationId));
+    document.getElementById('b2cThreadName').textContent = conv.other_user_name || conv.other_user_username || 'Conversation';
+    document.getElementById('b2cThreadProduct').textContent = conv.product_name || '';
+    const input = document.getElementById('b2cMessageInput');
+    const btn = document.getElementById('b2cSendBtn');
+    const state = document.getElementById('b2cThreadState');
+    const closed = !!conv.chat_closed;
+    input.disabled = closed;
+    btn.disabled = closed;
+    input.placeholder = closed
+        ? 'Suivi terminé : messagerie fermée'
+        : 'Écrivez votre message...';
+    if (state) {
+        if (closed) {
+            state.hidden = false;
+            state.textContent = "Livraison finalisée : cette conversation est clôturée.";
+        } else {
+            state.hidden = true;
+            state.textContent = '';
+        }
+    }
+    renderMessages(conv);
+    fetch(b2cReadApiBase + conversationId + '/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken(), 'X-Requested-With': 'XMLHttpRequest' }
+    }).catch(() => {});
+}
+function renderConversations() {
+    const list = document.getElementById('b2cConversationList');
+    const empty = document.getElementById('b2cEmptyState');
+    list.innerHTML = '';
+    const q = (document.getElementById('b2cSearch').value || '').trim().toLowerCase();
+    const filtered = b2cConversations.filter(c => (c.other_user_name + ' ' + c.product_name).toLowerCase().includes(q));
+    if (!filtered.length) {
+        empty.hidden = false;
+        return;
+    }
+    empty.hidden = true;
+    filtered.forEach(conv => {
+        const last = (conv.messages || []).length ? conv.messages[conv.messages.length - 1] : null;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'gm-b2c-conv';
+        card.dataset.id = conv.id;
+        card.onclick = () => selectConversation(conv.id);
+        card.innerHTML = `
+            <div class="gm-b2c-conv__head">
+                <strong>${escapeHtml(conv.other_user_name || conv.other_user_username || 'Utilisateur')}</strong>
+                ${conv.unread_count > 0 ? `<span class="gm-b2c-conv__badge">${conv.unread_count}</span>` : ''}
+            </div>
+            <p>${escapeHtml(conv.product_name || '')}</p>
+            <small>${escapeHtml(last ? last.message : 'Touchez pour écrire')}</small>
+        `;
+        list.appendChild(card);
+    });
+    if (activeConversationId) {
+        selectConversation(activeConversationId);
+    } else if (autoOpenConversationId && filtered.some(c => c.id === autoOpenConversationId)) {
+        selectConversation(autoOpenConversationId);
+    } else if (filtered.length) {
+        selectConversation(filtered[0].id);
+    }
+}
+function loadConversations() {
+    fetch(b2cInboxApi)
+        .then(r => r.ok ? r.json() : { conversations: [] })
+        .then(data => {
+            b2cConversations = data.conversations || [];
+            renderConversations();
+        })
+        .catch(() => {
+            b2cConversations = [];
+            renderConversations();
+        });
+}
+
+document.getElementById('b2cSendForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!activeConversationId) return;
+    const input = document.getElementById('b2cMessageInput');
+    const text = (input.value || '').trim();
+    if (!text) return;
+    fetch(b2cSendApiBase + activeConversationId + '/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken(),
+        },
+        body: JSON.stringify({ message: text }),
+    }).then(r => r.json().then(data => ({ ok: r.ok, data: data })))
+      .then(data => {
+          if (data.ok && data.data && data.data.success) {
+              input.value = '';
+              loadConversations();
+              return;
+          }
+          if (data.data && data.data.action === 'chat_closed') {
+              loadConversations();
+              return;
+          }
+      }).catch(() => {});
+});
+document.getElementById('b2cSearch').addEventListener('input', renderConversations);
+document.addEventListener('DOMContentLoaded', loadConversations);
+</script>
+{% endblock body %}

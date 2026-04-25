@@ -93,6 +93,8 @@ class Order(models.Model):
             super().save(*args, **kwargs)
 
     class Meta:
+        verbose_name = _("Commande B2C (globale)")
+        verbose_name_plural = _("B2C - Suivi cycle de commande")
         ordering = ('-id',)
 
 
@@ -162,8 +164,8 @@ class Coupon(models.Model):
     active = models.BooleanField()
 
     class Meta:
-        # verbose_name = "Coupons"
-        # verbose_name_plural = "Couponss"
+        verbose_name = _("Coupon B2C")
+        verbose_name_plural = _("B2C - Coupons")
         ordering = ('-id',)
 
     def __str__(self):
@@ -201,6 +203,8 @@ class Payment(models.Model):
         return f"Payment ID:{self.id}- order:{self.order}"
 
     class Meta:
+        verbose_name = _("Paiement commande B2C")
+        verbose_name_plural = _("B2C - Paiements commande")
         ordering = ('-id',)
 
 
@@ -285,6 +289,8 @@ class OrderSupplier(models.Model):
             super().save(*args, **kwargs)
 
     class Meta:
+        verbose_name = _("Commande B2C par magasin")
+        verbose_name_plural = _("B2C - Commandes par magasin")
         ordering = ('-id',)
 
 
@@ -378,8 +384,8 @@ class B2CDeliveryVerification(models.Model):
 
     class Meta:
         ordering = ('-created_at',)
-        verbose_name = _("Vérification livraison B2C")
-        verbose_name_plural = _("Vérifications livraison B2C")
+        verbose_name = _("Traçabilité livraison B2C (codes)")
+        verbose_name_plural = _("B2C - Traçabilité livraison (codes)")
 
     def __str__(self):
         return f"Vérif. B2C #{self.id} - Commande #{self.order_id}"

@@ -62,7 +62,12 @@
                                             <div class="chek-form">
                                                 <div class="custome-checkbox">
                                                     <div class="mb-3">
-                                                        <p class="small text-center text-muted">By signing up, you confirm that you’ve read and accepted our Terms.</p>
+                                                        <p class="small text-center text-muted">
+                                                            En vous inscrivant, vous acceptez notre
+                                                            <a href="{% url 'pages:pages-name' 'politique-de-confidentialite' %}">Politique de confidentialité</a>
+                                                            et nos
+                                                            <a href="{% url 'pages:pages-name' 'conditions-utilisation' %}">Conditions d'utilisation</a>.
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -71,7 +76,7 @@
                                         <div class="form-group mb-30">
                                             <button type="submit" class="btn btn-fill-out btn-block hover-up font-weight-bold" name="login">Submit &amp; Register</button>
                                         </div>
-                                        <p class="font-xs text-muted"><strong>Note:</strong>Your personal data will be used to support your experience throughout this website, to manage access to your account, and for other purposes described in our privacy policy</p>
+                                        <p class="font-xs text-muted"><strong>Note:</strong> Vos données personnelles sont utilisées pour gérer votre compte et votre expérience sur la plateforme, conformément à notre <a href="{% url 'pages:pages-name' 'politique-de-confidentialite' %}">politique de confidentialité</a>.</p>
                                     </form>
                                 </div>
                             </div>

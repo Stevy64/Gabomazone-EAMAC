@@ -23,10 +23,11 @@
          <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
         <!-- Flaticon Icons -->
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-straight/css/uicons-regular-straight.css">
         <!-- Template CSS -->
         <link href="{% static 'assets-supplier/css/main.css' %}" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/register.css' %}?v=2.0">
         <link rel="stylesheet" href="{% static 'gabomazone-client/css/gm-extracted.css' %}?v=3.0">
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/register.css' %}?v=2.1">
     </head>
 
     <body class="gm-s-112bc9">
@@ -55,7 +56,19 @@
                 </div>
             </header>
 
-            <section class="content-main gm-s-efb4d3" >
+            <section class="content-main gm-s-efb4d3 gm-auth-aurora" >
+                <div class="supplier-login-bg-shapes" aria-hidden="true">
+                    <span class="shape shape-circle shape-1"></span>
+                    <span class="shape shape-circle shape-2"></span>
+                    <span class="shape shape-circle shape-3"></span>
+                    <span class="shape shape-square shape-4"></span>
+                    <span class="shape shape-square shape-5"></span>
+                    <span class="shape shape-diamond shape-6"></span>
+                    <span class="shape shape-circle shape-7"></span>
+                    <span class="shape shape-square shape-8"></span>
+                    <span class="shape shape-circle shape-9"></span>
+                    <span class="shape shape-diamond shape-10"></span>
+                </div>
                 <div class="login-container gm-s-d794d1" >
                     <div class="login-card gm-s-5ddb9c" >
                         
@@ -93,8 +106,8 @@
                                     <div class="gm-s-d85c4e">
                                         <label class="gm-s-925bcc">Nom d'utilisateur</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="text" name="username" placeholder="Choisissez un nom d'utilisateur" maxlength="149" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-user gm-s-9923d4" ></i>
+                                            <input type="text" name="username" placeholder="Choisissez un nom d'utilisateur" maxlength="149" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-user gm-s-e5e883" ></i>
                                         </div>
                                         <small class="gm-s-7f35b5">Les noms d'utilisateur ne peuvent pas contenir d'espaces, uniquement des lettres, chiffres et @/./+/-/_</small>
                     </div>
@@ -103,8 +116,8 @@
                                     <div class="gm-s-d85c4e">
                                         <label class="gm-s-925bcc">Email</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="email" name="email" placeholder="Votre adresse email" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-envelope gm-s-9923d4" ></i>
+                                            <input type="email" name="email" placeholder="Votre adresse email" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-envelope gm-s-e5e883" ></i>
                     </div> 
                 </div>
                 
@@ -112,8 +125,8 @@
                                     <div class="gm-s-d85c4e">
                                         <label class="gm-s-925bcc">Téléphone</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="tel" name="phone" placeholder="Votre numéro de téléphone" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-phone gm-s-9923d4" ></i>
+                                            <input type="tel" name="phone" placeholder="Votre numéro de téléphone" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-phone-call gm-s-e5e883" ></i>
                             </div>
                             </div>
                             
@@ -121,8 +134,8 @@
                                     <div class="gm-s-d85c4e">
                                         <label class="gm-s-925bcc">Créer un mot de passe</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="password" name="password" placeholder="Votre mot de passe" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input-register" />
-                                            <i class="fi-rs-lock gm-s-9923d4" ></i>
+                                            <input type="password" name="password" placeholder="Votre mot de passe" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input-register" />
+                                            <i class="fi-rs-lock gm-s-e5e883" ></i>
                                             <button type="button" onclick="togglePasswordRegister()" class="gm-s-330ef3" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle-register"></i>
                                             </button>
@@ -132,7 +145,7 @@
                                     <!-- Terms and Conditions -->
                                     <div class="gm-s-2f5e1d">
                                         <p class="gm-s-793800">
-                                            En vous inscrivant, vous confirmez avoir lu et accepté notre <a href="#" class="gm-s-9dfc37">Politique de confidentialité</a> et nos <a href="#" class="gm-s-9dfc37">Conditions d'utilisation</a>.
+                                            En vous inscrivant, vous confirmez avoir lu et accepté notre <a href="{% url 'pages:pages-name' 'politique-de-confidentialite' %}" class="gm-s-9dfc37">Politique de confidentialité</a> et nos <a href="{% url 'pages:pages-name' 'conditions-utilisation' %}" class="gm-s-9dfc37">Conditions d'utilisation</a>.
                                         </p>
                             </div>
 

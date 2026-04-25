@@ -488,6 +488,54 @@ class ProductMessage(models.Model):
         self.save()
 
 
+class B2CProductConversation(models.Model):
+    """Conversation B2C entre un vendeur pro et un client pour un produit."""
+    product = models.ForeignKey(
+        'products.Product', on_delete=models.CASCADE, related_name='b2c_conversations', verbose_name=_("Produit B2C"))
+    vendor = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='b2c_vendor_conversations', verbose_name=_("Vendeur pro"))
+    customer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='b2c_customer_conversations', verbose_name=_("Client"))
+    last_message_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Dernier message"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Date de mise à jour"))
+
+    class Meta:
+        ordering = ('-last_message_at',)
+        unique_together = ('product', 'vendor', 'customer')
+        verbose_name = _("Conversation B2C")
+        verbose_name_plural = _("Conversations B2C")
+
+    def __str__(self):
+        return f"B2C - {self.product.product_name} - {self.customer.username}"
+
+    def unread_for_vendor(self):
+        return self.messages.filter(is_read=False, sender=self.customer).count()
+
+    def unread_for_customer(self):
+        return self.messages.filter(is_read=False, sender=self.vendor).count()
+
+
+class B2CProductMessage(models.Model):
+    """Message d'une conversation B2C."""
+    conversation = models.ForeignKey(
+        B2CProductConversation, on_delete=models.CASCADE, related_name='messages', verbose_name=_("Conversation B2C"))
+    sender = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='b2c_sent_messages', verbose_name=_("Expéditeur"))
+    message = models.TextField(verbose_name=_("Message"))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
+    is_read = models.BooleanField(default=False, verbose_name=_("Lu"))
+    read_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de lecture"))
+
+    class Meta:
+        ordering = ('created_at',)
+        verbose_name = _("Message B2C")
+        verbose_name_plural = _("Messages B2C")
+
+    def __str__(self):
+        return f"B2C msg {self.sender.username} - {self.created_at}"
+
+
 def create_profile(sender, **kwargs):
     if kwargs['created'] and not kwargs.get('raw', False):
         user_profile = Profile.objects.create(

@@ -24,10 +24,11 @@
         <link rel="shortcut icon" type="image/x-icon" href="{{site_info.favicon.url}}" />
         <!-- Flaticon Icons -->
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-straight/css/uicons-regular-straight.css">
         <!-- Template CSS -->
         <link href="{% static 'assets-supplier/css/main.css' %}" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/login.css' %}?v=2.0">
         <link rel="stylesheet" href="{% static 'gabomazone-client/css/gm-extracted.css' %}?v=3.0">
+        <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/login.css' %}?v=2.1">
     </head>
 
     <body class="gm-s-112bc9">
@@ -56,7 +57,7 @@
                 </div>
             </header>
 
-            <section class="content-main supplier-login-section gm-s-a1330d" >
+            <section class="content-main supplier-login-section gm-s-a1330d gm-auth-aurora" >
                 <!-- Arrière-plan animé : formes géométriques -->
                 <div class="supplier-login-bg-shapes" aria-hidden="true">
                     <span class="shape shape-circle shape-1"></span>
@@ -103,12 +104,12 @@
                                 <form method="post" class="gm-s-0e1c9f">
                                     {% csrf_token %}
                                     
-                                    <!-- Email/Username Field -->
+                                    <!-- Email/Phone/Username Field -->
                                     <div class="gm-s-d85c4e">
-                                        <label class="gm-s-925bcc">Email ou nom d'utilisateur</label>
+                                        <label class="gm-s-925bcc">Email, téléphone ou nom d'utilisateur</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="text" name="username" placeholder="Entrez votre email ou nom d'utilisateur" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                            <i class="fi-rs-envelope gm-s-9923d4" ></i>
+                                            <input type="text" name="username" placeholder="Entrez votre email, téléphone ou nom d'utilisateur" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                            <i class="fi-rs-user gm-s-e5e883" ></i>
                     </div> 
                 </div>
 
@@ -116,8 +117,8 @@
                                     <div class="gm-s-d85c4e">
                                         <label class="gm-s-925bcc">Mot de passe</label>
                                         <div class="gm-s-d85c4e">
-                                            <input type="password" name="password" placeholder="Entrez votre mot de passe" required class="gm-s-689d55" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
-                                            <i class="fi-rs-lock gm-s-9923d4" ></i>
+                                            <input type="password" name="password" placeholder="Entrez votre mot de passe" required class="gm-s-689d55 gm-auth-input-with-icon" onfocus="this.style.borderColor='#FF7B2C'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" id="password-input" />
+                                            <i class="fi-rs-lock gm-s-e5e883" ></i>
                                             <button type="button" onclick="togglePassword()" class="gm-s-330ef3" onmouseover="this.style.color='#FF7B2C'" onmouseout="this.style.color='#6B7280'">
                                                 <i class="fi-rs-eye" id="password-toggle"></i>
                                             </button>
