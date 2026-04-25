@@ -112,6 +112,7 @@ TEMPLATES = [
                 'orders.context_processors.orders_cart_obj',
                 'products.context_processors.wishlist_count',
                 'products.context_processors.messages_count',
+                'products.context_processors.pending_c2c_meeting_for_modal',
                 'home.context_processors.DealTime_obj',
                 'home.context_processors.vendor_details_ad_image',
                 'home.context_processors.shop_ad_sidebar',
@@ -204,6 +205,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Désactiver chmod sur les uploads : les volumes Docker (et certains FS) rejettent
+# le chmod même avec permissions 777 (Operation not permitted sur os.chmod)
+FILE_UPLOAD_PERMISSIONS = None
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = None
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -262,9 +268,24 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# Avec DEBUG=False sur du HTTP local, les cookies Secure ne sont pas conservés par le
+# navigateur → échecs CSRF sur /login/ (403 « token from POST incorrect » ou similaire).
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
+
+# Origines autorisées pour la vérification Referer/Origin (Django 4+). En prod, renseigner
+# CSRF_TRUSTED_ORIGINS dans .env (ex. https://gabomazone.com,https://www.gabomazone.com).
+_csrf_trusted = [o.strip() for o in config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv()) if o and str(o).strip()]
+if DEBUG:
+    for _origin in (
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        'http://[::1]:8000',
+    ):
+        if _origin not in _csrf_trusted:
+            _csrf_trusted.append(_origin)
+CSRF_TRUSTED_ORIGINS = _csrf_trusted
 
 # =============================================================================
 # SESSIONS — Durée de vie et nettoyage

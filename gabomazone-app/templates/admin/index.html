@@ -19,6 +19,38 @@
 
 {% block content %}
 <div id="content-main" class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm admin-workspace-card">
+                <div class="card-body">
+                    <div class="admin-workspace-title">Centre de pilotage transactions</div>
+                    <div class="admin-workspace-grid">
+                        <a href="{% url 'admin:c2c_c2corder_changelist' %}" class="admin-workspace-pill admin-workspace-pill-c2c">
+                            <i class="fas fa-handshake"></i>
+                            <span>Commandes C2C</span>
+                        </a>
+                        <a href="{% url 'admin:c2c_c2cpaymentevent_changelist' %}" class="admin-workspace-pill admin-workspace-pill-c2c">
+                            <i class="fas fa-history"></i>
+                            <span>Evénements paiement C2C</span>
+                        </a>
+                        <a href="{% url 'admin:c2c_safezone_changelist' %}" class="admin-workspace-pill admin-workspace-pill-c2c">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>Points de rencontre</span>
+                        </a>
+                        <a href="{% url 'admin:orders_order_changelist' %}" class="admin-workspace-pill admin-workspace-pill-b2c">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Commandes B2C</span>
+                        </a>
+                        <a href="{% url 'admin:payments_singpaytransaction_changelist' %}" class="admin-workspace-pill admin-workspace-pill-b2c">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Transactions SingPay</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Actions rapides -->
     <div class="row mb-4">
         <div class="col-12">

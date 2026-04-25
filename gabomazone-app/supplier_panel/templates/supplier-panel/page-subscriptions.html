@@ -378,91 +378,127 @@
                     <p class="gm-s-d85e45">Vos badges reflètent vos performances et votre statut sur la plateforme</p>
                     
                     <div class="badges-grid">
-                        <!-- Badges obtenus en premier -->
+                        {% if vendor_badges.official_shop %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon"><i class="fas fa-store"></i></div>
+                            <h5>Boutique officielle</h5>
+                            <p>Entreprise enregistrée au Gabon</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+
                         {% if vendor_badges.premium %}
                         <div class="badge-card badge-earned">
-                            <div class="badge-icon">
-                                <i class="fas fa-crown"></i>
-                            </div>
+                            <div class="badge-icon"><i class="fas fa-crown"></i></div>
                             <h5>Premium</h5>
                             <p>Abonnement actif</p>
                             <span class="badge-status earned">Obtenu</span>
                         </div>
                         {% endif %}
-                        
+
+                        {% if vendor_badges.top_seller %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon"><i class="fas fa-trophy"></i></div>
+                            <h5>Top vendeur</h5>
+                            <p>+100 ventes réalisées</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+
                         {% if vendor_badges.excellent_rating %}
                         <div class="badge-card badge-earned">
-                            <div class="badge-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
+                            <div class="badge-icon"><i class="fas fa-star"></i></div>
                             <h5>Note Excellente</h5>
                             <p>Note moyenne ≥ 4.5/5</p>
                             <span class="badge-status earned">Obtenu</span>
                         </div>
                         {% endif %}
-                        
+
                         {% if vendor_badges.verified %}
                         <div class="badge-card badge-earned">
-                            <div class="badge-icon">
-                                <i class="fas fa-certificate"></i>
-                            </div>
-                            <h5>Vérifié</h5>
-                            <p>Compte vérifié</p>
+                            <div class="badge-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h5>Identité vérifiée</h5>
+                            <p>CNI ou passeport validé</p>
                             <span class="badge-status earned">Obtenu</span>
                         </div>
                         {% endif %}
-                        
+
+                        {% if vendor_badges.fast_shipping %}
+                        <div class="badge-card badge-earned">
+                            <div class="badge-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <h5>Livraison rapide</h5>
+                            <p>70 % des commandes livrées sous 24h</p>
+                            <span class="badge-status earned">Obtenu</span>
+                        </div>
+                        {% endif %}
+
                         {% if vendor_badges.new_seller %}
                         <div class="badge-card badge-earned">
-                            <div class="badge-icon">
-                                <i class="fas fa-sparkles"></i>
-                            </div>
-                            <h5>Nouveau Vendeur</h5>
+                            <div class="badge-icon"><i class="fas fa-seedling"></i></div>
+                            <h5>Nouveau vendeur</h5>
                             <p>Inscrit depuis moins de 30 jours</p>
                             <span class="badge-status earned">Obtenu</span>
                         </div>
                         {% endif %}
-                        
-                        <!-- Badges verrouillés ensuite -->
+
+                        {% if not vendor_badges.official_shop %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon"><i class="fas fa-store"></i></div>
+                            <h5>Boutique officielle</h5>
+                            <p>Entreprise enregistrée au Gabon</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+
                         {% if not vendor_badges.premium %}
                         <div class="badge-card badge-locked">
-                            <div class="badge-icon">
-                                <i class="fas fa-crown"></i>
-                            </div>
+                            <div class="badge-icon"><i class="fas fa-crown"></i></div>
                             <h5>Premium</h5>
                             <p>Abonnement actif</p>
                             <span class="badge-status locked">Verrouillé</span>
                         </div>
                         {% endif %}
-                        
+
+                        {% if not vendor_badges.top_seller %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon"><i class="fas fa-trophy"></i></div>
+                            <h5>Top vendeur</h5>
+                            <p>+100 ventes réalisées</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+
                         {% if not vendor_badges.excellent_rating %}
                         <div class="badge-card badge-locked">
-                            <div class="badge-icon">
-                                <i class="fas fa-star"></i>
-                            </div>
+                            <div class="badge-icon"><i class="fas fa-star"></i></div>
                             <h5>Note Excellente</h5>
                             <p>Note moyenne ≥ 4.5/5</p>
                             <span class="badge-status locked">Verrouillé</span>
                         </div>
                         {% endif %}
-                        
+
                         {% if not vendor_badges.verified %}
                         <div class="badge-card badge-locked">
-                            <div class="badge-icon">
-                                <i class="fas fa-certificate"></i>
-                            </div>
-                            <h5>Vérifié</h5>
-                            <p>Compte vérifié</p>
+                            <div class="badge-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h5>Identité vérifiée</h5>
+                            <p>CNI ou passeport validé</p>
                             <span class="badge-status locked">Verrouillé</span>
                         </div>
                         {% endif %}
-                        
+
+                        {% if not vendor_badges.fast_shipping %}
+                        <div class="badge-card badge-locked">
+                            <div class="badge-icon"><i class="fas fa-shipping-fast"></i></div>
+                            <h5>Livraison rapide</h5>
+                            <p>70 % des commandes livrées sous 24h</p>
+                            <span class="badge-status locked">Verrouillé</span>
+                        </div>
+                        {% endif %}
+
                         {% if not vendor_badges.new_seller %}
                         <div class="badge-card badge-locked">
-                            <div class="badge-icon">
-                                <i class="fas fa-sparkles"></i>
-                            </div>
-                            <h5>Nouveau Vendeur</h5>
+                            <div class="badge-icon"><i class="fas fa-seedling"></i></div>
+                            <h5>Nouveau vendeur</h5>
                             <p>Inscrit depuis moins de 30 jours</p>
                             <span class="badge-status locked">Verrouillé</span>
                         </div>

@@ -143,3 +143,181 @@
             flex-direction: column;
         }
     }
+
+/* ── Nouveau panneau codes de vérification GM-XXXX ── */
+.c2c-code-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+}
+.c2c-code-panel__label {
+    font-size: 12px;
+    color: #5F5E5A;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.c2c-code-panel__code {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    color: #185FA5;
+    background: #E6F1FB;
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: center;
+    margin-bottom: 6px;
+    font-family: monospace;
+}
+.c2c-code-panel__hint {
+    font-size: 12px;
+    color: #888780;
+}
+.c2c-code-panel__done {
+    color: #3B6D11;
+    font-size: 13px;
+}
+.c2c-code-input__field {
+    font-size: 18px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border: 1.5px solid #e0dfd8;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+@media (max-width: 600px) {
+    .c2c-code-panel { grid-template-columns: 1fr; }
+}
+
+/* ── Dispute (litige) ──────────────────────────────────────── */
+.c2c-dispute-window {
+    background: #FFF7ED;
+    border: 1.5px solid #FED7AA;
+    border-radius: 12px;
+}
+.c2c-dispute-window h3 {
+    color: #C2410C;
+    margin-top: 0;
+}
+.c2c-btn-dispute {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.c2c-btn-dispute:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    color: white;
+    text-decoration: none;
+}
+.c2c-dispute-existing {
+    background: #FFF1F2;
+    border: 1.5px solid #FECDD3;
+    border-radius: 12px;
+}
+.c2c-dispute-existing h3 {
+    color: #BE123C;
+    margin-top: 0;
+}
+
+/* ── Safe Zones ────────────────────────────────────────────── */
+.c2c-safe-zones h3 { margin-top: 0; color: #166534; }
+.c2c-safe-zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+.c2c-safe-zone-card {
+    background: #F0FDF4;
+    border: 1.5px solid #BBF7D0;
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+}
+.c2c-safe-zone-card--featured {
+    border-color: #4ADE80;
+    background: #DCFCE7;
+}
+.c2c-zone-badge {
+    display: inline-block;
+    background: #16A34A;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+.c2c-zone-name { display: block; font-size: 14px; color: #14532D; margin-bottom: 4px; }
+.c2c-zone-address, .c2c-zone-landmark, .c2c-zone-hours {
+    font-size: 12px;
+    color: #166534;
+    margin: 2px 0;
+}
+.c2c-zone-landmark { color: #6B7280; }
+@media (max-width: 600px) {
+    .c2c-safe-zones-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Meeting point ── */
+.gm-meeting-current {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+.gm-meeting-info strong { display: block; font-size: 15px; color: #14532D; margin-bottom: 4px; }
+.gm-meeting-info p { font-size: 13px; color: #166534; margin: 3px 0; }
+.gm-meeting-type-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+.gm-meeting-type-badge--zone { background: #16A34A; color: #fff; }
+.gm-meeting-type-badge--custom { background: #2563EB; color: #fff; }
+.gm-meeting-notes { font-size: 12px; color: #6B7280; margin: 6px 0 0; }
+.gm-meeting-confirms { display: flex; gap: 10px; margin: 10px 0 8px; flex-wrap: wrap; }
+.gm-meeting-confirm {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #E5E7EB;
+    color: #6B7280;
+}
+.gm-meeting-confirm--done { background: #DCFCE7; color: #15803D; }
+.gm-meeting-agreed { font-size: 13px; color: #059669; font-weight: 600; margin: 8px 0; }
+.gm-meeting-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.gm-mtab {
+    flex: 1; padding: 9px 12px; border: 1.5px solid #D1D5DB;
+    border-radius: 8px; background: #F9FAFB; font-size: 13px; font-weight: 600;
+    cursor: pointer; color: #374151; transition: all 0.15s;
+}
+.gm-mtab--active { border-color: #16A34A; background: #DCFCE7; color: #15803D; }
+.gm-meeting-zones-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.gm-meeting-zone-option {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+    border: 1.5px solid #E5E7EB; border-radius: 10px; cursor: pointer; transition: border-color 0.15s;
+}
+.gm-meeting-zone-option:has(input:checked) { border-color: #16A34A; background: #F0FDF4; }
+.gm-meeting-zone-option input { margin-top: 4px; flex-shrink: 0; accent-color: #16A34A; }

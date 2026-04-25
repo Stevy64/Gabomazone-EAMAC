@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(python -c \"from docx.shared import RGBColor; c = RGBColor\\(0x1A,0x73,0xE8\\); print\\(repr\\(c\\)\\); print\\(str\\(c\\)\\); print\\(c[0], c[1], c[2]\\)\")",
-      "Bash(python generate_docs.py)"
+      "Bash(python generate_docs.py)",
+      "Bash(docker compose *)"
     ]
   }
 }

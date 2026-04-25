@@ -491,6 +491,7 @@ select[id] option:checked {
 }
 
 .card.card-info .card-header {
+    position: relative;
     background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
     border-bottom: none;
     padding: 20px 24px;
@@ -1482,99 +1483,6 @@ input[type="submit"].default:hover,
     color: #6c757d;
 }
 
-/* ============================================
-   ADDITIONAL TABLE STYLES
-   ============================================ */
-
-/* Ensure all table headers are visible */
-table thead th,
-.results thead th,
-.changelist-results thead th,
-#changelist table thead th,
-#result_list thead th,
-.table thead th,
-.table-striped thead th,
-.table-hover thead th {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #3c8dbc 0%, #2e6da4 100%) !important;
-    font-weight: 700 !important;
-    border: none !important;
-}
-
-table thead th a,
-.results thead th a,
-.changelist-results thead th a,
-#changelist table thead th a,
-#result_list thead th a,
-.table thead th a,
-.table-striped thead th a,
-.table-hover thead th a,
-table thead th span,
-.results thead th span,
-.changelist-results thead th span,
-#changelist table thead th span,
-#result_list thead th span,
-.table thead th span,
-.table-striped thead th span,
-.table-hover thead th span {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    text-decoration: none;
-}
-
-table thead th a:hover,
-.results thead th a:hover,
-.changelist-results thead th a:hover,
-#changelist table thead th a:hover,
-#result_list thead th a:hover,
-.table thead th a:hover,
-.table-striped thead th a:hover,
-.table-hover thead th a:hover {
-    color: #f0f0f0 !important;
-    text-decoration: underline;
-}
-
-/* Sort indicators in headers */
-table thead th .sortoptions,
-.results thead th .sortoptions,
-.changelist-results thead th .sortoptions,
-#changelist table thead th .sortoptions,
-#result_list thead th .sortoptions,
-.table thead th .sortoptions,
-.table-striped thead th .sortoptions,
-.table-hover thead th .sortoptions {
-    color: #ffffff !important;
-}
-
-table thead th .sortoptions a,
-.results thead th .sortoptions a,
-.changelist-results thead th .sortoptions a,
-#changelist table thead th .sortoptions a,
-#result_list thead th .sortoptions a,
-.table thead th .sortoptions a,
-.table-striped thead th .sortoptions a,
-.table-hover thead th .sortoptions a {
-    color: #ffffff !important;
-}
-
-table thead th .text,
-.results thead th .text,
-.changelist-results thead th .text,
-#changelist table thead th .text,
-#result_list thead th .text,
-.table thead th .text,
-.table-striped thead th .text,
-.table-hover thead th .text {
-    color: #ffffff !important;
-}
-
-/* Override AdminLTE table styles */
-.table thead th {
-    background: linear-gradient(135deg, #3c8dbc 0%, #2e6da4 100%) !important;
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
 /* Filter dropdowns in admin */
 .filtered select,
 #changelist-filter select {
@@ -1708,6 +1616,129 @@ table thead th .text,
     gap: 8px;
 }
 
+/* Barre Actions (changelist) : priorité sur DataTables / Bootstrap — le JS déplace .actions dans le wrapper */
+.gm-admin-actions-bar {
+    align-items: flex-end;
+}
+
+.gm-admin-actions-field {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-width: min(100%, 220px);
+    max-width: 100%;
+}
+
+.gm-admin-actions-field label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"],
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"],
+#content-main .gm-admin-actions-bar select[name="action"],
+#changelist-form .actions select[name="action"],
+.dataTables_wrapper .actions select[name="action"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-height: 48px;
+    padding: 12px 48px 12px 16px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+    color: #1f2937 !important;
+    background-color: #fff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20'%3E%3Cpath fill='%233c8dbc' d='M10 13.5L4.5 8h11z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 18px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    cursor: pointer !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"]:hover,
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"]:hover,
+#changelist-form .actions select[name="action"]:hover,
+.dataTables_wrapper .actions select[name="action"]:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"]:focus,
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"]:focus,
+#changelist-form .actions select[name="action"]:focus,
+.dataTables_wrapper .actions select[name="action"]:focus {
+    border-color: var(--admin-primary) !important;
+    box-shadow: 0 0 0 4px rgba(60, 141, 188, 0.2) !important;
+    outline: none !important;
+}
+
+/* Options du menu Actions (liste déroulante ouverte) — support navigateur partiel mais meilleur rendu */
+#changelist-form .gm-admin-actions-bar select[name="action"] option,
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"] option,
+#changelist-form .actions select[name="action"] option,
+.dataTables_wrapper .actions select[name="action"] option {
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.45 !important;
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"] option:checked,
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"] option:checked,
+#changelist-form .actions select[name="action"] option:checked,
+.dataTables_wrapper .actions select[name="action"] option:checked {
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
+    color: #1e40af !important;
+    font-weight: 700 !important;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"] option[value=""],
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"] option[value=""],
+#changelist-form .actions select[name="action"] option[value=""],
+.dataTables_wrapper .actions select[name="action"] option[value=""] {
+    color: #6b7280 !important;
+    font-weight: 600 !important;
+    font-style: italic;
+}
+
+#changelist-form .gm-admin-actions-bar select[name="action"] optgroup,
+.dataTables_wrapper .gm-admin-actions-bar select[name="action"] optgroup,
+#changelist-form .actions select[name="action"] optgroup,
+.dataTables_wrapper .actions select[name="action"] optgroup {
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    color: #374151 !important;
+    background-color: #f3f4f6 !important;
+}
+
+/* Compteur de sélection sous Actions */
+#changelist-form .gm-admin-actions-bar .action-counter,
+.dataTables_wrapper .gm-admin-actions-bar .action-counter,
+#changelist-form .actions .action-counter,
+.dataTables_wrapper .actions .action-counter {
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 500;
+    margin-top: 6px;
+    width: 100%;
+    flex-basis: 100%;
+}
+
 /* ============================================
    RESPONSIVE
    ============================================ */
@@ -1821,6 +1852,64 @@ table thead th .text,
     gap: 0.5rem;
 }
 
+.admin-workspace-card {
+    border-radius: 14px !important;
+}
+
+.admin-workspace-title {
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.admin-workspace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+    gap: 0.75rem;
+}
+
+.admin-workspace-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    text-decoration: none !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.admin-workspace-pill i {
+    font-size: 0.95rem;
+}
+
+.admin-workspace-pill-c2c {
+    background: #eef6ff;
+    color: #1d4e89;
+    border-color: #bfdbfe;
+}
+
+.admin-workspace-pill-c2c:hover {
+    background: #dbeafe;
+    transform: translateY(-1px);
+}
+
+.admin-workspace-pill-b2c {
+    background: #eefcf5;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.admin-workspace-pill-b2c:hover {
+    background: #dcfce7;
+    transform: translateY(-1px);
+}
+
 /* Sidebar: nav-header same style */
 .sidebar .nav-header-sm {
     padding: 0.75rem 1rem 0.35rem;
@@ -1861,6 +1950,11 @@ table thead th .text,
 }
 .sidebar .nav-treeview .nav-link {
     padding-left: 2rem;
+    cursor: pointer;
+}
+.sidebar .nav-treeview .nav-link.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #fff;
 }
 .sidebar .nav-treeview .nav-treeview .nav-link {
     padding-left: 2.5rem;
@@ -1916,6 +2010,9 @@ table thead th .text,
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
+    }
+    .admin-workspace-grid {
+        grid-template-columns: 1fr 1fr;
     }
     .admin-quick-actions .btn-sm {
         padding: 0.5rem 0.6rem;
@@ -1994,6 +2091,256 @@ table thead th .text,
     }
     .admin-dashboard-modern .small-box .inner h3 {
         font-size: 2rem;
+    }
+}
+
+/* ——— Formulaires admin (change / add) : mobile & selects ——— */
+
+body.change-form .gm-admin-changeform-header h2,
+body.add-form .gm-admin-changeform-header h2 {
+    font-size: 1.25rem;
+    line-height: 1.35;
+}
+
+body.change-form #content-main .object-tools,
+body.add-form #content-main .object-tools {
+    list-style: none;
+    padding-left: 0;
+    margin: 0 0 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+body.change-form #content-main .object-tools li,
+body.add-form #content-main .object-tools li {
+    margin: 0;
+}
+
+body.change-form #content-main .object-tools a,
+body.add-form #content-main .object-tools a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0.5rem 0.85rem;
+    border-radius: 10px;
+}
+
+/*
+ * Django base.css positionne .object-tools en float:right + margin-top négatif
+ * pour l’aligner sur le titre — sur mobile cela repousse le contenu (History à côté du fieldset).
+ */
+body.change-form #content-main > ul.object-tools,
+body.add-form #content-main > ul.object-tools {
+    float: none !important;
+    clear: both !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 0.75rem;
+    padding-left: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    box-sizing: border-box;
+}
+
+body.change-form #content-main > ul.object-tools li,
+body.add-form #content-main > ul.object-tools li {
+    float: none !important;
+    display: inline-flex;
+    align-items: center;
+    height: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0.35rem;
+    margin-bottom: 0.35rem;
+    max-width: 100%;
+}
+
+body.change-form #content-main > ul.object-tools a,
+body.add-form #content-main > ul.object-tools a {
+    float: none !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+    text-align: center;
+}
+
+@media (max-width: 767.98px) {
+    body.change-form #content-main > ul.object-tools li,
+    body.add-form #content-main > ul.object-tools li {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    body.change-form #content-main > ul.object-tools a,
+    body.add-form #content-main > ul.object-tools a {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Listes déroulantes formulaire : lisibles au doigt, sans zoom iOS */
+body.change-form #content-main select:not([multiple]):not(.select2-hidden-accessible),
+body.add-form #content-main select:not([multiple]):not(.select2-hidden-accessible),
+body.change-form #content-main .related-widget-wrapper select:not([multiple]):not(.select2-hidden-accessible),
+body.add-form #content-main .related-widget-wrapper select:not([multiple]):not(.select2-hidden-accessible) {
+    min-height: 48px;
+    font-size: 16px;
+    line-height: 1.35;
+    padding: 12px 46px 12px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20'%3E%3Cpath fill='%233b82f6' d='M10 13.5L4.5 8h11z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    color: #1f2937;
+    font-weight: 500;
+    width: 100%;
+    max-width: 100%;
+}
+
+body.change-form #content-main select:not([multiple]):not(.select2-hidden-accessible):hover,
+body.add-form #content-main select:not([multiple]):not(.select2-hidden-accessible):hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+body.change-form #content-main select:not([multiple]):not(.select2-hidden-accessible):focus,
+body.add-form #content-main select:not([multiple]):not(.select2-hidden-accessible):focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 4px rgba(60, 141, 188, 0.18);
+    outline: none;
+}
+
+/* Liens FK (modifier / ajouter / voir) : cibles tactiles */
+body.change-form #content-main .related-widget-wrapper,
+body.add-form #content-main .related-widget-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+body.change-form #content-main .related-widget-wrapper > select,
+body.add-form #content-main .related-widget-wrapper > select {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+body.change-form #content-main .related-widget-wrapper-link,
+body.add-form #content-main .related-widget-wrapper-link,
+body.change-form #content-main .related-widget-wrapper > a,
+body.add-form #content-main .related-widget-wrapper > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+body.change-form #content-main .related-widget-wrapper-link:hover,
+body.add-form #content-main .related-widget-wrapper-link:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+@media (max-width: 767.98px) {
+    body.change-form:not(.popup) #content-main.container-fluid,
+    body.add-form:not(.popup) #content-main.container-fluid {
+        padding-bottom: max(140px, calc(120px + env(safe-area-inset-bottom, 0px)));
+    }
+
+    /* Masque le bloc « Save » dupliqué en haut (save_on_top) */
+    body.change-form:not(.popup) form .gm-admin-submit-row-top.submit-row,
+    body.add-form:not(.popup) form .gm-admin-submit-row-top.submit-row {
+        display: none !important;
+    }
+
+    /* Barre d’actions fixe en bas : formulaire visible en premier écran */
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row,
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 !important;
+        margin-top: 0 !important;
+        border-radius: 14px 14px 0 0;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.14);
+        z-index: 1038;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 8px;
+        border: 1px solid #e5e7eb;
+        border-bottom: none;
+        background: #fff;
+    }
+
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row input[type="submit"],
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row button[type="submit"],
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row input[type="submit"],
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row button[type="submit"] {
+        width: 100%;
+        margin: 0 !important;
+        flex: 0 0 auto;
+    }
+
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row input.default,
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row input.default {
+        order: -1;
+    }
+
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row .deletelink-box,
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row .deletelink-box {
+        margin-left: 0 !important;
+        width: 100%;
+        text-align: center;
+    }
+
+    body.change-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row .deletelink,
+    body.add-form:not(.popup) form .gm-admin-submit-row-bottom.submit-row .deletelink {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Liens FK : une rangée de grosses icônes sous le select */
+    body.change-form #content-main .related-widget-wrapper-link,
+    body.add-form #content-main .related-widget-wrapper-link,
+    body.change-form #content-main .related-widget-wrapper > a,
+    body.add-form #content-main .related-widget-wrapper > a {
+        flex: 1 1 calc(33.333% - 0.35rem);
+        min-width: 0;
+        font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    body.change-form #content-main .related-widget-wrapper > select,
+    body.add-form #content-main .related-widget-wrapper > select {
+        flex: 1 1 auto;
+        width: auto;
+        max-width: min(100%, 32rem);
     }
 }
 

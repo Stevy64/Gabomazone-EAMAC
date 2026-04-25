@@ -8,7 +8,7 @@ from django.utils import timezone
 from .models import (
     PlatformSettings, PurchaseIntent, Negotiation, C2COrder,
     DeliveryVerification, ProductBoost, SellerBadge, SellerReview, BuyerReview,
-    C2CPaymentEvent,
+    C2CPaymentEvent, DisputeCase, SafeZone,
 )
 
 
@@ -16,11 +16,14 @@ from .models import (
 class PlatformSettingsAdmin(admin.ModelAdmin):
     """Administration des paramètres de la plateforme"""
     list_display = ('id', 'c2c_seller_commission_rate',
-                   'b2c_buyer_commission_rate', 'b2c_seller_commission_rate', 'is_active', 'updated_at')
+                   'popular_meeting_min_uses', 'b2c_buyer_commission_rate', 'b2c_seller_commission_rate', 'is_active', 'updated_at')
     list_editable = ('is_active',)
     fieldsets = (
         ('Commissions C2C', {
             'fields': ('c2c_seller_commission_rate',)
+        }),
+        ('Carte C2C (points de rencontre)', {
+            'fields': ('popular_meeting_min_uses',)
         }),
         ('Commissions B2C', {
             'fields': ('b2c_buyer_commission_rate', 'b2c_seller_commission_rate')
@@ -96,13 +99,18 @@ class C2CPaymentEventInline(admin.TabularInline):
 class C2COrderAdmin(admin.ModelAdmin):
     """Administration des commandes C2C avec traçabilité complète et pilotage escrow"""
     list_display = ('id', 'product_link', 'buyer', 'seller', 'final_price',
-                   'buyer_total', 'platform_commission', 'status', 'escrow_status_display', 'created_at', 'view_details')
+                   'buyer_total', 'platform_commission', 'status_badge', 'escrow_status_display', 'created_at', 'view_details')
     list_filter = ('status', 'created_at', 'paid_at', 'buyer', 'seller')
     inlines = [C2CPaymentEventInline]
     actions = ['action_cancel_and_refund_keep_fees', 'action_release_escrow_manual']
     search_fields = ('product__product_name', 'buyer__username', 'buyer__email', 
                     'seller__username', 'seller__email', 'id')
     date_hierarchy = 'created_at'
+    list_select_related = ('buyer', 'seller', 'product', 'payment_transaction', 'purchase_intent')
+    ordering = ('-created_at',)
+    list_per_page = 30
+    save_on_top = True
+    show_full_result_count = False
     
     def view_details(self, obj):
         """Lien vers la page de détails"""
@@ -163,6 +171,21 @@ class C2COrderAdmin(admin.ModelAdmin):
         labels = {'none': '-', 'escrow_pending': 'En attente', 'escrow_released': 'Libéré', 'escrow_refunded': 'Remboursé'}
         return labels.get(status, status)
     escrow_status_display.short_description = 'Escrow'
+
+    def status_badge(self, obj):
+        labels = {
+            C2COrder.PENDING_PAYMENT: ('En attente paiement', '#FEF3C7', '#92400E'),
+            C2COrder.PAID: ('Payé', '#DBEAFE', '#1E3A8A'),
+            C2COrder.PENDING_DELIVERY: ('Livraison en attente', '#E0E7FF', '#3730A3'),
+            C2COrder.DELIVERED: ('Livré', '#ECFCCB', '#3F6212'),
+            C2COrder.VERIFIED: ('Vérifié', '#DCFCE7', '#166534'),
+            C2COrder.COMPLETED: ('Terminé', '#DCFCE7', '#14532D'),
+            C2COrder.CANCELLED: ('Annulé', '#F3F4F6', '#374151'),
+            C2COrder.DISPUTED: ('Litige', '#FEE2E2', '#991B1B'),
+        }
+        label, bg, fg = labels.get(obj.status, (obj.status, '#F3F4F6', '#111827'))
+        return format_html('<span style="background:{};color:{};padding:4px 10px;border-radius:999px;font-weight:700;">{}</span>', bg, fg, label)
+    status_badge.short_description = 'Statut'
 
     def action_cancel_and_refund_keep_fees(self, request, queryset):
         """Annuler les commandes C2C sélectionnées : rembourser l'acheteur et garder les frais."""
@@ -515,7 +538,7 @@ class BuyerReviewAdmin(admin.ModelAdmin):
     search_fields = ('buyer__username', 'reviewer__username', 'product__product_name', 'comment')
     readonly_fields = ('created_at', 'updated_at')
     date_hierarchy = 'created_at'
-    
+
     fieldsets = (
         ('Relations', {
             'fields': ('order', 'buyer', 'reviewer', 'product')
@@ -530,7 +553,7 @@ class BuyerReviewAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
-    
+
     def product_link(self, obj):
         """Lien vers le produit"""
         if obj.product:
@@ -538,5 +561,128 @@ class BuyerReviewAdmin(admin.ModelAdmin):
             return format_html('<a href="{}">{}</a>', url, obj.product.product_name)
         return '-'
     product_link.short_description = 'Article'
+
+
+@admin.register(DisputeCase)
+class DisputeCaseAdmin(admin.ModelAdmin):
+    """Administration des litiges C2C"""
+    list_display = ('id', 'order_link', 'claimant', 'reason', 'status', 'mediator', 'created_at')
+    list_filter = ('status', 'reason', 'created_at')
+    search_fields = ('order__id', 'claimant__username', 'description')
+    readonly_fields = ('created_at', 'updated_at', 'resolved_at')
+    date_hierarchy = 'created_at'
+    actions = ['action_resolve_refund', 'action_resolve_seller']
+
+    fieldsets = (
+        ('Commande', {
+            'fields': ('order', 'claimant', 'mediator')
+        }),
+        ('Litige', {
+            'fields': ('reason', 'description', 'status')
+        }),
+        ('Résolution', {
+            'fields': ('resolution_notes', 'resolved_at')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+    def order_link(self, obj):
+        if obj.order:
+            url = reverse('admin:c2c_c2corder_change', args=[obj.order.id])
+            return format_html('<a href="{}">Commande #{}</a>', url, obj.order.id)
+        return '-'
+    order_link.short_description = 'Commande'
+
+    def action_resolve_refund(self, request, queryset):
+        """Résoudre en faveur de l'acheteur : remboursement automatique"""
+        from payments.escrow_service import EscrowService
+        count = 0
+        for dispute in queryset.filter(status__in=[DisputeCase.OPEN, DisputeCase.UNDER_REVIEW]):
+            order = dispute.order
+            try:
+                success, resp = EscrowService.refund_escrow_c2c_cancel(
+                    order, reason=f'Litige #{dispute.id} résolu en faveur de l\'acheteur',
+                    initiated_by='admin_dispute'
+                )
+                if success:
+                    from django.utils import timezone as tz
+                    dispute.status = DisputeCase.RESOLVED_REFUND
+                    dispute.mediator = request.user
+                    dispute.resolved_at = tz.now()
+                    dispute.save()
+                    count += 1
+                else:
+                    self.message_user(request, f"Litige #{dispute.id}: {resp.get('error')}", level='error')
+            except Exception as e:
+                self.message_user(request, f"Litige #{dispute.id}: {e}", level='error')
+        if count:
+            self.message_user(request, f"{count} litige(s) résolu(s) avec remboursement.")
+    action_resolve_refund.short_description = "Résoudre → Remboursement acheteur"
+
+    def action_resolve_seller(self, request, queryset):
+        """Résoudre en faveur du vendeur"""
+        from django.utils import timezone as tz
+        count = queryset.filter(
+            status__in=[DisputeCase.OPEN, DisputeCase.UNDER_REVIEW]
+        ).update(
+            status=DisputeCase.RESOLVED_SELLER,
+            mediator=request.user,
+            resolved_at=tz.now(),
+        )
+        self.message_user(request, f"{count} litige(s) résolu(s) en faveur du vendeur.")
+    action_resolve_seller.short_description = "Résoudre → En faveur du vendeur"
+
+
+@admin.register(SafeZone)
+class SafeZoneAdmin(admin.ModelAdmin):
+    """Administration des zones d'échange sécurisées (points de rencontre sur la carte)."""
+    change_form_template = 'admin/c2c/safezone/change_form.html'
+    list_display = ('id', 'name', 'city', 'coords_short', 'status', 'is_featured', 'created_at')
+    list_display_links = ('id', 'name')
+    list_filter = ('status', 'is_featured', 'city')
+    search_fields = ('name', 'address', 'city', 'landmark')
+    list_editable = ('status', 'is_featured')
+    readonly_fields = ('created_at',)
+    ordering = ('-is_featured', 'city', 'name')
+    save_on_top = True
+    show_full_result_count = False
+
+    @admin.display(description='Coordonnées')
+    def coords_short(self, obj):
+        if obj.latitude is not None and obj.longitude is not None:
+            return format_html(
+                '<span class="text-monospace" style="font-size:11px;">{}, {}</span>',
+                obj.latitude,
+                obj.longitude,
+            )
+        return format_html('<span class="text-muted">—</span>')
+
+    fieldsets = (
+        ('Lieu', {
+            'fields': ('name', 'description', 'address', 'city', 'landmark')
+        }),
+        ('Géolocalisation', {
+            'fields': ('latitude', 'longitude'),
+            'description': 'Renseignables aussi via la carte sous le formulaire.',
+        }),
+        ('Informations pratiques', {
+            'fields': ('opening_hours',)
+        }),
+        ('Statut', {
+            'fields': ('status', 'is_featured')
+        }),
+        ('Dates', {
+            'fields': ('created_at',)
+        }),
+    )
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        from c2c.meeting_map_data import get_admin_safezone_map_context
+
+        extra_context = extra_context or {}
+        extra_context.update(get_admin_safezone_map_context())
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
 

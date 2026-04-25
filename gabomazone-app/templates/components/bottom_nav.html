@@ -13,7 +13,12 @@
         <span>Publier</span>
     </a>
     <a href="{% url 'accounts:my-messages' %}" class="flavoriz-bottom-nav-item {% if 'my-messages' in request.path %}active{% endif %}">
-        <i class="fi-rs-comment"></i>
+        <span class="gm-bnav-icon-wrap">
+            <i class="fi-rs-comment"></i>
+            {% if user.is_authenticated and unread_messages_count and unread_messages_count > 0 %}
+            <span class="gm-bnav-badge">{% if unread_messages_count > 99 %}99+{% else %}{{ unread_messages_count }}{% endif %}</span>
+            {% endif %}
+        </span>
         <span>Messagerie</span>
     </a>
     <a href="{% url 'accounts:account_details' %}" class="flavoriz-bottom-nav-item {% if 'account_details' in request.path or 'dashboard' in request.path %}active{% endif %}">
@@ -21,3 +26,38 @@
         <span>Compte</span>
     </a>
 </nav>
+
+<style>
+.gm-bnav-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.gm-bnav-badge {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background: #EF4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid #1F2937;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    pointer-events: none;
+    z-index: 5;
+    animation: gmBadgePulse 1.6s ease-in-out infinite;
+}
+@keyframes gmBadgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+}
+</style>

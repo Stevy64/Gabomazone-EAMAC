@@ -2,85 +2,346 @@
 {% load static %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/c2c-seller-dashboard.css' %}?v=2.0">
+<style>
+/* ── Dashboard vendeur C2C ── */
+.gmd-wrap {
+    max-width: 1100px;
+    margin: 30px auto 80px;
+    padding: 0 20px;
+}
+
+/* Hero */
+.gmd-hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2847 100%);
+    border-radius: 18px;
+    padding: 28px 32px;
+    color: white;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.gmd-hero__avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 700; color: white;
+    flex-shrink: 0;
+}
+.gmd-hero__info { flex: 1; min-width: 0; }
+.gmd-hero__name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.gmd-hero__sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.gmd-hero__badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.gmd-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+}
+.gmd-badge--level-star    { background: #FFFBEB; color: #D97706; }
+.gmd-badge--level-confirmed { background: #ECFDF5; color: #059669; }
+.gmd-badge--level-beginner  { background: #F3F4F6; color: #4B5563; }
+.gmd-badge--verified { background: #DBEAFE; color: #1D4ED8; }
+.gmd-badge--rating { background: rgba(255,255,255,0.15); color: #FCD34D; border: 1px solid rgba(255,204,0,0.3); }
+
+/* Stats grid */
+.gmd-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.gmd-stat {
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: box-shadow 0.2s;
+}
+.gmd-stat:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.gmd-stat__val {
+    font-size: 26px; font-weight: 800;
+    color: #1F2937; margin-bottom: 4px; line-height: 1;
+}
+.gmd-stat__val--green { color: #059669; }
+.gmd-stat__val--orange { color: #D97706; }
+.gmd-stat__val--red { color: #DC2626; }
+.gmd-stat__lbl { font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.gmd-stat__icon { font-size: 20px; margin-bottom: 8px; display: block; }
+
+/* Panels */
+.gmd-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+@media (max-width: 680px) { .gmd-panels { grid-template-columns: 1fr; } }
+
+.gmd-panel {
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 20px;
+}
+.gmd-panel__title {
+    font-size: 15px; font-weight: 700; color: #1F2937;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+}
+.gmd-panel__title i { color: #FF7B2C; }
+
+/* Intent rows */
+.gmd-intent {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+.gmd-intent:last-child { border-bottom: none; padding-bottom: 0; }
+.gmd-intent__icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: #FFF7ED; color: #FF7B2C;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+}
+.gmd-intent__body { flex: 1; min-width: 0; }
+.gmd-intent__product { font-size: 13px; font-weight: 600; color: #1F2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gmd-intent__buyer { font-size: 11px; color: #6B7280; margin-top: 1px; }
+.gmd-intent__price { font-size: 13px; font-weight: 700; color: #059669; white-space: nowrap; }
+.gmd-intent__action {
+    padding: 6px 10px; border-radius: 8px;
+    background: #FF7B2C; color: white; font-size: 12px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+}
+
+/* Order rows */
+.gmd-order {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #F3F4F6;
+}
+.gmd-order:last-child { border-bottom: none; padding-bottom: 0; }
+.gmd-order__product { flex: 1; font-size: 13px; font-weight: 600; color: #1F2937; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gmd-order__price { font-size: 13px; color: #059669; font-weight: 700; white-space: nowrap; }
+.gmd-status {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap;
+}
+.gmd-status--completed   { background: #DCFCE7; color: #15803D; }
+.gmd-status--paid        { background: #DBEAFE; color: #1D4ED8; }
+.gmd-status--pending_delivery { background: #FEF3C7; color: #92400E; }
+.gmd-status--delivered   { background: #EDE9FE; color: #6D28D9; }
+.gmd-status--disputed    { background: #FEE2E2; color: #B91C1C; }
+.gmd-status--cancelled   { background: #F3F4F6; color: #6B7280; }
+.gmd-status--pending_payment { background: #FFF7ED; color: #C2410C; }
+
+/* Quick actions */
+.gmd-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.gmd-action {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 18px 12px; border-radius: 14px;
+    border: 1.5px solid #E5E7EB; background: white;
+    text-decoration: none; color: #1F2937;
+    font-size: 13px; font-weight: 600; text-align: center;
+    transition: all 0.2s;
+}
+.gmd-action:hover { border-color: #FF7B2C; background: #FFF7ED; color: #FF7B2C; box-shadow: 0 4px 12px rgba(255,123,44,0.15); }
+.gmd-action i { font-size: 22px; color: #FF7B2C; }
+
+/* Rating stars */
+.gmd-stars { display: inline-flex; gap: 2px; color: #FBBF24; font-size: 14px; }
+.gmd-stars .empty { color: #D1D5DB; }
+
+/* Empty state */
+.gmd-empty { text-align: center; color: #9CA3AF; padding: 20px; font-size: 13px; }
+</style>
 {% endblock headextra %}
 
 {% block body %}
-<main class="c2c-dashboard-container">
-    <h1 class="gm-s-560335">
-        <i class="fi-rs-user gm-s-a77b0c" ></i>
-        Dashboard Vendeur C2C
-    </h1>
-    
-    <!-- Statistiques -->
-    <div class="c2c-stats-grid">
-        <div class="c2c-stat-card">
-            <div class="c2c-stat-label">Total commandes</div>
-            <div class="c2c-stat-value">{{ total_orders }}</div>
-        </div>
-        <div class="c2c-stat-card">
-            <div class="c2c-stat-label">En attente</div>
-            <div class="c2c-stat-value">{{ pending_orders }}</div>
-        </div>
-        <div class="c2c-stat-card">
-            <div class="c2c-stat-label">Terminées</div>
-            <div class="c2c-stat-value">{{ completed_orders }}</div>
-        </div>
-        <div class="c2c-stat-card">
-            <div class="c2c-stat-label">Revenus totaux</div>
-            <div class="c2c-stat-value">{{ total_revenue|floatformat:0 }} FCFA</div>
-        </div>
-    </div>
-    
-    <!-- Intentions d'achat en attente -->
-    <div class="c2c-section">
-        <h2><i class="fi-rs-shopping-cart"></i> Intentions d'achat récentes</h2>
-        {% if pending_intents %}
-        <div class="gm-s-578b24">
-            {% for intent in pending_intents %}
-            <div class="gm-s-24b105">
-                <div class="gm-s-948e6d">
-                    <div>
-                        <strong>{{ intent.product.product_name }}</strong>
-                        <p class="gm-s-f2d662">
-                            Acheteur: {{ intent.buyer.get_full_name|default:intent.buyer.username }}
-                        </p>
-                        <p class="gm-s-73d22e">
-                            Prix initial: {{ intent.initial_price|floatformat:0 }} FCFA
-                        </p>
-                    </div>
-                    <a href="{% url 'accounts:my-messages' %}?product_id={{ intent.product.id }}" class="c2c-btn c2c-btn-primary gm-s-8354e9" >
-                        <i class="fi-rs-comment"></i> Voir
-                    </a>
-                </div>
+<main class="main pages" style="padding-bottom: 60px;">
+<div class="gmd-wrap">
+
+    <!-- Hero -->
+    <div class="gmd-hero">
+        <div class="gmd-hero__avatar">{{ request.user.username|first|upper }}</div>
+        <div class="gmd-hero__info">
+            <div class="gmd-hero__name">{{ request.user.get_full_name|default:request.user.username }}</div>
+            <div class="gmd-hero__sub">Tableau de bord vendeur C2C</div>
+            <div class="gmd-hero__badges">
+                {% if seller_level %}
+                <span class="gmd-badge gmd-badge--level-{{ seller_level.key }}">
+                    {{ seller_level.icon }} {{ seller_level.label }}
+                    {% if seller_level.completed %}&nbsp;·&nbsp;{{ seller_level.completed }} vente{{ seller_level.completed|pluralize }}{% endif %}
+                </span>
+                {% endif %}
+                {% if request.user.profile.is_identity_verified %}
+                <span class="gmd-badge gmd-badge--verified"><i class="fi-rs-shield-check"></i> Identité vérifiée</span>
+                {% endif %}
+                {% if review_stats.total_reviews > 0 %}
+                <span class="gmd-badge gmd-badge--rating">
+                    ⭐ {{ review_stats.average_rating|floatformat:1 }} · {{ review_stats.total_reviews }} avis
+                </span>
+                {% endif %}
             </div>
-            {% endfor %}
         </div>
-        {% else %}
-        <p class="gm-s-a5d461">Aucune intention d'achat en attente</p>
+        <a href="{% url 'accounts:sell-product' %}" style="background:linear-gradient(135deg,#FF7B2C,#e55d0a);color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;">
+            <i class="fi-rs-plus"></i> Vendre un article
+        </a>
+    </div>
+
+    <!-- Statistiques clés -->
+    <div class="gmd-stats">
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">💰</span>
+            <div class="gmd-stat__val gmd-stat__val--green">{{ total_revenue|floatformat:0 }}</div>
+            <div class="gmd-stat__lbl">Revenus FCFA</div>
+        </div>
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">✅</span>
+            <div class="gmd-stat__val gmd-stat__val--green">{{ completed_orders }}</div>
+            <div class="gmd-stat__lbl">Ventes terminées</div>
+        </div>
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">⏳</span>
+            <div class="gmd-stat__val gmd-stat__val--orange">{{ pending_orders }}</div>
+            <div class="gmd-stat__lbl">En cours</div>
+        </div>
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">💬</span>
+            <div class="gmd-stat__val gmd-stat__val--orange">{{ active_intents_count }}</div>
+            <div class="gmd-stat__lbl">Négociations actives</div>
+        </div>
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">📦</span>
+            <div class="gmd-stat__val">{{ active_listings }}</div>
+            <div class="gmd-stat__lbl">Articles actifs</div>
+        </div>
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">⭐</span>
+            <div class="gmd-stat__val">{% if review_stats.average_rating %}{{ review_stats.average_rating|floatformat:1 }}{% else %}—{% endif %}</div>
+            <div class="gmd-stat__lbl">Note moyenne</div>
+        </div>
+        {% if disputed_orders > 0 %}
+        <div class="gmd-stat">
+            <span class="gmd-stat__icon">⚠️</span>
+            <div class="gmd-stat__val gmd-stat__val--red">{{ disputed_orders }}</div>
+            <div class="gmd-stat__lbl">Litiges</div>
+        </div>
         {% endif %}
     </div>
-    
-    <!-- Liens rapides -->
-    <div class="c2c-section">
-        <h2><i class="fi-rs-apps"></i> Actions rapides</h2>
-        <div class="gm-s-d34def">
-            <a href="{% url 'c2c:seller-orders' %}" class="gm-s-8a0f2d">
-                <i class="fi-rs-shopping-bag gm-s-5d7104" ></i>
-                Mes commandes
-            </a>
-            <a href="{% url 'c2c:seller-intents' %}" class="gm-s-8a0f2d">
-                <i class="fi-rs-shopping-cart gm-s-5d7104" ></i>
-                Intentions d'achat
-            </a>
-            <a href="{% url 'accounts:sell-product' %}" class="gm-s-8a0f2d">
-                <i class="fi-rs-plus gm-s-5d7104" ></i>
-                Vendre un article
-            </a>
+
+    <!-- Panels : intents + recent orders -->
+    <div class="gmd-panels">
+
+        <!-- Intentions d'achat en attente -->
+        <div class="gmd-panel">
+            <div class="gmd-panel__title">
+                <i class="fi-rs-shopping-cart"></i>
+                Négociations en cours
+                {% if active_intents_count > 5 %}
+                <span style="margin-left:auto;font-size:11px;color:#6B7280;">+{{ active_intents_count|add:"-5" }} autres</span>
+                {% endif %}
+            </div>
+            {% if pending_intents %}
+                {% for intent in pending_intents %}
+                <div class="gmd-intent">
+                    <div class="gmd-intent__icon"><i class="fi-rs-comment"></i></div>
+                    <div class="gmd-intent__body">
+                        <div class="gmd-intent__product">{{ intent.product.product_name|truncatechars:35 }}</div>
+                        <div class="gmd-intent__buyer">{{ intent.buyer.get_full_name|default:intent.buyer.username }}</div>
+                    </div>
+                    <span class="gmd-intent__price">{{ intent.initial_price|floatformat:0 }} F</span>
+                    <a href="{% url 'accounts:my-messages' %}?product_id={{ intent.product.id }}" class="gmd-intent__action">Voir</a>
+                </div>
+                {% endfor %}
+                {% if active_intents_count > 5 %}
+                <div style="text-align:center;margin-top:10px;">
+                    <a href="{% url 'c2c:seller-intents' %}" style="font-size:12px;color:#FF7B2C;text-decoration:none;font-weight:600;">Voir tout ({{ active_intents_count }}) →</a>
+                </div>
+                {% endif %}
+            {% else %}
+            <div class="gmd-empty"><i class="fi-rs-inbox" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucune négociation en cours</div>
+            {% endif %}
+        </div>
+
+        <!-- Commandes récentes -->
+        <div class="gmd-panel">
+            <div class="gmd-panel__title"><i class="fi-rs-shopping-bag"></i> Commandes récentes</div>
+            {% if recent_orders %}
+                {% for order in recent_orders %}
+                <div class="gmd-order">
+                    <div class="gmd-order__product">
+                        <a href="{% url 'c2c:order-detail' order.id %}" style="color:inherit;text-decoration:none;">
+                            {{ order.product.product_name|truncatechars:30 }}
+                        </a>
+                    </div>
+                    <span class="gmd-order__price">{{ order.seller_net|floatformat:0 }} F</span>
+                    <span class="gmd-status gmd-status--{{ order.status }}">{{ order.get_status_display }}</span>
+                </div>
+                {% endfor %}
+                <div style="text-align:center;margin-top:10px;">
+                    <a href="{% url 'c2c:seller-orders' %}" style="font-size:12px;color:#FF7B2C;text-decoration:none;font-weight:600;">Voir toutes les commandes →</a>
+                </div>
+            {% else %}
+            <div class="gmd-empty"><i class="fi-rs-shopping-bag" style="font-size:28px;display:block;margin-bottom:8px;"></i>Aucune commande pour l'instant</div>
+            {% endif %}
         </div>
     </div>
+
+    <!-- Actions rapides -->
+    <h2 style="font-size:16px;font-weight:700;color:#1F2937;margin-bottom:14px;"><i class="fi-rs-apps" style="color:#FF7B2C;margin-right:6px;"></i> Actions rapides</h2>
+    <div class="gmd-actions">
+        <a href="{% url 'c2c:seller-orders' %}" class="gmd-action">
+            <i class="fi-rs-shopping-bag"></i>Mes commandes
+        </a>
+        <a href="{% url 'c2c:seller-intents' %}" class="gmd-action">
+            <i class="fi-rs-shopping-cart"></i>Intentions d'achat
+        </a>
+        <a href="{% url 'accounts:sell-product' %}" class="gmd-action">
+            <i class="fi-rs-plus"></i>Publier un article
+        </a>
+        <a href="{% url 'c2c:seller-profile' request.user.id %}" class="gmd-action">
+            <i class="fi-rs-user"></i>Mon profil vendeur
+        </a>
+        <a href="{% url 'c2c:safe-zones' %}" class="gmd-action">
+            <i class="fi-rs-shield-check"></i>Zones d'échange
+        </a>
+        <a href="{% url 'accounts:my-messages' %}" class="gmd-action">
+            <i class="fi-rs-comment"></i>Messagerie
+        </a>
+    </div>
+
+    <!-- Mini-guide vendeur -->
+    <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1.5px solid #86EFAC;border-radius:16px;padding:24px;margin-bottom: 24px;">
+        <h3 style="font-size:16px;font-weight:700;color:#15803D;margin-bottom:14px;"><i class="fi-rs-graduation-cap"></i> Guide : Comment bien vendre sur Gabomazone</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;">
+            <div style="background:white;border-radius:10px;padding:14px;">
+                <div style="font-size:20px;margin-bottom:6px;">📸</div>
+                <strong style="font-size:13px;color:#1F2937;">Photos de qualité</strong>
+                <p style="font-size:12px;color:#6B7280;margin:4px 0 0;">Publiez 3 à 4 photos claires de votre article sous différents angles pour rassurer l'acheteur.</p>
+            </div>
+            <div style="background:white;border-radius:10px;padding:14px;">
+                <div style="font-size:20px;margin-bottom:6px;">💬</div>
+                <strong style="font-size:13px;color:#1F2937;">Répondez rapidement</strong>
+                <p style="font-size:12px;color:#6B7280;margin:4px 0 0;">Les acheteurs qui négocient attendent une réponse sous 2h. Acceptez ou contre-proposez vite.</p>
+            </div>
+            <div style="background:white;border-radius:10px;padding:14px;">
+                <div style="font-size:20px;margin-bottom:6px;">📍</div>
+                <strong style="font-size:13px;color:#1F2937;">Lieu sécurisé</strong>
+                <p style="font-size:12px;color:#6B7280;margin:4px 0 0;">Proposez une Zone Gabomazone officielle pour la remise. C'est plus sûr et ça inspire confiance.</p>
+            </div>
+            <div style="background:white;border-radius:10px;padding:14px;">
+                <div style="font-size:20px;margin-bottom:6px;">🔒</div>
+                <strong style="font-size:13px;color:#1F2937;">L'argent est sécurisé</strong>
+                <p style="font-size:12px;color:#6B7280;margin:4px 0 0;">Le paiement escrow garantit que vous recevrez vos fonds dès que l'échange de codes est validé.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
 </main>
-{% endblock %}
-
-
-
+{% endblock body %}

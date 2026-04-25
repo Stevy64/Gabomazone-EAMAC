@@ -1,4 +1,4 @@
-/**
+﻿/**
  * negotiation.js — Gestion complète du flux d'achat C2C
  *
  * Couvre les étapes suivantes :
@@ -86,6 +86,7 @@ function gmModalSafe(kind, title, message) {
 
 var currentPurchaseIntentId = null;
 var negotiationPollInterval = null;
+var gmCurrentIntentData = null;
 
 /* ═══════════════════════════════════════════════════════════
    1. Polling de négociation (rafraîchissement quasi temps réel)
@@ -96,7 +97,7 @@ function startNegotiationPolling() {
     negotiationPollInterval = setInterval(function () {
         if (currentPurchaseIntentId) {
             gmLog('Polling intent #%d', currentPurchaseIntentId);
-            loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
+                    loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
         }
     }, 7000);
 }
@@ -133,8 +134,9 @@ async function loadPurchaseIntentForConversation(productId, buyerId, sellerId, i
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         var data = await response.json();
-
+        
         if (data.success && data.purchase_intent_id) {
+            gmCurrentIntentData = data;
             gmLog('Intent #%d chargée — status=%s orderStatus=%s',
                 data.purchase_intent_id, data.status, data.order_status || '(aucune commande)');
 
@@ -146,15 +148,35 @@ async function loadPurchaseIntentForConversation(productId, buyerId, sellerId, i
             var isBuyer = Number(data.buyer_id) === uid;
             var isSeller = Number(data.seller_id) === uid;
 
+            // Détection des transitions pour les effets de gamification
+            var prevStatus = window._gmLastIntentStatus || null;
+            var prevOrderStatus = window._gmLastOrderStatus || null;
+            var curStatus = data.status;
+            var curOrderStatus = data.order_status || null;
+            var isFirstLoad = prevStatus === null;
+
+            if (!isFirstLoad) {
+                _detectAndFireMilestone(prevStatus, curStatus, prevOrderStatus, curOrderStatus, data, isBuyer);
+            }
+            window._gmLastIntentStatus = curStatus;
+            window._gmLastOrderStatus = curOrderStatus;
+
+            // Vérification terminée → grand effet
+            if (data.verification && data.verification.is_completed && !window._gmTransactionCompleteFired) {
+                window._gmTransactionCompleteFired = true;
+                _gmMilestone('completed', isBuyer ? '🎉 Transaction terminée ! Article bien reçu.' : '🎉 Transaction terminée ! Paiement libéré.');
+            }
+            
             toggleNegotiationSection(data.purchase_intent_id, data);
             displayNegotiationHistory(data.negotiations || [], data);
             displayVerificationSection(data.verification, data.order, isBuyer, isSeller);
             _showStepGuide(data, isBuyer, isSeller);
-
+            
             if (typeof updateChatControls === 'function') {
                 updateChatControls(data);
             }
         } else {
+            gmCurrentIntentData = null;
             gmLog('Aucune intention trouvée pour cette conversation');
             window.currentOrderId = null;
             toggleNegotiationSection(null);
@@ -163,6 +185,7 @@ async function loadPurchaseIntentForConversation(productId, buyerId, sellerId, i
             }
         }
     } catch (error) {
+        gmCurrentIntentData = null;
         gmErr('loadPurchaseIntent ERREUR:', error);
         toggleNegotiationSection(null);
         if (typeof updateChatControls === 'function') {
@@ -199,70 +222,47 @@ function _showStepGuide(data, isBuyer, isSeller) {
     /* Étape 1 : En attente de disponibilité vendeur */
     if ((status === 'pending' || status === 'awaiting_availability') && !avail) {
         if (isBuyer) {
-            title = 'Étape 1/5 — Demande envoyée';
-            message = 'Votre demande a été transmise au vendeur.<br><br>'
-                + 'Il doit confirmer que son article est <strong>toujours disponible</strong>. '
-                + 'Vous serez notifié dès qu\'il aura répondu.';
+            title = '1/5 — Demande envoyée';
+            message = 'Le vendeur doit confirmer la <strong>disponibilité</strong>. Vous serez notifié.';
         } else if (isSeller) {
-            title = 'Étape 1/5 — Nouvelle demande';
-            message = 'Un acheteur souhaite acheter votre article !<br><br>'
-                + '<strong>Action requise :</strong> confirmez la disponibilité dans la section '
-                + '« Intentions d\'achat » ci-dessus.';
+            title = '1/5 — Nouvelle demande';
+            message = 'Un acheteur veut votre article. <strong>Confirmez la disponibilité</strong> dans « Intentions d\'achat ».';
         }
 
-    /* Étape 2 : Négociation du prix */
     } else if (status === 'negotiating' && !data.final_price) {
         if (isBuyer) {
-            title = 'Étape 2/5 — Négociation';
-            message = 'L\'article est disponible !<br><br>'
-                + 'Proposez un prix avec le formulaire ci-dessous. '
-                + 'Le vendeur pourra accepter, refuser ou contre-proposer.';
+            title = '2/5 — Négociation';
+            message = 'Article disponible ! <strong>Proposez votre prix</strong> ci-dessous.';
         } else if (isSeller) {
-            title = 'Étape 2/5 — Négociation';
-            message = 'L\'acheteur peut maintenant proposer un prix.<br><br>'
-                + 'Vous pourrez accepter, refuser ou faire une contre-proposition.';
+            title = '2/5 — Négociation';
+            message = 'L\'acheteur peut proposer un prix. Acceptez, refusez ou contre-proposez.';
         }
 
-    /* Étape 3 : Prix accepté → Paiement */
     } else if (status === 'agreed' && (!orderStatus || orderStatus === 'pending_payment')) {
         if (isBuyer) {
-            title = 'Étape 3/5 — Paiement';
-            message = 'Accord trouvé !<br><br>'
-                + 'Procédez au <strong>paiement sécurisé</strong> via le bouton vert ci-dessous. '
-                + 'Le montant sera conservé en escrow jusqu\'à la fin de la transaction.';
+            title = '3/5 — Paiement sécurisé';
+            message = 'Accord trouvé ! Payez via le bouton vert. <strong>L\'argent est sécurisé</strong> jusqu\'à réception.';
         } else if (isSeller) {
-            title = 'Étape 3/5 — En attente de paiement';
-            message = 'Le prix est accepté !<br><br>'
-                + 'L\'acheteur doit maintenant effectuer le paiement sécurisé. '
-                + 'Vous serez notifié dès que c\'est fait.';
+            title = '3/5 — En attente de paiement';
+            message = 'Prix accepté ! L\'acheteur doit payer. Vous serez notifié.';
         }
 
-    /* Étape 4 : Paiement confirmé → Remise article */
     } else if (orderStatus === 'paid' && !codesUnlocked && !verificationDone) {
         if (isBuyer) {
-            title = 'Étape 4/5 — Rendez-vous';
-            message = 'Paiement confirmé !<br><br>'
-                + 'Échangez avec le vendeur dans le chat pour convenir du <strong>lieu et de l\'heure de remise</strong>. '
-                + 'Lors de la rencontre, confirmez la réception de l\'article.';
+            title = '4/5 — Rendez-vous';
+            message = 'Paiement reçu ! Convenez du <strong>lieu de remise</strong> dans le chat.';
         } else if (isSeller) {
-            title = 'Étape 4/5 — Rendez-vous';
-            message = 'Le paiement est reçu !<br><br>'
-                + 'Convenez du lieu et de l\'heure de remise dans le chat. '
-                + 'Lors de la rencontre, confirmez la remise de l\'article.';
+            title = '4/5 — Rendez-vous';
+            message = 'Paiement reçu ! Convenez du <strong>lieu de remise</strong> dans le chat.';
         }
 
-    /* Étape 5 : Codes de vérification */
     } else if (codesUnlocked && !verificationDone) {
         if (isBuyer) {
-            title = 'Étape 5/5 — Validation finale';
-            message = 'Remise et réception confirmées !<br><br>'
-                + 'Échangez vos <strong>codes de vérification</strong> avec le vendeur pour finaliser la transaction. '
-                + 'Les fonds seront libérés ensuite.';
+            title = '5/5 — Validation';
+            message = 'Échangez vos <strong>codes</strong> avec le vendeur pour libérer les fonds.';
         } else if (isSeller) {
-            title = 'Étape 5/5 — Validation finale';
-            message = 'Remise et réception confirmées !<br><br>'
-                + 'Échangez vos <strong>codes de vérification</strong> avec l\'acheteur pour finaliser. '
-                + 'Les fonds vous seront versés ensuite.';
+            title = '5/5 — Validation';
+            message = 'Échangez vos <strong>codes</strong> avec l\'acheteur. Les fonds vous seront versés.';
         }
     }
 
@@ -282,6 +282,30 @@ async function submitNegotiation(event) {
 
     if (!currentPurchaseIntentId) {
         GMModal.warning('Attention', "Aucune intention d'achat active");
+        return;
+    }
+
+    // Garde-fou UX : impossible de proposer après accord / paiement
+    var d = gmCurrentIntentData || {};
+    var uid = Number(window.currentUserId || 0);
+    var isBuyer = Number(d.buyer_id || 0) === uid;
+    var orderStatus = d.order_status || null;
+    var lockedByAgreement = d.status === 'agreed' || orderStatus === 'pending_payment'
+        || ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].indexOf(orderStatus) !== -1;
+    if (lockedByAgreement) {
+        if (isBuyer && (orderStatus === 'pending_payment' || d.status === 'agreed') && d.order_id) {
+            GMModal.show({
+                type: 'info',
+                title: 'Prix déjà accepté',
+                message: 'Le prix est déjà validé. Procédez maintenant au paiement pour finaliser l’achat.',
+                showCancel: true,
+                confirmText: 'Aller au paiement',
+                cancelText: 'Fermer',
+                onConfirm: function () { window.location.href = '/c2c/order/' + d.order_id + '/payment/'; }
+            });
+        } else {
+            GMModal.info('Prix déjà accepté', 'Le prix est déjà validé. Aucune nouvelle proposition n’est possible.');
+        }
         return;
     }
 
@@ -334,22 +358,45 @@ function displayNegotiationHistory(negotiations, intentData) {
 
     var acceptBtn = document.getElementById('acceptFinalPriceBtn');
 
+    // Bannière offres concurrentes (vendeur uniquement, article encore en négociation)
+    var competingBuyers = (intentData && intentData.competing_buyers) || 0;
+    var uid = window.currentUserId || 0;
+    var isSeller = intentData && intentData.seller_id === uid;
+    var activeStatuses = ['pending', 'awaiting_availability', 'negotiating'];
+    var isActive = intentData && activeStatuses.indexOf(intentData.status) !== -1;
+    _updateCompetingBuyersBanner(competingBuyers, isSeller && isActive);
+    
     if (negotiations.length === 0) {
         historyContainer.innerHTML = '<p style="margin:0;font-size:12px;color:#9CA3AF;font-style:italic;">Aucune proposition pour le moment</p>';
         if (acceptBtn) acceptBtn.style.display = 'none';
         return;
     }
-
-    var uid = window.currentUserId || 0;
     var orderStatus = intentData.order_status;
     var isPaid = orderStatus && ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'].indexOf(orderStatus) !== -1;
+    var isAgreedNow = intentData.status === 'agreed';
 
     var html = '';
     negotiations.forEach(function (neg, idx) {
         var isProposer = neg.proposer_id === uid;
         var isPending = neg.status === 'pending';
         var isLast = idx === negotiations.length - 1;
-        var canAct = isPending && isLast && !isProposer && !isPaid;
+        // Action possible : offre encore en attente, dernière de la liste, vous n'en êtes pas l'auteur,
+        // et la négociation n'est pas verrouillée (prix accepté ou commande payée)
+        var canAct = isPending && isLast && !isProposer && !isPaid && !isAgreedNow;
+
+        // Countdown timer pour offre en attente avec expires_at
+        var countdownHtml = '';
+        if (isPending && neg.expires_at_iso) {
+            var expiresAt = new Date(neg.expires_at_iso);
+            var msLeft = expiresAt - Date.now();
+            if (msLeft > 0) {
+                var countdownId = 'nego-countdown-' + neg.id;
+                countdownHtml = '<span id="' + countdownId + '" class="gm-nego-countdown" data-expires="' + neg.expires_at_iso + '">'
+                    + _formatCountdown(msLeft) + '</span>';
+            } else {
+                countdownHtml = '<span style="font-size:11px;color:#EF4444;font-weight:600;">Offre expirée</span>';
+            }
+        }
 
         html += '<div style="background:' + (isProposer ? '#E0F2FE' : 'white') + ';border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid #E5E7EB;">'
             + '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:4px;">'
@@ -363,34 +410,56 @@ function displayNegotiationHistory(negotiations, intentData) {
             + (canAct ? '<button onclick="acceptNegotiation(' + neg.id + ')" style="padding:6px 10px;background:#10B981;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Accepter</button>'
                 + '<button onclick="rejectNegotiation(' + neg.id + ')" style="padding:6px 10px;background:#FEE2E2;color:#EF4444;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Refuser</button>' : '')
             + (isPending && !canAct ? '<span style="font-size:11px;color:#6B7280;">En attente de réponse...</span>' : '')
+            + countdownHtml
             + '</div></div>';
     });
-
+    
     historyContainer.innerHTML = html;
+    
+    // Démarrer les timers de countdown
+    _startNegotiationCountdowns();
 
     /* --- Bouton « Accepter le prix final » (acheteur uniquement) --- */
     if (!acceptBtn || !intentData) return;
 
     var isBuyer = intentData.buyer_id === uid;
+
+    // Post-paiement : résumé lecture seule — formulaire masqué, historique visible
+    if (isPaid) {
+        acceptBtn.style.display = 'none';
+        var negoForm = document.getElementById('negotiationForm');
+        if (negoForm) negoForm.style.display = 'none';
+        // Mise à jour du header de section en mode résumé
+        var negoSection = document.getElementById('negotiationSection');
+        if (negoSection) {
+            var h5 = negoSection.querySelector('h5');
+            var sub = negoSection.querySelector('p.gm-s-3e99bc');
+            if (h5) h5.innerHTML = '<i class="fi-rs-list" style="color:#6B7280;margin-right:6px;"></i>Résumé de la négociation';
+            if (sub) { sub.textContent = 'Prix final : ' + (intentData && intentData.negotiated_price ? parseFloat(intentData.negotiated_price).toLocaleString() + ' FCFA' : '—'); sub.style.color = '#059669'; sub.style.fontWeight = '600'; }
+        }
+        return;
+    }
+    
     if (!isBuyer) { acceptBtn.style.display = 'none'; return; }
 
+    // Accord trouvé, commande créée mais non encore payée → bouton paiement
     if (intentData.status === 'agreed' && intentData.order_id) {
         gmLog('Prix accepté — affichage bouton paiement (order #%d)', intentData.order_id);
         acceptBtn.style.display = 'block';
-        acceptBtn.innerHTML = '<i class="fi-rs-credit-card"></i> Accepter le prix final et procéder au paiement';
+        acceptBtn.innerHTML = '<i class="fi-rs-credit-card"></i> Procéder au paiement';
         acceptBtn.onclick = function () {
             window.location.href = '/c2c/order/' + intentData.order_id + '/payment/';
         };
         return;
     }
-
+    
     if (intentData.can_accept_final_price && intentData.negotiated_price) {
         acceptBtn.style.display = 'block';
-        acceptBtn.innerHTML = '<i class="fi-rs-hand-holding-usd"></i> Accepter le prix final';
+        acceptBtn.innerHTML = '<i class="fi-rs-hand-holding-usd"></i> Accepter ce prix';
         acceptBtn.onclick = function () { acceptFinalPrice(intentData.purchase_intent_id, intentData.negotiated_price); };
         return;
     }
-
+    
     acceptBtn.style.display = 'none';
     lockInputsIfAgreed(intentData);
     updateNegotiationOfferAvailability(intentData);
@@ -481,12 +550,17 @@ function lockInputsIfAgreed(intentData) {
         if (negotiationForm) negotiationForm.style.display = 'none';
         if (negotiationPrice) negotiationPrice.disabled = true;
     } else if (isAgreed || isPaid) {
-        gmLog('Négo: prix fixé / payé → formulaire bloqué');
+        gmLog('Négo: prix fixé / payé → formulaire masqué');
         if (negotiationPrice) { negotiationPrice.disabled = true; negotiationPrice.placeholder = 'Prix fixé'; }
         if (negotiationForm) {
             var sb = negotiationForm.querySelector('button[type="submit"]');
             if (sb) { sb.disabled = true; sb.style.opacity = '0.5'; sb.style.cursor = 'not-allowed'; }
-            if (isPaid) negotiationForm.style.display = 'none';
+            // Masquer entièrement le formulaire dès qu'un prix est accepté
+            negotiationForm.style.display = 'none';
+        }
+        // Post-paiement : masquer seulement le formulaire (la section reste visible en résumé)
+        if (isPaid && negotiationSection) {
+            negotiationSection.setAttribute('data-gm-resume-mode', '1');
         }
     }
 }
@@ -505,6 +579,7 @@ async function acceptNegotiation(negotiationId) {
         var data = await resp.json();
         if (data.success) {
             gmLog('Offre #%d acceptée', negotiationId);
+            _gmMilestone('offer_accepted', '⭐ Offre acceptée !');
             _reloadIntentAndConversation();
         } else {
             GMModal.error('Erreur', data.error || "Erreur lors de l'acceptation de l'offre");
@@ -523,7 +598,7 @@ async function rejectNegotiation(negotiationId) {
         if (data.success) {
             gmLog('Offre #%d refusée', negotiationId);
             _reloadIntentAndConversation();
-        } else {
+            } else {
             GMModal.error('Erreur', data.error || "Erreur lors du refus de l'offre");
         }
     } catch (e) { gmErr('rejectNegotiation ERREUR:', e); GMModal.error('Erreur', "Erreur lors du refus de l'offre"); }
@@ -537,8 +612,8 @@ function acceptFinalPrice(intentId, finalPrice) {
     gmLog('acceptFinalPrice → intent #%d prix=%s FCFA', intentId, finalPrice);
     GMModal.show({
         type: 'confirm',
-        title: 'Accepter le prix final',
-        message: 'Êtes-vous sûr d\'accepter le prix final de <strong>' + parseFloat(finalPrice).toLocaleString() + ' FCFA</strong> ?<br><br>Un bouton de paiement apparaîtra après l\'acceptation.',
+        title: 'Accepter ce prix',
+        message: 'Êtes-vous sûr d\'accepter ce prix de <strong>' + parseFloat(finalPrice).toLocaleString() + ' FCFA</strong> ?<br><br>Un bouton de paiement apparaîtra après l\'acceptation.',
         showCancel: true,
         confirmText: 'Accepter',
         cancelText: 'Annuler',
@@ -562,7 +637,7 @@ function acceptFinalPrice(intentId, finalPrice) {
                         message: data.message || 'Prix accepté ! Cliquez sur le bouton vert pour procéder au paiement.',
                         confirmText: 'OK',
                         onConfirm: function () {
-                            loadPurchaseIntentForConversation(null, null, null, intentId);
+                                loadPurchaseIntentForConversation(null, null, null, intentId);
                         }
                     });
                 } else {
@@ -604,11 +679,11 @@ async function _postHandoverConfirm() {
         throw new Error('Commande introuvable');
     }
     var resp = await fetch('/c2c/order/' + window.currentOrderId + '/confirm-handover/', {
-        method: 'POST',
-        headers: {
+            method: 'POST',
+            headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
         },
         body: '{}'
     });
@@ -629,16 +704,10 @@ function promptHandoverWarningAndSubmit(role) {
         return;
     }
     var isBuyer = role === 'buyer';
-    var title = isBuyer ? 'Confirmer la réception de l’article' : 'Confirmer la remise de l’article';
+    var title = isBuyer ? 'Article récupéré ?' : 'Article remis ?';
     var message = isBuyer
-        ? 'Vous allez confirmer que vous avez <strong>physiquement récupéré l’article</strong> auprès du vendeur.<br><br>'
-          + 'Cette déclaration est <strong>engageante</strong> : elle permet de débloquer l’étape suivante '
-          + '(échange des codes de vérification). Ne validez que si vous avez bien l’article en main.<br><br>'
-          + 'Souhaitez-vous confirmer ?'
-        : 'Vous allez confirmer que vous avez <strong>remis l’article</strong> à l’acheteur.<br><br>'
-          + 'Cette déclaration est <strong>engageante</strong> : une fois les deux confirmations enregistrées, '
-          + 'les codes de vérification deviennent disponibles. Ne validez que si la remise a réellement eu lieu.<br><br>'
-          + 'Souhaitez-vous confirmer ?';
+        ? 'Confirmez <strong>uniquement</strong> si vous avez l’article en main. Les codes seront débloqués.'
+        : 'Confirmez <strong>uniquement</strong> si la remise a eu lieu. Les codes seront débloqués.';
 
     GMModal.show({
         type: 'warning',
@@ -665,13 +734,13 @@ async function _runHandoverAfterUserConfirms(role) {
         if (data.codes_unlocked) {
             GMModal.success(
                 'Étape suivante',
-                'Réception et remise sont confirmées. Utilisez le bouton '
-                + '« Valider la transaction (codes de vérification) » pour afficher et échanger les codes.'
+                'Confirmations enregistrées. Utilisez le bouton '
+                + 'de validation pour échanger les codes.'
             );
         } else {
             GMModal.success(
                 'Confirmation enregistrée',
-                'Merci. L’autre partie doit encore confirmer de son côté dans cette conversation.'
+                'En attente de la confirmation de l’autre partie.'
             );
         }
     } catch (err) {
@@ -689,25 +758,25 @@ async function _runHandoverAfterUserConfirms(role) {
 function displayVerificationSection(verificationData, orderData, isBuyer, isSeller) {
     var section = document.getElementById('verificationSection');
     if (!section) return;
-
+    
     if (!verificationData || !orderData) {
         section.style.display = 'none';
         return;
     }
-
+    
     var paidStatuses = ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'];
     if (paidStatuses.indexOf(orderData.status) === -1) {
         section.style.display = 'none';
         return;
     }
-
+    
     window._verificationData = verificationData;
     window._orderData = orderData;
     window._isBuyer = isBuyer;
     window._isSeller = isSeller;
-
+    
     section.style.display = 'block';
-
+    
     if (verificationData.is_completed) {
         gmLog('Vérification terminée — transaction complète');
         section.innerHTML =
@@ -717,7 +786,7 @@ function displayVerificationSection(verificationData, orderData, isBuyer, isSell
             + '</div>';
         return;
     }
-
+    
     var buyerDone = verificationData.buyer_handover_confirmed === true;
     var sellerDone = verificationData.seller_handover_confirmed === true;
     var codesUnlocked = verificationData.codes_unlocked === true;
@@ -835,7 +904,7 @@ function openVerificationModal() {
         }
         return;
     }
-
+    
     openCodesExchangeModal();
 }
 
@@ -934,7 +1003,7 @@ function openHandoverConfirmModal(role) {
                         'Étape suivante',
                         'Utilisez le bouton « Valider la transaction (codes de vérification) » dans le chat.'
                     );
-                } else {
+        } else {
                     GMModal.success(
                         'Confirmation enregistrée',
                         'L’autre partie doit encore confirmer de son côté.'
@@ -1000,15 +1069,15 @@ function openCodesExchangeModal() {
               + '<i class="fi-rs-check"></i> Valider le code</button>'
             : '')
         + '</div></div>';
-
+    
     document.body.appendChild(overlay);
-
+    
     /* Focus sur le champ de saisie */
     setTimeout(function () {
         var input = overlay.querySelector('#gmPeerVerificationCodeInput');
         if (input) input.focus();
     }, 100);
-
+    
     var closeModal = function () { overlay.remove(); };
     _bindVerificationOverlayClose(overlay, closeModal);
 
@@ -1018,8 +1087,9 @@ function openCodesExchangeModal() {
         confirmBtn.addEventListener('click', async function () {
             var input = overlay.querySelector('#gmPeerVerificationCodeInput');
             var code = input ? input.value.trim().toUpperCase() : '';
-            if (!code || code.length !== 6) {
-                GMModal.warning('Code invalide', 'Le code doit contenir 6 caractères');
+            code = code.replace(/\s+/g, '').toUpperCase();
+            if (!/^GM-[A-Z]{2}\d{4}$/.test(code)) {
+                GMModal.warning('Code invalide', 'Format attendu : GM-AB1234');
                 return;
             }
             gmLog('Validation code « %s » — isBuyer=%s isSeller=%s', code, isBuyer, isSeller);
@@ -1035,10 +1105,21 @@ function openCodesExchangeModal() {
             }
         });
     }
-
+    
     /* Valider avec Entrée */
     var codeInput = overlay.querySelector('#gmPeerVerificationCodeInput');
     if (codeInput && confirmBtn) {
+        codeInput.addEventListener('input', function () {
+            var raw = codeInput.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            // Format progressif GM-AB1234
+            if (raw.length >= 2 && raw.slice(0, 2) !== 'GM') {
+                raw = 'GM' + raw.slice(2);
+            }
+            raw = raw.replace(/-/g, '');
+            if (raw.length > 2) raw = raw.slice(0, 2) + '-' + raw.slice(2);
+            if (raw.length > 9) raw = raw.slice(0, 9);
+            codeInput.value = raw;
+        });
         codeInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') confirmBtn.click();
         });
@@ -1059,9 +1140,9 @@ function _buildCodeInputBlock(labelText, placeholder, helpText) {
     return '<div style="padding:16px;background:#EFF6FF;border-radius:12px;border:1px solid #3B82F6;">'
         + '<p style="margin:0 0 12px;font-size:13px;color:#1E40AF;font-weight:600;">📥 Entrez le code ' + labelText + ' :</p>'
         + '<label for="gmPeerVerificationCodeInput" style="display:block;margin:0 0 8px;font-size:12px;color:#1E40AF;font-weight:600;">Code ' + labelText + '</label>'
-        + '<input type="text" id="gmPeerVerificationCodeInput" name="peer_verification_code" maxlength="6" placeholder="' + placeholder + '" '
+        + '<input type="text" id="gmPeerVerificationCodeInput" name="peer_verification_code" maxlength="9" placeholder="GM-AB1234" '
         + 'autocomplete="one-time-code" inputmode="text" '
-        + 'style="width:100%;padding:14px;border:2px solid #93C5FD;border-radius:8px;font-size:20px;letter-spacing:6px;'
+        + 'style="width:100%;padding:14px;border:2px solid #93C5FD;border-radius:8px;font-size:20px;letter-spacing:3px;'
         + 'text-align:center;text-transform:uppercase;font-family:monospace;font-weight:700;box-sizing:border-box;">'
         + '<p style="margin:8px 0 0;font-size:11px;color:#1E3A8A;">' + helpText + '</p></div>';
 }
@@ -1079,14 +1160,14 @@ function _buildVerifiedBadge() {
 /**
  * Envoie le code saisi au serveur pour vérification.
  * @param {string} role - 'buyer' ou 'seller'
- * @param {string} code - code à 6 caractères
+ * @param {string} code - code au format GM-AB1234
  */
 async function _verifyCodeFromModal(role, code) {
     if (!window.currentOrderId) {
         GMModal.error('Erreur', 'Impossible de trouver la commande');
         throw new Error('No order ID');
     }
-
+    
     var endpoint = role === 'buyer' ? 'verify-buyer-code' : 'verify-seller-code';
     gmLog('_verifyCodeFromModal → POST /c2c/order/%d/%s/ code=%s', window.currentOrderId, endpoint, code);
 
@@ -1100,7 +1181,7 @@ async function _verifyCodeFromModal(role, code) {
         body: JSON.stringify({ code: code })
     });
     var data = await response.json();
-
+    
     if (data.success) {
         gmLog('Code vérifié avec succès — canReview=%s', data.can_review);
         var otherRole = role === 'buyer' ? 'vendeur' : 'acheteur';
@@ -1120,10 +1201,10 @@ async function _verifyCodeFromModal(role, code) {
                     onConfirm: function () { window.location.href = data.review_url; },
                     onCancel: function () { _reloadIntent(); }
                 });
-            } else {
+        } else {
                 _reloadIntent();
-            }
-        });
+                }
+            });
         return true;
     } else {
         gmWarn('Code refusé: %s', data.error);
@@ -1142,7 +1223,22 @@ function toggleNegotiationSection(purchaseIntentId, intentData) {
 
     if (purchaseIntentId) {
         currentPurchaseIntentId = purchaseIntentId;
-        if (section) section.style.display = 'block';
+
+        var _paidStatuses = ['paid', 'pending_delivery', 'delivered', 'verified', 'completed'];
+        var _orderStatus = intentData ? intentData.order_status : null;
+        var _isPaid = _orderStatus && _paidStatuses.indexOf(_orderStatus) !== -1;
+
+        if (section) {
+            section.style.display = 'block';
+            // Post-paiement : marquer la section comme "résumé" (formulaire masqué, lecture seule)
+            if (_isPaid) {
+                section.setAttribute('data-gm-resume-mode', '1');
+            } else {
+                section.removeAttribute('data-gm-resume-mode');
+            }
+        }
+        if (_isPaid && acceptBtn) acceptBtn.style.display = 'none';
+
         if (intentData && intentData.negotiations) {
             displayNegotiationHistory(intentData.negotiations, intentData);
         } else if (intentData) {
@@ -1152,7 +1248,7 @@ function toggleNegotiationSection(purchaseIntentId, intentData) {
             acceptBtn.style.display = 'none';
         }
         startNegotiationPolling();
-    } else {
+        } else {
         currentPurchaseIntentId = null;
         if (section) section.style.display = 'none';
         if (acceptBtn) acceptBtn.style.display = 'none';
@@ -1165,9 +1261,9 @@ function toggleNegotiationSection(purchaseIntentId, intentData) {
    ═══════════════════════════════════════════════════════════ */
 
 function _reloadIntent() {
-    if (currentPurchaseIntentId) {
-        loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
-    }
+                if (currentPurchaseIntentId) {
+                    loadPurchaseIntentForConversation(null, null, null, currentPurchaseIntentId);
+                }
 }
 
 function _reloadIntentAndConversation() {
@@ -1219,3 +1315,258 @@ async function unarchiveConversation(conversationId) {
         else { GMModal.error('Erreur', data.error || 'Erreur lors de la désarchivage'); }
     } catch (e) { gmErr('unarchiveConversation ERREUR:', e); GMModal.error('Erreur', 'Erreur lors de la désarchivage'); }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Countdown timers — offres de négociation (24h)
+   ═══════════════════════════════════════════════════════════ */
+
+var _countdownInterval = null;
+
+function _formatCountdown(ms) {
+    if (ms <= 0) return 'Expirée';
+    var totalSecs = Math.floor(ms / 1000);
+    var h = Math.floor(totalSecs / 3600);
+    var m = Math.floor((totalSecs % 3600) / 60);
+    var s = totalSecs % 60;
+    var urgency = ms < 3600000; // < 1h = orange/rouge
+    var color = ms < 1800000 ? '#EF4444' : ms < 3600000 ? '#F59E0B' : '#6B7280';
+    var label = h > 0
+        ? h + 'h ' + String(m).padStart(2, '0') + 'min'
+        : m > 0
+            ? m + 'min ' + String(s).padStart(2, '0') + 's'
+            : s + 's';
+    return '<i class="fi-rs-clock" style="margin-right:3px;"></i>'
+        + '<span style="color:' + color + ';font-weight:' + (urgency ? '700' : '600') + ';">'
+        + 'Expire dans ' + label + '</span>';
+}
+
+function _startNegotiationCountdowns() {
+    if (_countdownInterval) clearInterval(_countdownInterval);
+    var countdownEls = document.querySelectorAll('.gm-nego-countdown[data-expires]');
+    if (!countdownEls.length) return;
+
+    _countdownInterval = setInterval(function () {
+        var els = document.querySelectorAll('.gm-nego-countdown[data-expires]');
+        if (!els.length) { clearInterval(_countdownInterval); return; }
+        els.forEach(function (el) {
+            var expires = new Date(el.getAttribute('data-expires'));
+            var ms = expires - Date.now();
+            if (ms <= 0) {
+                el.innerHTML = '<span style="font-size:11px;color:#EF4444;font-weight:600;">Offre expirée</span>';
+                el.removeAttribute('data-expires');
+                } else {
+                el.innerHTML = _formatCountdown(ms);
+            }
+        });
+    }, 1000);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Gamification — Milestones & Effets visuels
+   ═══════════════════════════════════════════════════════════ */
+
+/**
+ * Détecte les transitions de statut et déclenche le milestone correspondant.
+ */
+function _detectAndFireMilestone(prevStatus, curStatus, prevOrderStatus, curOrderStatus, data, isBuyer) {
+    var paidList = ['paid', 'pending_delivery', 'delivered', 'verified'];
+
+    // Ouverture de la négociation (première fois visible)
+    if (prevStatus !== 'negotiating' && curStatus === 'negotiating') {
+        _gmMilestone('negotiating', isBuyer
+            ? '🚀 Négociation ouverte ! Faites votre offre.'
+            : '🚀 Nouvelle demande ! Un acheteur veut négocier.');
+        return;
+    }
+
+    // Accord trouvé
+    if (prevStatus !== 'agreed' && curStatus === 'agreed') {
+        _gmMilestone('agreed', isBuyer
+            ? '🤝 Accord trouvé ! Procédez au paiement sécurisé.'
+            : '🤝 Accord trouvé ! En attente du paiement de l\'acheteur.');
+        return;
+    }
+
+    // Paiement confirmé (escrow)
+    if (prevOrderStatus !== 'paid' && paidList.indexOf(curOrderStatus) !== -1
+            && (prevOrderStatus === null || paidList.indexOf(prevOrderStatus) === -1)) {
+        _gmMilestone('paid', isBuyer
+            ? '🔒 Argent sécurisé en escrow ! Convenez du lieu de remise.'
+            : '🔒 Paiement reçu et sécurisé ! Préparez la remise de l\'article.');
+        return;
+    }
+
+    // Codes déverrouillés (les deux confirmations faites)
+    var v = data.verification;
+    var prevV = window._gmLastVerification;
+    if (v && v.codes_unlocked && !(prevV && prevV.codes_unlocked)) {
+        _gmMilestone('codes_unlocked', '🔓 Codes déverrouillés ! Validez l\'échange avec les codes.');
+    }
+    window._gmLastVerification = v ? { codes_unlocked: v.codes_unlocked, is_completed: v.is_completed } : null;
+}
+
+/**
+ * Affiche/met à jour la bannière "X autres acheteurs intéressés" pour le vendeur.
+ */
+function _updateCompetingBuyersBanner(count, show) {
+    var host = document.getElementById('gmCompetingBuyersHost');
+    if (!host) {
+        // Créer le conteneur une seule fois dans negotiationSection
+        var sec = document.getElementById('negotiationSection');
+        if (!sec) return;
+        host = document.createElement('div');
+        host.id = 'gmCompetingBuyersHost';
+        sec.insertBefore(host, sec.firstChild);
+    }
+    if (!show || count < 1) { host.innerHTML = ''; return; }
+    host.innerHTML =
+        '<div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:10px;'
+        + 'padding:10px 14px;margin-bottom:10px;font-size:12px;color:#92400E;display:flex;align-items:center;gap:8px;">'
+        + '<span style="font-size:18px;">🔥</span>'
+        + '<span><strong>' + count + ' autre' + (count > 1 ? 's acheteurs sont' : ' acheteur est')
+        + ' également intéressé' + (count > 1 ? 's' : '')
+        + '</strong> par cet article. Choisissez la meilleure offre !</span>'
+        + '</div>';
+}
+
+/**
+ * Affiche un toast de milestone dans le chat.
+ * types : 'negotiating' | 'offer_accepted' | 'agreed' | 'paid' | 'codes_unlocked' | 'completed'
+ */
+function _gmMilestone(type, message) {
+    var cfg = {
+        negotiating:  { icon: '🚀', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', duration: 4000 },
+        offer_accepted:{ icon: '⭐', color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', duration: 3500 },
+        agreed:       { icon: '🤝', color: '#059669', bg: '#ECFDF5', border: '#6EE7B7', duration: 5000 },
+        paid:         { icon: '🔒', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', duration: 5000 },
+        codes_unlocked:{ icon: '🔓', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC', duration: 4000 },
+        completed:    { icon: '🎉', color: '#065F46', bg: '#D1FAE5', border: '#34D399', duration: 7000, confetti: true },
+    };
+    var c = cfg[type] || cfg.negotiating;
+
+    // Toast
+    var toast = document.createElement('div');
+    toast.className = 'gm-milestone-toast gm-milestone-toast--' + type;
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML =
+        '<span class="gm-milestone-toast__icon">' + c.icon + '</span>'
+        + '<span class="gm-milestone-toast__msg">' + (message || '') + '</span>';
+    toast.style.cssText =
+        'background:' + c.bg + ';border:1.5px solid ' + c.border + ';color:' + c.color + ';';
+
+    var host = document.getElementById('gmMilestoneHost');
+    if (!host) {
+        host = document.createElement('div');
+        host.id = 'gmMilestoneHost';
+        host.style.cssText =
+            'position:fixed;bottom:90px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+        document.body.appendChild(host);
+    }
+    host.appendChild(toast);
+
+    // Entrée
+    requestAnimationFrame(function () { toast.classList.add('gm-milestone-toast--in'); });
+
+    // Sortie
+    setTimeout(function () {
+        toast.classList.remove('gm-milestone-toast--in');
+        toast.classList.add('gm-milestone-toast--out');
+        setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
+    }, c.duration);
+
+    // Confetti pour la completion
+    if (c.confetti) {
+        _gmConfetti();
+    }
+}
+
+/**
+ * Lance un mini-confetti CSS pur au centre de l'écran.
+ */
+function _gmConfetti() {
+    var colors = ['#FF7B2C', '#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EC4899'];
+    var host = document.createElement('div');
+    host.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:10000;overflow:hidden;';
+    document.body.appendChild(host);
+
+    for (var i = 0; i < 60; i++) {
+        var p = document.createElement('div');
+        var size = 6 + Math.random() * 8;
+        var x = 10 + Math.random() * 80;
+        var delay = Math.random() * 0.8;
+        var dur = 1.2 + Math.random() * 1.4;
+        var rot = Math.random() * 360;
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        var isRect = Math.random() > 0.5;
+        p.style.cssText =
+            'position:absolute;top:-20px;left:' + x + '%;'
+            + 'width:' + size + 'px;height:' + (isRect ? size * 0.4 : size) + 'px;'
+            + 'background:' + color + ';'
+            + (isRect ? '' : 'border-radius:50%;')
+            + 'opacity:1;'
+            + 'animation:gmConfettiFall ' + dur + 's ' + delay + 's ease-in forwards;'
+            + 'transform:rotate(' + rot + 'deg);';
+        host.appendChild(p);
+    }
+
+    setTimeout(function () {
+        if (host.parentNode) host.parentNode.removeChild(host);
+    }, 3500);
+}
+
+/**
+ * Injecte les styles CSS nécessaires aux milestones (une seule fois).
+ */
+(function _injectMilestoneCSS() {
+    if (document.getElementById('gm-milestone-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'gm-milestone-styles';
+    style.textContent = [
+        '.gm-milestone-toast{',
+            'display:flex;align-items:center;gap:10px;',
+            'padding:12px 16px;border-radius:12px;',
+            'font-size:13px;font-weight:600;line-height:1.4;',
+            'max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,0.12);',
+            'opacity:0;transform:translateX(24px) scale(0.96);',
+            'transition:opacity 0.3s ease,transform 0.3s ease;',
+        '}',
+        '.gm-milestone-toast--in{opacity:1;transform:translateX(0) scale(1);}',
+        '.gm-milestone-toast--out{opacity:0;transform:translateX(24px) scale(0.95);}',
+        '.gm-milestone-toast__icon{font-size:20px;flex-shrink:0;}',
+        '.gm-milestone-toast__msg{flex:1;}',
+
+        /* Confetti keyframe */
+        '@keyframes gmConfettiFall{',
+            '0%{transform:translateY(0) rotate(0deg);opacity:1;}',
+            '80%{opacity:1;}',
+            '100%{transform:translateY(100vh) rotate(720deg);opacity:0;}',
+        '}',
+
+        /* Pulse ring sur les boutons d'action clés */
+        '@keyframes gmPulseRing{',
+            '0%{box-shadow:0 0 0 0 currentColor;}',
+            '70%{box-shadow:0 0 0 10px transparent;}',
+            '100%{box-shadow:0 0 0 0 transparent;}',
+        '}',
+        '.gm-pulse{animation:gmPulseRing 1.8s ease-in-out infinite;}',
+
+        /* Apparition rebond des boutons importants */
+        '@keyframes gmBounceIn{',
+            '0%{transform:scale(0.7);opacity:0;}',
+            '60%{transform:scale(1.06);}',
+            '80%{transform:scale(0.97);}',
+            '100%{transform:scale(1);opacity:1;}',
+        '}',
+        '.gm-bounce-in{animation:gmBounceIn 0.45s cubic-bezier(.36,.07,.19,.97) both;}',
+
+        /* Section résumé négociation (lecture seule post-paiement) */
+        '#negotiationSection[data-gm-resume-mode]{',
+            'background:#F8FAFF;border-top:1.5px solid #DBEAFE;',
+        '}',
+        '#negotiationSection[data-gm-resume-mode] .gm-s-7b754e{',
+            'opacity:0.8;',
+        '}',
+    ].join('');
+    document.head.appendChild(style);
+})();

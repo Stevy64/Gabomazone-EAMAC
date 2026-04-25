@@ -22,7 +22,13 @@ logger = logging.getLogger(__name__)
 
 from .models import (
     PurchaseIntent, Negotiation, C2COrder, DeliveryVerification,
-    ProductBoost, PlatformSettings
+    ProductBoost, PlatformSettings, DisputeCase, SafeZone,
+    SellerReview, BuyerReview,
+)
+from .meeting_map_data import (
+    build_popular_points_geo,
+    get_popular_meeting_min_uses,
+    get_safe_zones_models_and_geo,
 )
 from .services import (
     PurchaseIntentService, CommissionCalculator, SingPayService,
@@ -81,6 +87,7 @@ def get_purchase_intent_for_conversation(request):
                     'message': neg.message or '',
                     'status': neg.status,
                     'created_at': neg.created_at.strftime('%d/%m/%Y à %H:%M'),
+                    'expires_at_iso': neg.expires_at.isoformat() if neg.expires_at else None,
                 })
             
             # Un prix n'est éligible au paiement que si une proposition a été acceptée
@@ -111,6 +118,14 @@ def get_purchase_intent_for_conversation(request):
                     'seller_net': str(existing_order.seller_net),
                     'paid_at': existing_order.paid_at.strftime('%d/%m/%Y à %H:%M') if existing_order.paid_at else None,
                     'completed_at': existing_order.completed_at.strftime('%d/%m/%Y à %H:%M') if existing_order.completed_at else None,
+                    'meeting_type': existing_order.meeting_type,
+                    'meeting_confirmed_by_buyer': existing_order.meeting_confirmed_by_buyer,
+                    'meeting_confirmed_by_seller': existing_order.meeting_confirmed_by_seller,
+                    'meeting_agreed': bool(
+                        existing_order.meeting_type
+                        and existing_order.meeting_confirmed_by_buyer
+                        and existing_order.meeting_confirmed_by_seller
+                    ),
                 }
                 
                 # Récupérer les infos de vérification si la commande est payée
@@ -135,6 +150,19 @@ def get_purchase_intent_for_conversation(request):
             except Exception:
                 pass
             
+            # Nombre d'acheteurs concurrents actifs sur ce produit
+            competing_buyers = 0
+            try:
+                competing_buyers = PurchaseIntent.objects.filter(
+                    product=intent.product,
+                    status__in=[
+                        PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY,
+                        PurchaseIntent.NEGOTIATING,
+                    ]
+                ).exclude(id=intent.id).count()
+            except Exception:
+                pass
+
             return JsonResponse({
                 'success': True,
                 'purchase_intent_id': intent.id,
@@ -153,6 +181,7 @@ def get_purchase_intent_for_conversation(request):
                 'order_status': order_status,
                 'order': order_data,
                 'verification': verification_data,
+                'competing_buyers': competing_buyers,
             })
         else:
             return JsonResponse({'success': False, 'purchase_intent_id': None})
@@ -720,12 +749,80 @@ def c2c_order_detail(request, order_id):
             if t and getattr(t, 'escrow_status', None) == 'escrow_pending':
                 can_cancel = True
     
+    is_buyer = request.user == order.buyer
+    is_seller = request.user == order.seller
+
+    # Fenêtre de litige : 48h après completed_at, acheteur uniquement, pas de litige déjà ouvert
+    can_dispute = False
+    existing_dispute = None
+    if is_buyer and order.status == C2COrder.COMPLETED:
+        existing_dispute = DisputeCase.objects.filter(order=order).first()
+        if not existing_dispute:
+            if order.dispute_deadline:
+                can_dispute = timezone.now() <= order.dispute_deadline
+            else:
+                # Fallback: 48h après completed_at si dispute_deadline pas encore renseigné
+                if order.completed_at:
+                    can_dispute = timezone.now() <= order.completed_at + timezone.timedelta(hours=48)
+
+    popular_min_uses = get_popular_meeting_min_uses()
+
+    safe_zones = []
+    safe_zones_geo = []
+    popular_points_geo = []
+    if order.status in (C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED, C2COrder.PENDING_PAYMENT):
+        safe_zones, safe_zones_geo = get_safe_zones_models_and_geo(limit=20)
+        popular_points_geo = build_popular_points_geo(
+            popular_min_uses=popular_min_uses,
+        )
+
+    # Point de rencontre : montrer le picker si la commande est en cours après paiement
+    show_meeting_picker = order.status in (C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED)
+
+    meeting_pending_scroll = request.GET.get('meeting_pending') == '1'
+
+    # Notation post-transaction (acheteur → vendeur, vendeur → acheteur)
+    c2c_review_button_url = None
+    c2c_review_button_text = None
+    c2c_review_done_message = None
+    if order.status == C2COrder.COMPLETED:
+        if is_buyer:
+            if SellerReview.objects.filter(order=order).exists():
+                c2c_review_done_message = (
+                    "Vous avez déjà laissé un avis sur le vendeur pour cette commande."
+                )
+            else:
+                ok, _ = SellerReview.can_review(order, request.user)
+                if ok:
+                    c2c_review_button_url = reverse('c2c:create-review', args=[order.id])
+                    c2c_review_button_text = "Noter le vendeur"
+        elif is_seller:
+            if BuyerReview.objects.filter(order=order).exists():
+                c2c_review_done_message = (
+                    "Vous avez déjà laissé un avis sur l'acheteur pour cette commande."
+                )
+            else:
+                ok, _ = BuyerReview.can_review(order, request.user)
+                if ok:
+                    c2c_review_button_url = reverse('c2c:create-review', args=[order.id])
+                    c2c_review_button_text = "Noter l'acheteur"
+
     context = {
         'order': order,
         'verification': verification,
-        'is_buyer': request.user == order.buyer,
-        'is_seller': request.user == order.seller,
+        'is_buyer': is_buyer,
+        'is_seller': is_seller,
         'can_cancel': can_cancel,
+        'can_dispute': can_dispute,
+        'existing_dispute': existing_dispute,
+        'safe_zones': safe_zones,
+        'safe_zones_geo_json': safe_zones_geo,
+        'popular_points_geo_json': popular_points_geo,
+        'show_meeting_picker': show_meeting_picker,
+        'meeting_pending_scroll': meeting_pending_scroll,
+        'c2c_review_button_url': c2c_review_button_url,
+        'c2c_review_button_text': c2c_review_button_text,
+        'c2c_review_done_message': c2c_review_done_message,
     }
     return render(request, 'c2c/order_detail.html', context)
 
@@ -754,13 +851,24 @@ def init_c2c_payment(request, order_id):
         platform_settings = PlatformSettings.get_active_settings()
         context = {
             'order': order,
-            'commission_rate_buyer': platform_settings.c2c_buyer_commission_rate,
             'commission_rate_seller': platform_settings.c2c_seller_commission_rate,
         }
         return render(request, 'c2c/payment.html', context)
     
     # Si POST, initialiser le paiement
     try:
+        buyer_phone = ''
+        try:
+            buyer_phone = (order.buyer.profile.mobile_number or '').strip()
+        except Exception:
+            buyer_phone = ''
+        if not buyer_phone:
+            messages.error(
+                request,
+                "Ajoutez votre numero de telephone dans votre profil avant de payer (obligatoire pour l'escrow et les remboursements)."
+            )
+            return redirect('accounts:account_details')
+
         # Initialiser le paiement SingPay via l'API réelle
         singpay_transaction = SingPayService.init_c2c_payment(order, request)
         
@@ -956,10 +1064,10 @@ def verify_seller_code(request, order_id):
         
         if DeliveryVerificationService.verify_seller_code(order, code):
             logger.info('[C2C·FLOW] verify_seller_code OK order=#%d', order.id)
+            order.refresh_from_db()
             can_review = False
             review_url = None
             try:
-                from .models import BuyerReview
                 verification = order.delivery_verification
                 if verification.buyer_code_verified and verification.seller_code_verified:
                     can_review, _ = BuyerReview.can_review(order, order.seller)
@@ -1015,10 +1123,10 @@ def verify_buyer_code(request, order_id):
         
         if DeliveryVerificationService.verify_buyer_code(order, code):
             logger.info('[C2C·FLOW] verify_buyer_code OK order=#%d — transaction potentiellement complète', order.id)
+            order.refresh_from_db()
             can_review = False
             review_url = None
             try:
-                from .models import SellerReview
                 can_review, _ = SellerReview.can_review(order, order.buyer)
                 if can_review:
                     review_url = reverse('c2c:create-review', args=[order.id])
@@ -1151,28 +1259,69 @@ def boost_success(request, product_id):
 @login_required
 def seller_dashboard(request):
     """
-    Dashboard du vendeur C2C
+    Dashboard du vendeur C2C — vue enrichie avec niveau, avis, revenus et activité récente.
     """
-    # Statistiques
-    total_orders = C2COrder.objects.filter(seller=request.user).count()
-    pending_orders = C2COrder.objects.filter(seller=request.user, status=C2COrder.PENDING_DELIVERY).count()
-    completed_orders = C2COrder.objects.filter(seller=request.user, status=C2COrder.COMPLETED).count()
-    total_revenue = sum(order.seller_net for order in C2COrder.objects.filter(
-        seller=request.user, status=C2COrder.COMPLETED
-    ))
-    
-    # Intentions d'achat en attente
+    from django.db.models import Sum, Avg, Count
+    from .models import SellerReview
+
+    # ── Commandes ──────────────────────────────────────────────────
+    all_orders_qs = C2COrder.objects.filter(seller=request.user)
+    total_orders = all_orders_qs.count()
+    pending_orders = all_orders_qs.filter(
+        status__in=[C2COrder.PAID, C2COrder.PENDING_DELIVERY, C2COrder.DELIVERED]
+    ).count()
+    completed_orders = all_orders_qs.filter(status=C2COrder.COMPLETED).count()
+    disputed_orders = all_orders_qs.filter(status=C2COrder.DISPUTED).count()
+    revenue_agg = all_orders_qs.filter(status=C2COrder.COMPLETED).aggregate(
+        total=Sum('seller_net'))
+    total_revenue = revenue_agg['total'] or 0
+
+    # ── Intentions d'achat ──────────────────────────────────────────
     pending_intents = PurchaseIntent.objects.filter(
         seller=request.user,
         status__in=[PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]
-    )[:5]
-    
+    ).select_related('product', 'buyer').order_by('-created_at')[:5]
+
+    active_intents_count = PurchaseIntent.objects.filter(
+        seller=request.user,
+        status__in=[PurchaseIntent.PENDING, PurchaseIntent.AWAITING_AVAILABILITY, PurchaseIntent.NEGOTIATING]
+    ).count()
+
+    # ── Avis vendeur ────────────────────────────────────────────────
+    review_stats = {'average_rating': 0, 'total_reviews': 0}
+    try:
+        review_stats = SellerReview.get_seller_stats(request.user)
+    except Exception:
+        pass
+
+    # ── Niveau vendeur ──────────────────────────────────────────────
+    seller_level = None
+    try:
+        seller_level = request.user.profile.get_seller_level()
+    except Exception:
+        pass
+
+    # ── Commandes récentes (5 dernières toutes statuts) ────────────
+    recent_orders = all_orders_qs.select_related('product', 'buyer').order_by('-created_at')[:5]
+
+    # ── Articles actifs ─────────────────────────────────────────────
+    from accounts.models import PeerToPeerProduct as P2P
+    active_listings = P2P.objects.filter(seller=request.user, status=P2P.APPROVED).count()
+    total_listings = P2P.objects.filter(seller=request.user).count()
+
     context = {
         'total_orders': total_orders,
         'pending_orders': pending_orders,
         'completed_orders': completed_orders,
+        'disputed_orders': disputed_orders,
         'total_revenue': total_revenue,
         'pending_intents': pending_intents,
+        'active_intents_count': active_intents_count,
+        'review_stats': review_stats,
+        'seller_level': seller_level,
+        'recent_orders': recent_orders,
+        'active_listings': active_listings,
+        'total_listings': total_listings,
     }
     return render(request, 'c2c/seller_dashboard.html', context)
 
@@ -1215,4 +1364,218 @@ def buyer_intents(request):
     intents = PurchaseIntent.objects.filter(buyer=request.user).order_by('-created_at')
     context = {'intents': intents}
     return render(request, 'c2c/buyer_intents.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def open_dispute(request, order_id):
+    """
+    Ouvre un litige sur une commande terminée dans la fenêtre de 48h.
+    Seul l'acheteur peut ouvrir un litige.
+    """
+    order = get_object_or_404(C2COrder, id=order_id)
+
+    if request.user != order.buyer:
+        messages.error(request, "Seul l'acheteur peut ouvrir un litige.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    if order.status != C2COrder.COMPLETED:
+        messages.error(request, "Vous ne pouvez ouvrir un litige que sur une commande terminée.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    # Vérifier la fenêtre de 48h
+    if order.dispute_deadline and timezone.now() > order.dispute_deadline:
+        messages.error(request, "Le délai de 48h pour ouvrir un litige est dépassé.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    # Un seul litige par commande
+    existing = DisputeCase.objects.filter(order=order).first()
+    if existing:
+        messages.warning(request, "Un litige est déjà ouvert pour cette commande.")
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        valid_reasons = [r for r, _ in DisputeCase.REASON_CHOICES]
+        if reason not in valid_reasons:
+            messages.error(request, "Motif de litige invalide.")
+            return redirect('c2c:open-dispute', order_id=order_id)
+
+        if len(description) < 20:
+            messages.error(request, "La description doit comporter au moins 20 caractères.")
+            return redirect('c2c:open-dispute', order_id=order_id)
+
+        DisputeCase.objects.create(
+            order=order,
+            claimant=request.user,
+            reason=reason,
+            description=description,
+        )
+        messages.success(
+            request,
+            "Votre litige a été ouvert. L'équipe Gabomazone vous contactera sous 48h."
+        )
+        return redirect('c2c:order-detail', order_id=order_id)
+
+    context = {
+        'order': order,
+        'reason_choices': DisputeCase.REASON_CHOICES,
+    }
+    return render(request, 'c2c/open_dispute.html', context)
+
+
+def safe_zones_list(request):
+    """Liste publique des zones d'échange sécurisées Gabomazone."""
+    zones = SafeZone.objects.filter(status=SafeZone.ACTIVE).order_by('-is_featured', 'city', 'name')
+    context = {'zones': zones}
+    return render(request, 'c2c/safe_zones.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def set_meeting_point(request, order_id):
+    """
+    Permet à l'acheteur ou au vendeur de proposer un point de rencontre
+    pour la remise de l'article.
+    GET  → retourne l'état actuel (JSON)
+    POST → enregistre le point proposé / confirme l'accord
+    """
+    order = get_object_or_404(C2COrder, id=order_id)
+
+    if request.user not in [order.buyer, order.seller]:
+        return JsonResponse({'error': 'Accès non autorisé'}, status=403)
+
+    if order.status not in ['paid', 'pending_delivery', 'delivered']:
+        return JsonResponse({'error': 'Le point de rencontre ne peut être défini qu\'après paiement.'}, status=400)
+
+    if request.method == 'GET':
+        return _meeting_point_json(order)
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except Exception:
+        return JsonResponse({'error': 'Corps JSON invalide'}, status=400)
+
+    action = payload.get('action', 'propose')
+
+    if action == 'confirm':
+        # L'autre partie confirme le point proposé
+        if request.user == order.buyer:
+            order.meeting_confirmed_by_buyer = True
+        else:
+            order.meeting_confirmed_by_seller = True
+        order.save()
+        return _meeting_point_json(order, message='Point de rencontre confirmé !')
+
+    # Propose / mise à jour du point de rencontre
+    meeting_type = payload.get('meeting_type')
+    if meeting_type not in [C2COrder.MEETING_SAFE_ZONE, C2COrder.MEETING_CUSTOM]:
+        return JsonResponse({'error': 'Type de point de rencontre invalide.'}, status=400)
+
+    order.meeting_type = meeting_type
+    order.meeting_proposed_by = request.user
+    order.meeting_confirmed_by_buyer = False
+    order.meeting_confirmed_by_seller = False
+
+    if meeting_type == C2COrder.MEETING_SAFE_ZONE:
+        zone_id = payload.get('safe_zone_id')
+        zone = SafeZone.objects.filter(id=zone_id, status=SafeZone.ACTIVE).first()
+        if not zone:
+            return JsonResponse({'error': 'Zone introuvable ou inactive.'}, status=400)
+        order.meeting_safe_zone = zone
+        order.meeting_address = None
+        order.meeting_latitude = zone.latitude
+        order.meeting_longitude = zone.longitude
+    else:
+        address = (payload.get('address') or '').strip()
+        if len(address) < 10:
+            return JsonResponse({'error': 'Adresse trop courte (10 caractères minimum).'}, status=400)
+        order.meeting_address = address
+        order.meeting_safe_zone = None
+        # Décharge explicite : l'utilisateur accepte que Gabomazone n'est pas responsable
+        if not payload.get('liability_waiver'):
+            return JsonResponse({'error': 'Vous devez accepter la décharge de responsabilité.'}, status=400)
+        # Coordonnées GPS du lieu choisi sur la carte (optionnelles mais fortement recommandées)
+        try:
+            lat = payload.get('latitude')
+            lng = payload.get('longitude')
+            order.meeting_latitude = float(lat) if lat is not None else None
+            order.meeting_longitude = float(lng) if lng is not None else None
+        except (TypeError, ValueError):
+            order.meeting_latitude = None
+            order.meeting_longitude = None
+
+    order.meeting_notes = (payload.get('notes') or '')[:200]
+
+    # La personne qui propose confirme automatiquement de son côté
+    if request.user == order.buyer:
+        order.meeting_confirmed_by_buyer = True
+    else:
+        order.meeting_confirmed_by_seller = True
+
+    order.save()
+
+    # Envoyer un message dans la conversation
+    try:
+        from accounts.models import ProductConversation, ProductMessage
+        conv = ProductConversation.objects.filter(
+            product=order.product, buyer=order.buyer, seller=order.seller
+        ).first()
+        if conv:
+            proposer_name = request.user.get_full_name() or request.user.username
+            if meeting_type == C2COrder.MEETING_SAFE_ZONE:
+                loc = f"Zone Gabomazone : {order.meeting_safe_zone.name}"
+            else:
+                loc = f"Point personnalisé : {order.meeting_address}"
+            detail_url = request.build_absolute_uri(
+                reverse('c2c:order-detail', args=[order.id]) + '?meeting_pending=1'
+            )
+            msg = (
+                f"📍 Point de rencontre proposé par {proposer_name} — {loc}"
+                f"\n\nOuvrez la fiche commande pour voir la carte et confirmer ce lieu (ou en proposer un autre) :\n{detail_url}"
+            )
+            if order.meeting_notes:
+                msg += f"\nPrécisions : {order.meeting_notes}"
+            ProductMessage.objects.create(conversation=conv, sender=request.user, message=msg)
+            conv.last_message_at = timezone.now()
+            conv.save()
+    except Exception:
+        pass
+
+    resp = _meeting_point_json(order, message='Point de rencontre enregistré !')
+    try:
+        data = json.loads(resp.content.decode('utf-8'))
+    except Exception:
+        data = {}
+    data['redirect_url'] = reverse('accounts:my-messages') + f'?product_id={order.product_id}'
+    return JsonResponse(data)
+
+
+def _meeting_point_json(order, message=None):
+    """Helper — sérialise le point de rencontre d'une commande."""
+    data = {
+        'meeting_type': order.meeting_type,
+        'meeting_confirmed_by_buyer': order.meeting_confirmed_by_buyer,
+        'meeting_confirmed_by_seller': order.meeting_confirmed_by_seller,
+        'both_confirmed': order.meeting_confirmed_by_buyer and order.meeting_confirmed_by_seller,
+        'proposed_by_id': order.meeting_proposed_by_id,
+        'meeting_notes': order.meeting_notes or '',
+        'latitude': float(order.meeting_latitude) if order.meeting_latitude is not None else None,
+        'longitude': float(order.meeting_longitude) if order.meeting_longitude is not None else None,
+    }
+    if order.meeting_type == C2COrder.MEETING_SAFE_ZONE and order.meeting_safe_zone:
+        z = order.meeting_safe_zone
+        data['safe_zone'] = {
+            'id': z.id, 'name': z.name, 'address': z.address,
+            'city': z.city, 'landmark': z.landmark or '', 'opening_hours': z.opening_hours or '',
+            'latitude': float(z.latitude) if z.latitude is not None else None,
+            'longitude': float(z.longitude) if z.longitude is not None else None,
+        }
+    elif order.meeting_type == C2COrder.MEETING_CUSTOM:
+        data['custom_address'] = order.meeting_address or ''
+    if message:
+        data['message'] = message
+    return JsonResponse(data)
 

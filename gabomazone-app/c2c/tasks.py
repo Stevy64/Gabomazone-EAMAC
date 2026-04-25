@@ -22,3 +22,18 @@ def expire_old_intents():
     expired.update(status=PurchaseIntent.EXPIRED)
     logger.info('%d intentions d\'achat expirées.', count)
     return f'{count} intentions expirées.'
+
+
+@shared_task
+def expire_old_negotiations():
+    """Expire les propositions de négociation sans réponse après 24h."""
+    from .models import Negotiation
+
+    expired = Negotiation.objects.filter(
+        expires_at__lt=timezone.now(),
+        status=Negotiation.PENDING,
+    )
+    count = expired.count()
+    expired.update(status=Negotiation.REJECTED)
+    logger.info('%d négociations expirées (sans réponse).', count)
+    return f'{count} négociations expirées.'

@@ -191,7 +191,21 @@
                     })
                     .then(function (res) {
                         if (res.json && res.json.success && res.json.redirect) {
-                            window.location.href = res.json.redirect;
+                            closeModal();
+                            if (typeof GMModal !== 'undefined' && GMModal.show) {
+                                GMModal.show({
+                                    type: 'info',
+                                    title: 'Demande envoyée !',
+                                    message: 'Votre demande a été envoyée ! La négociation est maintenant ouverte.<br><br>'
+                                        + '<strong>Prochaine étape :</strong> proposez votre prix directement dans la conversation.',
+                                    confirmText: 'Aller à la messagerie',
+                                    onConfirm: function () {
+                                        window.location.href = res.json.redirect;
+                                    }
+                                });
+                            } else {
+                                window.location.href = res.json.redirect;
+                            }
                             return;
                         }
                         var err =

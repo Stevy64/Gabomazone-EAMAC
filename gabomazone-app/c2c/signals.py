@@ -42,22 +42,35 @@ def update_order_status_on_payment(sender, instance, created, **kwargs):
 @receiver(post_save, sender=DeliveryVerification)
 def complete_order_on_verification(sender, instance, created, **kwargs):
     """
-    Finalise la commande lorsque la vérification est complète
-    Libère les fonds en escrow après confirmation de livraison
+    Finalise la commande lorsque la vérification est complète.
+    Marque le produit comme VENDU et libère les fonds en escrow.
     """
     if kwargs.get('raw', False):
         return
     if instance.is_completed() and instance.c2c_order.status != C2COrder.COMPLETED:
-        instance.c2c_order.status = C2COrder.COMPLETED
-        instance.c2c_order.completed_at = timezone.now()
-        instance.c2c_order.save(update_fields=['status', 'completed_at'])
-        
+        order = instance.c2c_order
+        order.status = C2COrder.COMPLETED
+        order.completed_at = timezone.now()
+        order.save(update_fields=['status', 'completed_at'])
+
+        # Marquer le produit comme VENDU
+        try:
+            from accounts.models import PeerToPeerProduct
+            product = order.product
+            if product.status != PeerToPeerProduct.SOLD:
+                product.status = PeerToPeerProduct.SOLD
+                product.save(update_fields=['status'])
+                logger.info('[C2C·SIGNAL] Produit #%d marqué SOLD', product.id)
+        except Exception as e:
+            logger.warning('[C2C·SIGNAL] Impossible de marquer le produit SOLD: %s', e)
+
+        # Libérer les fonds en escrow
         try:
             from payments.escrow_service import EscrowService
-            success, response = EscrowService.release_escrow_for_c2c_order(instance.c2c_order)
+            success, response = EscrowService.release_escrow_for_c2c_order(order)
             if success:
-                logger.info(f"Fonds en escrow libérés pour la commande C2C {instance.c2c_order.id}")
+                logger.info('[C2C·SIGNAL] Fonds escrow libérés pour commande C2C #%d', order.id)
             else:
-                logger.error(f"Erreur lors de la libération de l'escrow: {response.get('error')}")
+                logger.error('[C2C·SIGNAL] Erreur libération escrow: %s', response.get('error'))
         except Exception as e:
-            logger.exception(f"Erreur lors de la libération de l'escrow C2C: {str(e)}")
+            logger.exception('[C2C·SIGNAL] Erreur libération escrow C2C: %s', e)

@@ -1011,7 +1011,12 @@
 }
 
 .gm-s-38fa61 {
-    display: none; padding: 16px; border-top: 1px solid #E5E7EB; flex-shrink: 0;
+    display: none;
+    padding: 20px 16px;
+    border-top: 2px solid #DBEAFE;
+    background: linear-gradient(to bottom, #EFF6FF, #F8FAFF);
+    flex-shrink: 0;
+    border-radius: 0 0 12px 12px;
 }
 
 .gm-s-3904dd {

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<style>
+.gm-safezones-wrap {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.gm-safezones-wrap h1 {
+    font-size: 26px;
+    color: #1F2937;
+    margin-bottom: 8px;
+}
+.gm-safezones-intro {
+    color: #6B7280;
+    font-size: 15px;
+    margin-bottom: 32px;
+    max-width: 620px;
+}
+.gm-safezones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+.gm-sz-card {
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+.gm-sz-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+.gm-sz-card--featured {
+    border-color: #4ADE80;
+    background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+}
+.gm-sz-featured-badge {
+    display: inline-block;
+    background: #16A34A;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+.gm-sz-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #14532D;
+    margin-bottom: 8px;
+}
+.gm-sz-row {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+}
+.gm-sz-row i { flex-shrink: 0; margin-top: 2px; color: #16A34A; }
+.gm-sz-landmark { color: #6B7280; }
+.gm-sz-hours { color: #374151; font-weight: 500; }
+.gm-safezones-empty {
+    text-align: center;
+    color: #9CA3AF;
+    padding: 60px 20px;
+    font-size: 16px;
+}
+@media (max-width: 600px) {
+    .gm-safezones-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages" style="padding-bottom: 60px;">
+    <div class="gm-safezones-wrap">
+        <h1><i class="fi-rs-shield-check" style="color:#16A34A;margin-right:10px;"></i>Zones d'échange sécurisées</h1>
+        <p class="gm-safezones-intro">
+            Ces points de rencontre officiels Gabomazone sont recommandés pour vos remises en main propre C2C.
+            Ils sont situés dans des endroits fréquentés pour votre sécurité.
+        </p>
+
+        {% if zones %}
+        <div class="gm-safezones-grid">
+            {% for zone in zones %}
+            <div class="gm-sz-card {% if zone.is_featured %}gm-sz-card--featured{% endif %}">
+                {% if zone.is_featured %}
+                <span class="gm-sz-featured-badge">⭐ Recommandé</span>
+                {% endif %}
+                <div class="gm-sz-name">{{ zone.name }}</div>
+                <div class="gm-sz-row">
+                    <i class="fi-rs-marker"></i>
+                    <span>{{ zone.address }}{% if zone.city %}, {{ zone.city }}{% endif %}</span>
+                </div>
+                {% if zone.landmark %}
+                <div class="gm-sz-row gm-sz-landmark">
+                    <i class="fi-rs-info"></i>
+                    <span>{{ zone.landmark }}</span>
+                </div>
+                {% endif %}
+                {% if zone.opening_hours %}
+                <div class="gm-sz-row gm-sz-hours">
+                    <i class="fi-rs-clock"></i>
+                    <span>{{ zone.opening_hours }}</span>
+                </div>
+                {% endif %}
+                {% if zone.description %}
+                <p style="font-size:12px;color:#6B7280;margin:8px 0 0;">{{ zone.description }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="gm-safezones-empty">
+            <i class="fi-rs-shield-check" style="font-size:40px;display:block;margin-bottom:16px;"></i>
+            <p>Aucune zone d'échange disponible pour le moment.<br>
+            Revenez bientôt, nous ajoutons régulièrement de nouveaux points de rencontre.</p>
+        </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock body %}

@@ -4,7 +4,40 @@
 {% load category_icons %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/seller-profile.css' %}?v=2.1">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/seller-profile.css' %}?v=2.2">
+<style>
+/* Seller level badge */
+.gm-seller-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 6px;
+}
+.gm-seller-level--star { background: #FFFBEB; color: #D97706; border: 1.5px solid #FDE68A; }
+.gm-seller-level--confirmed { background: #ECFDF5; color: #059669; border: 1.5px solid #A7F3D0; }
+.gm-seller-level--beginner { background: #F3F4F6; color: #6B7280; border: 1.5px solid #E5E7EB; }
+/* Completed sales history */
+.gm-sales-history { margin-top: 6px; }
+.gm-sale-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #374151;
+}
+.gm-sale-row__product { flex: 1; font-weight: 600; color: #1F2937; }
+.gm-sale-row__price { color: #059669; font-weight: 700; white-space: nowrap; }
+.gm-sale-row__date { color: #9CA3AF; font-size: 11px; white-space: nowrap; }
+</style>
 {% endblock headextra %}
 
 {% block body %}
@@ -17,8 +50,19 @@
                     <h1 class="gm-s-ac7dd4">
                         <div class="reviewer-avatar">{{ seller.username|first|upper }}</div>
                         <span>{{ seller.username }}</span>
+                        {% if seller.profile.is_identity_verified %}
+                        <span class="gm-verified-badge" title="Identité vérifiée par Gabomazone">
+                            <i class="fi-rs-shield-check"></i> Vérifié
+                        </span>
+                        {% endif %}
                     </h1>
                     <p class="gm-s-ba0bf1">Vendeur d'articles d'Occasion</p>
+                    {% if seller_level %}
+                    <span class="gm-seller-level gm-seller-level--{{ seller_level.key }}">
+                        {{ seller_level.icon }} {{ seller_level.label }}
+                        {% if seller_level.completed %}&nbsp;·&nbsp;{{ seller_level.completed }} vente{{ seller_level.completed|pluralize }}{% endif %}
+                    </span>
+                    {% endif %}
                     {% if seller.date_joined %}
                     <p class="gm-s-a37f7c">
                         <i class="fi-rs-calendar gm-s-345895" ></i>
@@ -152,6 +196,23 @@
             {% endif %}
         </div>
         
+        <!-- Historique des ventes -->
+        {% if completed_sales %}
+        <div class="reviews-section gm-sales-history">
+            <h2 class="gm-s-755b98">
+                <i class="fi-rs-shopping-bag gm-s-67e1eb"></i>
+                Historique des ventes ({{ completed_sales|length }} dernière{{ completed_sales|length|pluralize }})
+            </h2>
+            {% for sale in completed_sales %}
+            <div class="gm-sale-row">
+                <span class="gm-sale-row__product">{{ sale.product.product_name|truncatechars:50 }}</span>
+                <span class="gm-sale-row__price">{{ sale.final_price|floatformat:0 }} FCFA</span>
+                <span class="gm-sale-row__date">{{ sale.completed_at|date:"d/m/Y" }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Autres articles : mêmes cartes que /shop/ (gm-product-card) -->
         {% if seller_products_cards %}
         <div class="reviews-section seller-products-section gm-s-5c2918" >

@@ -3,7 +3,172 @@
 {% load cart_template_tags %}
 
 {% block headextra %}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/c2c-order-detail.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/c2c-order-detail.css' %}?v=2.3">
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}?v=1.9.4">
+<link rel="stylesheet" href="{% static 'c2c/css/gm_c2c_leaflet_map.css' %}?v=1.0">
+{# Leaflet JS : chargé en bas du body, juste avant le script carte (global L fiable). #}
+<style>
+/* ═══════════ Point de rencontre — UI carte moderne ═══════════ */
+.gm-meeting-wrapper { margin-top: 4px; }
+.gm-meeting-intro {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 14px 16px; border-radius: 14px;
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 100%);
+    border: 1.5px solid #FED7AA; margin-bottom: 16px;
+}
+.gm-meeting-intro i { color: #F97316; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.gm-meeting-intro strong { color: #9A3412; font-size: 14px; display: block; margin-bottom: 2px; }
+.gm-meeting-intro span { color: #7C2D12; font-size: 13px; line-height: 1.5; }
+.gm-edit-meeting-btn {
+    margin-top: 10px; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    color: #fff; border: none; border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 3px 10px rgba(249,115,22,.28);
+}
+.gm-edit-meeting-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(249,115,22,.34); }
+
+.gm-meeting-tabs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; padding: 4px; background: #F3F4F6;
+    border-radius: 14px; margin-bottom: 14px;
+}
+.gm-mtab {
+    padding: 12px 14px; border: none; background: transparent;
+    font-size: 14px; font-weight: 700; color: #6B7280;
+    cursor: pointer; border-radius: 10px; transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.gm-mtab:hover { color: #374151; }
+.gm-mtab--active {
+    background: #fff; color: #F97316;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* Carte Leaflet — overflow visible sur l’enveloppe pour ne pas rogner la recherche / légende */
+.gm-meeting-map-wrap {
+    position: relative; border-radius: 16px; overflow: visible;
+    border: 1.5px solid #E5E7EB; box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    margin-bottom: 14px;
+}
+.gm-meeting-map-inner {
+    position: relative; height: 420px; width: 100%; min-height: 420px;
+    border-radius: 14px; overflow: hidden; background: #E5E7EB;
+}
+#gmMeetingMap { height: 100%; width: 100%; min-height: 100%; background: #E5E7EB; z-index: 1; position: relative; }
+#gmMeetingMap .leaflet-control-attribution { font-size: 10px; }
+@keyframes gmSpin { to { transform: rotate(360deg); } }
+.gm-map-legend {
+    position: absolute; top: 12px; left: 12px; z-index: 2;
+    background: rgba(255,255,255,.96); backdrop-filter: blur(6px);
+    padding: 8px 12px; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    font-size: 12px; color: #374151; font-weight: 600;
+    display: flex; gap: 14px; align-items: center;
+}
+.gm-map-legend__item { display: flex; align-items: center; gap: 5px; }
+.gm-map-legend__dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.gm-map-legend__dot--zone { background: #10B981; }
+.gm-map-legend__dot--popular { background: #F97316; }
+.gm-map-legend__dot--custom { background: #F97316; }
+
+.gm-map-search {
+    position: absolute; top: 52px; right: 12px; z-index: 500;
+    display: flex; flex-direction: row; align-items: center; gap: 6px; background: #fff;
+    padding: 4px; border-radius: 999px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+    transition: width .25s ease, box-shadow .2s ease;
+    overflow: hidden;
+    box-sizing: border-box;
+    max-width: calc(100% - 100px);
+}
+.gm-map-search--collapsed { width: 44px; max-width: 44px; }
+.gm-map-search--expanded { width: min(300px, calc(100% - 24px)); max-width: calc(100% - 24px); }
+.gm-map-search input {
+    order: 2;
+    flex: 1 1 auto; border: none; outline: none; padding: 8px 10px;
+    font-size: 13px; background: transparent; min-width: 0;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.gm-map-search--expanded input { opacity: 1; pointer-events: auto; }
+.gm-map-search--collapsed input {
+    flex: 0 0 0; width: 0 !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important;
+    opacity: 0; pointer-events: none;
+}
+.gm-map-search button {
+    order: 1;
+    background: #F97316; color: #fff; border: none;
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.gm-map-search button:hover { background: #EA580C; }
+
+.gm-zone-picker-hint {
+    margin-top: 10px; font-size: 13px; color: #374151;
+    background: #F9FAFB; border: 1.5px solid #E5E7EB; border-radius: 10px;
+    padding: 10px 12px;
+}
+@media (max-width: 768px) {
+    .c2c-order-container {
+        max-width: 100%; overflow-x: hidden;
+        /* Compense header + barre de navigation mobile fixes */
+        margin-top: calc(132px + env(safe-area-inset-top, 0px)) !important;
+        padding-left: 12px; padding-right: 12px;
+    }
+    .c2c-order-card { overflow: hidden; }
+    .c2c-order-header { flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+    .c2c-status-badge { align-self: flex-start; }
+    .gm-meeting-intro { padding: 10px 12px; margin-bottom: 10px; }
+    .gm-meeting-intro strong { font-size: 13px; margin-bottom: 0; }
+    .gm-meeting-intro span { font-size: 12px; line-height: 1.35; }
+    .gm-map-legend { font-size: 11px; gap: 8px; flex-wrap: wrap; max-width: calc(100% - 20px); }
+    .gm-map-search { top: 64px; right: 8px; max-width: calc(100% - 16px); }
+    .gm-map-search--expanded { width: min(250px, calc(100% - 16px)); max-width: calc(100% - 16px); }
+}
+
+/* Formulaire custom */
+.gm-custom-pin-status {
+    padding: 12px 14px; border-radius: 10px; margin-bottom: 12px;
+    background: #F0FDF4; border: 1.5px solid #BBF7D0; color: #166534;
+    font-size: 13px; display: none;
+}
+.gm-custom-pin-status.gm-active { display: block; }
+.gm-custom-pin-status strong { display: block; color: #065F46; margin-bottom: 2px; }
+
+.gm-custom-input, .gm-notes-input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #D1D5DB;
+    border-radius: 10px; font-size: 14px; box-sizing: border-box;
+    transition: border-color .2s;
+}
+.gm-custom-input:focus, .gm-notes-input:focus {
+    outline: none; border-color: #F97316;
+}
+.gm-field-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin: 10px 0 6px; }
+
+.gm-waiver {
+    display: flex; gap: 10px; padding: 12px 14px; margin-top: 12px;
+    background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 10px;
+    cursor: pointer; font-size: 13px; color: #78350F; line-height: 1.5;
+}
+.gm-waiver input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; width: 16px; height: 16px; accent-color: #F97316; }
+
+.gm-propose-btn {
+    margin-top: 16px; width: 100%;
+    padding: 14px 20px; background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+    color: #fff; border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 14px rgba(249,115,22,.35); transition: all .2s;
+}
+.gm-propose-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(249,115,22,.45); }
+.gm-propose-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+/* Hide legacy form */
+.gm-meeting-legacy { display: none !important; }
+
+/* Marqueurs Leaflet partagés : static/c2c/css/gm_c2c_leaflet_map.css */
+</style>
 {% endblock headextra %}
 
 {% block body %}
@@ -88,6 +253,151 @@
         </div>
         {% endif %}
 
+        <!-- Point de rencontre -->
+        {% if show_meeting_picker %}
+        <div class="c2c-order-section" id="gmMeetingSection">
+            <h3><i class="fi-rs-marker"></i> Point de rencontre</h3>
+
+            {% if order.meeting_type %}
+            <!-- Point déjà défini -->
+            <div class="gm-meeting-current">
+                {% if order.meeting_type == 'safe_zone' and order.meeting_safe_zone %}
+                <div class="gm-meeting-info">
+                    <span class="gm-meeting-type-badge gm-meeting-type-badge--zone">⭐ Zone Gabomazone</span>
+                    <strong>{{ order.meeting_safe_zone.name }}</strong>
+                    <p><i class="fi-rs-marker"></i> {{ order.meeting_safe_zone.address }}{% if order.meeting_safe_zone.city %}, {{ order.meeting_safe_zone.city }}{% endif %}</p>
+                    {% if order.meeting_safe_zone.landmark %}<p><i class="fi-rs-info"></i> {{ order.meeting_safe_zone.landmark }}</p>{% endif %}
+                    {% if order.meeting_safe_zone.opening_hours %}<p><i class="fi-rs-clock"></i> {{ order.meeting_safe_zone.opening_hours }}</p>{% endif %}
+                </div>
+                {% else %}
+                <div class="gm-meeting-info">
+                    <span class="gm-meeting-type-badge gm-meeting-type-badge--custom">📍 Point personnalisé</span>
+                    <p>{{ order.meeting_address }}</p>
+                </div>
+                {% endif %}
+                {% if order.meeting_notes %}<p class="gm-meeting-notes"><i class="fi-rs-comment"></i> {{ order.meeting_notes }}</p>{% endif %}
+                <div class="gm-meeting-confirms">
+                    <span class="gm-meeting-confirm {% if order.meeting_confirmed_by_buyer %}gm-meeting-confirm--done{% endif %}">
+                        {% if order.meeting_confirmed_by_buyer %}✅{% else %}⏳{% endif %} Acheteur
+                    </span>
+                    <span class="gm-meeting-confirm {% if order.meeting_confirmed_by_seller %}gm-meeting-confirm--done{% endif %}">
+                        {% if order.meeting_confirmed_by_seller %}✅{% else %}⏳{% endif %} Vendeur
+                    </span>
+                </div>
+                {% if order.meeting_confirmed_by_buyer and order.meeting_confirmed_by_seller %}
+                <p class="gm-meeting-agreed"><i class="fi-rs-check-circle"></i> Les deux parties ont confirmé ce point de rencontre.</p>
+                {% else %}
+                    {% if is_buyer and not order.meeting_confirmed_by_buyer %}
+                    <button class="c2c-btn c2c-btn-primary" onclick="confirmMeetingPoint()"><i class="fi-rs-check"></i> Je confirme ce lieu</button>
+                    {% elif is_seller and not order.meeting_confirmed_by_seller %}
+                    <button class="c2c-btn c2c-btn-primary" onclick="confirmMeetingPoint()"><i class="fi-rs-check"></i> Je confirme ce lieu</button>
+                    {% endif %}
+                {% endif %}
+                <button type="button" class="gm-edit-meeting-btn" onclick="gmOpenMeetingEditor(this)">
+                    <i class="fi-rs-edit"></i> Modifier le lieu
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Formulaire de proposition nouveau : carte interactive -->
+            <div id="gmMeetingForm" class="gm-meeting-wrapper" {% if order.meeting_type %}style="display:none;"{% endif %}>
+                <div class="gm-meeting-intro">
+                    <i class="fi-rs-shield-check"></i>
+                    <div>
+                        <strong>Choisissez un point de rencontre</strong>
+                        <span>Option 1 : marqueur vert ⭐ (Gabomazone). Option 2 : cliquez sur la carte pour votre propre lieu.</span>
+                    </div>
+                </div>
+
+                <div class="gm-meeting-tabs">
+                    <button type="button" class="gm-mtab gm-mtab--active" onclick="switchMeetingTab('zone', this)"><i class="fi-rs-shield-check"></i> Zone Gabomazone</button>
+                    <button type="button" class="gm-mtab" onclick="switchMeetingTab('custom', this)"><i class="fi-rs-marker"></i> Lieu personnalisé</button>
+                </div>
+
+                <!-- Carte interactive — utilisée pour les deux modes -->
+                <div class="gm-meeting-map-wrap">
+                    <div class="gm-map-legend">
+                        <span class="gm-map-legend__item"><span class="gm-map-legend__dot gm-map-legend__dot--zone"></span> Zones sûres</span>
+                        <span class="gm-map-legend__item"><span class="gm-map-legend__dot gm-map-legend__dot--popular"></span> Lieux populaires</span>
+                        <span class="gm-map-legend__item"><span class="gm-map-legend__dot gm-map-legend__dot--custom"></span> Votre lieu</span>
+                    </div>
+                    <div id="gmMapSearchBox" class="gm-map-search gm-map-search--collapsed">
+                        <button type="button" onclick="gmToggleSearch()" aria-label="Rechercher"><i class="fi-rs-search"></i></button>
+                        <input type="text" id="gmMapSearch" placeholder="Rechercher une adresse…"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();gmSearchAddress();}">
+                    </div>
+                    <div class="gm-meeting-map-inner">
+                        <div id="gmMeetingMap"></div>
+                        <div id="gmMapLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#6B7280;font-size:13px;background:#F3F4F6;z-index:10;">
+                            <div style="width:32px;height:32px;border:3px solid #E5E7EB;border-top-color:#F97316;border-radius:50%;animation:gmSpin 1s linear infinite;"></div>
+                            <span>Chargement de la carte…</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab zone : sélection sur la carte uniquement -->
+                <div id="gmMeetingZoneTab">
+                    {% if safe_zones %}
+                    <div class="gm-zone-picker-hint">
+                        <i class="fi-rs-shield-check"></i> Cliquez directement sur un marqueur vert ⭐ sur la carte pour sélectionner un lieu de rencontre Gabomazone.
+                    </div>
+                    {% else %}
+                    <p class="gm-s-c07e2a">Aucune zone Gabomazone disponible pour le moment. Utilisez un lieu personnalisé.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Tab custom -->
+                <div id="gmMeetingCustomTab" style="display:none;">
+                    <div id="gmCustomPinStatus" class="gm-custom-pin-status">
+                        <strong><i class="fi-rs-marker"></i> Lieu sélectionné sur la carte</strong>
+                        <span id="gmCustomPinLabel">—</span>
+                    </div>
+                    <label class="gm-field-label" for="gmCustomAddress">Adresse du point de rencontre *</label>
+                    <input type="text" id="gmCustomAddress" class="gm-custom-input"
+                           placeholder="Ex : Devant le Lycée Léon Mba, Libreville..." maxlength="300">
+                    <label class="gm-waiver">
+                        <input type="checkbox" id="gmLiabilityWaiver">
+                        <span><strong>Décharge de responsabilité :</strong> je reconnais que Gabomazone n'est pas responsable de la sécurité de ce lieu. Je m'engage à choisir un endroit public et fréquenté.</span>
+                    </label>
+                </div>
+
+                <label class="gm-field-label" for="gmMeetingNotes">Précisions (optionnel)</label>
+                <input type="text" id="gmMeetingNotes" class="gm-notes-input"
+                       placeholder="Ex : Entrée principale, samedi 14h-16h..." maxlength="200">
+
+                <button class="gm-propose-btn" onclick="proposeMeetingPoint()">
+                    <i class="fi-rs-paper-plane"></i> Proposer ce lieu de rencontre
+                </button>
+            </div>
+        </div>
+
+        <!-- Données pour le JS -->
+        {{ safe_zones_geo_json|json_script:"gmSafeZonesData" }}
+        {{ popular_points_geo_json|json_script:"gmPopularPointsData" }}
+        {% if order.meeting_latitude %}
+        <script id="gmCurrentMeeting" type="application/json">{"lat": {{ order.meeting_latitude }}, "lng": {{ order.meeting_longitude }}, "type": "{{ order.meeting_type }}"}</script>
+        {% endif %}
+        {% endif %}
+
+        <!-- Zones d'échange sécurisées (référence uniquement avant paiement) -->
+        {% if safe_zones and not show_meeting_picker and order.status == 'pending_payment' %}
+        <div class="c2c-order-section c2c-safe-zones">
+            <h3><i class="fi-rs-shield-check"></i> Zones d'échange sécurisées Gabomazone</h3>
+            <p class="gm-s-c07e2a" style="margin-bottom:12px;">Privilégiez ces points de rencontre officiels pour sécuriser votre remise en main propre.</p>
+            <div class="c2c-safe-zones-grid">
+                {% for zone in safe_zones %}
+                <div class="c2c-safe-zone-card {% if zone.is_featured %}c2c-safe-zone-card--featured{% endif %}">
+                    {% if zone.is_featured %}<span class="c2c-zone-badge">⭐ Recommandé</span>{% endif %}
+                    <strong class="c2c-zone-name">{{ zone.name }}</strong>
+                    <p class="c2c-zone-address"><i class="fi-rs-marker"></i> {{ zone.address }}{% if zone.city %}, {{ zone.city }}{% endif %}</p>
+                    {% if zone.landmark %}<p class="c2c-zone-landmark"><i class="fi-rs-info"></i> {{ zone.landmark }}</p>{% endif %}
+                    {% if zone.opening_hours %}<p class="c2c-zone-hours"><i class="fi-rs-clock"></i> {{ zone.opening_hours }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Vérification de livraison -->
         {% if verification and order.status in 'paid,pending_delivery,delivered' %}
         <div class="c2c-verification-box">
@@ -149,10 +459,56 @@
             {% endif %}
         </div>
         {% endif %}
+
+        <!-- Litige (commande terminée) -->
+        {% if existing_dispute %}
+        <div class="c2c-order-section c2c-dispute-existing">
+            <h3><i class="fi-rs-exclamation"></i> Litige en cours</h3>
+            <p>Un litige a été ouvert le {{ existing_dispute.created_at|date:"d/m/Y à H:i" }}.</p>
+            <p>Motif : <strong>{{ existing_dispute.get_reason_display }}</strong> — Statut : <strong>{{ existing_dispute.get_status_display }}</strong></p>
+            <p class="gm-s-c07e2a">Notre équipe vous contactera sous 48h pour résoudre ce litige.</p>
+        </div>
+        {% elif can_dispute %}
+        <div class="c2c-order-section c2c-dispute-window">
+            <h3><i class="fi-rs-exclamation"></i> Un problème avec cette transaction ?</h3>
+            <p class="gm-s-c07e2a">
+                Vous disposez d'une fenêtre de 48h après finalisation pour signaler un problème.
+                {% if order.dispute_deadline %}
+                Délai : <strong>{{ order.dispute_deadline|date:"d/m/Y à H:i" }}</strong>.
+                {% endif %}
+            </p>
+            <a href="{% url 'c2c:open-dispute' order.id %}" class="c2c-btn c2c-btn-dispute">
+                <i class="fi-rs-flag"></i> Ouvrir un litige
+            </a>
+        </div>
+        {% endif %}
+
+        {% if order.status == 'completed' %}
+        {% if c2c_review_button_url or c2c_review_done_message %}
+        <div class="c2c-order-section c2c-post-transaction">
+            <h3><i class="fi-rs-star"></i> Votre avis compte</h3>
+            {% if c2c_review_button_url and c2c_review_button_text %}
+            <p class="gm-s-c07e2a" style="margin-bottom:14px;">
+                La transaction est terminée. Vous pouvez {% if is_buyer %}noter le vendeur{% else %}noter l'acheteur{% endif %} pour aider la communauté Gabomazone.
+            </p>
+            <a href="{{ c2c_review_button_url }}" class="c2c-btn c2c-btn-primary">
+                <i class="fi-rs-star"></i> {{ c2c_review_button_text }}
+            </a>
+            {% elif c2c_review_done_message %}
+            <p class="gm-s-c07e2a" style="margin:0;">{{ c2c_review_done_message }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}
     </div>
 </main>
 
+<script src="{% static 'vendor/leaflet/leaflet.js' %}?v=1.9.4"></script>
+<script src="{% static 'c2c/js/gm_c2c_leaflet_map_core.js' %}?v=1.0"></script>
 <script>
+/* Alias éventuel (build UMD navigateur → window.leaflet puis window.L) */
+if (typeof window.L === 'undefined' && window.leaflet) { window.L = window.leaflet; }
+
 function verifySellerCode() {
     const code = document.getElementById('sellerCodeInput').value.trim();
     if (code.length !== 9) {
@@ -179,6 +535,10 @@ function verifySellerCode() {
         btn.disabled = false;
         btn.innerHTML = originalText;
         if (data.success) {
+            if (data.review_url && data.can_review) {
+                window.location.href = data.review_url;
+                return;
+            }
             alert(data.message || 'Code vérifié avec succès !');
             location.reload();
         } else {
@@ -219,6 +579,10 @@ function verifyBuyerCode() {
         btn.disabled = false;
         btn.innerHTML = originalText;
         if (data.success) {
+            if (data.review_url && data.can_review) {
+                window.location.href = data.review_url;
+                return;
+            }
             alert(data.message || 'Transaction complétée avec succès !');
             location.reload();
         } else {
@@ -247,6 +611,454 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+/* ═══════════ Meeting point — carte interactive Leaflet ═══════════ */
+var gmMeetingTabMode = 'zone';
+var gmMap = null;
+var gmCustomMarker = null;
+var gmZoneFocusMarker = null;
+var gmPopularPointsData = [];
+var gmSelectedZoneId = null;
+var gmCustomLatLng = null;
+
+function gmParseCoord(v) {
+    if (typeof v === 'number') return v;
+    if (v === null || typeof v === 'undefined') return NaN;
+    var s = String(v).trim().replace(',', '.');
+    var n = parseFloat(s);
+    return Number.isFinite(n) ? n : NaN;
+}
+
+function gmToggleSearch() {
+    var box = document.getElementById('gmMapSearchBox');
+    var input = document.getElementById('gmMapSearch');
+    if (!box) return;
+    if (box.classList.contains('gm-map-search--collapsed')) {
+        box.classList.remove('gm-map-search--collapsed');
+        box.classList.add('gm-map-search--expanded');
+        setTimeout(function() { if (input) input.focus(); }, 200);
+    } else {
+        if (input && input.value.trim().length >= 3) {
+            gmSearchAddress();
+        } else {
+            box.classList.remove('gm-map-search--expanded');
+            box.classList.add('gm-map-search--collapsed');
+        }
+    }
+}
+
+function gmOpenMeetingEditor(btn) {
+    var form = document.getElementById('gmMeetingForm');
+    if (form) form.style.display = 'block';
+    if (btn) btn.style.display = 'none';
+    if (typeof gmScheduleMeetingMapInit === 'function') gmScheduleMeetingMapInit();
+    var mapWrap = document.querySelector('.gm-meeting-map-wrap');
+    if (mapWrap) {
+        setTimeout(function() {
+            mapWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+    }
+}
+
+function gmUsePopularPointById(pointId) {
+    var p = (gmPopularPointsData || []).find(function(x) { return x.id === pointId; });
+    if (!p || !gmMap) return;
+    var lat = gmParseCoord(p.latitude), lng = gmParseCoord(p.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    gmMap.setView([lat, lng], 16, { animate: true });
+    gmSetCustomPin(lat, lng);
+    var addrInput = document.getElementById('gmCustomAddress');
+    if (addrInput && !addrInput.value) {
+        addrInput.value = p.address || '';
+        addrInput.dataset.autoFilled = '1';
+    }
+    var customBtn = document.querySelectorAll('.gm-mtab')[1];
+    if (customBtn) switchMeetingTab('custom', customBtn);
+}
+
+function gmHideMapLoading() {
+    var el = document.getElementById('gmMapLoading');
+    if (el) el.style.display = 'none';
+}
+
+function switchMeetingTab(mode, btn) {
+    gmMeetingTabMode = mode;
+    document.querySelectorAll('.gm-mtab').forEach(function(b) { b.classList.remove('gm-mtab--active'); });
+    btn.classList.add('gm-mtab--active');
+    document.getElementById('gmMeetingZoneTab').style.display = mode === 'zone' ? '' : 'none';
+    document.getElementById('gmMeetingCustomTab').style.display = mode === 'custom' ? '' : 'none';
+    if (gmMap) setTimeout(function() { gmMap.invalidateSize(); }, 100);
+}
+
+function gmSelectZone(zoneId) {
+    gmSelectedZoneId = zoneId;
+    gmMeetingTabMode = 'zone';
+    // Centrer la carte sur la zone si coordonnées dispo
+    var zone = (window.gmSafeZonesData || []).find(function(z) { return z.id === zoneId; });
+    if (zone && gmMap) {
+        var zla = gmParseCoord(zone.latitude), zlo = gmParseCoord(zone.longitude);
+        if (Number.isFinite(zla) && Number.isFinite(zlo)) {
+            gmSetZoneFocusPin(zla, zlo);
+            gmMap.setView([zla, zlo], 16, { animate: true });
+        }
+    }
+}
+
+function gmSetZoneFocusPin(lat, lng) {
+    if (!gmMap) return;
+    lat = Number(lat); lng = Number(lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    if (gmZoneFocusMarker) gmMap.removeLayer(gmZoneFocusMarker);
+    var icon = L.divIcon({
+        html: '<div class="gm-leaflet-zone-focus-marker"></div>',
+        className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+    });
+    gmZoneFocusMarker = L.marker([lat, lng], { icon: icon, interactive: false, keyboard: false }).addTo(gmMap);
+}
+
+function gmInitMeetingMap() {
+    var mapEl = document.getElementById('gmMeetingMap');
+    if (!mapEl) { console.warn('[GM·Map] Pas de conteneur #gmMeetingMap'); return; }
+    if (typeof window.L === 'undefined' && window.leaflet) { window.L = window.leaflet; }
+    if (typeof L === 'undefined') { console.warn('[GM·Map] Leaflet non chargé'); return; }
+    if (gmMap) { gmMap.invalidateSize(); return; } // déjà initialisé
+
+    var zones = [];
+    var zEl = document.getElementById('gmSafeZonesData');
+    try {
+        zones = JSON.parse((zEl && zEl.textContent) ? zEl.textContent : '[]');
+        // Compat: selon la source, json_script peut contenir une chaîne JSON encodée
+        if (typeof zones === 'string') {
+            zones = JSON.parse(zones);
+        }
+    } catch (e) { zones = []; }
+    if (!Array.isArray(zones)) { zones = []; }
+    window.gmSafeZonesData = zones;
+    var pEl = document.getElementById('gmPopularPointsData');
+    try {
+        gmPopularPointsData = JSON.parse((pEl && pEl.textContent) ? pEl.textContent : '[]');
+        if (typeof gmPopularPointsData === 'string') {
+            gmPopularPointsData = JSON.parse(gmPopularPointsData);
+        }
+    } catch (e2) { gmPopularPointsData = []; }
+    if (!Array.isArray(gmPopularPointsData)) gmPopularPointsData = [];
+
+    if (typeof GmC2cLeafletMapCore === 'undefined') {
+        console.error('[GM·Map] GmC2cLeafletMapCore manquant (gm_c2c_leaflet_map_core.js)');
+        mapEl.innerHTML = '<div style="padding:40px;text-align:center;color:#EF4444;">⚠️ Script carte incomplet. Rafraîchissez la page.</div>';
+        gmHideMapLoading();
+        return;
+    }
+    GmC2cLeafletMapCore.setLeafletDefaultIconPath('{% static "vendor/leaflet/images/" %}');
+
+    var center = GmC2cLeafletMapCore.defaultCenterFromZones(zones);
+    var zoom = 13;
+
+    try {
+        gmMap = L.map(mapEl, { zoomControl: true, scrollWheelZoom: true }).setView(center, zoom);
+        window.gmMapRef = gmMap;
+        console.log('[GM·Map] Carte initialisée à', center, 'zoom', zoom);
+    } catch (err) {
+        console.error('[GM·Map] L.map() a échoué :', err);
+        mapEl.innerHTML = '<div style="padding:40px;text-align:center;color:#EF4444;">⚠️ Impossible de charger la carte. Rafraîchissez la page.</div>';
+        gmHideMapLoading();
+        return;
+    }
+
+    GmC2cLeafletMapCore.attachSatelliteBasemapWithFallback(gmMap, { onHideLoading: gmHideMapLoading });
+
+    // Masquer le loader au plus tard dans 12 s (plusieurs essais tuiles)
+    setTimeout(gmHideMapLoading, 12000);
+
+    // Forcer le recalcul de taille — essentiel quand la div était cachée ou mal mesurée
+    setTimeout(function() { if (gmMap) gmMap.invalidateSize(); }, 50);
+    setTimeout(function() { if (gmMap) gmMap.invalidateSize(); }, 300);
+    setTimeout(function() { if (gmMap) gmMap.invalidateSize(); }, 800);
+
+    var validZones = GmC2cLeafletMapCore.addSafeZoneMarkers(gmMap, zones, 'user');
+    GmC2cLeafletMapCore.addPopularPointMarkers(gmMap, gmPopularPointsData, 'user');
+
+    // Click sur la carte → lieu personnalisé
+    gmMap.on('click', function(e) {
+        gmSetCustomPin(e.latlng.lat, e.latlng.lng);
+        // Basculer automatiquement sur le tab "custom"
+        var customBtn = document.querySelectorAll('.gm-mtab')[1];
+        if (customBtn) switchMeetingTab('custom', customBtn);
+    });
+
+    // État initial : un rendez-vous existe déjà ?
+    var cur = document.getElementById('gmCurrentMeeting');
+    if (cur) {
+        try {
+            var d = JSON.parse(cur.textContent);
+            var clat = Number(d.lat), clng = Number(d.lng);
+            if (d.lat != null && d.lng != null && Number.isFinite(clat) && Number.isFinite(clng)) {
+                if (d.type === 'custom') {
+                    gmSetCustomPin(clat, clng);
+                } else if (d.type === 'safe_zone') {
+                    gmSetZoneFocusPin(clat, clng);
+                    // Pré-sélection visuelle de la zone proposée pour l'autre partie
+                    var nearest = validZones.find(function(z) {
+                        var zla = gmParseCoord(z.latitude), zlo = gmParseCoord(z.longitude);
+                        return Number.isFinite(zla) && Number.isFinite(zlo)
+                            && Math.abs(zla - clat) < 0.0001 && Math.abs(zlo - clng) < 0.0001;
+                    });
+                    if (nearest) gmSelectZone(nearest.id);
+                }
+                gmMap.setView([clat, clng], 15);
+            }
+        } catch (e) {}
+    }
+}
+
+function gmSetCustomPin(lat, lng) {
+    if (!gmMap) return;
+    lat = Number(lat); lng = Number(lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    gmCustomLatLng = { lat: lat, lng: lng };
+    if (gmCustomMarker) gmMap.removeLayer(gmCustomMarker);
+    if (gmZoneFocusMarker) { gmMap.removeLayer(gmZoneFocusMarker); gmZoneFocusMarker = null; }
+    var icon = L.divIcon({
+        html: '<div class="gm-leaflet-custom-marker"></div>',
+        className: '', iconSize: [26, 26], iconAnchor: [13, 13],
+    });
+    gmCustomMarker = L.marker([lat, lng], { icon: icon, draggable: true, keyboard: false, riseOnHover: true }).addTo(gmMap);
+    gmCustomMarker.on('dragend', function(e) {
+        var p = e.target.getLatLng();
+        gmCustomLatLng = { lat: p.lat, lng: p.lng };
+        gmReverseGeocode(p.lat, p.lng);
+    });
+    // Déselectionner la zone si un custom pin est déposé
+    gmSelectedZoneId = null;
+    // Afficher le statut
+    var statusEl = document.getElementById('gmCustomPinStatus');
+    if (statusEl) statusEl.classList.add('gm-active');
+    gmReverseGeocode(lat, lng);
+}
+
+function gmReverseGeocode(lat, lng) {
+    lat = Number(lat); lng = Number(lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    var label = document.getElementById('gmCustomPinLabel');
+    var addrInput = document.getElementById('gmCustomAddress');
+    if (label) label.textContent = 'Lat ' + lat.toFixed(5) + ', Lng ' + lng.toFixed(5) + ' — recherche de l\'adresse...';
+    // Nominatim reverse geocoding — respecte la politique d'usage (1 req/s max)
+    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&accept-language=fr')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var display = data.display_name || '';
+            if (label) label.textContent = display || ('Lat ' + lat.toFixed(5) + ', Lng ' + lng.toFixed(5));
+            if (addrInput && (!addrInput.value || addrInput.dataset.autoFilled === '1')) {
+                addrInput.value = display;
+                addrInput.dataset.autoFilled = '1';
+            }
+        })
+        .catch(function() {
+            if (label) label.textContent = 'Lat ' + lat.toFixed(5) + ', Lng ' + lng.toFixed(5);
+        });
+}
+
+function gmSearchAddress() {
+    var q = (document.getElementById('gmMapSearch') || {value:''}).value.trim();
+    if (q.length < 3) return;
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q + ', Gabon'))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data && data.length > 0) {
+                var lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+                gmMap.setView([lat, lng], 16);
+                gmSetCustomPin(lat, lng);
+                var customBtn = document.querySelectorAll('.gm-mtab')[1];
+                if (customBtn) switchMeetingTab('custom', customBtn);
+            } else {
+                alert('Adresse introuvable. Essayez un autre nom ou cliquez directement sur la carte.');
+            }
+        })
+        .catch(function() { alert('Erreur de recherche. Réessayez.'); });
+}
+
+function _gmEsc(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+}
+
+function proposeMeetingPoint() {
+    var payload = { notes: (document.getElementById('gmMeetingNotes') || {value:''}).value.trim() };
+    if (gmMeetingTabMode === 'zone') {
+        if (!gmSelectedZoneId) { alert('Veuillez sélectionner une zone Gabomazone en cliquant sur un marqueur vert de la carte.'); return; }
+        payload.meeting_type = 'safe_zone';
+        payload.safe_zone_id = parseInt(gmSelectedZoneId, 10);
+    } else {
+        var addr = (document.getElementById('gmCustomAddress') || {value:''}).value.trim();
+        if (addr.length < 10) { alert('Adresse trop courte. Cliquez sur la carte pour placer un repère ou décrivez précisément le lieu.'); return; }
+        if (!document.getElementById('gmLiabilityWaiver').checked) {
+            alert('Vous devez accepter la décharge de responsabilité pour un lieu personnalisé.');
+            return;
+        }
+        payload.meeting_type = 'custom';
+        payload.address = addr;
+        payload.liability_waiver = true;
+        if (gmCustomLatLng) {
+            payload.latitude = gmCustomLatLng.lat;
+            payload.longitude = gmCustomLatLng.lng;
+        }
+    }
+    _doMeetingFetch('propose', payload);
+}
+
+function confirmMeetingPoint() {
+    _doMeetingFetch('confirm', { action: 'confirm' });
+}
+
+function _doMeetingFetch(action, payload) {
+    payload.action = action;
+    fetch('{% url "c2c:set-meeting-point" order.id %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.error) { alert(data.error); return; }
+        if (action === 'propose' && data.redirect_url) {
+            window.location.href = data.redirect_url;
+            return;
+        }
+        if (data.message) { /* message discret via reload */ }
+        location.reload();
+    })
+    .catch(function() { alert('Erreur réseau. Réessayez.'); });
+}
+
+// Boot carte — n’initialise pas tant que #gmMeetingForm est masqué (évite erreur Leaflet / taille 0).
+(function gmBootMap() {
+    var mapEl = document.getElementById('gmMeetingMap');
+    if (!mapEl) return;
+
+    function showLeafletLoadError(msg) {
+        var mapDiv = document.getElementById('gmMeetingMap');
+        if (mapDiv) {
+            mapDiv.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#6B7280;"><i class="fi-rs-exclamation" style="font-size:32px;color:#F97316;"></i><p style="margin-top:12px;font-size:14px;"><strong>Carte indisponible.</strong><br>' + (msg || 'Le script de carte n’a pas pu être chargé depuis le serveur.') + '<br><small>Les zones restent sélectionnables ci-dessous.</small></p></div>';
+        }
+        gmHideMapLoading();
+    }
+
+    function gmMeetingFormDisplayed() {
+        var form = document.getElementById('gmMeetingForm');
+        if (!form) return true;
+        return window.getComputedStyle(form).display !== 'none';
+    }
+
+    function gmMapHostHasLayout(el) {
+        if (!el) return false;
+        var r = el.getBoundingClientRect();
+        return r.width >= 48 && r.height >= 48;
+    }
+
+    function gmTryInitMeetingMapFromBoot() {
+        if (typeof window.L === 'undefined' && window.leaflet) { window.L = window.leaflet; }
+        if (typeof L === 'undefined') return false;
+        if (!gmMeetingFormDisplayed()) return false;
+        if (!gmMapHostHasLayout(mapEl)) return false;
+        if (gmMap) {
+            gmMap.invalidateSize();
+            setTimeout(function() { if (gmMap) gmMap.invalidateSize(); }, 200);
+            return true;
+        }
+        try {
+            if (mapEl._leaflet_id) {
+                try { delete mapEl._leaflet_id; } catch (e0) {}
+            }
+            mapEl.innerHTML = '';
+            gmInitMeetingMap();
+        } catch (e) {
+            console.error('[GM·Map] Init:', e);
+            if (gmMap) {
+                try { gmMap.remove(); } catch (e1) {}
+                gmMap = null;
+            }
+            try { delete mapEl._leaflet_id; } catch (e2) {}
+            showLeafletLoadError('Erreur d’initialisation. Rafraîchissez la page.');
+            return false;
+        }
+        return !!gmMap;
+    }
+
+    window.gmScheduleMeetingMapInit = function() {
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                gmTryInitMeetingMapFromBoot();
+            });
+        });
+    };
+
+    function wireDeferredMapInit() {
+        var form = document.getElementById('gmMeetingForm');
+        if (!form) return;
+        var obs = new MutationObserver(function() {
+            if (gmTryInitMeetingMapFromBoot()) obs.disconnect();
+        });
+        obs.observe(form, { attributes: true, attributeFilter: ['style', 'class'] });
+        var n = 0;
+        var iv = setInterval(function() {
+            if (gmTryInitMeetingMapFromBoot() || ++n > 100) clearInterval(iv);
+        }, 150);
+        function onResize() {
+            if (gmTryInitMeetingMapFromBoot()) window.removeEventListener('resize', onResize);
+        }
+        window.addEventListener('resize', onResize);
+        setTimeout(function() {
+            if (gmMap) return;
+            if (!gmMeetingFormDisplayed()) return;
+            if (gmMapHostHasLayout(mapEl) && !document.querySelector('#gmMeetingMap .leaflet-container')) {
+                showLeafletLoadError('Impossible d’afficher la carte. Rafraîchissez la page ou vérifiez votre connexion.');
+            }
+        }, 14000);
+    }
+
+    function boot() {
+        if (typeof window.L === 'undefined' && window.leaflet) { window.L = window.leaflet; }
+        if (typeof L === 'undefined') {
+            showLeafletLoadError('Vérifiez votre connexion ou exécutez <code>collectstatic</code> si vous êtes en production.');
+            return;
+        }
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                if (gmTryInitMeetingMapFromBoot()) return;
+                wireDeferredMapInit();
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(boot, 0); });
+    } else {
+        setTimeout(boot, 0);
+    }
+})();
 </script>
+{% if meeting_pending_scroll %}
+<script>
+(function () {
+    function go() {
+        var sec = document.getElementById('gmMeetingSection');
+        if (sec) {
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        try {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+        } catch (e) {}
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(go, 650); });
+    } else {
+        setTimeout(go, 650);
+    }
+})();
+</script>
+{% endif %}
 {% endblock %}
 

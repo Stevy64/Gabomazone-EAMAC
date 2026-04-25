@@ -26,8 +26,68 @@ import os
 # Import HttpResponse module
 from django.http.response import HttpResponse
 import logging
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
+def _normalize_phone_for_auth(value):
+    """Normalise un numéro de téléphone pour la connexion (garde + et chiffres)."""
+    if value is None:
+        return ''
+    raw = str(value).strip()
+    if not raw:
+        return ''
+    out = []
+    for i, ch in enumerate(raw):
+        if ch.isdigit():
+            out.append(ch)
+        elif ch == '+' and i == 0:
+            out.append(ch)
+    return ''.join(out)
+
+
+def _send_verification_email(request, user):
+    """Envoie l'email de validation de compte."""
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    verify_path = reverse('accounts:verify-email', args=[uid, token])
+    verify_url = request.build_absolute_uri(verify_path)
+    subject = "Validez votre inscription Gabomazone"
+    body = (
+        f"Bonjour {user.first_name or user.username},\n\n"
+        "Merci pour votre inscription sur Gabomazone.\n"
+        "Cliquez sur ce lien pour activer votre compte :\n"
+        f"{verify_url}\n\n"
+        "Si vous n'etes pas a l'origine de cette inscription, ignorez ce message."
+    )
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None) or 'no-reply@gabomazone.com'
+    send_mail(subject, body, from_email, [user.email], fail_silently=False)
+
+
+def _find_user_for_login(identifier):
+    """
+    Retourne un utilisateur à partir d'un identifiant de connexion:
+    - email
+    - téléphone (Profile.mobile_number)
+    """
+    ident = (identifier or '').strip()
+    if not ident:
+        return None
+    if '@' in ident:
+        return User.objects.filter(email__iexact=ident).first()
+
+    norm = _normalize_phone_for_auth(ident)
+    if not norm:
+        return None
+    profiles = Profile.objects.select_related('user').exclude(user__isnull=True).exclude(mobile_number__isnull=True)
+    for p in profiles:
+        if _normalize_phone_for_auth(p.mobile_number) == norm:
+            return p.user
+    return None
+
 
 
 def _table_exists(table_name):
@@ -107,6 +167,8 @@ def register(request):
         if form.is_valid():
             new_user = form.save(commit=False)
             new_user.set_password(form.cleaned_data['password1'])
+            # Validation email obligatoire avant première connexion
+            new_user.is_active = False
             new_user.save()
             # Sauvegarder le numéro de téléphone dans le profil
             phone_number = form.cleaned_data.get('phone_number', '')
@@ -117,9 +179,16 @@ def register(request):
                     profile.save()
                 except Profile.DoesNotExist:
                     pass
-            username = form.cleaned_data['username']
+            # Email de vérification d'inscription
+            try:
+                _send_verification_email(request, new_user)
+            except Exception:
+                logger.exception("register: envoi email vérification impossible user=%s", new_user.pk)
+
             messages.success(
-                request, 'Félicitations {}, votre compte a été créé avec succès.'.format(new_user))
+                request,
+                "Compte créé. Un e-mail de validation a été envoyé. Activez votre compte avant de vous connecter."
+            )
             return redirect('accounts:login')
         else:
             # Si le formulaire est invalide, rediriger vers login avec l'onglet inscription actif
@@ -149,17 +218,17 @@ def register(request):
 @ratelimit(key='ip', rate='5/m', block=True)
 def login_user(request):
     """User login view."""
+    inactive_login_identifier = ''
     if request.method == 'POST':
         form = LoginForm()
         username = request.POST['username']
         password = request.POST['password']
         logger.info("login_user attempt username=%s", username)
-        try:
-            user = authenticate(request, username=User.objects.get(
-                email=username), password=password)
-
-        except Exception:
-            user = authenticate(request, username=username, password=password)
+        target_user = _find_user_for_login(username)
+        if target_user is not None:
+            user = authenticate(request, username=target_user.username, password=password)
+        else:
+            user = None
 
         if user is not None:
             login(request, user)
@@ -168,7 +237,11 @@ def login_user(request):
             return redirect('accounts:dashboard_customer')
 
         else:
-            messages.warning(request, ' username or password is incorrect')
+            if target_user is not None and not target_user.is_active:
+                inactive_login_identifier = target_user.email or username
+                messages.warning(request, "Compte non activé. Vérifiez votre e-mail puis cliquez sur le lien de validation.")
+            else:
+                messages.warning(request, 'Email/téléphone ou mot de passe incorrect')
 
     else:
         form = LoginForm()
@@ -179,7 +252,8 @@ def login_user(request):
     return render(request, 'accounts/page-login.html', {
         'title': 'Login',
         'form': form,
-        'register_form': register_form
+        'register_form': register_form,
+        'inactive_login_identifier': inactive_login_identifier,
     })
 
 
@@ -188,6 +262,66 @@ def logout_user(request):
     logger.info("logout_user user=%s", request.user)
     logout(request)
     messages.success(request, 'Your Now Logout !')
+    return redirect('accounts:login')
+
+
+def verify_email(request, uidb64, token):
+    """Active le compte après clic sur le lien reçu par e-mail."""
+    user = None
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is None:
+        messages.error(request, "Lien de validation invalide.")
+        return redirect('accounts:login')
+
+    if user.is_active:
+        messages.info(request, "Votre compte est déjà activé. Vous pouvez vous connecter.")
+        return redirect('accounts:login')
+
+    if default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        messages.success(request, "Votre e-mail est validé. Vous pouvez maintenant vous connecter.")
+        return redirect('accounts:login')
+
+    messages.error(request, "Lien de validation expiré ou invalide.")
+    return redirect('accounts:login')
+
+
+@ratelimit(key='ip', rate='3/m', block=True)
+@require_POST
+def resend_verification_email(request):
+    """Renvoie l'email de validation pour un compte inactif."""
+    identifier = (request.POST.get('identifier') or '').strip()
+    if not identifier:
+        messages.warning(request, "Saisissez votre email ou téléphone pour renvoyer le lien.")
+        return redirect('accounts:login')
+
+    user = _find_user_for_login(identifier)
+    if not user:
+        messages.info(request, "Si ce compte existe, un e-mail de validation a été renvoyé.")
+        return redirect('accounts:login')
+
+    if user.is_active:
+        messages.info(request, "Ce compte est déjà activé. Vous pouvez vous connecter.")
+        return redirect('accounts:login')
+
+    if not user.email:
+        messages.error(request, "Aucun email associé à ce compte.")
+        return redirect('accounts:login')
+
+    try:
+        _send_verification_email(request, user)
+    except Exception:
+        logger.exception("resend_verification_email: envoi impossible user=%s", user.pk)
+        messages.error(request, "Impossible d'envoyer l'e-mail maintenant. Réessayez dans quelques instants.")
+        return redirect('accounts:login')
+
+    messages.success(request, "E-mail de validation renvoyé. Vérifiez votre boîte de réception.")
     return redirect('accounts:login')
 
 
@@ -1107,11 +1241,14 @@ def get_inbox_conversations(request):
 
     qs = ProductConversation.objects.select_related('product', 'buyer', 'seller')
     if role == 'buyer':
-        qs = qs.filter(buyer=request.user)
+        qs = qs.filter(buyer=request.user, is_archived_by_buyer=False)
     elif role == 'seller':
-        qs = qs.filter(seller=request.user)
+        qs = qs.filter(seller=request.user, is_archived_by_seller=False)
     else:
-        qs = qs.filter(Q(buyer=request.user) | Q(seller=request.user))
+        qs = qs.filter(
+            Q(buyer=request.user, is_archived_by_buyer=False) |
+            Q(seller=request.user, is_archived_by_seller=False)
+        )
 
     conversations = qs.order_by('-last_message_at', '-updated_at')
     conversations_data = []
@@ -1407,9 +1544,12 @@ def unarchive_conversation(request, conversation_id):
 @require_POST
 def delete_conversation(request, conversation_id):
     """
-    Supprime une conversation et tous ses messages. Seul un participant (vendeur ou acheteur) peut supprimer.
+    Supprime (ou archive) une conversation. Seul un participant peut déclencher cette action.
+    - Si la transaction C2C associée est terminée : archive la conversation pour l'utilisateur (conservation de l'historique).
+    - Sinon : suppression définitive.
     """
     from django.http import JsonResponse
+    from django.db import ProtectedError
     from .models import ProductConversation
 
     try:
@@ -1420,8 +1560,58 @@ def delete_conversation(request, conversation_id):
     if request.user not in [conversation.seller, conversation.buyer]:
         return JsonResponse({'error': 'Accès non autorisé'}, status=403)
 
-    conversation.delete()
-    return JsonResponse({'success': True, 'message': 'Conversation supprimée'})
+    # Pour les transactions C2C terminées, archiver plutôt que supprimer (conservation de l'historique)
+    c2c_order = None
+    try:
+        c2c_order = conversation.get_c2c_order()
+    except Exception:
+        pass
+
+    # Conversations liées à une commande payée/en cours/livrée → archiver (préserver l'historique)
+    paid_lifecycle = {'paid', 'pending_delivery', 'delivered', 'verified', 'completed', 'disputed'}
+    if c2c_order and getattr(c2c_order, 'status', None) in paid_lifecycle:
+        conversation.archive_for_user(request.user)
+        return JsonResponse({'success': True, 'message': 'Conversation archivée'})
+
+    # Annuler les intentions d'achat actives + commande non payée pour permettre un nouveau workflow
+    try:
+        from c2c.models import PurchaseIntent, C2COrder, Negotiation
+        active_intent_statuses = [
+            PurchaseIntent.PENDING,
+            PurchaseIntent.AWAITING_AVAILABILITY,
+            PurchaseIntent.NEGOTIATING,
+            PurchaseIntent.AGREED,
+        ]
+        intents_qs = PurchaseIntent.objects.filter(
+            product=conversation.product,
+            buyer=conversation.buyer,
+            seller=conversation.seller,
+            status__in=active_intent_statuses,
+        )
+        # Annuler les commandes non payées liées à ces intentions (CASCADE supprimerait sinon)
+        C2COrder.objects.filter(
+            purchase_intent__in=intents_qs,
+            status=C2COrder.PENDING_PAYMENT,
+        ).update(status=C2COrder.CANCELLED)
+        # Rejeter les négociations en attente
+        Negotiation.objects.filter(
+            purchase_intent__in=intents_qs,
+            status=Negotiation.PENDING,
+        ).update(status=Negotiation.REJECTED)
+        intents_qs.update(status=PurchaseIntent.CANCELLED)
+    except Exception:
+        logger.exception('delete_conversation: échec annulation PurchaseIntent #%s', conversation_id)
+
+    try:
+        conversation.delete()
+        return JsonResponse({'success': True, 'message': 'Conversation supprimée'})
+    except ProtectedError:
+        # Fallback : archiver si la suppression est bloquée par une relation protégée
+        conversation.archive_for_user(request.user)
+        return JsonResponse({'success': True, 'message': 'Conversation archivée (relation protégée)'})
+    except Exception as e:
+        logger.exception('delete_conversation: erreur suppression conversation #%s', conversation_id)
+        return JsonResponse({'error': 'Erreur lors de la suppression : ' + str(e)}, status=500)
 
 
 @login_required(login_url='accounts:login')

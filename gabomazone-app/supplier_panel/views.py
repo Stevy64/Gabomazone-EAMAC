@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 @vendor_only
 def supplier_dashboard(request):
     """Tableau de bord du vendeur B2C avec résumé commandes et produits."""
+    from accounts.models import PremiumSubscription
     vendor = Profile.objects.get(user=request.user)
     orders_supplier = OrderSupplier.objects.all().filter(
         vendor=vendor).exclude(status="PENDING")
@@ -37,11 +38,20 @@ def supplier_dashboard(request):
     orders_underway = OrderSupplier.objects.all().filter(
         vendor=vendor, status="Underway")
 
+    is_official_shop = False
+    try:
+        sub = PremiumSubscription.objects.filter(vendor=vendor, status=PremiumSubscription.ACTIVE).first()
+        is_official_shop = sub.is_active() if sub else False
+    except Exception:
+        pass
+
     context = {
         "orders_supplier": orders_supplier,
         "products_supplier": products_supplier,
         "vendor": vendor,
         "orders_underway": orders_underway,
+        "is_official_shop": is_official_shop,
+        "is_identity_verified": vendor.is_identity_verified,
     }
     return render(request, 'supplier-panel/index.html', context)
 
@@ -1487,8 +1497,11 @@ def subscriptions(request):
                 else:
                     messages.error(request, 'Veuillez sélectionner un produit.')
         
-        # Calculate commissions
-        # Total commissions from all completed orders
+        # Calculate commissions using PlatformSettings
+        from c2c.models import PlatformSettings
+        platform_settings = PlatformSettings.get_active_settings()
+        commission_rate = float(platform_settings.b2c_seller_commission_rate) / 100.0
+
         completed_orders = OrderSupplier.objects.filter(
             vendor=profile,
             status='COMPLETE'
@@ -1497,13 +1510,11 @@ def subscriptions(request):
         for order in completed_orders:
             try:
                 amount = float(order.amount.replace(',', '').replace(' ', ''))
-                # Assuming 10% commission rate (adjust as needed)
-                commission = amount * 0.10
+                commission = amount * commission_rate
                 total_commissions += commission
             except (ValueError, AttributeError):
                 pass
         
-        # Monthly commissions (current month)
         today = date.today()
         first_day_month = date(today.year, today.month, 1)
         monthly_orders = completed_orders.filter(order_date__gte=first_day_month)
@@ -1511,7 +1522,7 @@ def subscriptions(request):
         for order in monthly_orders:
             try:
                 amount = float(order.amount.replace(',', '').replace(' ', ''))
-                commission = amount * 0.10
+                commission = amount * commission_rate
                 monthly_commissions += commission
             except (ValueError, AttributeError):
                 pass
@@ -1525,18 +1536,18 @@ def subscriptions(request):
         for order in pending_orders:
             try:
                 amount = float(order.amount.replace(',', '').replace(' ', ''))
-                commission = amount * 0.10
+                commission = amount * commission_rate
                 pending_commissions += commission
             except (ValueError, AttributeError):
                 pass
         
-        # Calculate badges based on vendor performance
         vendor_badges = {
-            'premium': False,  # Would check subscription status
+            'premium': False,
             'top_seller': False,
             'fast_shipping': False,
             'excellent_rating': False,
-            'verified': profile.admission,  # Using admission as verification
+            'verified': getattr(profile, 'is_identity_verified', False),
+            'official_shop': False,
             'new_seller': False,
         }
         
@@ -1571,13 +1582,14 @@ def subscriptions(request):
         if fast_orders >= 7:  # 70% of orders completed within 1 day
             vendor_badges['fast_shipping'] = True
         
-        # Subscription status - vérifier l'abonnement premium actif
         subscription_active = False
         try:
             from accounts.models import PremiumSubscription
             premium_sub = PremiumSubscription.objects.filter(vendor=profile).first()
             if premium_sub and premium_sub.is_active():
                 subscription_active = True
+                vendor_badges['premium'] = True
+                vendor_badges['official_shop'] = True
         except Exception:
             pass
         
@@ -1711,7 +1723,7 @@ def payments(request):
         today = date.today()
         
         # Récettes du jour
-        today_start = tz.make_aware(datetime.combine(today, datetime.min.time()))
+        today_start = timezone.make_aware(datetime.combine(today, datetime.min.time()))
         today_orders = completed_orders.filter(order_date__gte=today_start)
         daily_revenue = 0
         for o in today_orders:
@@ -1723,7 +1735,7 @@ def payments(request):
         
         # Récettes de la semaine (7 derniers jours)
         week_start = today - timedelta(days=7)
-        week_start_dt = tz.make_aware(datetime.combine(week_start, datetime.min.time()))
+        week_start_dt = timezone.make_aware(datetime.combine(week_start, datetime.min.time()))
         week_orders = completed_orders.filter(order_date__gte=week_start_dt)
         weekly_revenue = 0
         for o in week_orders:
@@ -1735,7 +1747,7 @@ def payments(request):
         
         # Récettes du mois
         month_start = date(today.year, today.month, 1)
-        month_start_dt = tz.make_aware(datetime.combine(month_start, datetime.min.time()))
+        month_start_dt = timezone.make_aware(datetime.combine(month_start, datetime.min.time()))
         month_orders = completed_orders.filter(order_date__gte=month_start_dt)
         monthly_revenue = 0
         for o in month_orders:
@@ -1747,7 +1759,7 @@ def payments(request):
         
         # Récettes de l'année
         year_start = date(today.year, 1, 1)
-        year_start_dt = tz.make_aware(datetime.combine(year_start, datetime.min.time()))
+        year_start_dt = timezone.make_aware(datetime.combine(year_start, datetime.min.time()))
         year_orders = completed_orders.filter(order_date__gte=year_start_dt)
         yearly_revenue = 0
         for o in year_orders:

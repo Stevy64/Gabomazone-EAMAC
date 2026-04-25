@@ -105,6 +105,24 @@ def seller_profile(request, seller_id):
 
     seller_products_cards = [_c2c_peer_product_card_context(p) for p in seller_products]
 
+    # Niveau vendeur
+    seller_level = None
+    try:
+        seller_level = seller.profile.get_seller_level()
+    except Exception:
+        pass
+
+    # Historique des ventes complétées (5 dernières, visibles publiquement)
+    completed_sales = []
+    try:
+        completed_sales = list(
+            C2COrder.objects.filter(seller=seller, status=C2COrder.COMPLETED)
+            .select_related('product', 'buyer')
+            .order_by('-completed_at')[:5]
+        )
+    except Exception:
+        pass
+
     context = {
         'seller': seller,
         'stats': stats,
@@ -114,8 +132,10 @@ def seller_profile(request, seller_id):
         'seller_products': seller_products,
         'seller_products_cards': seller_products_cards,
         'conversion_rate': conversion_rate,
+        'seller_level': seller_level,
+        'completed_sales': completed_sales,
     }
-    
+
     return render(request, 'c2c/seller_profile.html', context)
 
 

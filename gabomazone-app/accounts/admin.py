@@ -14,6 +14,9 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display_links = ("id", 'user', )
     list_per_page = 10
     search_fields = ("id", 'user__username',)
+    list_select_related = ('user',)
+    ordering = ('-id',)
+    save_on_top = True
 
 admin.site.register(Profile,ProfileAdmin)
 
@@ -25,6 +28,9 @@ class PeerToPeerProductAdmin(admin.ModelAdmin):
     search_fields = ('product_name', 'seller__username')
     readonly_fields = ('commission_amount', 'seller_amount', 'date', 'date_update', 'approved_date')
     list_per_page = 20
+    list_select_related = ('seller', 'product_supercategory', 'product_maincategory', 'product_subcategory')
+    ordering = ('-date',)
+    save_on_top = True
 
 admin.site.register(PeerToPeerProduct, PeerToPeerProductAdmin)
 
@@ -183,6 +189,9 @@ class ProductConversationAdmin(admin.ModelAdmin):
     )
     inlines = [ProductMessageInline]
     list_per_page = 20
+    list_select_related = ('product', 'seller', 'buyer')
+    ordering = ('-last_message_at',)
+    save_on_top = True
     fieldsets = (
         ('Conversation', {
             'fields': ('product', 'seller', 'buyer', 'last_message_at')

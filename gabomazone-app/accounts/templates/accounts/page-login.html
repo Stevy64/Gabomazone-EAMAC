@@ -52,12 +52,12 @@
                     <form method="post" action="{% url 'accounts:login' %}" class="gm-s-0e1c9f">
                         {% csrf_token %}
                         
-                        <!-- Email Field -->
+                        <!-- Login Identifier Field -->
                         <div class="gm-s-d85c4e">
-                            <label class="gm-s-444231">Email</label>
+                            <label class="gm-s-444231">Email ou téléphone</label>
                             <div class="gm-s-d85c4e">
-                                <input type="text" name="username" placeholder="Entrez votre email" required class="gm-s-43c715" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
-                                <i class="fi-rs-envelope gm-s-e5e883" ></i>
+                                <input type="text" name="username" placeholder="Entrez votre email ou +241 XX XX XX XX" required class="gm-s-43c715" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='#E5E7EB'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-user gm-s-e5e883" ></i>
                             </div>
                         </div>
 
@@ -85,6 +85,13 @@
                         <!-- Login Button -->
                         <button type="submit" name="login" class="gm-s-7409c4" onmouseover="this.style.background='var(--color-orange-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='var(--color-orange)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             Se connecter
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'accounts:resend-verification-email' %}" style="margin-top: 10px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="identifier" value="{{ inactive_login_identifier }}">
+                        <button type="submit" class="gm-s-7409c4" style="width: 100%; background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; box-shadow: none;">
+                            Renvoyer l'e-mail de validation
                         </button>
                     </form>
                             </div>
@@ -118,6 +125,18 @@
                             {% endif %}
                                             </div>
 
+                        <!-- Phone Field -->
+                        <div class="gm-s-d85c4e">
+                            <label class="gm-s-444231">Téléphone <span style="color:#dc2626">*</span></label>
+                            <div class="gm-s-d85c4e">
+                                <input type="tel" name="phone_number" value="{% if register_form and register_form.phone_number.value %}{{ register_form.phone_number.value }}{% endif %}" placeholder="+241 XX XX XX XX" required style="width: 100%; padding: 12px 14px 12px 44px; border: 2px solid {% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}; border-radius: var(--radius-md); font-size: 14px; outline: none; transition: all 0.2s ease; background: var(--color-white); font-family: var(--font-secondary);" onfocus="this.style.borderColor='var(--color-orange)'; this.style.boxShadow='0 0 0 3px rgba(255, 123, 44, 0.1)'" onblur="this.style.borderColor='{% if register_form and register_form.phone_number.errors %}#dc2626{% else %}#E5E7EB{% endif %}'; this.style.boxShadow='none'" />
+                                <i class="fi-rs-phone-call gm-s-e5e883" ></i>
+                            </div>
+                            {% if register_form and register_form.phone_number.errors %}
+                            <div class="gm-s-3389a6">{{ register_form.phone_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
                         <!-- Password Field -->
                         <div class="gm-s-d85c4e">
                             <label class="gm-s-444231">Mot de passe</label>
@@ -149,6 +168,9 @@
                         <button type="submit" name="register" class="gm-s-7409c4" onmouseover="this.style.background='var(--color-orange-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(255, 123, 44, 0.4)'" onmouseout="this.style.background='var(--color-orange)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(255, 123, 44, 0.3)'">
                             Créer un compte
                         </button>
+                        <p class="gm-s-444231" style="margin-top: 10px; font-size: 12px; color: #6B7280;">
+                            Un e-mail de validation vous sera envoyé après l'inscription. Le téléphone est requis pour les flux escrow (paiement/remboursement).
+                        </p>
                                     </form>
                                 </div>
                             </div>

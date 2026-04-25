@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/c2c-order-detail.css' %}?v=2.1">
+<style>
+.gm-dispute-form-wrap {
+    max-width: 680px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 16px;
+    padding: 36px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.gm-dispute-form-wrap h1 {
+    font-size: 22px;
+    color: #1F2937;
+    margin-bottom: 6px;
+}
+.gm-dispute-subtitle {
+    color: #6B7280;
+    font-size: 14px;
+    margin-bottom: 28px;
+}
+.gm-dispute-field { margin-bottom: 20px; }
+.gm-dispute-field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+.gm-dispute-field select,
+.gm-dispute-field textarea {
+    width: 100%;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #1F2937;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+}
+.gm-dispute-field select:focus,
+.gm-dispute-field textarea:focus {
+    outline: none;
+    border-color: var(--color-orange, #FF7B2C);
+}
+.gm-dispute-field textarea { min-height: 120px; resize: vertical; }
+.gm-dispute-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+.gm-dispute-submit {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.gm-dispute-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+}
+.gm-dispute-cancel {
+    background: #F3F4F6;
+    color: #374151;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+.gm-dispute-info {
+    background: #FFF7ED;
+    border: 1.5px solid #FED7AA;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #92400E;
+    margin-bottom: 24px;
+}
+.gm-dispute-info i { margin-right: 6px; }
+</style>
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages" style="padding: 20px;">
+    <div class="gm-dispute-form-wrap">
+        <a href="{% url 'c2c:order-detail' order.id %}" style="font-size:13px;color:#6B7280;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;">
+            <i class="fi-rs-arrow-left"></i> Retour à la commande
+        </a>
+        <h1><i class="fi-rs-flag" style="color:#EF4444;margin-right:8px;"></i>Ouvrir un litige</h1>
+        <p class="gm-dispute-subtitle">Commande #{{ order.id }} · {{ order.product.product_name|truncatechars:60 }}</p>
+
+        <div class="gm-dispute-info">
+            <i class="fi-rs-info"></i>
+            <strong>Comment ça fonctionne ?</strong><br>
+            Notre équipe examine votre litige sous 48h et vous contacte par messagerie.
+            Si le litige est validé, l'argent conservé en escrow peut être remboursé.
+        </div>
+
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="gm-dispute-field">
+                <label for="reason">Motif du litige</label>
+                <select name="reason" id="reason" required>
+                    <option value="" disabled selected>— Choisissez un motif —</option>
+                    {% for value, label in reason_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="gm-dispute-field">
+                <label for="description">Description détaillée (min. 20 caractères)</label>
+                <textarea name="description" id="description" required
+                    placeholder="Décrivez précisément le problème rencontré : état de l'article, non-conformité, absence de remise…"></textarea>
+            </div>
+            <div class="gm-dispute-actions">
+                <button type="submit" class="gm-dispute-submit">
+                    <i class="fi-rs-paper-plane"></i> Envoyer le litige
+                </button>
+                <a href="{% url 'c2c:order-detail' order.id %}" class="gm-dispute-cancel">Annuler</a>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock body %}

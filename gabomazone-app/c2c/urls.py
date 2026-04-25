@@ -51,5 +51,14 @@ urlpatterns = [
     path('review/<int:order_id>/create/', views_seller_reviews.create_review, name='create-review'),
     path('review/<int:review_id>/delete/', views_seller_reviews.delete_review, name='delete-review'),
     path('seller/<int:seller_id>/stats/', views_seller_reviews.get_seller_stats, name='seller-stats'),
+
+    # Litiges
+    path('order/<int:order_id>/dispute/', views.open_dispute, name='open-dispute'),
+
+    # Zones d'échange sécurisées
+    path('safe-zones/', views.safe_zones_list, name='safe-zones'),
+
+    # Point de rencontre
+    path('order/<int:order_id>/meeting-point/', views.set_meeting_point, name='set-meeting-point'),
 ]
 

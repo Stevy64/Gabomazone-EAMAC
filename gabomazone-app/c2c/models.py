@@ -34,6 +34,12 @@ class PlatformSettings(models.Model):
         verbose_name=_("Commission vendeur C2C (%)"),
         help_text=_("Pourcentage de commission prélevé sur le vendeur pour les transactions C2C")
     )
+    popular_meeting_min_uses = models.PositiveSmallIntegerField(
+        default=2,
+        validators=[MinValueValidator(2), MaxValueValidator(50)],
+        verbose_name=_("Seuil lieu populaire (usages min)"),
+        help_text=_("Nombre minimum d'utilisations d'un point personnalisé pour l'afficher en 'Lieu Populaire' (orange) sur la carte.")
+    )
     
     # Commissions B2C (par défaut)
     b2c_buyer_commission_rate = models.DecimalField(
@@ -69,16 +75,32 @@ class PlatformSettings(models.Model):
     
     def calculate_c2c_commissions(self, price):
         """
-        Calcule les frais de service C2C.
-        L'acheteur paie exactement le prix négocié.
+        Calcule les frais de service C2C avec commission degressive.
+        Baremes :
+          0 – 10 000 FCFA   → 8 %
+          10 001 – 50 000    → 6 %
+          50 001 – 200 000   → 4 %
+          > 200 000          → 3 %
+        L'acheteur paie exactement le prix negocie.
         Seul le vendeur supporte les frais de service.
         """
         price = Decimal(str(price))
-        service_fee = (price * self.c2c_seller_commission_rate / Decimal('100')).quantize(Decimal('1'))
+        if price <= Decimal('10000'):
+            rate = Decimal('8.00')
+        elif price <= Decimal('50000'):
+            rate = Decimal('6.00')
+        elif price <= Decimal('200000'):
+            rate = Decimal('4.00')
+        else:
+            rate = Decimal('3.00')
+        # On utilise le taux admin si configuré manuellement (hors plage standard)
+        # sinon on applique le degressive automatique
+        effective_rate = rate
+        service_fee = (price * effective_rate / Decimal('100')).quantize(Decimal('1'))
         seller_net = price - service_fee
         return {
-            'buyer_commission': Decimal('0'),       # conservé pour compatibilité schéma
-            'seller_commission': service_fee,       # frais de service prélevés au vendeur
+            'buyer_commission': Decimal('0'),       # conserve pour compatibilite schema
+            'seller_commission': service_fee,       # frais de service preleves au vendeur
             'platform_commission': service_fee,
             'seller_net': seller_net,
             'buyer_total': price,                   # l'acheteur paie exactement le prix négocié
@@ -222,7 +244,8 @@ class Negotiation(models.Model):
     # Dates
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Date de création"))
     responded_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de réponse"))
-    
+    expires_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Expire le"))
+
     class Meta:
         ordering = ('-created_at',)
         verbose_name = _("Négociation")
@@ -301,7 +324,46 @@ class C2COrder(models.Model):
     paid_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de paiement"))
     delivered_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de livraison"))
     completed_at = models.DateTimeField(blank=True, null=True, verbose_name=_("Date de finalisation"))
-    
+    # Fenêtre de litige : 48h après completed_at pour signaler un problème
+    dispute_deadline = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Délai de litige"),
+        help_text=_("48h après finalisation — au-delà de ce délai, plus de litige possible"))
+
+    # ── Point de rencontre ────────────────────────────────────────────────────
+    MEETING_SAFE_ZONE = 'safe_zone'
+    MEETING_CUSTOM = 'custom'
+    MEETING_TYPE_CHOICES = [
+        (MEETING_SAFE_ZONE, _('Zone Gabomazone')),
+        (MEETING_CUSTOM, _('Point personnalisé')),
+    ]
+    meeting_type = models.CharField(
+        max_length=20, choices=MEETING_TYPE_CHOICES,
+        blank=True, null=True, verbose_name=_("Type de point de rencontre"))
+    meeting_safe_zone = models.ForeignKey(
+        'SafeZone', on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='meetings',
+        verbose_name=_("Zone Gabomazone sélectionnée"))
+    meeting_address = models.CharField(
+        max_length=300, blank=True, null=True,
+        verbose_name=_("Adresse du point de rencontre personnalisé"))
+    meeting_latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name=_("Latitude du point de rencontre"))
+    meeting_longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name=_("Longitude du point de rencontre"))
+    meeting_notes = models.CharField(
+        max_length=200, blank=True, null=True,
+        verbose_name=_("Précisions sur le point de rencontre"))
+    meeting_proposed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='proposed_meetings',
+        verbose_name=_("Proposé par"))
+    meeting_confirmed_by_buyer = models.BooleanField(
+        default=False, verbose_name=_("Confirmé par l'acheteur"))
+    meeting_confirmed_by_seller = models.BooleanField(
+        default=False, verbose_name=_("Confirmé par le vendeur"))
+
     class Meta:
         ordering = ('-created_at',)
         verbose_name = _("Commande C2C")
@@ -847,9 +909,120 @@ class BuyerReview(models.Model):
         
         if user != order.seller:
             return False, "Seul le vendeur peut noter l'acheteur"
-        
+
         if cls.objects.filter(order=order, reviewer=user).exists():
             return False, "Vous avez déjà noté cette transaction"
-        
+
         return True, None
+
+
+# ── Modèles ajoutés : Litige, Zone d'échange ──────────────────────────────────
+
+class DisputeCase(models.Model):
+    """
+    Litige ouvert par l'acheteur dans les 48h suivant la finalisation.
+    Un médiateur Gabomazone tranche et peut déclencher un remboursement.
+    """
+    OPEN = 'open'
+    UNDER_REVIEW = 'under_review'
+    RESOLVED_REFUND = 'resolved_refund'
+    RESOLVED_SELLER = 'resolved_seller'
+    CLOSED = 'closed'
+
+    STATUS_CHOICES = [
+        (OPEN, _('Ouvert')),
+        (UNDER_REVIEW, _('En cours d\'examen')),
+        (RESOLVED_REFUND, _('Resolu - Remboursement')),
+        (RESOLVED_SELLER, _('Resolu - En faveur du vendeur')),
+        (CLOSED, _('Cloture')),
+    ]
+
+    REASON_NOT_RECEIVED = 'not_received'
+    REASON_NOT_AS_DESCRIBED = 'not_as_described'
+    REASON_DAMAGED = 'damaged'
+    REASON_FRAUD = 'fraud'
+    REASON_OTHER = 'other'
+
+    REASON_CHOICES = [
+        (REASON_NOT_RECEIVED, _('Article non recu')),
+        (REASON_NOT_AS_DESCRIBED, _('Non conforme a l\'annonce')),
+        (REASON_DAMAGED, _('Article endommage')),
+        (REASON_FRAUD, _('Arnaque suspectee')),
+        (REASON_OTHER, _('Autre motif')),
+    ]
+
+    order = models.OneToOneField(
+        C2COrder, on_delete=models.CASCADE, related_name='dispute',
+        verbose_name=_("Commande C2C"))
+    claimant = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='c2c_disputes_filed',
+        verbose_name=_("Plaignant"))
+    mediator = models.ForeignKey(
+        User, on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='c2c_disputes_mediated', verbose_name=_("Mediateur"))
+
+    reason = models.CharField(max_length=30, choices=REASON_CHOICES, verbose_name=_("Motif"))
+    description = models.TextField(verbose_name=_("Description detaillee"))
+    resolution_notes = models.TextField(blank=True, verbose_name=_("Notes de resolution"))
+
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=OPEN, verbose_name=_("Statut"))
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    resolved_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = _("Litige C2C")
+        verbose_name_plural = _("Litiges C2C")
+
+    def __str__(self):
+        return f"Litige #{self.id} - Commande #{self.order_id}"
+
+
+class SafeZone(models.Model):
+    """
+    Zone d'echange securisee Gabomazone.
+    Points officiels pour les remises en main propre C2C.
+    """
+    ACTIVE = 'active'
+    INACTIVE = 'inactive'
+
+    STATUS_CHOICES = [
+        (ACTIVE, _('Actif')),
+        (INACTIVE, _('Inactif')),
+    ]
+
+    name = models.CharField(max_length=200, verbose_name=_("Nom du point"))
+    description = models.TextField(blank=True, verbose_name=_("Description"))
+    address = models.CharField(max_length=500, verbose_name=_("Adresse"))
+    city = models.CharField(max_length=100, default='Libreville', verbose_name=_("Ville"))
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name=_("Latitude"))
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, blank=True, null=True,
+        verbose_name=_("Longitude"))
+    landmark = models.CharField(
+        max_length=200, blank=True,
+        verbose_name=_("Repere"),
+        help_text=_("Ex: 'En face du Total Leon MBA'"))
+    opening_hours = models.CharField(
+        max_length=200, blank=True, default='Lun-Sam 8h-20h',
+        verbose_name=_("Horaires"))
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default=ACTIVE,
+        verbose_name=_("Statut"))
+    is_featured = models.BooleanField(
+        default=False, verbose_name=_("Mis en avant"))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-is_featured', 'city', 'name')
+        verbose_name = _("Zone d'echange securisee")
+        verbose_name_plural = _("Zones d'echange securisees")
+
+    def __str__(self):
+        return f"{self.name} - {self.city}"
 

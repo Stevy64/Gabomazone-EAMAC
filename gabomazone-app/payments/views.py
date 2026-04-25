@@ -20,10 +20,36 @@ from accounts.models import Profile
 logger = logging.getLogger(__name__)
 
 
+def _format_phone_international(phone):
+    """Formate un numero Gabon en +241XXXXXXXXX."""
+    if not phone:
+        return ''
+    digits = ''.join(ch for ch in str(phone) if ch.isdigit())
+    if not digits:
+        return ''
+    if digits.startswith('0'):
+        return '+241' + digits[1:]
+    if digits.startswith('241'):
+        return '+' + digits
+    return '+241' + digits
+
+
 def _ensure_tracking(order: Order) -> None:
     """Génère un numéro de suivi si la commande n'en a pas encore."""
     if order and not order.tracking_no:
         order.tracking_no = code_generator()
+
+
+def _request_may_access_singpay_transaction(request, transaction: SingPayTransaction) -> bool:
+    """Staff ou propriétaire de la transaction uniquement."""
+    user = getattr(request, "user", None)
+    if not user or not user.is_authenticated:
+        return False
+    if user.is_staff:
+        return True
+    if transaction.user_id and transaction.user_id == user.id:
+        return True
+    return False
 
 
 def _pay_order_commissions(order: Order):
@@ -44,11 +70,12 @@ def _pay_order_commissions(order: Order):
             try:
                 vendor_profile = Profile.objects.get(user=order_detail.product.vendor)
                 
-                if vendor_profile.phone:
+                vendor_phone = _format_phone_international(vendor_profile.mobile_number)
+                if vendor_phone:
                     # Payer la commission au vendeur
                     success, response = singpay_service.pay_commission(
                         amount=float(commissions['seller_net']),
-                        recipient_phone=vendor_profile.phone,
+                        recipient_phone=vendor_phone,
                         recipient_name=f"{order_detail.product.vendor.first_name} {order_detail.product.vendor.last_name}",
                         order_id=f"ORDER-{order.id}",
                         commission_type='seller',
@@ -76,10 +103,11 @@ def _pay_c2c_commissions(c2c_order):
     try:
         seller_profile = Profile.objects.get(user=c2c_order.seller)
         
-        if seller_profile.phone:
+        seller_phone = _format_phone_international(seller_profile.mobile_number)
+        if seller_phone:
             success, response = singpay_service.pay_commission(
                 amount=float(c2c_order.seller_net),
-                recipient_phone=seller_profile.phone,
+                recipient_phone=seller_phone,
                 recipient_name=f"{c2c_order.seller.first_name} {c2c_order.seller.last_name}",
                 order_id=f"C2C-ORDER-{c2c_order.id}",
                 commission_type='seller',
@@ -151,25 +179,7 @@ def init_singpay_payment(request):
         # URL de retour après paiement - doit être accessible sans authentification
         return_url = f"{base_url}/payments/singpay/return/"
         
-        # Formater le numéro de téléphone en format international (Gabon)
-        def format_phone_international(phone):
-            """Formate le numéro de téléphone en format international (+241XXXXXXXXX)"""
-            if not phone:
-                return ''
-            # Supprimer les espaces et caractères spéciaux
-            phone = ''.join(filter(str.isdigit, phone))
-            # Si le numéro commence par 0, remplacer par +241 (Gabon)
-            if phone.startswith('0'):
-                phone = '+241' + phone[1:]
-            # Si le numéro ne commence pas par +, ajouter +241
-            elif not phone.startswith('+'):
-                if phone.startswith('241'):
-                    phone = '+' + phone
-                else:
-                    phone = '+241' + phone
-            return phone
-        
-        customer_phone = format_phone_international(payment_info.phone)
+        customer_phone = _format_phone_international(payment_info.phone)
         
         # Métadonnées utiles pour le suivi interne
         metadata = {
@@ -454,16 +464,7 @@ def init_cash_fee_payment(request):
             base_url = f"https://{production_domain}" if production_domain and not production_domain.startswith('http') else (production_domain or f"{request.scheme}://{request.get_host()}")
         callback_url = f"{base_url.rstrip('/')}/payments/singpay/callback/"
         return_url = f"{base_url.rstrip('/')}/payments/singpay/return/"
-        def _fmt_phone(phone):
-            if not phone:
-                return ''
-            phone = ''.join(filter(str.isdigit, str(phone)))
-            if phone.startswith('0'):
-                phone = '+241' + phone[1:]
-            elif not phone.startswith('+'):
-                phone = '+241' + phone if not phone.startswith('241') else '+' + phone
-            return phone
-        customer_phone = _fmt_phone(payment_info.phone)
+        customer_phone = _format_phone_international(payment_info.phone)
         metadata = {'order_id': str(order.id), 'payment_type': 'cash_service_fee'}
         success, response = singpay_service.init_payment(
             amount=fee,
@@ -579,6 +580,20 @@ def singpay_callback(request):
         )
         
         if status == 'success':
+            if transaction.status in (
+                SingPayTransaction.SUCCESS,
+                SingPayTransaction.REFUNDED,
+            ):
+                logger.info(
+                    '%s phase=view_callback idempotent_skip transaction_id=%s db_status=%s',
+                    LOG_PREFIX,
+                    transaction_id,
+                    transaction.status,
+                )
+                webhook_log.processed = True
+                webhook_log.save(update_fields=['processed', 'error_message'])
+                return HttpResponse(status=200)
+
             logger.info(f"Mise à jour de la transaction {transaction_id} en SUCCESS")
             transaction.status = SingPayTransaction.SUCCESS
             transaction.paid_at = timezone.now()
@@ -672,6 +687,10 @@ def singpay_callback(request):
             logger.info(f"Callback traité avec succès pour transaction {transaction_id}")
             
         elif status == 'failed':
+            if transaction.status == SingPayTransaction.FAILED:
+                webhook_log.processed = True
+                webhook_log.save(update_fields=['processed', 'error_message'])
+                return HttpResponse(status=200)
             logger.warning(f"Transaction {transaction_id} marquée comme FAILED")
             transaction.status = SingPayTransaction.FAILED
             transaction.save()
@@ -680,6 +699,10 @@ def singpay_callback(request):
             webhook_log.save()
             
         elif status == 'cancelled':
+            if transaction.status == SingPayTransaction.CANCELLED:
+                webhook_log.processed = True
+                webhook_log.save(update_fields=['processed', 'error_message'])
+                return HttpResponse(status=200)
             logger.info(f"Transaction {transaction_id} marquée comme CANCELLED")
             transaction.status = SingPayTransaction.CANCELLED
             transaction.save()
@@ -862,12 +885,15 @@ def singpay_return(request):
 
 
 @require_http_methods(["GET"])
+@login_required
 def verify_singpay_payment(request, transaction_id):
     """
     Vérifie le statut d'une transaction SingPay
     """
     try:
         transaction = get_object_or_404(SingPayTransaction, transaction_id=transaction_id)
+        if not _request_may_access_singpay_transaction(request, transaction):
+            return JsonResponse({'success': False, 'error': 'Accès refusé'}, status=403)
         
         # Vérifier avec l'API SingPay
         success, response = singpay_service.verify_payment(transaction_id)
@@ -908,12 +934,15 @@ def verify_singpay_payment(request, transaction_id):
 
 
 @require_http_methods(["GET"])
+@login_required
 def get_transaction_details(request, transaction_id):
     """
     Retourne les détails d'une transaction en JSON (pour la boîte de dialogue)
     """
     try:
         transaction = get_object_or_404(SingPayTransaction, transaction_id=transaction_id)
+        if not _request_may_access_singpay_transaction(request, transaction):
+            return JsonResponse({'success': False, 'error': 'Accès refusé'}, status=403)
         
         steps = transaction.get_status_steps()
         

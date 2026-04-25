@@ -51,9 +51,43 @@ class Profile(models.Model):
         max_length=64, blank=True, null=True, unique=True, verbose_name=_("Token de vérification vendeur"))
     vendor_verification_sent_at = models.DateTimeField(
         blank=True, null=True, verbose_name=_("Date d'envoi du lien de vérification"))
+    is_identity_verified = models.BooleanField(
+        default=False, verbose_name=_("Identité vérifiée"),
+        help_text=_("Badge de vérification d'identité accordé par l'administrateur"))
+    identity_verified_at = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("Date de vérification d'identité"))
 
     def __str__(self):
         return self.user.username
+
+    def get_seller_level(self):
+        """
+        Calcule le niveau vendeur C2C basé sur les ventes complétées et la réputation.
+        Niveaux :
+          - Débutant   : 0–4 ventes terminées
+          - Confirmé   : 5–19 ventes terminées
+          - Vendeur Étoile ⭐ : 20+ ventes ET note moyenne ≥ 4.5 ET ≥ 5 avis
+        Retourne un dict : {'key': '...', 'label': '...', 'icon': '...', 'color': '...'}
+        """
+        try:
+            from c2c.models import C2COrder, SellerReview
+            completed = C2COrder.objects.filter(
+                seller=self.user, status='completed').count()
+            if completed >= 20:
+                stats = SellerReview.get_seller_stats(self.user)
+                if stats['total_reviews'] >= 5 and stats['average_rating'] >= 4.5:
+                    return {'key': 'star', 'label': 'Vendeur Étoile',
+                            'icon': '⭐', 'color': '#D97706', 'completed': completed}
+                return {'key': 'confirmed', 'label': 'Confirmé',
+                        'icon': '✅', 'color': '#059669', 'completed': completed}
+            elif completed >= 5:
+                return {'key': 'confirmed', 'label': 'Confirmé',
+                        'icon': '✅', 'color': '#059669', 'completed': completed}
+            return {'key': 'beginner', 'label': 'Débutant',
+                    'icon': '🔰', 'color': '#6B7280', 'completed': completed}
+        except Exception:
+            return {'key': 'beginner', 'label': 'Débutant',
+                    'icon': '🔰', 'color': '#6B7280', 'completed': 0}
 
 
 class PeerToPeerProduct(models.Model):
@@ -161,6 +195,54 @@ class PeerToPeerProduct(models.Model):
             self.seller_amount = self.PRDPrice - self.commission_amount
             return self.commission_amount, self.seller_amount
         return 0, 0
+
+    @property
+    def negotiation_status(self):
+        """
+        Statut temps réel de l'annonce :
+        'sold' / 'in_negotiation' / 'available'
+        """
+        if self.status == self.SOLD:
+            return 'sold'
+        try:
+            from c2c.models import PurchaseIntent
+            active = PurchaseIntent.objects.filter(
+                product=self,
+                status__in=[
+                    PurchaseIntent.PENDING,
+                    PurchaseIntent.AWAITING_AVAILABILITY,
+                    PurchaseIntent.NEGOTIATING,
+                    PurchaseIntent.AGREED,
+                ]
+            ).exists()
+            return 'in_negotiation' if active else 'available'
+        except Exception:
+            return 'available'
+
+    @property
+    def negotiation_status_display(self):
+        labels = {
+            'sold': 'Vendu',
+            'in_negotiation': 'En négociation',
+            'available': 'Disponible',
+        }
+        return labels.get(self.negotiation_status, 'Disponible')
+
+    @property
+    def active_offers_count(self):
+        """Nombre d'offres actives de différents acheteurs"""
+        try:
+            from c2c.models import PurchaseIntent
+            return PurchaseIntent.objects.filter(
+                product=self,
+                status__in=[
+                    PurchaseIntent.PENDING,
+                    PurchaseIntent.AWAITING_AVAILABILITY,
+                    PurchaseIntent.NEGOTIATING,
+                ]
+            ).values('buyer').distinct().count()
+        except Exception:
+            return 0
     
     def save(self, *args, **kwargs):
         # Calculer la commission avant de sauvegarder
@@ -404,19 +486,6 @@ class ProductMessage(models.Model):
         self.is_read = True
         self.read_at = timezone.now()
         self.save()
-
-        if self.code is None or self.code == "":
-            # code = generate_ref_code()
-            # self.code = code
-            self.code = f'{self.user}'
-
-        # img = Image.open(self.image.path)
-        # if img.width > 300 or img.height > 300:
-        #     out_size = (300, 300)
-        #     img.thumbnail(out_size)
-        #     img.save(self.image.path)
-
-        super().save(*args, **kwargs)
 
 
 def create_profile(sender, **kwargs):

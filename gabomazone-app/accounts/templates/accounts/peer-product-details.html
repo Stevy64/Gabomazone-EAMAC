@@ -80,6 +80,21 @@
                         <div class="flavoriz-product-title-row gm-s-64f94f" >
                             <h1 class="gm-s-ad36f0">{{ peer_product.product_name }}</h1>
                         </div>
+                        {% with ns=peer_product.negotiation_status %}
+                        {% if ns == 'in_negotiation' %}
+                        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#DBEAFE;color:#1D4ED8;margin-bottom:8px;">
+                            <i class="fi-rs-comment"></i> En négociation{% if peer_product.active_offers_count > 1 %} · {{ peer_product.active_offers_count }} acheteurs{% endif %}
+                        </span>
+                        {% elif ns == 'sold' %}
+                        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#FEE2E2;color:#B91C1C;margin-bottom:8px;">
+                            <i class="fi-rs-check"></i> Vendu
+                        </span>
+                        {% else %}
+                        <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#DCFCE7;color:#15803D;margin-bottom:8px;">
+                            <i class="fi-rs-check-circle"></i> Disponible
+                        </span>
+                        {% endif %}
+                        {% endwith %}
                         
                         <div class="flavoriz-product-price-section">
                             <div class="gm-s-27dc97">
@@ -102,6 +117,11 @@
                                 <div class="gm-seller-info">
                                     <div class="gm-seller-name">
                                         <button type="button" onclick="openSellerModal()" class="gm-s-01d3be">{{ peer_product.seller.username }}</button>
+                                        {% if peer_product.seller.profile.is_identity_verified %}
+                                        <span class="gm-verified-badge" title="Identité vérifiée par Gabomazone">
+                                            <i class="fi-rs-shield-check"></i> Vérifié
+                                        </span>
+                                        {% endif %}
                                     </div>
                                     <div class="gm-seller-meta">
                                         {% if peer_product.seller_city %}

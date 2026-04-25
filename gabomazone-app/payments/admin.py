@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
 from django.utils import timezone
+from django.utils.html import format_html
 from .models import VendorPayments, SingPayTransaction, SingPayWebhookLog
 from .services.singpay import singpay_service
 
@@ -15,13 +16,16 @@ class VendorPaymentsAdmin(admin.ModelAdmin):
     list_per_page = 10
     search_fields = ("request_amount", )
     readonly_fields = ('date', 'date_update')
+    list_select_related = ('vendor_profile',)
+    ordering = ('-date',)
+    save_on_top = True
 
 
 @admin.register(SingPayTransaction)
 class SingPayTransactionAdmin(admin.ModelAdmin):
     list_display = (
-        'transaction_id', 'internal_order_id', 'amount', 'currency', 'status',
-        'transaction_type', 'escrow_status', 'customer_name', 'customer_email', 'created_at'
+        'transaction_id', 'internal_order_id', 'amount', 'currency', 'status_badge',
+        'transaction_type_badge', 'escrow_status_badge', 'customer_name', 'customer_email', 'created_at'
     )
     list_filter = ('status', 'transaction_type', 'escrow_status', 'currency', 'created_at')
     search_fields = ('transaction_id', 'internal_order_id', 'customer_email', 'customer_phone', 'customer_name')
@@ -58,6 +62,25 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
     )
     list_per_page = 25
     date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    list_select_related = ('user', 'order', 'product', 'peer_product')
+    save_on_top = True
+    show_full_result_count = False
+
+    _SUPERUSER_ONLY_ACTIONS = frozenset({
+        'cancel_selected_transactions',
+        'refund_selected_transactions',
+        'release_escrow_c2c_selected',
+        'refund_c2c_cancel_keep_fees_selected',
+    })
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            for name in self._SUPERUSER_ONLY_ACTIONS:
+                actions.pop(name, None)
+        return actions
+
     actions = [
         'cancel_selected_transactions',
         'refund_selected_transactions',
@@ -65,6 +88,38 @@ class SingPayTransactionAdmin(admin.ModelAdmin):
         'release_escrow_c2c_selected',
         'refund_c2c_cancel_keep_fees_selected',
     ]
+
+    @admin.display(description='Statut')
+    def status_badge(self, obj):
+        palette = {
+            SingPayTransaction.PENDING: ('#FEF3C7', '#92400E', 'En attente'),
+            SingPayTransaction.SUCCESS: ('#DCFCE7', '#166534', 'Réussi'),
+            SingPayTransaction.FAILED: ('#FEE2E2', '#991B1B', 'Échoué'),
+            SingPayTransaction.CANCELLED: ('#F3F4F6', '#374151', 'Annulé'),
+            SingPayTransaction.REFUNDED: ('#E0F2FE', '#0C4A6E', 'Remboursé'),
+        }
+        bg, fg, label = palette.get(obj.status, ('#F3F4F6', '#111827', obj.status))
+        return format_html('<span style="background:{};color:{};padding:4px 10px;border-radius:999px;font-weight:700;">{}</span>', bg, fg, label)
+
+    @admin.display(description='Type')
+    def transaction_type_badge(self, obj):
+        label = obj.get_transaction_type_display()
+        is_c2c = obj.transaction_type == SingPayTransaction.C2C_PAYMENT
+        bg = '#E0E7FF' if is_c2c else '#ECFDF3'
+        fg = '#3730A3' if is_c2c else '#065F46'
+        return format_html('<span style="background:{};color:{};padding:4px 10px;border-radius:999px;font-weight:700;">{}</span>', bg, fg, label)
+
+    @admin.display(description='Escrow')
+    def escrow_status_badge(self, obj):
+        label = obj.get_escrow_status_display()
+        palette = {
+            SingPayTransaction.ESCROW_NONE: ('#F3F4F6', '#374151'),
+            SingPayTransaction.ESCROW_PENDING: ('#FEF3C7', '#92400E'),
+            SingPayTransaction.ESCROW_RELEASED: ('#DCFCE7', '#166534'),
+            SingPayTransaction.ESCROW_REFUNDED: ('#DBEAFE', '#1E3A8A'),
+        }
+        bg, fg = palette.get(obj.escrow_status, ('#F3F4F6', '#111827'))
+        return format_html('<span style="background:{};color:{};padding:4px 10px;border-radius:999px;font-weight:700;">{}</span>', bg, fg, label)
     
     def cancel_selected_transactions(self, request, queryset):
         """Action admin pour annuler des transactions sélectionnées"""
@@ -215,3 +270,5 @@ class SingPayWebhookLogAdmin(admin.ModelAdmin):
     )
     list_per_page = 25
     date_hierarchy = 'created_at'
+    ordering = ('-created_at',)
+    save_on_top = True

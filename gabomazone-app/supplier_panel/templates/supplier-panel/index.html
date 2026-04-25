@@ -19,6 +19,20 @@
             {% endfor %}
             {% endif %}
 
+    <!-- Badges vendeur -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+        {% if is_official_shop %}
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:#DBEAFE;color:#1D4ED8;border:1.5px solid #93C5FD;">
+            <i class="fas fa-store"></i> Boutique officielle
+        </span>
+        {% endif %}
+        {% if is_identity_verified %}
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:#ECFDF5;color:#059669;border:1.5px solid #A7F3D0;">
+            <i class="fas fa-shield-alt"></i> Identité vérifiée
+        </span>
+        {% endif %}
+    </div>
+
     <!-- Cartes de Statistiques -->
     <div class="stats-grid">
         <div class="stat-card stat-card-blue" onclick="openStatModal('revenue')" data-stat-type="revenue">

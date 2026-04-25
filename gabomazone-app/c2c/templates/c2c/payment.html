@@ -39,6 +39,18 @@
             </div>
         </div>
 
+        <!-- Réassurance Escrow -->
+        <div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <p style="font-weight:700;color:#15803D;font-size:14px;margin-bottom:8px;">
+                <i class="fi-rs-shield-check"></i> Votre argent est protégé
+            </p>
+            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:1.7;">
+                <li>Vos fonds sont <strong>bloqués en escrow</strong> sur Gabomazone</li>
+                <li>L'argent n'est libéré qu'après <strong>échange des codes de vérification</strong></li>
+                <li>En cas de litige, vous avez <strong>48h pour signaler</strong> un problème</li>
+            </ul>
+        </div>
+
         <!-- Bouton de paiement -->
         <form method="POST" action="{% url 'c2c:init-payment' order.id %}">
             {% csrf_token %}
@@ -49,7 +61,7 @@
         </form>
 
         <p class="gm-s-0084c5">
-            <i class="fi-rs-shield-check"></i> Paiement sécurisé via SingPay
+            <i class="fi-rs-shield-check"></i> Paiement sécurisé via SingPay (Airtel Money / Mobicash)
         </p>
     </div>
 </main>

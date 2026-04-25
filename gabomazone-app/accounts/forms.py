@@ -30,9 +30,9 @@ class UserCreationForm(forms.ModelForm):
     phone_number = forms.CharField(
         label='Numéro de téléphone (Airtel/Moov)',
         max_length=20,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+241 XX XX XX XX'}),
-        help_text='Nécessaire pour les paiements mobile money'
+        help_text='Obligatoire pour les paiements et remboursements escrow'
     )
     password1 = forms.CharField(
         label='Mot de passe',
@@ -69,8 +69,11 @@ class UserCreationForm(forms.ModelForm):
 
 
 class LoginForm(forms.ModelForm):
-    username = forms.CharField(label="Nom d'utilisateur ou Email")
-    password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput())
+    username = forms.CharField(
+        label="Email ou téléphone",
+        widget=forms.TextInput(attrs={'placeholder': 'exemple@email.com ou +241 XX XX XX XX'})
+    )
+    password = forms.CharField(label='Mot de passe', widget=forms.PasswordInput(attrs={'placeholder': 'Votre mot de passe'}))
 
     class Meta:
         model = User

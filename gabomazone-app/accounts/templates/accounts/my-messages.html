@@ -258,7 +258,7 @@
                 
                 <!-- Bouton pour accepter le prix final -->
                 <button id="acceptFinalPriceBtn" class="gm-s-1dd1f6" onmouseover="this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.5)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.4)'; this.style.transform='translateY(0)'">
-                    <i class="fi-rs-check-circle"></i> Accepter le prix final et procéder au paiement
+                    <i class="fi-rs-check-circle"></i> Accepter ce prix
                 </button>
             </div>
         </div>
@@ -610,7 +610,7 @@ function displayMessages(messages) {
             <div class="gm-s-e07c4b">
                 ${msg.sender || ''} ${msg.created_at ? '· ' + msg.created_at : ''}
             </div>
-            <div class="gm-s-044981">${escapeHtml(msg.message)}</div>
+            <div class="gm-s-044981">${formatMessageBody(msg.message)}</div>
             ${deleteBtn}
         `;
         
@@ -621,6 +621,43 @@ function displayMessages(messages) {
     setTimeout(() => {
         container.scrollTop = container.scrollHeight;
     }, 50);
+}
+
+function extractMeetingMapUrl(text) {
+    if (!text) return null;
+    var m = String(text).match(/(https?:\/\/[^\s]*\/c2c\/order\/\d+\/\?meeting_pending=1|\/c2c\/order\/\d+\/\?meeting_pending=1)/);
+    return m ? m[1] : null;
+}
+
+function normalizeMeetingMapUrl(url) {
+    if (!url) return null;
+    try {
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+            var u = new URL(url);
+            if (!/^\/c2c\/order\/\d+\/$/.test(u.pathname)) return null;
+            if (u.searchParams.get('meeting_pending') !== '1') return null;
+            return u.pathname + '?meeting_pending=1';
+        }
+        if (/^\/c2c\/order\/\d+\/\?meeting_pending=1$/.test(url)) return url;
+    } catch (e) {}
+    return null;
+}
+
+function formatMessageBody(message) {
+    var raw = String(message || '');
+    var mapUrlRaw = extractMeetingMapUrl(raw);
+    var mapUrl = normalizeMeetingMapUrl(mapUrlRaw);
+    var clean = raw;
+    if (mapUrlRaw) {
+        clean = raw.replace(mapUrlRaw, '').replace(/\n{3,}/g, '\n\n').trim();
+    }
+    var textHtml = escapeHtml(clean).replace(/\n/g, '<br>');
+    if (!mapUrl) return textHtml;
+    var btnHtml = '<div style="margin-top:8px;">'
+        + '<a href="' + escapeHtml(mapUrl) + '" style="display:inline-flex;align-items:center;gap:6px;background:#F97316;color:#fff;padding:8px 12px;border-radius:999px;text-decoration:none;font-weight:700;font-size:12px;">'
+        + '<i class="fi-rs-marker"></i> Voir la carte'
+        + '</a></div>';
+    return (textHtml ? textHtml : '') + btnHtml;
 }
 
 function deleteMessage(messageId) {
@@ -772,10 +809,13 @@ function sendMessage(event) {
     })
     .then(response => {
         if (!response.ok) {
-            return response.json().then(data => {
-                var err = new Error(data.error || 'Erreur lors de l\'envoi');
-                err.action = data.action || null;
-                err.paymentUrl = data.payment_url || null;
+            return response.json().catch(() => ({})).then(data => {
+                var rawErr = data && data.error;
+                var errMsg = (rawErr && typeof rawErr === 'string') ? rawErr
+                    : (rawErr ? JSON.stringify(rawErr) : ('Erreur ' + response.status));
+                var err = new Error(errMsg);
+                err.action = (data && data.action) || null;
+                err.paymentUrl = (data && data.payment_url) || null;
                 throw err;
             });
         }
@@ -788,27 +828,31 @@ function sendMessage(event) {
             const cid = currentConversationId;
             loadConversations(pid, { selectConversationId: cid });
         } else {
-            GMModal.error('Envoi échoué', data.error || 'Le message n\'a pas pu être envoyé.');
+            var rawErr = data && data.error;
+            var errMsg = (rawErr && typeof rawErr === 'string') ? rawErr
+                : (rawErr ? JSON.stringify(rawErr) : 'Le message n\'a pas pu être envoyé.');
+            GMModal.error('Envoi échoué', errMsg);
         }
     })
     .catch(error => {
         console.error('Error sending message:', error);
-        if (error.action === 'redirect_payment' && error.paymentUrl) {
+        if (error && error.action === 'redirect_payment' && error.paymentUrl) {
             if (typeof GMModal !== 'undefined' && GMModal.confirm) {
                 GMModal.confirm({
                     title: 'Paiement en attente',
-                    message: error.message + '<br><br>Voulez-vous accéder à la page de commande ?',
+                    message: (error.message || '') + '<br><br>Voulez-vous accéder à la page de commande ?',
                     confirmText: 'Voir la commande',
                     cancelText: 'Annuler',
                     onConfirm: function() { window.location.href = error.paymentUrl; }
                 });
             } else {
-                if (confirm(error.message + '\n\nAccéder à la page de commande ?')) {
+                if (confirm((error.message || '') + '\n\nAccéder à la page de commande ?')) {
                     window.location.href = error.paymentUrl;
                 }
             }
         } else {
-            GMModal.error('Erreur', error.message || 'Erreur lors de l\'envoi du message');
+            var msg = (error && typeof error.message === 'string') ? error.message : 'Erreur lors de l\'envoi du message';
+            GMModal.error('Erreur', msg);
         }
     });
 }
@@ -896,11 +940,14 @@ function updateChatControls(intentData) {
         );
         if (trustBanner) trustBanner.hidden = true;
     } else if (isPaid) {
-        unlockChat(
-            'Discutez du lieu et de l\'heure de rencontre...',
-            '💬 Paiement confirmé ! Échangez pour convenir du lieu et de l\'heure de remise de l\'article.',
-            '#2563EB'
-        );
+        // Chat libre ouvert dès le paiement — le point de rencontre sur la carte est optionnel
+        var meetingAgreed = !!(intentData && intentData.order && intentData.order.meeting_agreed);
+        var orderId = intentData && intentData.order ? intentData.order.id : null;
+        var helperHtml = meetingAgreed
+            ? '💬 <strong>Point de rencontre convenu !</strong> Échangez librement pour finaliser la remise.'
+            : '💬 <strong>Discutez librement</strong> du lieu et de l\'heure. '
+              + (orderId ? '<a href="/c2c/order/' + orderId + '/" style="color:#F97316;font-weight:700;text-decoration:underline;">Proposer un point sur la carte (optionnel) →</a>' : '');
+        unlockChat('Tapez votre message...', helperHtml, '#2563EB');
         if (trustBanner) trustBanner.hidden = true;
     } else if (isAgreed) {
         lockChat(
@@ -1282,37 +1329,25 @@ document.addEventListener('DOMContentLoaded', function() {
 function confirmAvailability(intentId) {
     GMModal.show({
         type: 'confirm',
-        title: 'Confirmer la disponibilité',
-        message: 'Votre article est-il <strong>toujours en vente</strong> ?<br><br>En confirmant, la négociation du prix sera ouverte avec l\'acheteur.',
+        title: 'Disponibilité',
+        message: 'Article toujours en vente ? La négociation s\'ouvrira.',
         showCancel: true,
-        confirmText: 'Oui, article disponible',
+        confirmText: 'Oui, disponible',
         cancelText: 'Annuler',
         onConfirm: function() {
             fetch('/c2c/purchase-intent/' + intentId + '/confirm-availability/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    GMModal.show({
-                        type: 'success',
-                        title: 'Disponibilité confirmée !',
-                        message: (data.message || 'La négociation est maintenant ouverte.') + '<br><br>'
-                            + '<strong>Prochaine étape :</strong> l\'acheteur va proposer un prix dans la conversation. '
-                            + 'Vous pourrez accepter, refuser ou contre-proposer.',
-                        confirmText: 'OK, j\'ai compris',
-                        onConfirm: function() { location.reload(); }
-                    });
+                    GMModal.success('Négociation ouverte', 'L\'acheteur peut maintenant proposer un prix.', function() { location.reload(); });
                 } else {
-                    GMModal.error('Erreur', data.error || 'Impossible de confirmer la disponibilité.');
+                    GMModal.error('Erreur', data.error || 'Échec de la confirmation.');
                 }
             })
-            .catch(function() { GMModal.error('Erreur', 'Erreur réseau. Réessayez.'); });
+            .catch(function() { GMModal.error('Erreur', 'Erreur réseau.'); });
         }
     });
 }
@@ -1320,29 +1355,25 @@ function confirmAvailability(intentId) {
 function declineAvailability(intentId) {
     GMModal.show({
         type: 'warning',
-        title: 'Article plus disponible',
-        message: 'Confirmez-vous que cet article <strong>n\'est plus en vente</strong> ?<br><br>L\'intention de l\'acheteur sera annulée.',
+        title: 'Plus disponible',
+        message: 'L\'intention de l\'acheteur sera annulée.',
         showCancel: true,
-        confirmText: 'Oui, plus disponible',
+        confirmText: 'Confirmer',
         cancelText: 'Annuler',
         onConfirm: function() {
             fetch('/c2c/purchase-intent/' + intentId + '/decline-availability/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    GMModal.success('Intention annulée', data.message || 'L\'acheteur a été informé.', function() { location.reload(); });
+                    GMModal.success('Annulée', 'L\'acheteur a été informé.', function() { location.reload(); });
                 } else {
-                    GMModal.error('Erreur', data.error || 'Impossible de décliner.');
+                    GMModal.error('Erreur', data.error || 'Échec.');
                 }
             })
-            .catch(function() { GMModal.error('Erreur', 'Erreur réseau. Réessayez.'); });
+            .catch(function() { GMModal.error('Erreur', 'Erreur réseau.'); });
         }
     });
 }

@@ -1,0 +1,157 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}{{ block.super }}
+{% if not is_popup %}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}?v=1.9.4">
+<link rel="stylesheet" href="{% static 'c2c/css/gm_c2c_leaflet_map.css' %}?v=1.0">
+<script src="{% static 'vendor/leaflet/leaflet.js' %}?v=1.9.4"></script>
+<script src="{% static 'c2c/js/gm_c2c_leaflet_map_core.js' %}?v=1.0"></script>
+{% endif %}
+{% endblock %}
+
+{% block after_field_sets %}{{ block.super }}
+{% if not is_popup %}
+{{ safe_zones_geo_json|json_script:"gmAdminSafeZonesData" }}
+{{ popular_points_geo_json|json_script:"gmAdminPopularPointsData" }}
+<div class="card card-info" style="margin-bottom: 1.5rem;">
+    <div class="card-header bg-primary">
+        <h3 class="card-title"><i class="fas fa-map-marked-alt mr-1"></i> Carte — point de rencontre Gabomazone</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-muted" style="font-size: 13px; margin-bottom: 12px;">
+            Même fond satellite et repères que sur la page commande (zones vertes / mises en avant orange, lieux populaires orange).
+            Déplacez le marqueur bleu, cliquez sur la carte ou utilisez « Copier ces coordonnées » dans une infobulle.
+            Les champs <strong>latitude</strong> et <strong>longitude</strong> (section « Géolocalisation ») se mettent à jour automatiquement.
+        </p>
+        <div id="gmSafeZoneAdminMap" style="height: 380px; width: 100%; border-radius: 12px; border: 1px solid #e5e7eb; background: #e5e7eb;"></div>
+    </div>
+</div>
+<script>
+(function () {
+    var ICON_BASE = "{% static 'vendor/leaflet/images/' %}";
+    function coordInput(name) {
+        return document.querySelector('input[name="' + name + '"]');
+    }
+    function parseInputCoord(el) {
+        if (!el || el.value === undefined || el.value === '') return null;
+        var s = String(el.value).trim().replace(',', '.');
+        var n = parseFloat(s);
+        return (Number.isFinite(n)) ? n : null;
+    }
+    function setCoord(el, v) {
+        if (!el) return;
+        el.value = (v === null || v === undefined) ? '' : String(Math.round(v * 1e6) / 1e6);
+    }
+    function readJsonScript(id) {
+        var node = document.getElementById(id);
+        if (!node || !node.textContent) return [];
+        try {
+            var data = JSON.parse(node.textContent);
+            if (typeof data === 'string') data = JSON.parse(data);
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    function initMap() {
+        if (typeof window.L === 'undefined' && window.leaflet) { window.L = window.leaflet; }
+        if (typeof L === 'undefined' || typeof GmC2cLeafletMapCore === 'undefined') {
+            setTimeout(initMap, 80);
+            return;
+        }
+        var el = document.getElementById('gmSafeZoneAdminMap');
+        var latEl = coordInput('latitude');
+        var lngEl = coordInput('longitude');
+        if (!el || !latEl || !lngEl) return;
+
+        GmC2cLeafletMapCore.setLeafletDefaultIconPath(ICON_BASE);
+
+        var zones = readJsonScript('gmAdminSafeZonesData');
+        var popular = readJsonScript('gmAdminPopularPointsData');
+
+        var lat = parseInputCoord(latEl);
+        var lng = parseInputCoord(lngEl);
+        var center;
+        var zoom;
+        if (lat !== null && lng !== null) {
+            center = [lat, lng];
+            zoom = 15;
+        } else {
+            center = GmC2cLeafletMapCore.defaultCenterFromZones(zones);
+            zoom = 12;
+        }
+
+        var map = L.map(el, { scrollWheelZoom: true }).setView(center, zoom);
+        window.gmMapRef = map;
+
+        GmC2cLeafletMapCore.attachSatelliteBasemapWithFallback(map, { onHideLoading: function () {} });
+
+        GmC2cLeafletMapCore.addSafeZoneMarkers(map, zones, 'admin');
+        GmC2cLeafletMapCore.addPopularPointMarkers(map, popular, 'admin');
+
+        var adminPinIcon = L.divIcon({
+            html: '<div class="gm-leaflet-custom-marker"></div>',
+            className: '',
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+        });
+        var marker = L.marker(center, {
+            draggable: true,
+            zIndexOffset: 500,
+            icon: adminPinIcon
+        }).addTo(map);
+
+        function syncFromMarker() {
+            var ll = marker.getLatLng();
+            setCoord(latEl, ll.lat);
+            setCoord(lngEl, ll.lng);
+        }
+        marker.on('dragend', syncFromMarker);
+        map.on('click', function (ev) {
+            marker.setLatLng(ev.latlng);
+            map.panTo(ev.latlng);
+            syncFromMarker();
+        });
+
+        latEl.addEventListener('change', function () {
+            var la = parseInputCoord(latEl), lo = parseInputCoord(lngEl);
+            if (la !== null && lo !== null) {
+                marker.setLatLng([la, lo]);
+                map.setView([la, lo], Math.max(map.getZoom(), 14));
+            }
+        });
+        lngEl.addEventListener('change', function () {
+            var la = parseInputCoord(latEl), lo = parseInputCoord(lngEl);
+            if (la !== null && lo !== null) {
+                marker.setLatLng([la, lo]);
+                map.setView([la, lo], Math.max(map.getZoom(), 14));
+            }
+        });
+
+        document.addEventListener('click', function (ev) {
+            var t = ev.target;
+            if (!t || !t.closest) return;
+            var btn = t.closest('.gm-admin-map-pick-btn');
+            if (!btn || !map.getContainer().contains(btn)) return;
+            var plat = parseFloat(btn.getAttribute('data-lat'));
+            var plng = parseFloat(btn.getAttribute('data-lng'));
+            if (!Number.isFinite(plat) || !Number.isFinite(plng)) return;
+            ev.preventDefault();
+            marker.setLatLng([plat, plng]);
+            map.setView([plat, plng], Math.max(map.getZoom(), 15));
+            syncFromMarker();
+            try { map.closePopup(); } catch (e) {}
+        }, true);
+
+        setTimeout(function () { map.invalidateSize(true); }, 350);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMap);
+    } else {
+        initMap();
+    }
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -19,6 +19,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _format_phone_international(phone):
+    """Formate un numero Gabon en +241XXXXXXXXX."""
+    if not phone:
+        return ''
+    digits = ''.join(ch for ch in str(phone) if ch.isdigit())
+    if not digits:
+        return ''
+    if digits.startswith('0'):
+        return '+241' + digits[1:]
+    if digits.startswith('241'):
+        return '+' + digits
+    return '+241' + digits
+
+
 class CommissionCalculator:
     """Service pour calculer les commissions C2C"""
     
@@ -145,36 +159,15 @@ class PurchaseIntentService:
     @staticmethod
     def get_negotiation_offer_rules(intent: PurchaseIntent, user):
         """
-        Règles « chacun son tour » :
-        - Tant qu'une offre est en attente : le proposant ne peut pas en envoyer une autre ;
-          l'autre doit accepter ou refuser (pas de nouvelle offre par le formulaire).
-        - Après un refus : seule la personne qui n'avait PAS fait la dernière offre refusée
-          peut proposer le prochain prix (contre-offre).
+        Chacun peut proposer autant de prix qu'il souhaite tant que la négociation est ouverte.
+        Lorsqu'un prix est accepté (status AGREED) ou que l'intention est clôturée, les
+        propositions sont bloquées.
         Retourne (can_make_offer: bool, message_fr str ou '').
         """
-        if intent.status not in (PurchaseIntent.NEGOTIATING,):
+        if intent.status == PurchaseIntent.AGREED:
+            return False, "Un prix a été accepté. Procédez au paiement pour finaliser l'achat."
+        if intent.status != PurchaseIntent.NEGOTIATING:
             return False, "La négociation n'est plus ouverte pour cette intention."
-        pending = (
-            intent.negotiations.filter(status=Negotiation.PENDING)
-            .order_by('-created_at')
-            .first()
-        )
-        if pending:
-            if pending.proposer_id == user.id:
-                return (
-                    False,
-                    "Votre proposition est en attente. L'autre partie doit répondre (accepter ou refuser) avant une nouvelle offre.",
-                )
-            return (
-                False,
-                "Une proposition est en cours : utilisez Accepter ou Refuser sur l'offre ci-dessus avant d'en proposer une nouvelle.",
-            )
-        last = intent.negotiations.order_by('-created_at').first()
-        if last and last.status == Negotiation.REJECTED and last.proposer_id == user.id:
-            return (
-                False,
-                "Après ce refus, c'est au tour de l'autre partie de faire la prochaine proposition de prix.",
-            )
         return True, ''
     
     @staticmethod
@@ -188,11 +181,19 @@ class PurchaseIntentService:
         if not can:
             logger.warning('[C2C·SVC] Offre bloquée pour intent=#%d: %s', intent.id, msg)
             raise ValidationError(msg)
+
+        # Une seule offre PENDING active à la fois : marquer les précédentes comme refusées
+        intent.negotiations.filter(status=Negotiation.PENDING).update(
+            status=Negotiation.REJECTED,
+            responded_at=timezone.now(),
+        )
+
         negotiation = Negotiation.objects.create(
             purchase_intent=intent,
             proposer=proposer,
             proposed_price=proposed_price,
-            message=message
+            message=message,
+            expires_at=timezone.now() + timedelta(hours=24),
         )
         
         # Mettre à jour le statut de l'intention
@@ -235,7 +236,11 @@ class PurchaseIntentService:
     @transaction.atomic
     def accept_negotiation(negotiation: Negotiation, actor):
         """
-        Accepte une proposition de négociation (par le destinataire)
+        Accepte une proposition de négociation et finalise immédiatement la transaction :
+        - Marque l'offre acceptée et rejette les autres offres en attente
+        - Passe l'intention en AGREED
+        - Crée la commande C2C (PENDING_PAYMENT) prête pour le paiement
+        Le destinataire de l'offre (acheteur ou vendeur, selon qui a proposé) la valide.
         """
         logger.info('[C2C·SVC] accept_negotiation #%d actor=%s price=%s',
                     negotiation.id, actor.pk, negotiation.proposed_price)
@@ -244,37 +249,66 @@ class PurchaseIntentService:
             raise PermissionError("Vous n'avez pas la permission d'accepter cette offre.")
         if actor == negotiation.proposer:
             raise PermissionError("Vous ne pouvez pas accepter votre propre offre.")
-        
-        # Marquer l'offre comme acceptée et rejeter les autres en attente
+
+        # Idempotence : si déjà acceptée, retourner l'intent en l'état
+        if negotiation.status == Negotiation.ACCEPTED and intent.status == PurchaseIntent.AGREED:
+            return intent
+
         negotiation.status = Negotiation.ACCEPTED
         negotiation.responded_at = timezone.now()
-        negotiation.save()
-        
-        intent.negotiated_price = negotiation.proposed_price
-        if intent.status != PurchaseIntent.NEGOTIATING:
-            intent.status = PurchaseIntent.NEGOTIATING
-        intent.save()
-        
-        negotiation.purchase_intent.negotiations.exclude(id=negotiation.id).filter(
+        negotiation.save(update_fields=['status', 'responded_at'])
+
+        # Rejeter toutes les autres offres en attente sur cette intention
+        intent.negotiations.exclude(id=negotiation.id).filter(
             status=Negotiation.PENDING
         ).update(status=Negotiation.REJECTED, responded_at=timezone.now())
-        
+
+        # Verrouiller la négociation et créer immédiatement la commande
+        final_price = negotiation.proposed_price
+        intent.negotiated_price = final_price
+        intent.final_price = final_price
+        intent.status = PurchaseIntent.AGREED
+        intent.agreed_at = timezone.now()
+        intent.save(update_fields=['negotiated_price', 'final_price', 'status', 'agreed_at'])
+
+        existing_order = C2COrder.objects.filter(purchase_intent=intent).first()
+        if not existing_order:
+            calculator = CommissionCalculator()
+            commissions = calculator.calculate_c2c_commissions(final_price)
+            c2c_order = C2COrder.objects.create(
+                purchase_intent=intent,
+                product=intent.product,
+                buyer=intent.buyer,
+                seller=intent.seller,
+                final_price=final_price,
+                buyer_commission=commissions['buyer_commission'],
+                seller_commission=commissions['seller_commission'],
+                platform_commission=commissions['platform_commission'],
+                seller_net=commissions['seller_net'],
+                buyer_total=commissions['buyer_total'],
+            )
+            DeliveryVerification.objects.create(c2c_order=c2c_order)
+            logger.info('[C2C·SVC] Commande #%d créée auto sur acceptation — buyer_total=%s', c2c_order.id, c2c_order.buyer_total)
+
         # Message automatique
         from accounts.models import ProductConversation, ProductMessage
         try:
             conv = ProductConversation.objects.get(
                 product=intent.product,
                 buyer=intent.buyer,
-                seller=intent.seller
+                seller=intent.seller,
             )
             actor_name = actor.get_full_name() or actor.username
-            msg = f"✅ {actor_name} a accepté l'offre à {negotiation.proposed_price:,.0f} FCFA."
+            msg = (
+                f"✅ {actor_name} a accepté l'offre à {final_price:,.0f} FCFA. "
+                f"L'acheteur peut maintenant procéder au paiement sécurisé."
+            )
             ProductMessage.objects.create(conversation=conv, sender=actor, message=msg)
             conv.last_message_at = timezone.now()
-            conv.save()
+            conv.save(update_fields=['last_message_at'])
         except ProductConversation.DoesNotExist:
             pass
-        
+
         return intent
 
     @staticmethod
@@ -379,32 +413,17 @@ class SingPayService:
         customer_email = c2c_order.buyer.email
         customer_name = c2c_order.buyer.get_full_name() or c2c_order.buyer.username
         
-        # Formater le numéro de téléphone en format international
-        def format_phone_international(phone):
-            """Formate le numéro de téléphone en format international (+241XXXXXXXXX)"""
-            if not phone:
-                return ''
-            # Supprimer les espaces et caractères spéciaux
-            phone = ''.join(filter(str.isdigit, phone))
-            # Si le numéro commence par 0, remplacer par +241 (Gabon)
-            if phone.startswith('0'):
-                phone = '+241' + phone[1:]
-            # Si le numéro ne commence pas par +, ajouter +241
-            elif not phone.startswith('+'):
-                if phone.startswith('241'):
-                    phone = '+' + phone
-                else:
-                    phone = '+241' + phone
-            return phone
-        
         # Récupérer le numéro de téléphone
         customer_phone = ''
         try:
             profile = Profile.objects.get(user=c2c_order.buyer)
             if profile.mobile_number:
-                customer_phone = format_phone_international(profile.mobile_number)
+                customer_phone = _format_phone_international(profile.mobile_number)
         except Profile.DoesNotExist:
             pass
+
+        if not customer_phone:
+            raise ValueError("Numero de telephone requis pour le paiement escrow C2C. Mettez a jour votre profil.")
         
         # Construire les URLs
         # En développement (DEBUG=True), utiliser localhost
@@ -829,7 +848,9 @@ class DeliveryVerificationService:
             
             if verification.status == DeliveryVerification.COMPLETED:
                 c2c_order.status = C2COrder.COMPLETED
-                c2c_order.completed_at = timezone.now()
+                now = timezone.now()
+                c2c_order.completed_at = now
+                c2c_order.dispute_deadline = now + timedelta(hours=48)
                 c2c_order.save()
                 logger.info('[C2C·SVC] 🎉 TRANSACTION COMPLÈTE order=#%d — mise à jour stats vendeur', c2c_order.id)
                 DeliveryVerificationService._update_seller_stats(c2c_order.seller)

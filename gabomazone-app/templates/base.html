@@ -125,6 +125,45 @@
     <script src="{% static 'gabomazone-client/js/alerts.js'%}?v=1.0"></script>
     <script src="{% static 'gabomazone-client/js/modals.js'%}?v=1.0"></script>
     <div id="gm-modal-container"></div>
+    {% if pending_c2c_meeting %}
+    {{ pending_c2c_meeting|json_script:"gmPendingC2CMeeting" }}
+    <script>
+    (function () {
+        var el = document.getElementById('gmPendingC2CMeeting');
+        if (!el) return;
+        var data;
+        try { data = JSON.parse(el.textContent || 'null'); } catch (e) { return; }
+        if (!data || !data.order_id) return;
+        var dismissKey = 'gmMeetingPromptDismissed_' + data.order_id;
+        if (sessionStorage.getItem(dismissKey)) return;
+        var path = window.location.pathname || '';
+        if (new RegExp('/c2c/order/' + data.order_id + '/').test(path)) return;
+        function esc(s) {
+            if (!s) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        function openModal() {
+            if (typeof GMModal === 'undefined') return;
+            GMModal.show({
+                type: 'info',
+                title: 'Point de rencontre à confirmer',
+                message: '<strong>' + esc(data.proposer_display) + '</strong> a proposé un lieu pour <strong>'
+                    + esc(data.product_name) + '</strong>.<br><br>Ouvrez la fiche commande pour voir la carte satellite et confirmer (ou proposez un autre lieu).',
+                showCancel: true,
+                confirmText: 'Voir sur la carte',
+                cancelText: 'Plus tard',
+                onConfirm: function () { window.location.href = data.confirm_path; },
+                onCancel: function () { try { sessionStorage.setItem(dismissKey, '1'); } catch (e2) {} }
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { setTimeout(openModal, 700); });
+        } else {
+            setTimeout(openModal, 700);
+        }
+    })();
+    </script>
+    {% endif %}
 
 </body>
 </html>

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<style>
+.gm-intents-wrap { max-width: 900px; margin: 30px auto 80px; padding: 0 20px; }
+.gm-intents-header { margin-bottom: 24px; }
+.gm-intents-header h1 { font-size: 22px; font-weight: 700; color: #1F2937; }
+.gm-intents-header p { font-size: 14px; color: #6B7280; margin-top: 4px; }
+.gm-intent-card {
+    background: white; border: 1.5px solid #E5E7EB; border-radius: 14px;
+    padding: 18px 20px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    transition: box-shadow 0.2s;
+}
+.gm-intent-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.gm-intent-card__img {
+    width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+    background: #F3F4F6;
+}
+.gm-intent-card__body { flex: 1; min-width: 0; }
+.gm-intent-card__product { font-size: 14px; font-weight: 700; color: #1F2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gm-intent-card__seller { font-size: 12px; color: #6B7280; margin-top: 2px; }
+.gm-intent-card__meta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.gm-intent-card__price { font-size: 15px; font-weight: 800; color: #059669; white-space: nowrap; }
+.gm-intent-status {
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+}
+.gm-intent-status--pending { background: #FFF7ED; color: #C2410C; }
+.gm-intent-status--negotiating { background: #DBEAFE; color: #1D4ED8; }
+.gm-intent-status--agreed { background: #DCFCE7; color: #15803D; }
+.gm-intent-status--rejected { background: #FEE2E2; color: #B91C1C; }
+.gm-intent-status--cancelled { background: #F3F4F6; color: #6B7280; }
+.gm-intent-status--expired { background: #F3F4F6; color: #6B7280; }
+.gm-intent-card__action {
+    padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    background: #FF7B2C; color: white; text-decoration: none; white-space: nowrap;
+}
+.gm-intent-card__action:hover { background: #e55d0a; }
+.gm-empty { text-align: center; padding: 60px 20px; color: #9CA3AF; }
+.gm-empty i { font-size: 40px; display: block; margin-bottom: 12px; }
+</style>
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages" style="padding-bottom: 60px;">
+<div class="gm-intents-wrap">
+    <div class="gm-intents-header">
+        <h1><i class="fi-rs-shopping-cart" style="color:#FF7B2C;margin-right:8px;"></i>Mes demandes d'achat</h1>
+        <p>{{ intents.count }} demande{{ intents.count|pluralize }} au total</p>
+    </div>
+
+    {% if intents %}
+        {% for intent in intents %}
+        <div class="gm-intent-card">
+            {% if intent.product.product_image %}
+            <img src="{{ intent.product.product_image.url }}" alt="" class="gm-intent-card__img">
+            {% else %}
+            <div class="gm-intent-card__img"></div>
+            {% endif %}
+            <div class="gm-intent-card__body">
+                <div class="gm-intent-card__product">{{ intent.product.product_name }}</div>
+                <div class="gm-intent-card__seller">
+                    Vendeur : {{ intent.seller.get_full_name|default:intent.seller.username }} · {{ intent.created_at|date:"d/m/Y H:i" }}
+                </div>
+            </div>
+            <div class="gm-intent-card__meta">
+                <span class="gm-intent-card__price">{{ intent.initial_price|floatformat:0 }} F</span>
+                {% if intent.final_price %}
+                <span class="gm-intent-card__price" style="color:#1D4ED8;">→ {{ intent.final_price|floatformat:0 }} F</span>
+                {% endif %}
+                <span class="gm-intent-status gm-intent-status--{{ intent.status }}">{{ intent.get_status_display }}</span>
+            </div>
+            <a href="{% url 'accounts:my-messages' %}?product_id={{ intent.product.id }}" class="gm-intent-card__action">
+                <i class="fi-rs-comment"></i> Voir
+            </a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="gm-empty">
+            <i class="fi-rs-inbox"></i>
+            <p>Vous n'avez pas encore fait de demande d'achat.</p>
+        </div>
+    {% endif %}
+</div>
+</main>
+{% endblock body %}

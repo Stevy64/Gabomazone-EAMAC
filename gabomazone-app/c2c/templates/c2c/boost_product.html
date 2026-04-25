@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block headextra %}
+<style>
+.gm-boost-wrap { max-width: 600px; margin: 40px auto 80px; padding: 0 20px; }
+.gm-boost-card {
+    background: white; border-radius: 16px; box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 32px; text-align: center;
+}
+.gm-boost-card h1 { font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 6px; }
+.gm-boost-card p.sub { font-size: 14px; color: #6B7280; margin-bottom: 24px; }
+.gm-boost-product {
+    display: flex; gap: 14px; align-items: center; text-align: left;
+    background: #F9FAFB; border-radius: 12px; padding: 14px; margin-bottom: 24px;
+}
+.gm-boost-product img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+.gm-boost-product__name { font-weight: 700; font-size: 14px; color: #1F2937; }
+.gm-boost-product__price { font-size: 13px; color: #059669; font-weight: 700; margin-top: 2px; }
+.gm-boost-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.gm-boost-opt {
+    border: 2px solid #E5E7EB; border-radius: 14px; padding: 18px 12px;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.gm-boost-opt:hover, .gm-boost-opt.active { border-color: #FF7B2C; background: #FFF7ED; }
+.gm-boost-opt__duration { font-size: 18px; font-weight: 800; color: #1F2937; }
+.gm-boost-opt__price { font-size: 14px; font-weight: 700; color: #FF7B2C; margin-top: 4px; }
+.gm-boost-btn {
+    width: 100%; padding: 14px 24px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #FF7B2C, #e55d0a); color: white;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.gm-boost-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,123,44,0.35); }
+.gm-boost-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.gm-back { font-size: 13px; color: #6B7280; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+</style>
+{% endblock headextra %}
+
+{% block body %}
+<main class="main pages" style="padding-bottom: 60px;">
+<div class="gm-boost-wrap">
+    <a href="{% url 'accounts:sell-product' %}" class="gm-back"><i class="fi-rs-arrow-left"></i> Mes articles</a>
+    <div class="gm-boost-card">
+        <h1><i class="fi-rs-rocket" style="color:#FF7B2C;margin-right:8px;"></i>Booster votre article</h1>
+        <p class="sub">Augmentez la visibilité de votre annonce</p>
+
+        <div class="gm-boost-product">
+            {% if product.product_image %}
+            <img src="{{ product.product_image.url }}" alt="">
+            {% endif %}
+            <div>
+                <div class="gm-boost-product__name">{{ product.product_name }}</div>
+                <div class="gm-boost-product__price">{{ product.PRDPrice|floatformat:0 }} FCFA</div>
+            </div>
+        </div>
+
+        <div class="gm-boost-options" id="boostOptions">
+            {% for key, price in boost_prices.items %}
+            <div class="gm-boost-opt {% if key == '24h' %}active{% endif %}" data-duration="{{ key }}" onclick="selectBoost(this)">
+                <div class="gm-boost-opt__duration">{{ key }}</div>
+                <div class="gm-boost-opt__price">{{ price|floatformat:0 }} F</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="gm-boost-btn" id="boostBtn" onclick="purchaseBoost()">
+            <i class="fi-rs-credit-card"></i> Payer et activer le boost
+        </button>
+    </div>
+</div>
+</main>
+
+<script>
+var selectedDuration = '24h';
+function selectBoost(el) {
+    document.querySelectorAll('.gm-boost-opt').forEach(function(o) { o.classList.remove('active'); });
+    el.classList.add('active');
+    selectedDuration = el.dataset.duration;
+}
+function purchaseBoost() {
+    var btn = document.getElementById('boostBtn');
+    btn.disabled = true;
+    btn.textContent = 'Traitement…';
+    fetch('{% url "c2c:purchase-boost" product.id %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ duration: selectedDuration })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success && data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fi-rs-credit-card"></i> Payer et activer le boost';
+            if (typeof GMModal !== 'undefined') {
+                GMModal.error('Erreur', data.error || 'Impossible d\'initier le paiement.');
+            } else {
+                alert(data.error || 'Erreur.');
+            }
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fi-rs-credit-card"></i> Payer et activer le boost';
+        if (typeof GMModal !== 'undefined') GMModal.error('Erreur', 'Erreur réseau.');
+        else alert('Erreur réseau.');
+    });
+}
+</script>
+{% endblock body %}

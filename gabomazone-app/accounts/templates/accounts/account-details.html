@@ -41,7 +41,7 @@
                                 </h2>
                                 <p class="gm-s-bf0d7b">
                                     <i class="fi-rs-info gm-s-345895" ></i>
-                                    Gérez vos informations personnelles et vos préférences
+                                    Gérez vos informations, votre accès et votre sécurité
                                 </p>
                             </div>
                         </div>
@@ -49,6 +49,36 @@
                     
                     <form method="post" enctype="multipart/form-data" id="account-form">
                         {% csrf_token %}
+
+                        <!-- Account Access Section -->
+                        <div class="form-section gm-s-dc2cb2" style="background: linear-gradient(135deg, rgba(255,123,44,0.06), rgba(255,123,44,0.01)); border: 1px solid rgba(255,123,44,0.18);">
+                            <div class="gm-s-0c1c9a">
+                                <div class="gm-s-0d3067"></div>
+                                <h3 class="gm-s-da2ec4">Accès et sécurité</h3>
+                            </div>
+                            <div class="row gm-s-4fc73a">
+                                <div class="flavoriz-form-group">
+                                    <label class="gm-s-ad25c3">Nom d'utilisateur</label>
+                                    <input type="text" value="{{ profile.user.username }}" class="flavoriz-input gm-s-311bf2" readonly style="background:#F9FAFB;">
+                                </div>
+                                <div class="flavoriz-form-group">
+                                    <label class="gm-s-ad25c3">
+                                        Email de connexion
+                                        {% if profile.user.is_active %}
+                                        <span style="margin-left: 8px; font-size: 11px; color: #059669; font-weight: 700; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 999px; padding: 2px 8px;">Vérifié</span>
+                                        {% else %}
+                                        <span style="margin-left: 8px; font-size: 11px; color: #B45309; font-weight: 700; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 999px; padding: 2px 8px;">En attente</span>
+                                        {% endif %}
+                                    </label>
+                                    <input type="email" value="{{ profile.user.email }}" class="flavoriz-input gm-s-311bf2" readonly style="background:#F9FAFB;">
+                                </div>
+                                <div class="flavoriz-form-group gm-s-e86cdd">
+                                    <div style="margin-top: 2px; padding: 12px 14px; border-radius: 12px; background: #fff; border: 1px dashed #FDBA74; color: #7C2D12; font-size: 13px;">
+                                        Connexion autorisée avec <strong>email + mot de passe</strong> ou <strong>téléphone + mot de passe</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <!-- Photo Upload Section -->
                         <div class="form-section gm-s-8e3aa3" >
@@ -129,7 +159,7 @@
                                     <label class="gm-s-ad25c3">
                                         Province <span class="gm-s-78589e">*</span>
                                     </label>
-                                    <select name="province" id="province" required class="flavoriz-input gm-s-55de88" >
+                                    <select name="province" id="province" required class="flavoriz-input gm-s-55de88 gm-native-province-select" >
                                         <option value="">Sélectionnez une province</option>
                                         <option value="Estuaire" {% if profile.state == "Estuaire" %}selected{% endif %}>Estuaire</option>
                                         <option value="Haut-Ogooué" {% if profile.state == "Haut-Ogooué" %}selected{% endif %}>Haut-Ogooué</option>
@@ -141,6 +171,13 @@
                                         <option value="Ogooué-Maritime" {% if profile.state == "Ogooué-Maritime" %}selected{% endif %}>Ogooué-Maritime</option>
                                         <option value="Woleu-Ntem" {% if profile.state == "Woleu-Ntem" %}selected{% endif %}>Woleu-Ntem</option>
                                     </select>
+                                    <div id="provinceDropdown" class="gm-province-dropdown">
+                                        <button type="button" id="provinceDropdownTrigger" class="gm-province-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                            <span id="provinceDropdownLabel">Sélectionnez une province</span>
+                                            <i class="fi-rs-angle-small-down gm-province-chevron"></i>
+                                        </button>
+                                        <div id="provinceDropdownMenu" class="gm-province-menu" hidden></div>
+                                    </div>
                                 </div>
                                 <div class="flavoriz-form-group">
                                     <label class="gm-s-ad25c3">
