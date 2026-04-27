@@ -95,13 +95,6 @@
                             Se connecter
                         </button>
                     </form>
-                    <form method="post" action="{% url 'accounts:resend-verification-email' %}" style="margin-top: 10px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="identifier" value="{{ inactive_login_identifier }}">
-                        <button type="submit" class="gm-s-7409c4" style="width: 100%; background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; box-shadow: none;">
-                            Renvoyer l'e-mail de validation
-                        </button>
-                    </form>
                             </div>
               
                 <!-- Register Form -->
