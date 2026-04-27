@@ -5,6 +5,7 @@
 
 {% block headextra %}
 <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-c2c.css' %}?v=2.1" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/components/image-gallery-viewer.css' %}?v=1.0" />
 {% endblock headextra %}
 
 {% block body %}
@@ -467,8 +468,45 @@ document.addEventListener('DOMContentLoaded', function() {
         currentImageIndex = peerProductImages.indexOf(mainImage.src);
         if (currentImageIndex === -1) currentImageIndex = 0;
     }
+
+    // Initialiser la galerie fullscreen d'images
+    initPeerProductGallery();
 });
+
+/**
+ * Initialise la galerie fullscreen pour les produits C2C
+ */
+function initPeerProductGallery() {
+    const images = [
+        {% if peer_product.product_image %}
+        { url: '{{ peer_product.product_image.url }}', alt: '{{ peer_product.product_name }}' },
+        {% endif %}
+        {% if peer_product.additional_image_1 %}
+        { url: '{{ peer_product.additional_image_1.url }}', alt: '{{ peer_product.product_name }} - Image 2' },
+        {% endif %}
+        {% if peer_product.additional_image_2 %}
+        { url: '{{ peer_product.additional_image_2.url }}', alt: '{{ peer_product.product_name }} - Image 3' },
+        {% endif %}
+        {% if peer_product.additional_image_3 %}
+        { url: '{{ peer_product.additional_image_3.url }}', alt: '{{ peer_product.product_name }} - Image 4' },
+        {% endif %}
+    ];
+
+    if (images.length > 0) {
+        initImageGallery(images);
+    }
+}
+
+/**
+ * Remplace la fonction openPeerProductImagePreview
+ */
+function openPeerProductImagePreview() {
+    openImageViewer(document.getElementById('main-product-image').src, gmImageViewerState.currentIndex);
+}
 </script>
+
+<!-- Composant Image Gallery Viewer Fullscreen -->
+{% include 'components/image-gallery-viewer.html' %}
 
 {% endblock body %}
 

@@ -4,6 +4,7 @@
 
 {% block headextra %}
 <link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/product-detail-b2b.css' %}?v=2.2" />
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/components/image-gallery-viewer.css' %}?v=1.0" />
 {% endblock headextra %}
 
 {% block body %}
@@ -790,6 +791,36 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.attachProductEventListeners === 'function') {
         window.attachProductEventListeners();
     }
+
+    // Initialiser la galerie fullscreen d'images B2C
+    initB2CProductGallery();
 });
+
+/**
+ * Initialise la galerie fullscreen pour les produits B2C
+ */
+function initB2CProductGallery() {
+    const images = [
+        {% for img in product_images %}
+        { url: '{{ img.url }}', alt: '{{ product_detail.product_name }} - Image {{ forloop.counter }}' },
+        {% endfor %}
+    ];
+
+    if (images.length > 0) {
+        initImageGallery(images);
+    }
+}
+
+/**
+ * Remplace la fonction openProductImagePreview
+ */
+function openProductImagePreview() {
+    const currentIndex = gmImageViewerState.currentIndex || 0;
+    openImageViewer(document.getElementById('main-product-image').src, currentIndex);
+}
 </script>
+
+<!-- Composant Image Gallery Viewer Fullscreen -->
+{% include 'components/image-gallery-viewer.html' %}
+
 {% endblock script %}
