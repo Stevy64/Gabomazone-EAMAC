@@ -153,8 +153,9 @@ class OrderAdmin(admin.ModelAdmin):
         'user__username',
         'user__email',
         'email_client',
-        'ordersupplier__vendor__shop_name',
-        'ordersupplier__vendor__company_name',
+        'ordersupplier__vendor__display_name',
+        'ordersupplier__vendor__user__username',
+        'ordersupplier__vendor__user__email',
     )
 
     readonly_fields = ('lifecycle_traceability',)
@@ -193,7 +194,18 @@ class OrderAdmin(admin.ModelAdmin):
             vendor = order_supplier.vendor
             if not vendor:
                 continue
-            label = vendor.shop_name or vendor.company_name or (vendor.user.username if vendor.user else None)
+            dn = getattr(vendor, 'display_name', None)
+            if dn and str(dn).strip():
+                label = str(dn).strip()
+            else:
+                u = getattr(vendor, 'user', None)
+                if u:
+                    label = (u.get_full_name() or '').strip() or u.username or u.email
+                else:
+                    label = None
+                if not label:
+                    vid = getattr(vendor, 'pk', None)
+                    label = f"Vendeur #{vid}" if vid is not None else None
             if label:
                 names.append(label)
         if not names:
@@ -345,8 +357,9 @@ class OrderAdminSupplier(admin.ModelAdmin):
         'user__username',
         'user__email',
         'email_client',
-        'vendor__shop_name',
-        'vendor__company_name',
+        'vendor__display_name',
+        'vendor__user__username',
+        'vendor__user__email',
     )
 
     @admin.display(description='Commande cycle (ID)')

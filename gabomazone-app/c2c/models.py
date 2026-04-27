@@ -592,6 +592,7 @@ class C2CPaymentEvent(models.Model):
     SELLER_CODE_VERIFIED = 'seller_code_verified'
     BUYER_CODE_VERIFIED = 'buyer_code_verified'
     RELEASED = 'released'
+    PLATFORM_PAID = 'platform_paid'
     CANCELLED_REFUND = 'cancelled_refund'
 
     EVENT_TYPE_CHOICES = [
@@ -600,6 +601,7 @@ class C2CPaymentEvent(models.Model):
         (SELLER_CODE_VERIFIED, _('Code vendeur vérifié')),
         (BUYER_CODE_VERIFIED, _('Code acheteur vérifié')),
         (RELEASED, _('Fonds libérés au vendeur')),
+        (PLATFORM_PAID, _('Commission plateforme versée')),
         (CANCELLED_REFUND, _('Annulation / Remboursement (frais gardés)')),
     ]
 

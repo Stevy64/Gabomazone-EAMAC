@@ -3,7 +3,7 @@
 
 {% block head %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/edit-product.css' %}?v=2.0">
+<link rel="stylesheet" href="{% static 'gabomazone-client/css/pages/supplier-panel/edit-product.css' %}?v=2.1">
 {% endblock head %}
 
 {% block section %}
@@ -14,16 +14,16 @@
     {% for message in messages %}
     <div class="alert alert-{{message.tags}} gm-s-a24055" >
         {% if message.tags == 'success' %}
-            <i class="material-icons gm-s-12461c" >check_circle</i>
+            <i class="fas fa-circle-check gm-s-12461c" aria-hidden="true"></i>
             <span class="gm-s-12461c">{{ message }}</span>
         {% elif message.tags == 'error' %}
-            <i class="material-icons gm-s-b9ac80" >error</i>
+            <i class="fas fa-circle-xmark gm-s-b9ac80" aria-hidden="true"></i>
             <span class="gm-s-b9ac80">{{ message }}</span>
         {% elif message.tags == 'warning' %}
-            <i class="material-icons gm-s-1232eb" >warning</i>
+            <i class="fas fa-triangle-exclamation gm-s-1232eb" aria-hidden="true"></i>
             <span class="gm-s-1232eb">{{ message }}</span>
         {% else %}
-            <i class="material-icons gm-s-2e637e" >info</i>
+            <i class="fas fa-circle-info gm-s-2e637e" aria-hidden="true"></i>
             <span class="gm-s-2e637e">{{ message }}</span>
         {% endif %}
     </div>
@@ -35,11 +35,11 @@
 <div class="products-welcome-card">
     <div class="welcome-content">
         <div class="welcome-icon">
-            <i class="material-icons">edit</i>
+            <i class="fas fa-pen-to-square" aria-hidden="true"></i>
         </div>
         <div class="welcome-text">
             <h2>
-                <i class="material-icons">inventory_2</i>
+                <i class="fas fa-boxes-stacked" aria-hidden="true"></i>
                 Modifier le produit
             </h2>
             <p>Produit : <strong>{{ product.product_name }}</strong></p>
@@ -48,7 +48,7 @@
     </div>
     <div class="header-actions">
         <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn-secondary">
-            <i class="material-icons">arrow_back</i>
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
             Retour
         </a>
     </div>
@@ -62,7 +62,7 @@
         <!-- Basic Infos -->
         <div class="form-section">
             <h3 class="form-section-title">
-                <i class="material-icons">info</i>
+                <i class="fas fa-circle-info" aria-hidden="true"></i>
                 Informations de base
             </h3>
             
@@ -97,7 +97,7 @@
                         <div class="custom-dropdown" id="customDropdownPromotional">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.promotional == "Hot" %}Populaire{% else %}Nouveauté{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu">
                                 <div class="dropdown-option" data-value="New" {% if product.promotional != "Hot" %}data-selected="true"{% endif %}>Nouveauté</div>
@@ -125,11 +125,11 @@
                     <label class="form-label">Quantité disponible *</label>
                     <div class="number-input-wrapper">
                         <button type="button" class="number-btn minus-btn" onclick="decrementValue('available')">
-                            <i class="material-icons">remove</i>
+                            <i class="fas fa-minus" aria-hidden="true"></i>
                         </button>
                         <input type="number" name="available" id="available" class="number-input" min="0" value="{{ product.available|default:0 }}" required />
                         <button type="button" class="number-btn plus-btn" onclick="incrementValue('available')">
-                            <i class="material-icons">add</i>
+                            <i class="fas fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -138,11 +138,11 @@
                     <label class="form-label">Nombre d'unités *</label>
                     <div class="number-input-wrapper">
                         <button type="button" class="number-btn minus-btn" onclick="decrementValue('pieces')">
-                            <i class="material-icons">remove</i>
+                            <i class="fas fa-minus" aria-hidden="true"></i>
                         </button>
                         <input type="number" name="pieces" id="pieces" class="number-input" min="0" value="{{ product.pieces|default:0 }}" required />
                         <button type="button" class="number-btn plus-btn" onclick="incrementValue('pieces')">
-                            <i class="material-icons">add</i>
+                            <i class="fas fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
         <!-- Photos -->
         <div class="form-section">
             <h3 class="form-section-title">
-                <i class="material-icons">photo_library</i>
+                <i class="fas fa-images" aria-hidden="true"></i>
                 Photos du produit
             </h3>
             
@@ -162,7 +162,7 @@
                     <img id="url-img" width="100" height="100" src="{{ product.product_image.url }}" alt="Product Image" />
                     <input id="id_image" name="main_image" class="form-file-input" type="file" accept="image/*" />
                     <label for="id_image" class="upload-label">
-                        <i class="material-icons">cloud_upload</i> Cliquer pour changer
+                        <i class="fas fa-cloud-arrow-up" aria-hidden="true"></i> Cliquer pour changer
                     </label>
                 </div>
             </div>
@@ -189,7 +189,7 @@
         <!-- Categories -->
         <div class="form-section">
             <h3 class="form-section-title">
-                <i class="material-icons">category</i>
+                <i class="fas fa-folder-tree" aria-hidden="true"></i>
                 Catégories
             </h3>
             
@@ -208,7 +208,7 @@
                         <div class="custom-dropdown" id="customDropdownSuperCategory">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{{ product.product_supercategory.name }}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu"></div>
                         </div>
@@ -233,7 +233,7 @@
                         <div class="custom-dropdown" id="customDropdownMainCategory">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.product_maincategory %}{{ product.product_maincategory.name }}{% else %}Sélectionner{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu"></div>
                         </div>
@@ -260,7 +260,7 @@
                         <div class="custom-dropdown" id="customDropdownSubCategory">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.product_subcategory %}{{ product.product_subcategory.name }}{% else %}Sélectionner{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu"></div>
                         </div>
@@ -285,7 +285,7 @@
                         <div class="custom-dropdown" id="customDropdownMiniCategory">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.product_minicategor %}{{ product.product_minicategor.name }}{% else %}Sélectionner{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu"></div>
                         </div>
@@ -302,7 +302,7 @@
         <!-- Product Details -->
         <div class="form-section">
             <h3 class="form-section-title">
-                <i class="material-icons">settings</i>
+                <i class="fas fa-sliders" aria-hidden="true"></i>
                 Détails du produit
             </h3>
             
@@ -317,7 +317,7 @@
                         <div class="custom-dropdown" id="customDropdownCondition">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.PRDProduct_condition == 1 %}Nouveau{% else %}Occasion{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu">
                                 <div class="dropdown-option" data-value="1" {% if product.PRDProduct_condition == 1 %}data-selected="true"{% endif %}>Nouveau</div>
@@ -337,7 +337,7 @@
                         <div class="custom-dropdown" id="customDropdownStatus">
                             <button class="custom-dropdown-trigger" type="button">
                                 <span class="dropdown-selected-text">{% if product.PRDISactive %}Actif{% else %}Inactif{% endif %}</span>
-                                <i class="material-icons dropdown-arrow">keyboard_arrow_up</i>
+                                <i class="fas fa-chevron-up dropdown-arrow" aria-hidden="true"></i>
                             </button>
                             <div class="custom-dropdown-menu">
                                 <div class="dropdown-option" data-value="1" {% if product.PRDISactive %}data-selected="true"{% endif %}>Actif</div>
@@ -357,7 +357,7 @@
         <!-- Product Sizes -->
         <div class="form-section">
             <h3 class="form-section-title">
-                <i class="material-icons">straighten</i>
+                <i class="fas fa-ruler-combined" aria-hidden="true"></i>
                 Tailles disponibles
             </h3>
             
@@ -417,11 +417,11 @@
         <!-- Form Footer -->
         <div class="form-footer">
             <a href="{% url 'supplier_dashboard:supplier-add-product' %}" class="btn-cancel">
-                <i class="material-icons">close</i>
+                <i class="fas fa-xmark" aria-hidden="true"></i>
                 Annuler
             </a>
             <button type="submit" class="btn-submit">
-                <i class="material-icons">save</i>
+                <i class="fas fa-floppy-disk" aria-hidden="true"></i>
                 Enregistrer les modifications
             </button>
         </div>

@@ -203,8 +203,9 @@
         color: #1F2937;
     }
     
-    .number-btn .material-icons {
-        font-size: 20px;
+    .number-btn i {
+        font-size: 14px;
+        line-height: 1;
     }
     
     .number-input {

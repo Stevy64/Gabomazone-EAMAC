@@ -259,6 +259,10 @@ SINGPAY_ENVIRONMENT = config('SINGPAY_ENVIRONMENT', default='sandbox')  # 'sandb
 # Les callbacks doivent être accessibles publiquement depuis Internet
 SINGPAY_PRODUCTION_DOMAIN = config('SINGPAY_PRODUCTION_DOMAIN', default='gabomazone.pythonanywhere.com')
 
+# Numéro mobile Gabomazone pour recevoir les commissions plateforme
+# Format international avec code pays (ex: +24101234567)
+GABOMAZONE_PLATFORM_MOBILE_NUMBER = config('GABOMAZONE_PLATFORM_MOBILE_NUMBER', default='')
+
 
 # =============================================================================
 # SÉCURITÉ HTTP — Headers de sécurité pour la production

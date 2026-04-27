@@ -232,9 +232,14 @@ class EscrowService:
                     logger.warning(f"Log C2CPaymentEvent RELEASED non enregistré: {e}")
                 
                 logger.info(f"Escrow libéré pour la commande C2C {c2c_order.id}, disbursement: {disbursement_id}")
+
+                # Payer la commission plateforme à Gabomazone
+                platform_commission_result = EscrowService._pay_platform_commission(c2c_order, transaction)
+
                 return True, {
                     'disbursement_id': disbursement_id,
                     'amount': amount,
+                    'platform_commission_paid': platform_commission_result[0],
                     'message': 'Virement effectué avec succès'
                 }
             else:
@@ -361,5 +366,82 @@ class EscrowService:
             }
         except Exception as e:
             logger.exception(f"Erreur remboursement escrow C2C (annulation): {str(e)}")
+            return False, {'error': str(e)}
+
+    @staticmethod
+    def _pay_platform_commission(c2c_order: C2COrder, transaction: SingPayTransaction) -> Tuple[bool, dict]:
+        """
+        Paie la commission plateforme (Gabomazone) via SingPay disbursement
+
+        Args:
+            c2c_order: Commande C2C
+            transaction: Transaction de paiement associée
+
+        Returns:
+            Tuple (success, response_data)
+        """
+        try:
+            from django.conf import settings
+
+            platform_commission = float(c2c_order.platform_commission)
+
+            if platform_commission <= 0:
+                logger.warning(f"Commission plateforme nulle ou négative pour commande C2C {c2c_order.id}: {platform_commission}")
+                return True, {'message': 'Commission plateforme nulle'}
+
+            # Récupérer le numéro mobile Gabomazone depuis les settings
+            platform_mobile = getattr(settings, 'GABOMAZONE_PLATFORM_MOBILE_NUMBER', None)
+
+            if not platform_mobile:
+                logger.error(f"GABOMAZONE_PLATFORM_MOBILE_NUMBER non configuré dans settings")
+                return False, {'error': 'Numéro mobile plateforme non configuré'}
+
+            # Initier le virement pour la commission plateforme
+            success, response = singpay_service.init_disbursement(
+                amount=platform_commission,
+                currency='XOF',
+                recipient_phone=platform_mobile,
+                recipient_name='Gabomazone Platform',
+                description=f"Commission plateforme - Commande C2C #{c2c_order.id}",
+                reference=f"PLATFORM-COMM-C2C-{c2c_order.id}",
+                callback_url=None,
+                metadata={
+                    'c2c_order_id': c2c_order.id,
+                    'commission_type': 'platform',
+                    'escrow_transaction_id': transaction.transaction_id,
+                    'type': 'platform_commission_c2c'
+                }
+            )
+
+            if success:
+                disbursement_id = response.get('disbursement_id')
+
+                # Traçabilité : commission plateforme payée
+                try:
+                    from c2c.models import C2CPaymentEvent
+                    C2CPaymentEvent.log_event(
+                        c2c_order=c2c_order,
+                        event_type=C2CPaymentEvent.PLATFORM_PAID,
+                        transaction=transaction,
+                        amount_refunded=0,
+                        commission_retained=platform_commission,
+                        metadata={'disbursement_id': disbursement_id, 'amount': platform_commission},
+                    )
+                except Exception as e:
+                    logger.warning(f"Log C2CPaymentEvent PLATFORM_PAID non enregistré: {e}")
+
+                logger.info(f"Commission plateforme payée pour C2C {c2c_order.id}: {platform_commission} FCFA, disbursement: {disbursement_id}")
+                return True, {
+                    'disbursement_id': disbursement_id,
+                    'amount': platform_commission,
+                    'message': 'Commission plateforme versée avec succès'
+                }
+            else:
+                error_msg = response.get('error', 'Erreur lors du virement commission plateforme')
+                logger.error(f"Erreur virement commission plateforme C2C {c2c_order.id}: {error_msg}")
+                return False, {'error': error_msg}
+
+        except Exception as e:
+            logger.exception(f"Erreur lors du paiement de la commission plateforme pour C2C {c2c_order.id}: {str(e)}")
             return False, {'error': str(e)}
 
