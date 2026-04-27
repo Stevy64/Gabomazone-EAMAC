@@ -1,0 +1,402 @@
+/* ============================================================================
+   Image Gallery Viewer - Fullscreen Elegant Modal
+   Style Glisser-like: Modern, Dark, Sophisticated
+   ============================================================================ */
+
+.gm-image-viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: gmFadeIn 0.3s ease-out;
+    /* S'assurer qu'il couvre tout l'écran */
+    overflow: hidden;
+}
+
+@keyframes gmFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Backdrop sombre - COMPLÈTEMENT NOIR ET OPAQUE */
+.gm-image-viewer-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    background: rgba(0, 0, 0, 0.99);
+    z-index: 0;
+    cursor: pointer;
+    /* S'assurer que le backdrop couvre tout */
+    display: block;
+}
+
+/* Container principal du viewer */
+.gm-image-viewer-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9998;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Header avec bouton fermeture - VISIBLE PAR DESSUS L'IMAGE */
+.gm-image-viewer-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 9999;
+}
+
+.gm-image-viewer-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.gm-image-viewer-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.gm-image-viewer-close:active {
+    transform: scale(0.95) rotate(90deg);
+}
+
+/* Contenu principal - Image GRANDE ET CENTRÉE */
+.gm-image-viewer-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px 100px 20px;
+    box-sizing: border-box;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+.gm-image-viewer-image {
+    /* IMAGE MAXIMALE ET CENTRÉE - EXACTEMENT COMME GLISSER */
+    max-width: 95%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    animation: gmImageZoomIn 0.4s ease-out;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* S'assurer que l'image est bien centrée */
+    margin: auto;
+}
+
+@keyframes gmImageZoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Compteur d'images - VISIBLE COMME GLISSER */
+.gm-image-viewer-counter {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9997;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Boutons de navigation flèches - TOUJOURS VISIBLES */
+.gm-image-viewer-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 9997;
+}
+
+.gm-image-viewer-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gm-image-viewer-nav:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.gm-image-viewer-nav-prev {
+    left: 20px;
+    z-index: 9997;
+}
+
+.gm-image-viewer-nav-next {
+    right: 20px;
+    z-index: 9997;
+}
+
+.gm-image-viewer-nav svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+/* Thumbnails en bas - VISIBLE ET ACCESSIBLE */
+.gm-image-viewer-thumbnails {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 9998;
+    scroll-behavior: smooth;
+}
+
+.gm-image-viewer-thumbnail {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.gm-image-viewer-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gm-image-viewer-thumbnail:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+.gm-image-viewer-thumbnail.active {
+    border-color: #fff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+/* Responsive - Tablette et plus petit */
+@media (max-width: 768px) {
+    .gm-image-viewer-content {
+        padding: 50px 12px 100px 12px;
+    }
+
+    .gm-image-viewer-image {
+        max-width: 95%;
+        max-height: 85vh;
+    }
+
+    .gm-image-viewer-nav {
+        width: 44px;
+        height: 44px;
+    }
+
+    .gm-image-viewer-nav-prev {
+        left: 12px;
+    }
+
+    .gm-image-viewer-nav-next {
+        right: 12px;
+    }
+
+    .gm-image-viewer-nav svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .gm-image-viewer-thumbnails {
+        height: 80px;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .gm-image-viewer-thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+
+    .gm-image-viewer-counter {
+        bottom: 95px;
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+/* Smartphone - Portrait */
+@media (max-width: 480px) {
+    .gm-image-viewer-content {
+        padding: 40px 8px 85px 8px;
+    }
+
+    .gm-image-viewer-image {
+        max-width: 98%;
+        max-height: 80vh;
+    }
+
+    .gm-image-viewer-nav {
+        width: 40px;
+        height: 40px;
+    }
+
+    .gm-image-viewer-nav-prev {
+        left: 8px;
+    }
+
+    .gm-image-viewer-nav-next {
+        right: 8px;
+    }
+
+    .gm-image-viewer-nav svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .gm-image-viewer-header {
+        height: 50px;
+        padding: 0 12px;
+        z-index: 9999;
+    }
+
+    .gm-image-viewer-close {
+        width: 40px;
+        height: 40px;
+    }
+
+    .gm-image-viewer-close svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .gm-image-viewer-thumbnails {
+        height: 70px;
+        gap: 6px;
+        padding: 6px 10px;
+    }
+
+    .gm-image-viewer-thumbnail {
+        width: 55px;
+        height: 55px;
+    }
+
+    .gm-image-viewer-counter {
+        bottom: 80px;
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
+
+/* Mode sombre (fallback) */
+@media (prefers-color-scheme: dark) {
+    .gm-image-viewer-backdrop {
+        background: rgba(0, 0, 0, 0.97);
+    }
+}
+
+/* Support des gestes tactiles */
+@supports (touch-action: manipulation) {
+    .gm-image-viewer-modal {
+        touch-action: manipulation;
+    }
+
+    .gm-image-viewer-image {
+        touch-action: manipulation;
+    }
+}
+
+/* Smooth scrolling pour les thumbnails */
+.gm-image-viewer-thumbnails {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Optimisation performance - GPU acceleration */
+.gm-image-viewer-modal {
+    will-change: opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.gm-image-viewer-image {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}

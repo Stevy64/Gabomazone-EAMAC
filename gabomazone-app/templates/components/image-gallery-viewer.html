@@ -1,0 +1,239 @@
+{# Fullscreen Image Gallery Viewer Component #}
+{# See IMAGE_GALLERY_VIEWER_DOCS.md for usage documentation #}
+
+<!-- Fullscreen Modal -->
+<div id="gm-image-viewer-modal" class="gm-image-viewer-modal" style="display:none;">
+    <!-- Background sombre -->
+    <div class="gm-image-viewer-backdrop" onclick="closeImageViewer()"></div>
+
+    <!-- Container principal -->
+    <div class="gm-image-viewer-container">
+        <!-- Header avec fermeture -->
+        <div class="gm-image-viewer-header">
+            <button class="gm-image-viewer-close" onclick="closeImageViewer()" title="Fermer (Esc)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Image principale -->
+        <div class="gm-image-viewer-content">
+            <img id="gm-viewer-main-image" src="" alt="" class="gm-image-viewer-image" />
+        </div>
+
+        <!-- Compteur d'images -->
+        <div class="gm-image-viewer-counter">
+            <span id="gm-image-current">1</span> / <span id="gm-image-total">1</span>
+        </div>
+
+        <!-- Navigation par flèches -->
+        <button class="gm-image-viewer-nav gm-image-viewer-nav-prev" onclick="previousImage()" title="Image précédente (←)" id="gm-nav-prev">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+
+        <button class="gm-image-viewer-nav gm-image-viewer-nav-next" onclick="nextImage()" title="Image suivante (→)" id="gm-nav-next">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+
+        <!-- Miniatures au bas -->
+        <div class="gm-image-viewer-thumbnails" id="gm-viewer-thumbnails">
+            <!-- Rempli par JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+// État global du viewer d'images
+let gmImageViewerState = {
+    images: [],
+    currentIndex: 0,
+    isOpen: false,
+    touchStartX: 0,
+    touchStartY: 0
+};
+
+/**
+ * Initialise le viewer d'images
+ * @param {Array} images - Liste des images {url, alt}
+ */
+function initImageGallery(images) {
+    gmImageViewerState.images = images;
+    if (images.length > 0) {
+        document.getElementById('gm-image-total').textContent = images.length;
+        generateThumbnails();
+    }
+}
+
+/**
+ * Génère les miniatures au bas du viewer
+ */
+function generateThumbnails() {
+    const container = document.getElementById('gm-viewer-thumbnails');
+    container.innerHTML = '';
+
+    if (gmImageViewerState.images.length > 1) {
+        gmImageViewerState.images.forEach((img, index) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'gm-image-viewer-thumbnail';
+            if (index === gmImageViewerState.currentIndex) {
+                thumb.classList.add('active');
+            }
+            thumb.onclick = () => goToImage(index);
+
+            const thumbImg = document.createElement('img');
+            thumbImg.src = img.url;
+            thumbImg.alt = img.alt || `Image ${index + 1}`;
+            thumb.appendChild(thumbImg);
+            container.appendChild(thumb);
+        });
+    }
+}
+
+/**
+ * Ouvre le viewer d'images à partir d'une image cliquée
+ */
+function openImageViewer(imageUrl, startIndex = 0) {
+    gmImageViewerState.currentIndex = startIndex;
+    gmImageViewerState.isOpen = true;
+
+    showImageAtIndex(startIndex);
+
+    document.getElementById('gm-image-viewer-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Événements clavier
+    document.addEventListener('keydown', handleViewerKeydown);
+    // Événements tactiles
+    const modal = document.getElementById('gm-image-viewer-modal');
+    modal.addEventListener('touchstart', handleTouchStart, false);
+    modal.addEventListener('touchmove', handleTouchMove, false);
+    modal.addEventListener('touchend', handleTouchEnd, false);
+}
+
+/**
+ * Ferme le viewer d'images
+ */
+function closeImageViewer() {
+    gmImageViewerState.isOpen = false;
+    document.getElementById('gm-image-viewer-modal').style.display = 'none';
+    document.body.style.overflow = '';
+
+    // Retirer les événements
+    document.removeEventListener('keydown', handleViewerKeydown);
+    const modal = document.getElementById('gm-image-viewer-modal');
+    modal.removeEventListener('touchstart', handleTouchStart);
+    modal.removeEventListener('touchmove', handleTouchMove);
+    modal.removeEventListener('touchend', handleTouchEnd);
+}
+
+/**
+ * Affiche l'image à l'index spécifié
+ */
+function showImageAtIndex(index) {
+    if (index < 0) return;
+    if (index >= gmImageViewerState.images.length) return;
+
+    gmImageViewerState.currentIndex = index;
+    const image = gmImageViewerState.images[index];
+
+    const mainImg = document.getElementById('gm-viewer-main-image');
+    mainImg.src = image.url;
+    mainImg.alt = image.alt || `Image ${index + 1}`;
+
+    document.getElementById('gm-image-current').textContent = index + 1;
+
+    // Mettre à jour miniatures actives
+    document.querySelectorAll('.gm-image-viewer-thumbnail').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+
+    // Afficher/masquer les flèches selon les limites
+    document.getElementById('gm-nav-prev').style.opacity = index === 0 ? '0.5' : '1';
+    document.getElementById('gm-nav-next').style.opacity = index === gmImageViewerState.images.length - 1 ? '0.5' : '1';
+}
+
+/**
+ * Va à une image spécifique
+ */
+function goToImage(index) {
+    showImageAtIndex(index);
+}
+
+/**
+ * Image suivante
+ */
+function nextImage() {
+    const nextIndex = gmImageViewerState.currentIndex + 1;
+    if (nextIndex < gmImageViewerState.images.length) {
+        showImageAtIndex(nextIndex);
+    }
+}
+
+/**
+ * Image précédente
+ */
+function previousImage() {
+    const prevIndex = gmImageViewerState.currentIndex - 1;
+    if (prevIndex >= 0) {
+        showImageAtIndex(prevIndex);
+    }
+}
+
+/**
+ * Gestion des touches clavier
+ */
+function handleViewerKeydown(e) {
+    if (!gmImageViewerState.isOpen) return;
+
+    switch(e.key) {
+        case 'ArrowRight':
+            nextImage();
+            e.preventDefault();
+            break;
+        case 'ArrowLeft':
+            previousImage();
+            e.preventDefault();
+            break;
+        case 'Escape':
+            closeImageViewer();
+            e.preventDefault();
+            break;
+    }
+}
+
+/**
+ * Gestion du swipe tactile
+ */
+function handleTouchStart(e) {
+    gmImageViewerState.touchStartX = e.changedTouches[0].screenX;
+    gmImageViewerState.touchStartY = e.changedTouches[0].screenY;
+}
+
+function handleTouchMove(e) {
+    // Optionnel: feedback visuel du swipe
+}
+
+function handleTouchEnd(e) {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const diffX = gmImageViewerState.touchStartX - touchEndX;
+    const diffY = gmImageViewerState.touchStartY - touchEndY;
+
+    // Swipe horizontal (au moins 50px, avec Y < 30px pour éviter les faux positifs)
+    if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30) {
+        if (diffX > 0) {
+            // Swipe vers la gauche = image suivante
+            nextImage();
+        } else {
+            // Swipe vers la droite = image précédente
+            previousImage();
+        }
+    }
+}
+</script>
